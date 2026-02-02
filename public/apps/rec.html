@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Mikro Check</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <script src="../js/tailwind.js"></script>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        html { width: 100%; height: 100%; background-color: #0f172a; }
+        body { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; margin: 0;
+            background-color: #0f172a; 
+            color: white; 
+            overflow: hidden; 
+            user-select: none; 
+            touch-action: manipulation; 
+            animation: fadeIn 0.4s ease-out;
+            box-sizing: border-box;
+            padding-top: calc(10px + env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        button:active { transform: scale(0.95); transition: transform 0.1s; }
+        .rec-active { animation: hardPulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite; background-color: #ef4444 !important; border-color: white !important; box-shadow: 0 0 30px rgba(239, 68, 68, 0.6) !important; }
+        @keyframes hardPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.9; } }
+        .playing { box-shadow: 0 0 20px #22c55e; border-color: #86efac !important; }
+        .effect-active { ring: 4px solid white; transform: scale(1.1); box-shadow: 0 0 15px rgba(255,255,255,0.4); z-index: 10; }
+    </style>
+</head>
+<body class="flex flex-col px-4"
+      onclick="if(window.resetIdleTimer) window.resetIdleTimer()" 
+      ontouchstart="if(window.resetIdleTimer) window.resetIdleTimer()">
+
+    <div class="flex justify-between items-center mb-4 z-50 flex-none h-16">
+        <button onclick="goHome()" class="bg-slate-800 border-4 border-slate-600 hover:border-white px-4 py-2 rounded-full text-lg font-black shadow-xl flex items-center gap-2 transition-transform active:scale-95 text-white">
+            🏠 MENÜ
+        </button>
+        <button onclick="toggleInfo(); playSound('click')" class="w-12 h-12 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center text-xl">
+            ?
+        </button>
+    </div>
+
+    <div class="flex-1 flex flex-col gap-4 relative w-full max-w-5xl mx-auto min-h-0">
+        
+        <div class="relative w-full h-32 flex-none bg-slate-800 rounded-3xl border-4 border-slate-700 shadow-inner flex items-center justify-center overflow-hidden">
+            <canvas id="visualizer" class="w-full h-full"></canvas>
+            <div id="instruction-text" class="absolute text-slate-500 font-bold text-xl text-center px-4 pointer-events-none">
+                Mikrofon bereit... 🎤
+            </div>
+        </div>
+
+        <div class="flex-1 grid grid-cols-2 gap-4 min-h-0">
+            <div class="bg-slate-800 rounded-3xl border-4 border-slate-700 p-4 flex flex-col items-center justify-between shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 left-0 bg-slate-700 px-4 py-1 rounded-br-xl font-black text-slate-400">SPUR 1</div>
+                <div id="timer-1" class="text-3xl md:text-4xl font-black font-mono text-slate-600 mt-2 transition-colors">00:00</div>
+                <div class="flex flex-col items-center gap-3 w-full">
+                    <button id="btn-rec-1" onclick="toggleRecording(1)" class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-700 border-8 border-slate-600 shadow-xl flex items-center justify-center transition-all hover:bg-slate-600 group">
+                        <div id="icon-rec-1" class="w-6 h-6 md:w-8 md:h-8 bg-red-500 rounded-full shadow-lg group-hover:scale-110 transition-transform"></div>
+                    </button>
+                    <div id="fx-box-1" class="hidden flex gap-2 w-full justify-center mt-2">
+                        <button onclick="setEffect(1, 0.6)" data-rate="0.6" class="fx-btn-1 w-12 h-12 rounded-xl bg-purple-600 text-2xl shadow-md border-b-4 border-purple-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center" title="Monster">🧟</button>
+                        <button onclick="setEffect(1, 1)" data-rate="1" class="fx-btn-1 w-12 h-12 rounded-xl bg-blue-600 text-2xl shadow-md border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center" title="Normal">🙂</button>
+                        <button onclick="setEffect(1, 1.7)" data-rate="1.7" class="fx-btn-1 w-12 h-12 rounded-xl bg-yellow-500 text-2xl shadow-md border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition flex items-center justify-center" title="Maus">🐭</button>
+                    </div>
+                    <button id="btn-play-1" onclick="playTrack(1)" class="hidden w-full bg-green-600 hover:bg-green-500 text-white font-black py-2 rounded-xl text-base shadow-lg border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2"><span>▶️</span> ANHÖREN</button>
+                    <button id="btn-del-1" onclick="deleteTrack(1)" class="hidden text-slate-500 hover:text-red-400 text-xs font-bold uppercase tracking-wider py-1">Löschen</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 rounded-3xl border-4 border-slate-700 p-4 flex flex-col items-center justify-between shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 left-0 bg-slate-700 px-4 py-1 rounded-br-xl font-black text-slate-400">SPUR 2</div>
+                <div id="timer-2" class="text-3xl md:text-4xl font-black font-mono text-slate-600 mt-2 transition-colors">00:00</div>
+                <div class="flex flex-col items-center gap-3 w-full">
+                    <button id="btn-rec-2" onclick="toggleRecording(2)" class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-slate-700 border-8 border-slate-600 shadow-xl flex items-center justify-center transition-all hover:bg-slate-600 group">
+                        <div id="icon-rec-2" class="w-6 h-6 md:w-8 md:h-8 bg-red-500 rounded-full shadow-lg group-hover:scale-110 transition-transform"></div>
+                    </button>
+                    <div id="fx-box-2" class="hidden flex gap-2 w-full justify-center mt-2">
+                        <button onclick="setEffect(2, 0.6)" data-rate="0.6" class="fx-btn-2 w-12 h-12 rounded-xl bg-purple-600 text-2xl shadow-md border-b-4 border-purple-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center" title="Monster">🧟</button>
+                        <button onclick="setEffect(2, 1)" data-rate="1" class="fx-btn-2 w-12 h-12 rounded-xl bg-blue-600 text-2xl shadow-md border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center" title="Normal">🙂</button>
+                        <button onclick="setEffect(2, 1.7)" data-rate="1.7" class="fx-btn-2 w-12 h-12 rounded-xl bg-yellow-500 text-2xl shadow-md border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition flex items-center justify-center" title="Maus">🐭</button>
+                    </div>
+                    <button id="btn-play-2" onclick="playTrack(2)" class="hidden w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-2 rounded-xl text-base shadow-lg border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2"><span>▶️</span> ANHÖREN</button>
+                    <button id="btn-del-2" onclick="deleteTrack(2)" class="hidden text-slate-500 hover:text-red-400 text-xs font-bold uppercase tracking-wider py-1">Löschen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="toggleInfo()">
+        <div class="bg-slate-800 border-4 border-red-500 rounded-[2rem] max-w-lg w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
+            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white hover:text-red-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-3xl font-black text-white mb-6 border-b border-slate-600 pb-4">🎙️ VOICE CHANGER</h2>
+            <ul class="text-slate-300 space-y-3 mb-8 list-disc pl-6 text-lg">
+                <li>Nimm links oder rechts etwas auf.</li>
+                <li>Drücke auf <b>Stopp</b>.</li>
+                <li>Jetzt erscheint Magie! ✨</li>
+                <li>Wähle: 🧟 <b>Monster</b> oder 🐭 <b>Maus</b>.</li>
+                <li>Hör es dir an!</li>
+            </ul>
+            <button onclick="toggleInfo(); playSound('click')" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+        </div>
+    </div>
+
+    <script>
+        const _soundCache = {'click': new Audio('../assets/sounds/click.mp3'), 'shutter': new Audio('../assets/sounds/shutter.mp3'), 'success': new Audio('../assets/sounds/success.mp3')};
+        Object.values(_soundCache).forEach(s => s.load());
+        window.playSound = function(id) { if(_soundCache[id]) { const s = _soundCache[id].cloneNode(); s.volume = 1.0; s.play().catch(e=>{}); } };
+        window.goHome = function() { playSound('click'); setTimeout(() => { window.location.href = '../index.html'; }, 300); };
+        function toggleInfo() { const m = document.getElementById('info-modal'); m.classList.toggle('hidden'); m.classList.toggle('flex'); }
+        let micStream=null; let audioContext=null; let analyser=null; let dataArray=null; let gainNode=null;
+        const tracks = { 1: { isRecording: false, mediaRecorder: null, chunks: [], audio: new Audio(), hasData: false, timerInt: null, startTime: 0, playbackRate: 1, elementSource: null }, 2: { isRecording: false, mediaRecorder: null, chunks: [], audio: new Audio(), hasData: false, timerInt: null, startTime: 0, playbackRate: 1, elementSource: null } };
+        let idleTimer;
+        window.resetIdleTimer = function() { clearTimeout(idleTimer); const rec = tracks[1].isRecording || tracks[2].isRecording; if(!rec) { idleTimer = setTimeout(() => { window.location.href = '../index.html'; }, 120000); } };
+        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => document.addEventListener(evt, window.resetIdleTimer, {passive: true})); window.resetIdleTimer();
+        async function initAudio() { try { if(!micStream) { micStream = await navigator.mediaDevices.getUserMedia({ audio: true }); audioContext = new (window.AudioContext || window.webkitAudioContext)(); gainNode = audioContext.createGain(); gainNode.gain.value = 1.5; gainNode.connect(audioContext.destination); analyser = audioContext.createAnalyser(); const s = audioContext.createMediaStreamSource(micStream); s.connect(analyser); analyser.fftSize = 256; dataArray = new Uint8Array(analyser.frequencyBinCount); drawVisualizer(); } if (audioContext && audioContext.state === 'suspended') await audioContext.resume(); } catch (e) { alert("Mikrofon Fehler: " + e.message); } }
+        function drawVisualizer() { const c = document.getElementById('visualizer'); if(!c) return; const ctx = c.getContext('2d'); c.width = c.offsetWidth; c.height = c.offsetHeight; function render() { requestAnimationFrame(render); if(!analyser) return; analyser.getByteFrequencyData(dataArray); ctx.fillStyle = '#1e293b'; ctx.fillRect(0, 0, c.width, c.height); const active = tracks[1].isRecording || tracks[2].isRecording; const alpha = active ? 1 : 0.3; let x = 0; const barW = (c.width / analyser.frequencyBinCount) * 2.5; for (let i = 0; i < analyser.frequencyBinCount; i++) { const h = dataArray[i] / 255 * c.height * 0.9; const r = active ? (h+50) : 50; const g = active ? 50 : (h+100); const b = active ? 50 : 200; ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`; ctx.fillRect(x, c.height - h, barW, h); x += barW + 1; } } render(); }
+        async function toggleRecording(id) { await initAudio(); const t = tracks[id]; const btn = document.getElementById(`btn-rec-${id}`); const icon = document.getElementById(`icon-rec-${id}`); const playBtn = document.getElementById(`btn-play-${id}`); const delBtn = document.getElementById(`btn-del-${id}`); const fxBox = document.getElementById(`fx-box-${id}`); const timer = document.getElementById(`timer-${id}`); if (!t.isRecording) { playSound('shutter'); if(t.hasData) deleteTrack(id); t.mediaRecorder = new MediaRecorder(micStream); t.chunks = []; t.mediaRecorder.ondataavailable = e => t.chunks.push(e.data); t.mediaRecorder.onstop = () => { const b = new Blob(t.chunks, { type: 'audio/ogg; codecs=opus' }); t.audio.src = URL.createObjectURL(b); t.audio.preservesPitch = false; t.audio.mozPreservesPitch = false; t.audio.webkitPreservesPitch = false; t.hasData = true; playBtn.classList.remove('hidden'); delBtn.classList.remove('hidden'); fxBox.classList.remove('hidden'); fxBox.classList.add('flex'); setEffect(id, 1); playSound('success'); }; t.mediaRecorder.start(); t.isRecording = true; document.getElementById('instruction-text').classList.add('hidden'); btn.classList.add('rec-active'); icon.classList.replace('bg-red-500', 'bg-white'); timer.classList.replace('text-slate-600', 'text-white'); t.startTime = Date.now(); t.timerInt = setInterval(() => { const d = Math.floor((Date.now() - t.startTime) / 1000); timer.innerText = `${Math.floor(d/60).toString().padStart(2,'0')}:${(d%60).toString().padStart(2,'0')}`; }, 1000); } else { t.mediaRecorder.stop(); t.isRecording = false; clearInterval(t.timerInt); btn.classList.remove('rec-active'); icon.classList.replace('bg-white', 'bg-red-500'); timer.classList.replace('text-white', 'text-slate-600'); } }
+        function setEffect(id, rate) { playSound('click'); tracks[id].playbackRate = rate; document.querySelectorAll(`.fx-btn-${id}`).forEach(b => { b.classList.remove('effect-active', 'ring-4', 'ring-white'); if(b.getAttribute('data-rate') === rate.toString()) b.classList.add('effect-active', 'ring-4', 'ring-white'); }); }
+        function playTrack(id) { const t = tracks[id]; if(!t.hasData) return; playSound('click'); const btn = document.getElementById(`btn-play-${id}`); if (audioContext && !t.elementSource) { t.elementSource = audioContext.createMediaElementSource(t.audio); t.elementSource.connect(gainNode); } if (!t.audio.paused) { t.audio.pause(); t.audio.currentTime = 0; btn.classList.remove('playing'); btn.innerHTML = "<span>▶️</span> ANHÖREN"; } else { t.audio.playbackRate = t.playbackRate; t.audio.preservesPitch = false; if (audioContext.state === 'suspended') audioContext.resume(); t.audio.play(); btn.classList.add('playing'); btn.innerHTML = "<span>⏹</span> STOP"; t.audio.onended = () => { btn.classList.remove('playing'); btn.innerHTML = "<span>▶️</span> ANHÖREN"; }; } }
+        function deleteTrack(id) { playSound('click'); const t = tracks[id]; t.audio.pause(); t.chunks = []; t.hasData = false; document.getElementById(`btn-play-${id}`).classList.add('hidden'); document.getElementById(`btn-del-${id}`).classList.add('hidden'); document.getElementById(`fx-box-${id}`).classList.add('hidden'); document.getElementById(`fx-box-${id}`).classList.remove('flex'); document.getElementById(`timer-${id}`).innerText = "00:00"; }
+    </script>
+</body>
+</html>

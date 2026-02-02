@@ -1,0 +1,6 @@
+{
+  "appId": "com.medienstation.app",
+  "appName": "MedienStation",
+  "webDir": "public",
+  "bundledWebRuntime": false
+}

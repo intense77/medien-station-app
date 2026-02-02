@@ -1,0 +1,23 @@
+{
+  "name": "medien-station-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "postinstall": "jetifier",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@capacitor/camera": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "awesome-cordova-plugins": "^5.40.0",
+    "cordova-plugin-printer": "^0.8.0",
+    "cordova-plugin-x-socialsharing": "^6.0.4",
+    "es6-promise-plugin": "^4.2.2"
+  }
+}

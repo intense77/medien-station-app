@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>News Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <script src="../js/tailwind.js"></script>
+
+    <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        html { width: 100%; height: 100%; background-color: #0f172a; }
+        body { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; margin: 0;
+            background-color: #0f172a; 
+            color: white; 
+            overflow: hidden !important;
+            user-select: none; 
+            touch-action: manipulation;
+            font-family: sans-serif;
+            animation: fadeIn 0.4s ease-out;
+            box-sizing: border-box;
+            padding-top: calc(10px + env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        button:active { transform: scale(0.95); transition: transform 0.1s; }
+        .animate-blink { animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+        .ticker-wrap { width: 100%; overflow: hidden; background-color: #fbbf24; color: black; font-weight: 900; white-space: nowrap; box-sizing: border-box; }
+        .ticker { display: inline-block; padding-left: 100%; animation: ticker 25s linear infinite; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+        .editable-input { background: transparent; border: none; color: inherit; width: 100%; text-align: center; outline: none; font-family: inherit; text-transform: uppercase; text-overflow: ellipsis; }
+        .editable-input:focus { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    </style>
+</head>
+<body class="flex flex-col"
+      onclick="if(window.resetIdleTimer) window.resetIdleTimer()" 
+      ontouchstart="if(window.resetIdleTimer) window.resetIdleTimer()">
+
+    <div class="flex-none flex justify-between items-center z-50 px-4 relative bg-slate-900 shadow-md h-16">
+        <button onclick="goHome()" class="bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-4 py-2 rounded-full text-lg font-black shadow-xl flex items-center gap-2 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+            🏠 MENÜ
+        </button>
+
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+             <h1 class="text-2xl md:text-4xl font-black text-blue-400 font-sans tracking-tighter drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] uppercase italic transform -skew-x-6">
+                📰 NEWS
+            </h1>
+        </div>
+
+        <button onclick="toggleInfo(); playSound('click')" class="w-12 h-12 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-xl shrink-0 z-50">
+            ?
+        </button>
+    </div>
+
+    <div class="flex-1 relative w-full overflow-hidden bg-black shadow-inner">
+        
+        <div class="absolute inset-0 z-0">
+            <video id="video" autoplay playsinline muted class="w-full h-full object-cover opacity-90"></video>
+            <canvas id="canvas" class="hidden"></canvas>
+        </div>
+
+        <div class="absolute inset-0 z-20 flex flex-col justify-between pointer-events-none pb-4">
+            
+            <div class="w-full flex justify-end p-4 md:p-6">
+                <div class="flex items-center gap-2 bg-red-600/90 px-4 py-2 rounded-lg shadow-lg border-2 border-red-400 pointer-events-auto transform rotate-1 hover:rotate-0 transition-transform">
+                    <div class="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full animate-blink"></div>
+                    <span class="font-black text-lg md:text-xl tracking-widest text-white">LIVE</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col w-full pointer-events-auto items-center">
+                
+                <div class="w-[90%] md:max-w-5xl bg-blue-800/95 border-l-8 border-blue-500 p-2 md:p-4 mb-2 shadow-2xl transform -skew-x-6 relative group hover:bg-blue-700/95 transition-colors">
+                    <div class="text-blue-300 text-xs md:text-sm font-bold uppercase tracking-[0.2em] mb-1 ml-2 not-italic transform skew-x-6">Breaking News</div>
+                    <input type="text" id="headline-input" value="SENSATION IM JUGENDZENTRUM!" class="editable-input text-2xl md:text-4xl font-black text-white drop-shadow-md transform skew-x-6 placeholder-blue-300">
+                </div>
+
+                <div class="self-start ml-4 md:ml-16 w-auto max-w-[80%] bg-red-600/95 text-white font-bold px-6 py-2 transform -skew-x-6 shadow-xl text-lg md:text-xl border-l-4 border-red-300 mb-4 hover:bg-red-500/95 transition-colors">
+                    <input type="text" value="🔴 VOR ORT: MEDIENSTATION" class="editable-input w-full text-left transform skew-x-6">
+                </div>
+
+                <div class="ticker-wrap bg-yellow-400 py-2 md:py-3 border-y-4 border-black shadow-xl mb-4 md:mb-6">
+                    <div class="ticker text-xl md:text-3xl text-black">
+                        +++ WETTER: ES REGNET KONFETTI +++ SCHULE FÄLLT HEUTE AUS +++ EISCREME FÜR ALLE +++ KATZE WIRD BÜRGERMEISTER +++ EXTRA BLATT +++
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4 md:gap-6 pb-2 md:pb-4 w-full">
+                    <button onclick="switchCamera(); playSound('click')" class="bg-slate-800/90 hover:bg-slate-700 text-white w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-slate-500 shadow-xl backdrop-blur flex items-center justify-center active:scale-95 transition">
+                        <span class="text-2xl md:text-3xl">🔄</span>
+                    </button>
+                    <button onclick="capturePreview()" class="bg-white hover:bg-gray-200 text-black font-black h-14 md:h-16 px-8 md:px-10 rounded-full border-b-8 border-gray-400 active:border-b-0 active:translate-y-2 shadow-2xl text-lg md:text-xl flex items-center gap-3 transition active:scale-95">
+                        <span>📸</span> FOTO
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="preview-modal" class="hidden fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-4 backdrop-blur-md">
+        <button onclick="goHome()" class="absolute top-6 left-6 z-50 bg-blue-900/90 backdrop-blur border-4 border-blue-500 hover:border-white px-4 py-2 rounded-full text-lg font-black shadow-xl flex items-center gap-2 transition-transform active:scale-95 text-white">
+            🏠 MENÜ
+        </button>
+        <h2 class="text-white text-3xl font-black mb-4">DEIN FOTO</h2>
+        <div class="relative w-full max-w-4xl h-auto border-8 border-white shadow-2xl rounded-lg overflow-hidden bg-black mb-8">
+            <img id="preview-img" src="" class="w-full h-auto object-contain">
+        </div>
+        <div class="flex gap-6">
+            <button onclick="closePreview(); playSound('click')" class="bg-red-600 hover:bg-red-500 text-white font-black py-4 px-8 rounded-2xl text-xl shadow-lg border-b-8 border-red-800 active:border-b-0 active:translate-y-2 transition flex items-center gap-2">
+                🗑️ LÖSCHEN
+            </button>
+            <button id="btn-print-confirm" onclick="confirmPrint()" class="bg-green-600 hover:bg-green-500 text-white font-black py-4 px-12 rounded-2xl text-xl shadow-lg border-b-8 border-green-800 active:border-b-0 active:translate-y-2 transition flex items-center gap-2">
+                🖨️ DRUCKEN
+            </button>
+        </div>
+    </div>
+
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="toggleInfo()">
+        <div class="bg-slate-800 border-4 border-blue-500 rounded-[2rem] max-w-lg w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
+            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white hover:text-blue-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-3xl font-black text-white mb-6 border-b border-slate-600 pb-4">📰 NEWS STUDIO</h2>
+            <ul class="text-slate-300 space-y-3 mb-8 list-disc pl-6 text-lg">
+                <li>Tippe auf die <b>blaue Schlagzeile</b> und schreibe deinen Text.</li>
+                <li>Tippe auf den <b>roten Ort</b>.</li>
+                <li>Drücke auf <b>FOTO</b> für eine Vorschau.</li>
+                <li>Wenn es dir gefällt, drücke auf <b>DRUCKEN</b>.</li>
+            </ul>
+            <button onclick="toggleInfo(); playSound('click')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+        </div>
+    </div>
+
+    <script>
+        const _soundCache = {'click': new Audio('../assets/sounds/click.mp3'), 'shutter': new Audio('../assets/sounds/shutter.mp3'), 'success': new Audio('../assets/sounds/success.mp3')};
+        Object.values(_soundCache).forEach(s => s.load());
+        window.playSound = function(id) { if(_soundCache[id]) { const s = _soundCache[id].cloneNode(); s.volume = 1.0; s.play().catch(e=>{}); } };
+        window.goHome = function() { playSound('click'); setTimeout(() => { window.location.href = '../index.html'; }, 300); };
+        let idleTimer;
+        window.resetIdleTimer = function() { clearTimeout(idleTimer); idleTimer = setTimeout(() => { window.location.href = '../index.html'; }, 120000); };
+        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => document.addEventListener(evt, window.resetIdleTimer, {passive: true})); window.resetIdleTimer();
+        function toggleInfo() { const m = document.getElementById('info-modal'); m.classList.toggle('hidden'); m.classList.toggle('flex'); }
+        let video = document.getElementById('video'); let currentStream; let currentFacingMode = 'user';
+        async function initCam() { try { if (currentStream && currentStream.getTracks) currentStream.getTracks().forEach(track => track.stop()); const stream = await navigator.mediaDevices.getUserMedia({ video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode } }); currentStream = stream; video.srcObject = stream; video.style.transform = (currentFacingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)'; } catch (err) { console.error("Kamera Fehler:", err); } }
+        function switchCamera() { currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user'; initCam(); }
+        function capturePreview() { playSound('shutter'); const canvas = document.getElementById('canvas'); const ctx = canvas.getContext('2d'); canvas.width = video.videoWidth || 1280; canvas.height = video.videoHeight || 720; ctx.save(); if (currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); } ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.restore(); const headline = document.getElementById('headline-input').value.toUpperCase(); ctx.fillStyle = "rgba(30, 64, 175, 0.95)"; const boxH = 140; const boxY = canvas.height - 220; const boxMargin = 60; const boxW = canvas.width - (boxMargin * 2); ctx.save(); ctx.translate(boxMargin, boxY); ctx.transform(1, 0, -0.1, 1, 0, 0); ctx.fillRect(0, 0, boxW, boxH); ctx.fillStyle = "#3b82f6"; ctx.fillRect(0, 0, 25, boxH); ctx.restore(); ctx.fillStyle = "white"; ctx.font = "900 55px sans-serif"; ctx.textAlign = "center"; ctx.fillText(headline, canvas.width / 2, boxY + 90, boxW - 100); ctx.fillStyle = "#93c5fd"; ctx.font = "bold 24px sans-serif"; ctx.textAlign = "left"; ctx.fillText("BREAKING NEWS", boxMargin + 40, boxY + 35); const redW = 550; const redY = boxY - 65; const redX = boxMargin + 40; ctx.save(); ctx.translate(redX, redY); ctx.transform(1, 0, -0.1, 1, 0, 0); ctx.fillStyle = "rgba(220, 38, 38, 0.95)"; ctx.fillRect(0, 0, redW, 60); ctx.fillStyle = "#fca5a5"; ctx.fillRect(0, 0, 10, 60); ctx.restore(); ctx.fillStyle = "white"; ctx.font = "bold 30px sans-serif"; ctx.textAlign = "left"; ctx.fillText("🔴 VOR ORT: MEDIENSTATION", redX + 30, redY + 40); ctx.fillStyle = "#fbbf24"; ctx.fillRect(0, canvas.height - 70, canvas.width, 70); ctx.fillStyle = "black"; ctx.font = "900 35px sans-serif"; ctx.textAlign = "left"; ctx.fillText("+++ WETTER: ES REGNET KONFETTI +++ SCHULE FÄLLT HEUTE AUS +++ EXTRA BLATT +++", 20, canvas.height - 22); ctx.fillStyle = "#dc2626"; ctx.fillRect(canvas.width - 160, 40, 120, 50); ctx.fillStyle = "white"; ctx.font = "900 30px sans-serif"; ctx.textAlign = "center"; ctx.fillText("LIVE", canvas.width - 100, 75); const dataUrl = canvas.toDataURL('image/png'); document.getElementById('preview-img').src = dataUrl; document.getElementById('preview-modal').classList.remove('hidden'); document.getElementById('preview-modal').classList.add('flex'); }
+        function closePreview() { document.getElementById('preview-modal').classList.add('hidden'); document.getElementById('preview-modal').classList.remove('flex'); }
+        async function confirmPrint() { const btn = document.getElementById('btn-print-confirm'); btn.innerText = "⏳ DRUCKE..."; const img = document.getElementById('preview-img'); const dataUrl = img.src; try { if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DirectPrinter) { await window.Capacitor.Plugins.DirectPrinter.printBase64({ data: dataUrl, name: 'News-Flash' }); } else { const link = document.createElement('a'); link.download = 'breaking-news.png'; link.href = dataUrl; link.click(); } playSound('success'); setTimeout(() => { closePreview(); btn.innerText = "🖨️ DRUCKEN"; }, 1000); } catch(e) { console.error(e); alert("Druck-Fehler: " + e.message); btn.innerText = "❌ FEHLER"; } }
+        window.onload = initCam;
+    </script>
+</body>
+</html>

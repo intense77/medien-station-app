@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Comic Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <script src="../js/tailwind.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script> <style>
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        html {
+            width: 100%; height: 100%;
+            background-color: #facc15;
+        }
+
+        body {
+            /* Fixiertes Layout für maximale Stabilität */
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            margin: 0;
+            
+            background-color: #facc15;
+            color: black;
+            overflow: hidden !important;
+            user-select: none; 
+            touch-action: none;
+            font-family: sans-serif;
+            animation: fadeIn 0.4s ease-out;
+            transition: background-color 0.3s ease;
+            
+            box-sizing: border-box;
+            
+            /* OPTIMIERUNG: Näher an den Rand rutschen */
+            /* Oben: Notch + 10px (statt vorher 60px pauschal) */
+            padding-top: calc(10px + env(safe-area-inset-top));
+            
+            /* Unten: Home-Balken + 20px */
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+        
+        .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Sprechblasen */
+        .bubble-container { position: absolute; z-index: 20; display: flex; flex-direction: column; align-items: center; left: 50%; bottom: 25%; transform: translateX(-50%); }
+        .bubble-handle { background-color: #3b82f6; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: move; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin-bottom: -15px; z-index: 30; font-size: 24px; touch-action: none; border: 2px solid white; }
+        .bubble-text { background: white; border: 4px solid black; border-radius: 2rem; padding: 1rem 1.5rem; min-width: 160px; max-width: 280px; text-align: center; font-family: 'Comic Sans MS', sans-serif; font-size: 1.5rem; line-height: 1.2; box-shadow: 8px 8px 0px rgba(0,0,0,0.2); outline: none; cursor: text; }
+
+        button:active { transform: scale(0.95); transition: transform 0.1s; }
+
+        @media print {
+            @page { size: landscape; margin: 0mm; }
+            body * { visibility: hidden; }
+            #print-container, #print-container * { visibility: visible; }
+            #print-container { 
+                position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; 
+                display: flex !important; align-items: center; justify-content: center; 
+                background: white; z-index: 99999; margin: 0; padding: 0;
+            }
+            #print-img { width: 100%; height: 100%; object-fit: contain; }
+        }
+    </style>
+</head>
+
+<body class="flex flex-col px-2 md:px-4"
+      onclick="if(window.resetIdleTimer) window.resetIdleTimer()" 
+      ontouchstart="if(window.resetIdleTimer) window.resetIdleTimer()">
+
+    <div class="flex-none flex items-center justify-between gap-2 mb-1 bg-white/20 backdrop-blur-md p-1 rounded-3xl shadow-lg border-2 border-white/40 overflow-hidden relative z-50">
+        
+        <div class="flex items-center gap-2 shrink-0 pl-1">
+            <button onclick="goHome()" class="bg-slate-900 text-white border-4 border-slate-700 hover:border-white px-3 py-2 rounded-full text-lg font-black shadow-xl flex items-center gap-2 transition-transform active:scale-95 no-underline focus:outline-none">
+                🏠 <span class="hidden lg:inline">MENÜ</span>
+            </button>
+            <h1 class="text-lg md:text-2xl font-black font-comic text-black tracking-widest drop-shadow-sm uppercase leading-none hidden md:block">
+                COMIC
+            </h1>
+        </div>
+
+        <div class="flex gap-1 overflow-x-auto no-scrollbar px-2 shrink-0 justify-center">
+            <button onclick="changeBg('#facc15')" class="w-10 h-10 rounded-xl bg-yellow-400 border-4 border-white hover:scale-110 transition shadow-md ring-2 ring-transparent active:ring-black"></button>
+            <button onclick="changeBg('#ef4444')" class="w-10 h-10 rounded-xl bg-red-500 border-4 border-white hover:scale-110 transition shadow-md ring-2 ring-transparent active:ring-black"></button>
+            <button onclick="changeBg('#3b82f6')" class="w-10 h-10 rounded-xl bg-blue-500 border-4 border-white hover:scale-110 transition shadow-md ring-2 ring-transparent active:ring-black"></button>
+            <button onclick="changeBg('#22c55e')" class="w-10 h-10 rounded-xl bg-green-500 border-4 border-white hover:scale-110 transition shadow-md ring-2 ring-transparent active:ring-black"></button>
+            <button onclick="changeBg('#a855f7')" class="w-10 h-10 rounded-xl bg-purple-500 border-4 border-white hover:scale-110 transition shadow-md ring-2 ring-transparent active:ring-black"></button>
+            <button onclick="changeBg('#ffffff')" class="w-10 h-10 rounded-xl bg-white border-4 border-gray-300 hover:scale-110 transition shadow-md ring-2 ring-transparent active:ring-black"></button>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0 pr-1">
+            <button onclick="switchCamera(); playSound('click')" class="w-12 h-12 bg-white hover:bg-gray-100 text-black rounded-full flex items-center justify-center text-xl shadow-lg border-4 border-slate-900 active:scale-95 transition" title="Kamera wechseln">
+                🔄
+            </button>
+
+            <div class="relative w-24 h-16 md:w-32 md:h-20 bg-black rounded-xl border-4 border-black shadow-xl overflow-hidden hidden sm:block">
+                <video id="webcam" autoplay playsinline muted class="w-full h-full object-cover opacity-90"></video>
+                <div class="absolute bottom-0 right-0 bg-red-600 text-white text-[8px] px-1 rounded-tl font-black animate-pulse pointer-events-none">LIVE</div>
+            </div>
+
+            <button onclick="toggleInfo(); playSound('click')" class="w-12 h-12 bg-slate-900 text-white rounded-full font-bold border-4 border-slate-700 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-xl">
+                ?
+            </button>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col md:flex-row gap-3 w-full max-w-[95rem] mx-auto mb-2 px-1 overflow-y-auto no-scrollbar z-10 relative min-h-0">
+        <div class="flex-1 bg-white border-[6px] border-black relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden group min-h-[150px]" id="panel-0">
+            <canvas class="w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
+            <div class="absolute top-0 left-0 bg-black text-white px-3 py-0 text-2xl font-black font-comic rounded-br-lg pointer-events-none z-10">1</div>
+            <div class="bubble-container"><div class="bubble-handle">✥</div><div contenteditable="true" class="bubble-text" onfocus="clearText(this, 'Start...')" onblur="resetText(this, 'Start...')">Start...</div></div>
+            <button onclick="snap(0)" class="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-500 text-white w-16 h-16 rounded-full text-3xl shadow-xl border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
+        </div>
+        <div class="flex-1 bg-white border-[6px] border-black relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden group min-h-[150px]" id="panel-1">
+            <canvas class="w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
+            <div class="absolute top-0 left-0 bg-black text-white px-3 py-0 text-2xl font-black font-comic rounded-br-lg pointer-events-none z-10">2</div>
+            <div class="bubble-container"><div class="bubble-handle">✥</div><div contenteditable="true" class="bubble-text" onfocus="clearText(this, 'Dann...')" onblur="resetText(this, 'Dann...')">Dann...</div></div>
+            <button onclick="snap(1)" class="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-500 text-white w-16 h-16 rounded-full text-3xl shadow-xl border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
+        </div>
+        <div class="flex-1 bg-white border-[6px] border-black relative shadow-[4px_4px_0px_0px_rgba(0,0,0,0.8)] rounded-xl overflow-hidden group min-h-[150px]" id="panel-2">
+            <canvas class="w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
+            <div class="absolute top-0 left-0 bg-black text-white px-3 py-0 text-2xl font-black font-comic rounded-br-lg pointer-events-none z-10">3</div>
+            <div class="bubble-container"><div class="bubble-handle">✥</div><div contenteditable="true" class="bubble-text" onfocus="clearText(this, 'Ende!')" onblur="resetText(this, 'Ende!')">Ende!</div></div>
+            <button onclick="snap(2)" class="absolute bottom-2 right-2 bg-blue-600 hover:bg-blue-500 text-white w-16 h-16 rounded-full text-3xl shadow-xl border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
+        </div>
+    </div>
+
+    <div class="text-center flex justify-center gap-4 px-4 z-20 relative shrink-0">
+        <button onclick="playSound('click'); downloadComic()" class="flex-1 max-w-xs bg-slate-900 text-white font-black font-comic text-xl md:text-2xl py-3 rounded-2xl border-b-[6px] border-slate-700 hover:border-slate-500 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-2">💾 SPEICHERN</button>
+        <button id="btn-print" onclick="playSound('click'); window.printComic()" class="flex-1 max-w-xs bg-white text-black font-black font-comic text-xl md:text-2xl py-3 rounded-2xl border-b-[6px] border-gray-300 hover:border-gray-400 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-2">🖨️ DRUCKEN</button>
+    </div>
+
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo()">
+        <div class="bg-slate-800 border-4 border-yellow-400 rounded-[2rem] max-w-3xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
+            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white hover:text-yellow-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4"><span class="text-6xl">📸</span> ANLEITUNG</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-base">
+                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center"><div class="text-4xl mb-4 text-blue-400">📸</div><h3 class="text-white font-bold text-xl mb-2">Fotografieren</h3><p class="text-slate-300 leading-snug">Drücke auf den blauen Kamera-Button in jedem Bildrahmen.</p></div>
+                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center"><div class="text-4xl mb-4 text-white">💬</div><h3 class="text-white font-bold text-xl mb-2">Texten</h3><p class="text-slate-300 leading-snug">Tippe auf den Text. Du kannst die Blase am blauen Griff verschieben.</p></div>
+                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center"><div class="text-4xl mb-4 text-yellow-400">🎨</div><h3 class="text-white font-bold text-xl mb-2">Hintergrund</h3><p class="text-slate-300 leading-snug">Wähle oben eine Farbe für deinen Comic aus!</p></div>
+            </div>
+            <button onclick="toggleInfo(); playSound('click')" class="mt-8 w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+        </div>
+    </div>
+    <div id="print-container" class="hidden"><img id="print-img" src=""></div>
+
+    <script>
+        const _soundCache = { 'click': new Audio('../assets/sounds/click.mp3'), 'shutter': new Audio('../assets/sounds/shutter.mp3'), 'success': new Audio('../assets/sounds/success.mp3') };
+        Object.values(_soundCache).forEach(s => s.load());
+        window.playSound = function(id) { if (_soundCache[id]) { const s = _soundCache[id].cloneNode(); s.volume = 1.0; s.currentTime = 0; s.play().catch(e => console.warn(e)); } };
+        window.goHome = function() { playSound('click'); setTimeout(() => { window.location.href = '../index.html'; }, 300); };
+        const video = document.getElementById('webcam'); let currentFacingMode = 'user'; let currentStream; let idleTimer; let currentBgColor = '#facc15';
+        function resetIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => { window.location.href = '../index.html'; }, 120000); }
+        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => document.addEventListener(evt, resetIdleTimer, {passive: true})); resetIdleTimer();
+        function toggleInfo() { const modal = document.getElementById('info-modal'); if (modal.classList.contains('hidden')) { modal.classList.remove('hidden'); modal.classList.add('flex'); } else { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
+        async function startCamera() { try { if (currentStream) { currentStream.getTracks().forEach(track => track.stop()); } const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: currentFacingMode } }); currentStream = stream; video.srcObject = stream; } catch (err) { alert("Kamera Fehler: " + err.message); } }
+        function switchCamera() { currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user'; startCamera(); }
+        function snap(panelIndex) { playSound('shutter'); const panel = document.getElementById('panel-' + panelIndex); const canvas = panel.querySelector('canvas'); const ctx = canvas.getContext('2d'); canvas.width = 1280; canvas.height = 720; const vRatio = video.videoWidth / video.videoHeight; const cRatio = canvas.width / canvas.height; let sx, sy, sWidth, sHeight; if (vRatio > cRatio) { sHeight = video.videoHeight; sWidth = sHeight * cRatio; sx = (video.videoWidth - sWidth) / 2; sy = 0; } else { sWidth = video.videoWidth; sHeight = sWidth / cRatio; sx = 0; sy = (video.videoHeight - sHeight) / 2; } ctx.save(); if(currentFacingMode === 'user') { ctx.scale(-1, 1); ctx.drawImage(video, sx, sy, sWidth, sHeight, -canvas.width, 0, canvas.width, canvas.height); } else { ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height); } ctx.restore(); panel.style.borderColor = '#3b82f6'; setTimeout(() => panel.style.borderColor = 'black', 200); }
+        function changeBg(color) { playSound('click'); currentBgColor = color; document.body.style.backgroundColor = color; }
+        function clearText(el, defaultText) { if (el.innerText.trim() === defaultText) el.innerText = ""; }
+        function resetText(el, defaultText) { if (el.innerText.trim() === "") el.innerText = defaultText; }
+        const handles = document.querySelectorAll('.bubble-handle'); let activeDrag = null; let startX, startY, initialLeft, initialTop;
+        handles.forEach(handle => { handle.addEventListener('mousedown', startDrag); handle.addEventListener('touchstart', startDrag, {passive: false}); });
+        function startDrag(e) { e.preventDefault(); activeDrag = e.target.parentElement; const clientX = e.clientX || e.touches[0].clientX; const clientY = e.clientY || e.touches[0].clientY; startX = clientX; startY = clientY; initialLeft = activeDrag.offsetLeft; initialTop = activeDrag.offsetTop; document.addEventListener('mousemove', doDrag); document.addEventListener('mouseup', stopDrag); document.addEventListener('touchmove', doDrag, {passive: false}); document.addEventListener('touchend', stopDrag); }
+        function doDrag(e) { if (!activeDrag) return; e.preventDefault(); const clientX = e.clientX || e.touches[0].clientX; const clientY = e.clientY || e.touches[0].clientY; const dx = clientX - startX; const dy = clientY - startY; activeDrag.style.left = (initialLeft + dx) + 'px'; activeDrag.style.top = (initialTop + dy) + 'px'; activeDrag.style.transform = 'none'; }
+        function stopDrag() { activeDrag = null; document.removeEventListener('mousemove', doDrag); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchmove', doDrag); document.removeEventListener('touchend', stopDrag); }
+        function generateComicImage() { const refPanel = document.getElementById('panel-0'); const refRect = refPanel.getBoundingClientRect(); const screenRatio = refRect.width / refRect.height; const panelW = 1280; const panelH = panelW / screenRatio; const border = 60; const gap = 40; const titleSpace = 250; const master = document.createElement('canvas'); master.width = (panelW * 3) + (gap * 2) + (border * 2); master.height = panelH + (border * 2) + titleSpace; const ctx = master.getContext('2d'); ctx.fillStyle = currentBgColor; ctx.fillRect(0, 0, master.width, master.height); ctx.fillStyle = 'black'; ctx.font = '900 120px "Comic Sans MS", sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText("MEINE FOTO-STORY", master.width / 2, titleSpace / 2); [0, 1, 2].forEach(i => { const panelDiv = document.getElementById('panel-' + i); const srcCanvas = panelDiv.querySelector('canvas'); const textDiv = panelDiv.querySelector('.bubble-text'); const panelOffsetX = border + (i * (panelW + gap)); const panelOffsetY = titleSpace; ctx.fillStyle = '#eee'; ctx.fillRect(panelOffsetX, panelOffsetY, panelW, panelH); if (srcCanvas.width > 0) { const srcW = srcCanvas.width; const srcH = srcCanvas.height; const srcRatio = srcW / srcH; let sW, sH, sX, sY; if (srcRatio > screenRatio) { sH = srcH; sW = srcH * screenRatio; sX = (srcW - sW) / 2; sY = 0; } else { sW = srcW; sH = srcW / screenRatio; sX = 0; sY = (srcH - sH) / 2; } ctx.drawImage(srcCanvas, sX, sY, sW, sH, panelOffsetX, panelOffsetY, panelW, panelH); } ctx.lineWidth = 20; ctx.strokeStyle = 'black'; ctx.strokeRect(panelOffsetX, panelOffsetY, panelW, panelH); ctx.fillStyle = 'black'; ctx.fillRect(panelOffsetX, panelOffsetY, 120, 120); ctx.fillStyle = 'white'; ctx.font = 'bold 80px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i + 1, panelOffsetX + 60, panelOffsetY + 65); const text = textDiv.innerText.trim(); if (text) { const domPanelRect = panelDiv.getBoundingClientRect(); const domBubbleRect = textDiv.getBoundingClientRect(); const scaleX = panelW / domPanelRect.width; const scaleY = panelH / domPanelRect.height; const relX = domBubbleRect.left - domPanelRect.left; const relY = domBubbleRect.top - domPanelRect.top; const bubbleX = panelOffsetX + (relX * scaleX); const bubbleY = panelOffsetY + (relY * scaleY); drawRoundedRectBubble(ctx, bubbleX, bubbleY, text); } }); return master.toDataURL('image/png'); }
+        function drawRoundedRectBubble(ctx, x, y, text) { ctx.font = 'bold 50px "Comic Sans MS", sans-serif'; const padding = 50; const lineHeight = 60; const maxWidth = 500; const words = text.split(' '); let line = ''; let lines = []; for(let n = 0; n < words.length; n++) { let testLine = line + words[n] + ' '; let metrics = ctx.measureText(testLine); if (metrics.width > maxWidth && n > 0) { lines.push(line); line = words[n] + ' '; } else { line = testLine; } } lines.push(line); let maxLineWidth = 0; lines.forEach(l => { const m = ctx.measureText(l); if(m.width > maxLineWidth) maxLineWidth = m.width; }); const boxW = maxLineWidth + (padding * 2); const boxH = (lines.length * lineHeight) + (padding * 2); ctx.fillStyle = 'rgba(0,0,0,0.2)'; roundRect(ctx, x + 15, y + 15, boxW, boxH, 40, true, false); ctx.fillStyle = 'white'; ctx.strokeStyle = 'black'; ctx.lineWidth = 10; roundRect(ctx, x, y, boxW, boxH, 40, true, true); ctx.fillStyle = 'black'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; let ty = y + padding + (lineHeight/2); const centerX = x + (boxW/2); lines.forEach(l => { ctx.fillText(l.trim(), centerX, ty); ty += lineHeight; }); }
+        function roundRect(ctx, x, y, w, h, r, fill, stroke) { ctx.beginPath(); ctx.moveTo(x+r, y); ctx.arcTo(x+w, y, x+w, y+h, r); ctx.arcTo(x+w, y+h, x, y+h, r); ctx.arcTo(x, y+h, x, y, r); ctx.arcTo(x, y, x+w, y, r); ctx.closePath(); if (fill) ctx.fill(); if (stroke) ctx.stroke(); }
+        function downloadComic() { playSound('success'); const dataUrl = generateComicImage(); const link = document.createElement('a'); link.download = 'mein-comic.png'; link.href = dataUrl; link.click(); }
+        window.printComic = async function() { const btn = document.getElementById('btn-print'); const oldText = btn ? btn.innerText : "🖨️ DRUCKEN"; if(btn) { btn.innerText = "⏳ Sende..."; btn.disabled = true; } const dataUrl = generateComicImage(); try { if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.DirectPrinter) { await window.Capacitor.Plugins.DirectPrinter.printBase64({ data: dataUrl, name: 'Comic-Studio' }); if(btn) btn.innerText = "✅ Gedruckt!"; playSound('success'); } else { console.warn("DirectPrinter Plugin nicht gefunden, nutze Browser Print."); const printImg = document.getElementById('print-img'); printImg.src = dataUrl; printImg.onload = () => { setTimeout(() => { window.print(); }, 500); }; if(btn) btn.innerText = "✅ OK"; playSound('success'); } } catch (error) { console.error("Druckfehler:", error); alert("Drucken fehlgeschlagen: " + error.message); if(btn) btn.innerText = "❌ Fehler"; } setTimeout(() => { if(btn) { btn.innerText = oldText; btn.disabled = false; } }, 3000); }
+        window.onload = startCamera;
+    </script>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>MedienStation Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <link rel="stylesheet" href="js/tailwind.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* Globaler Reset */
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+        
+        body { 
+            background-color: #0f172a; 
+            color: white; 
+            font-family: sans-serif;
+            user-select: none; 
+            -webkit-user-select: none; 
+            touch-action: manipulation;
+        }
+        
+        .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
+        .app-card { cursor: pointer; transition: transform 0.1s; }
+        .app-card:active { transform: scale(0.95); filter: brightness(1.2); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* --- FINALER FIX v7.1: GRID + GHOST MODE --- */
+        #qr-modal {
+            /* GRID zwingt den Inhalt mathematisch in die Mitte */
+            display: grid !important; 
+            place-items: center; 
+            
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 99999;
+            
+            background-color: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
+            
+            /* GHOST MODE: Das Element ist da, aber unsichtbar.
+               So kann der Browser es berechnen, bevor man es sieht. */
+            opacity: 0;
+            pointer-events: none; 
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Sichtbar schalten */
+        #qr-modal.modal-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="p-4 box-border fade-in relative" onpointerdown="resetHubTimer()" ontouchstart="resetHubTimer()">
+
+    <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 left-6 z-50 w-12 h-12 bg-white/10 text-white rounded-full font-bold border-2 border-white/30 backdrop-blur-md flex items-center justify-center shadow-lg active:scale-95">
+        <span class="text-2xl">?</span>
+    </button>
+
+    <div class="grid grid-cols-12 grid-rows-12 gap-3 h-full w-full pb-28">
+        
+        <div class="col-span-12 row-span-3 bg-slate-800 rounded-3xl p-6 flex justify-between items-center shadow-lg border border-slate-700 relative overflow-hidden group pl-24">
+            <div class="absolute -right-10 -top-10 w-64 h-64 bg-yellow-400 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
+            <div class="z-10 w-2/3 select-none" onclick="triggerAdmin()">
+                <h3 class="text-slate-400 text-sm font-bold tracking-widest uppercase mb-1 cursor-pointer">Deine Mission</h3>
+                <div id="mission-text" class="text-2xl md:text-4xl lg:text-5xl font-black text-white leading-tight transition-all duration-300">Wähle eine App! 👉</div>
+            </div>
+            <button onclick="playSound('click'); newMission()" class="z-10 bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xl py-4 px-10 rounded-full shadow-lg active:translate-y-2 transition-all transform hover:scale-105">
+                🎲 WÜRFELN
+            </button>
+        </div>
+
+        <div onclick="openApp('apps/sound.html', 'Sound')" class="app-card col-span-4 row-span-5 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group">
+            <div class="text-6xl mb-2 drop-shadow-md group-hover:-translate-y-2 transition-transform">🎹</div>
+            <h3 class="text-2xl font-bold">Sound</h3>
+        </div>
+        
+        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-2 row-span-5 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0">
+            <div class="text-5xl mb-2 drop-shadow-md">🎙️</div>
+            <h3 class="text-xl font-bold">Mikro</h3>
+        </div>
+
+        <div onclick="openApp('apps/gif.html', 'Loop')" class="app-card col-span-3 row-span-5 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group">
+            <div class="text-6xl mb-2 drop-shadow-md group-hover:rotate-12 transition-transform">📹</div>
+            <h3 class="text-2xl font-bold">Loop</h3>
+        </div>
+        
+        <div onclick="openApp('apps/magic.html', 'Magic')" class="app-card col-span-3 row-span-5 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0">
+            <div class="text-6xl mb-2 drop-shadow-md">✨</div>
+            <h3 class="text-2xl font-bold">Magic</h3>
+        </div>
+
+        <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-4 row-span-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0">
+            <div class="text-6xl mb-2 drop-shadow-md font-mono">👾</div>
+            <h3 class="text-2xl font-bold">Pixel</h3>
+        </div>
+
+        <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-4 row-span-4 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 relative overflow-hidden">
+            <div class="text-5xl mb-2 drop-shadow-md relative z-10">📰</div>
+            <h3 class="text-xl font-bold relative z-10">News</h3>
+        </div>
+
+        <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-4 row-span-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl flex items-center justify-center gap-4 shadow-lg border-b-8 border-orange-600 active:border-b-0 group">
+            <div class="text-6xl drop-shadow-md transform -rotate-6 transition-transform group-hover:rotate-0">📸</div>
+            <div class="text-left text-black"><h3 class="text-3xl font-black font-comic tracking-wide">COMIC</h3></div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-6 w-full flex flex-col items-center justify-center pointer-events-none z-40">
+        <button onclick="toggleQR()" class="pointer-events-auto bg-slate-800/90 backdrop-blur border border-slate-600 px-8 py-3 rounded-full shadow-2xl flex items-center gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all">
+            <img src="assets/logo.png" class="h-12 w-auto object-contain" alt="Logo" onerror="this.style.display='none'">
+            <div class="flex flex-col text-left">
+                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Ein Projekt der</span>
+                <span class="text-lg font-black text-white leading-none tracking-wide">AV-MEDIENZENTRALE</span>
+            </div>
+        </button>
+    </div>
+
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-800 border-2 border-slate-600 rounded-[2rem] max-w-4xl w-full p-8 shadow-2xl relative">
+            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white text-4xl font-bold">✖</button>
+            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4">GUIDE</h2>
+            <div class="grid grid-cols-2 gap-4 text-base">
+                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">🎹</div><div><h3 class="text-rose-400 font-bold">Sound</h3><p class="text-slate-300 text-sm">Beats & Loops.</p></div></div>
+                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">📹</div><div><h3 class="text-sky-400 font-bold">Loop</h3><p class="text-slate-300 text-sm">Video-Loops.</p></div></div>
+                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">✨</div><div><h3 class="text-violet-400 font-bold">Magic</h3><p class="text-slate-300 text-sm">Green Screen.</p></div></div>
+                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">📸</div><div><h3 class="text-orange-400 font-bold">Comic</h3><p class="text-slate-300 text-sm">Foto Storys.</p></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="qr-modal" onclick="toggleQR()">
+        <div onclick="event.stopPropagation()" 
+             style="width: 90%; max-width: 400px; background: white; padding: 40px; border-radius: 30px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            
+            <h3 style="color: #0f172a; font-size: 24px; font-weight: 900; text-transform: uppercase; margin: 0 0 20px 0;">Besuche uns!</h3>
+            
+            <div style="width: 250px; height: 250px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
+                <img src="assets/qr.png" alt="QR Code" style="width: 230px; height: 230px; object-fit: contain;" 
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UVIgQ29kZTwvdGV4dD48L3N2Zz4='">
+            </div>
+            
+            <p style="color: #64748b; font-weight: bold; margin-bottom: 25px;">Scan den Code mit deinem Handy.</p>
+            
+            <button onclick="toggleQR()" 
+                    style="width: 100%; background-color: #0f172a; color: white; border: none; padding: 15px; font-size: 18px; font-weight: 900; border-radius: 12px; cursor: pointer;">
+                SCHLIESSEN
+            </button>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4">
+        <div class="bg-slate-800 p-8 rounded-3xl border-2 border-slate-600 w-full max-w-lg">
+            <h2 class="text-3xl font-black text-white mb-6">⚙️ ADMIN MENU</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="location.reload()" class="bg-blue-600 text-white font-bold py-4 rounded-xl">🔄 Reload</button>
+                <button onclick="closeAdmin()" class="bg-slate-600 text-white font-bold py-4 rounded-xl">Zurück</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const missions = ["Erstelle ein Geräusch: Kälte ❄️", "Comic: Streit ums Brot 🥪", "Magic: Auf dem Mond 🚀", "Werbung: Unsichtbare Socken 🧦", "Loop: Hallo ohne Worte 👋", "Witz in 3 Bildern 🤡", "Selfie: Fliegen ✨", "Elefant mit Schluckauf 🐘", "Pixel-Monster Haustier 👾", "News: Ufo gelandet 👽"];
+        
+		const playSound = (id) => {
+            const a = new Audio(`assets/sounds/${id}.mp3`);
+            a.volume = 1.0;
+            a.play().catch(() => {});
+        };
+
+        function openApp(url, appName) {
+            playSound('click'); 
+            setTimeout(() => { window.location.href = url; }, 300); 
+        }
+		
+        function newMission() {
+            const txt = document.getElementById('mission-text');
+            txt.innerText = missions[Math.floor(Math.random() * missions.length)];
+        }
+
+        let hubIdleTimer;
+        function resetHubTimer() {
+            clearTimeout(hubIdleTimer);
+            hubIdleTimer = setTimeout(() => {
+                document.getElementById('admin-modal').classList.add('hidden');
+                document.getElementById('info-modal').classList.add('hidden');
+                // Modal verstecken (Klasse entfernen)
+                document.getElementById('qr-modal').classList.remove('modal-visible');
+                document.getElementById('mission-text').innerText = "Wähle eine App! 👉";
+                tapCount = 0;
+            }, 60000);
+        }
+        resetHubTimer();
+
+        function toggleInfo() { 
+            resetHubTimer(); 
+            const m = document.getElementById('info-modal');
+            m.classList.toggle('hidden'); 
+            m.classList.toggle('flex');
+        }
+        
+        function toggleQR() { 
+            resetHubTimer(); 
+            const modal = document.getElementById('qr-modal');
+            // GHOST TOGGLE: Sichtbarkeit umschalten
+            modal.classList.toggle('modal-visible');
+            playSound('click');
+        }
+
+        let tapCount = 0; let tapTimer;
+        function triggerAdmin() {
+            resetHubTimer(); tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { tapCount = 0; }, 1000);
+            if (tapCount >= 5) {
+                tapCount = 0;
+                if (prompt("PIN:") === "1234") { 
+                    document.getElementById('admin-modal').classList.remove('hidden');
+                    document.getElementById('admin-modal').classList.add('flex');
+                }
+            }
+        }
+        function closeAdmin() { 
+            document.getElementById('admin-modal').classList.add('hidden'); 
+            document.getElementById('admin-modal').classList.remove('flex'); 
+        }
+    </script>
+</body>
+</html>
