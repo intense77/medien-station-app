@@ -3,48 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>MedienStation Hub</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
     
     <script src="js/tailwind.js"></script>
+    
+    <script>
+        // Tailwind Konfiguration
+        tailwind.config = { theme: { extend: { colors: { 'zone-audio': '#f43f5e', 'zone-video': '#0ea5e9', 'zone-story': '#eab308', 'zone-tech': '#10b981' } } } } 
+    </script>
+
     <style>
-        /* Globaler Reset */
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-        
         body { 
             background-color: #0f172a; 
             color: white; 
-            font-family: sans-serif;
+            overflow: hidden; 
             user-select: none; 
             -webkit-user-select: none; 
             touch-action: manipulation;
+            animation: fadeIn 0.5s ease-out; 
         }
         
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
-        .app-card { cursor: pointer; transition: transform 0.1s; }
-        .app-card:active { transform: scale(0.95); filter: brightness(1.2); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Animationen */
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        
+        .app-card { cursor: pointer; }
+        .app-card:active { transform: scale(0.95); filter: brightness(1.2); transition: transform 0.1s; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Hilfsklasse für absolute Zentrierung */
+        .center-absolute { display: flex; align-items: center; justify-content: center; margin: 0 auto; }
 
-        /* Grid & Ghost Mode für QR Modal */
-        #qr-modal {
-            display: grid !important; 
-            place-items: center; 
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 99999;
-            background-color: rgba(0,0,0,0.85);
-            backdrop-filter: blur(5px);
-            opacity: 0;
-            pointer-events: none; 
-            transition: opacity 0.3s ease-in-out;
-        }
-        #qr-modal.modal-visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        @media print { body * { visibility: hidden; } #print-test, #print-test * { visibility: visible; } #print-test { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: flex !important; justify-content: center; align-items: center; background: white; color: black; z-index: 99999; } }
     </style>
 </head>
 <body class="p-4 pt-8 box-border fade-in relative" onpointerdown="resetHubTimer()" ontouchstart="resetHubTimer()">

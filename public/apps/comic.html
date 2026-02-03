@@ -1,53 +1,28 @@
-<!DOCTYPE html>
-<html lang="de">
 <head>
     <meta charset="UTF-8">
     <title>Comic Studio</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <script src="../js/tailwind.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script> <style>
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        html {
-            width: 100%; height: 100%;
-            background-color: #facc15;
-        }
 
-        body {
-            /* Fixiertes Layout für maximale Stabilität */
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0;
-            margin: 0;
-            
-            background-color: #facc15;
-            color: black;
-            overflow: hidden !important;
+    <style>
+        /* CSS Inhalt bleibt gleich ... */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { 
+            background-color: #facc15; 
+            overflow: hidden; 
             user-select: none; 
-            touch-action: none;
-            font-family: sans-serif;
+            touch-action: none; 
+            transition: background-color 0.5s;
             animation: fadeIn 0.4s ease-out;
-            transition: background-color 0.3s ease;
-            
-            box-sizing: border-box;
-            
-            /* OPTIMIERUNG: Näher an den Rand rutschen */
-            /* Oben: Notch + 10px (statt vorher 60px pauschal) */
-            padding-top: calc(10px + env(safe-area-inset-top));
-            
-            /* Unten: Home-Balken + 20px */
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
         
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
-        /* Sprechblasen */
         .bubble-container { position: absolute; z-index: 20; display: flex; flex-direction: column; align-items: center; left: 50%; bottom: 25%; transform: translateX(-50%); }
         .bubble-handle { background-color: #3b82f6; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: move; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin-bottom: -15px; z-index: 30; font-size: 24px; touch-action: none; border: 2px solid white; }
         .bubble-text { background: white; border: 4px solid black; border-radius: 2rem; padding: 1rem 1.5rem; min-width: 160px; max-width: 280px; text-align: center; font-family: 'Comic Sans MS', sans-serif; font-size: 1.5rem; line-height: 1.2; box-shadow: 8px 8px 0px rgba(0,0,0,0.2); outline: none; cursor: text; }
-
-        button:active { transform: scale(0.95); transition: transform 0.1s; }
 
         @media print {
             @page { size: landscape; margin: 0mm; }
