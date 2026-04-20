@@ -219,9 +219,7 @@
                     chunks: [],
                     stream: null,
                     webAudioSource: null,
-                    dummyGain: null,
-                    analyser: null,
-                    dummyAudio: null
+                    analyser: null
                 }); 
                 
                 const el = document.createElement('div'); 
@@ -246,14 +244,11 @@
         
         let recInitLock = false;
         let activeMediaRec = null;
-        let preferredMicId = null;
         
         function releaseMic(pad) {
             if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
             if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
             if (pad.analyser) { pad.analyser.disconnect(); pad.analyser = null; }
-            if (pad.dummyGain) { pad.dummyGain.disconnect(); pad.dummyGain = null; }
-            if (pad.dummyAudio) { pad.dummyAudio.pause(); pad.dummyAudio.srcObject = null; pad.dummyAudio = null; }
         }
 
         async function handlePadTouch(i) { 
@@ -539,7 +534,6 @@
                                     pad.playbackRate = currentRecRate; // Wichtig für Web!
                                     updatePadVisuals(i, true); 
                                     document.getElementById(`status-${i}`).innerText = "BELEGT";
-                                    releaseMic(pad);
                                     window.setMode('play');
                                     visLabel.innerText = "BEREIT";
                                     visLabel.classList.replace('text-yellow-500', 'text-slate-500');
@@ -547,26 +541,26 @@
                                 (e) => {
                                     console.error("Decode Fehler", e);
                                     document.getElementById(`status-${i}`).innerText = "FEHLER";
-                                    releaseMic(pad);
                                     window.setMode('play');
                                 }
                             );
                         };
                         reader.readAsArrayBuffer(blob);
                     } else {
-                        releaseMic(pad);
                         window.setMode('play');
                     }
                     pad.mediaRecorder = null;
                 };
                 if (pad.mediaRecorder.state !== 'inactive') pad.mediaRecorder.stop();
             } else {
-                releaseMic(pad);
                 window.setMode('play');
             }
             activeMediaRec = null;
 
             pad.isRecording = false; 
+            
+            // WICHTIG: Die sofortige Freigabe erzwingt das saubere Speichern in Firefox!
+            releaseMic(pad);
             
             document.getElementById(`icon-rec-${i}`).classList.add('hidden'); 
             el.classList.remove('pulse-rec', 'rec-active'); 

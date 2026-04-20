@@ -142,7 +142,7 @@
         let mediaRec = null; let recInterval = null;
         let visualizerFrame = null;
         let currentAmp = 0;
-        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null, analyser: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null, analyser: null } };
+        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, analyser: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, analyser: null } };
         
         // Tablet Hardening: Kontextmenü deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -212,13 +212,11 @@
         }
         
         let recLock = false;
-        let preferredMicId = null;
         
         function releaseMic(t) {
             if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
             if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
             if (t.analyser) { t.analyser.disconnect(); t.analyser = null; }
-            if (t.dummyGain) { t.dummyGain.disconnect(); t.dummyGain = null; }
         }
 
         async function toggleRecording(id) { 
@@ -241,36 +239,16 @@
             // WebRTC Mikrofon BEREITS JETZT anfragen, vor dem Countdown!
             if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
-                    let constraints = { audio: true };
-                    if (preferredMicId) constraints.audio = { deviceId: { exact: preferredMicId } };
-                    
-                    try {
-                        t.stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    } catch (err) {
-                        if (preferredMicId) {
-                            preferredMicId = null;
-                            t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        } else {
-                            throw err;
-                        }
-                    }
-                    
-                    if (!preferredMicId && t.stream.getAudioTracks().length > 0) {
-                        preferredMicId = t.stream.getAudioTracks()[0].getSettings().deviceId;
-                    }
+                    t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     if (webAudioCtx && webAudioCtx.state === 'suspended') await webAudioCtx.resume(); // FIREFOX FIX
 
-                    // SAFARI/FIREFOX FIX & VISUALIZER SETUP
+                    // VISUALIZER SETUP
                     if (webAudioCtx) {
                         t.webAudioSource = webAudioCtx.createMediaStreamSource(t.stream);
                         t.analyser = webAudioCtx.createAnalyser();
                         t.analyser.fftSize = 256;
-                        t.dummyGain = webAudioCtx.createGain();
-                        t.dummyGain.gain.value = 0.001; // FIREFOX FIX: Nicht exakt 0, sonst schaltet FF den Kanal ab!
                         
                         t.webAudioSource.connect(t.analyser);
-                        t.analyser.connect(t.dummyGain);
-                        t.dummyGain.connect(webAudioCtx.destination);
                     }
                 } catch (e) {
                     alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
@@ -422,17 +400,18 @@
                         if (t.blobUrl) URL.revokeObjectURL(t.blobUrl);
                         t.blobUrl = URL.createObjectURL(blob);
                     }
-                    releaseMic(t);
                     t.mediaRecorder = null;
                 };
                 if (t.mediaRecorder.state !== 'inactive') t.mediaRecorder.stop();
-            } else {
-                releaseMic(t);
             }
             mediaRec = null;
 
             t.isRecording = false; 
             t.hasData = true;
+            
+            // WICHTIG: Die direkte Freigabe zwingt Firefox zum Beenden der Datei
+            releaseMic(t);
+            
             clearInterval(t.timerInt); 
             btn.classList.remove('rec-active'); 
             icon.classList.replace('bg-white', 'bg-red-500'); 
