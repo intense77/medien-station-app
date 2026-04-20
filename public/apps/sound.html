@@ -288,7 +288,7 @@
                             pad.analyser = ctx.createAnalyser();
                             pad.analyser.fftSize = 256;
                             pad.dummyGain = ctx.createGain();
-                            pad.dummyGain.gain.value = 0.01;
+                            pad.dummyGain.gain.value = 0.00001; // Absolut unhörbar
                             
                             pad.webAudioSource.connect(pad.analyser);
                             pad.analyser.connect(pad.dummyGain);
