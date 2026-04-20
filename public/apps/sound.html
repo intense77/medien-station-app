@@ -201,7 +201,8 @@
                     chunks: [],
                     stream: null,
                     webAudioSource: null,
-                    dummyGain: null
+                    dummyGain: null,
+                    analyser: null
                 }); 
                 
                 const el = document.createElement('div'); 
@@ -243,6 +244,7 @@
         function releaseMic(pad) {
             if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
             if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
+            if (pad.analyser) { pad.analyser.disconnect(); pad.analyser = null; }
             if (pad.dummyGain) { pad.dummyGain.disconnect(); pad.dummyGain = null; }
         }
 
@@ -273,12 +275,16 @@
                 if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     try {
                         pad.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        // SAFARI FIX: Stream sofort an WebAudio binden, sonst schläft das Mic ein!
+                        // SAFARI FIX & VISUALIZER SETUP:
                         if (audioCtx) {
                             pad.webAudioSource = audioCtx.createMediaStreamSource(pad.stream);
+                            pad.analyser = audioCtx.createAnalyser();
+                            pad.analyser.fftSize = 256;
                             pad.dummyGain = audioCtx.createGain();
                             pad.dummyGain.gain.value = 0;
-                            pad.webAudioSource.connect(pad.dummyGain);
+                            
+                            pad.webAudioSource.connect(pad.analyser);
+                            pad.analyser.connect(pad.dummyGain);
                             pad.dummyGain.connect(audioCtx.destination);
                         }
                     } catch(e) {
@@ -453,13 +459,11 @@
                             pad.mediaRecorder.start(100); // 100ms Interval zwingt Browser zu flushen
                             
                             // Fake activeMediaRec für Visualizer
-                            const analyser = audioCtx.createAnalyser();
-                            if (!pad.webAudioSource) pad.webAudioSource = audioCtx.createMediaStreamSource(pad.stream);
-                            pad.webAudioSource.connect(analyser);
                             activeMediaRec = {
                                 getCurrentAmplitude: (cb) => {
-                                    const data = new Uint8Array(analyser.frequencyBinCount);
-                                    analyser.getByteTimeDomainData(data);
+                                    if(!pad.analyser) { cb(0); return; }
+                                    const data = new Uint8Array(pad.analyser.frequencyBinCount);
+                                    pad.analyser.getByteTimeDomainData(data);
                                     let sum = 0; for(let j=0; j<data.length; j++) { const v = (data[j]-128)/128; sum += v*v; }
                                     cb(Math.sqrt(sum / data.length) * 30000);
                                 }
