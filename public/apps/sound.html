@@ -554,7 +554,6 @@
                     pad.mediaRecorder = null;
                 };
                 if (pad.mediaRecorder.state !== 'inactive') {
-                    try { pad.mediaRecorder.requestData(); } catch(e) {}
                     pad.mediaRecorder.stop();
                 } else {
                     releaseMic(pad);
