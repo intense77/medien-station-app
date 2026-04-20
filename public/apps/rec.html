@@ -212,6 +212,7 @@
         }
         
         let recLock = false;
+        let preferredMicId = null;
         
         function releaseMic(t) {
             if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
@@ -240,7 +241,23 @@
             // WebRTC Mikrofon BEREITS JETZT anfragen, vor dem Countdown!
             if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
-                    t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    let constraints = { audio: true };
+                    if (preferredMicId) constraints.audio = { deviceId: { exact: preferredMicId } };
+                    
+                    try {
+                        t.stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    } catch (err) {
+                        if (preferredMicId) {
+                            preferredMicId = null;
+                            t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        } else {
+                            throw err;
+                        }
+                    }
+                    
+                    if (!preferredMicId && t.stream.getAudioTracks().length > 0) {
+                        preferredMicId = t.stream.getAudioTracks()[0].getSettings().deviceId;
+                    }
                     if (webAudioCtx && webAudioCtx.state === 'suspended') await webAudioCtx.resume(); // FIREFOX FIX
 
                     // SAFARI/FIREFOX FIX & VISUALIZER SETUP

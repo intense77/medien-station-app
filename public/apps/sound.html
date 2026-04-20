@@ -176,6 +176,24 @@
         let audioCtx = null;
         let globalAnalyser = null;
 
+        function getAudioCtx() {
+            if (!audioCtx) {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        audioCtx = new AudioContext();
+                        globalAnalyser = audioCtx.createAnalyser();
+                        globalAnalyser.fftSize = 256;
+                        globalAnalyser.connect(audioCtx.destination);
+                    }
+                } catch(e) { console.warn(e); }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(()=>{});
+            }
+            return audioCtx;
+        }
+
         let pads = []; 
         let currentMode = 'play'; 
         let visualizerFrame = null;
@@ -202,7 +220,8 @@
                     stream: null,
                     webAudioSource: null,
                     dummyGain: null,
-                    analyser: null
+                    analyser: null,
+                    dummyAudio: null
                 }); 
                 
                 const el = document.createElement('div'); 
@@ -219,19 +238,6 @@
                 container.appendChild(el); 
             }
 
-            // 2. AUDIO STARTEN (Danach)
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (AudioContext) audioCtx = new AudioContext();
-                if (audioCtx) {
-                    globalAnalyser = audioCtx.createAnalyser();
-                    globalAnalyser.fftSize = 256;
-                    globalAnalyser.connect(audioCtx.destination);
-                }
-            } catch(e) { 
-                console.warn("Audio Context Warnung (Pads sollten trotzdem da sein):", e); 
-            }
-            
             startVisualizer(); 
         }
         
@@ -240,21 +246,20 @@
         
         let recInitLock = false;
         let activeMediaRec = null;
+        let preferredMicId = null;
         
         function releaseMic(pad) {
             if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
             if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
             if (pad.analyser) { pad.analyser.disconnect(); pad.analyser = null; }
             if (pad.dummyGain) { pad.dummyGain.disconnect(); pad.dummyGain = null; }
+            if (pad.dummyAudio) { pad.dummyAudio.pause(); pad.dummyAudio.srcObject = null; pad.dummyAudio = null; }
         }
 
         async function handlePadTouch(i) { 
             if(window.resetIdleTimer) window.resetIdleTimer(); 
             
-            // WICHTIG: AudioContext wecken!
-            if (audioCtx && audioCtx.state === 'suspended') {
-                try { await audioCtx.resume(); } catch(e) { console.warn(e); }
-            }
+            const ctx = getAudioCtx();
 
             const pad = pads[i]; 
             const el = document.getElementById(`pad-${i}`); 
@@ -275,19 +280,22 @@
                 if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     try {
                         pad.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume(); // FIREFOX FIX
+                        if (ctx) {
+                            // FIREFOX HACK
+                            pad.dummyAudio = new Audio();
+                            pad.dummyAudio.muted = true;
+                            pad.dummyAudio.srcObject = pad.stream;
+                            pad.dummyAudio.play().catch(e => console.warn(e));
 
-                        // SAFARI/FIREFOX FIX & VISUALIZER SETUP:
-                        if (audioCtx) {
-                            pad.webAudioSource = audioCtx.createMediaStreamSource(pad.stream);
-                            pad.analyser = audioCtx.createAnalyser();
+                            pad.webAudioSource = ctx.createMediaStreamSource(pad.stream);
+                            pad.analyser = ctx.createAnalyser();
                             pad.analyser.fftSize = 256;
-                            pad.dummyGain = audioCtx.createGain();
-                            pad.dummyGain.gain.value = 0.001; // FIREFOX FIX: Nicht exakt 0, sonst kappt FF das Mikro!
+                            pad.dummyGain = ctx.createGain();
+                            pad.dummyGain.gain.value = 0.01;
                             
                             pad.webAudioSource.connect(pad.analyser);
                             pad.analyser.connect(pad.dummyGain);
-                            pad.dummyGain.connect(audioCtx.destination);
+                            pad.dummyGain.connect(ctx.destination);
                         }
                     } catch(e) {
                         alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
@@ -348,11 +356,12 @@
         }
         
         function playMusicPad(i, loop) { 
-            if(!audioCtx) return; 
+            const ctx = getAudioCtx();
+            if(!ctx) return; 
             const pad = pads[i]; 
             if (pad.sourceNode) { try { pad.sourceNode.stop(); } catch(e){} pad.sourceNode = null; } 
             
-            const source = audioCtx.createBufferSource(); 
+            const source = ctx.createBufferSource(); 
             source.buffer = pad.buffer; 
             source.loop = loop; 
             source.playbackRate.value = pad.playbackRate; 
@@ -452,23 +461,24 @@
                         pad.mediaObj = new Media(path, () => console.log("Rec Success"), (e) => console.error("Rec Error", e));
                         pad.mediaObj.startRecord();
                         activeMediaRec = pad.mediaObj;
-                    } else if (pad.stream && audioCtx) {
+                    } else if (pad.stream && getAudioCtx()) {
                         // WEB
                         try {
                             pad.mediaRecorder = new MediaRecorder(pad.stream);
                             pad.chunks = [];
                             pad.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) pad.chunks.push(e.data); };
-                            pad.mediaRecorder.start(100); // 100ms Interval zwingt Browser zu flushen
+                            pad.mediaRecorder.start(); // Firefox Chunking Bug Fix
                             
                             // Fake activeMediaRec für Visualizer
                             activeMediaRec = {
                                 getCurrentAmplitude: (cb) => {
                                     if(!pad.analyser) { cb(0); return; }
                                     const data = new Uint8Array(pad.analyser.frequencyBinCount);
-                                    pad.analyser.getByteFrequencyData(data); // FIREFOX FIX: Frequenzen nutzen
-                                    let sum = 0; for(let j=0; j<data.length; j++) { sum += data[j]; }
-                                    let avg = sum / data.length;
-                                    cb(Math.min(32767, (avg / 50) * 32767));
+                                    pad.analyser.getByteFrequencyData(data); // Kein TimeDomain wegen DC-Offset!
+                                    let sum = 0; 
+                                    for(let j=0; j<data.length; j++) { sum += data[j]; }
+                                    const avg = sum / data.length;
+                                    cb(Math.min(32767, (avg / 60) * 32767));
                                 }
                             };
                         } catch(e) {
@@ -520,7 +530,8 @@
                         const blob = new Blob(pad.chunks, { type: mimeType });
                         const reader = new FileReader();
                         reader.onloadend = () => {
-                            audioCtx.decodeAudioData(reader.result, 
+                            const ctx = getAudioCtx();
+                            if(ctx) ctx.decodeAudioData(reader.result, 
                                 (b) => { 
                                     pad.buffer = b; 
                                     pad.playbackRate = currentRecRate; // Wichtig für Web!
@@ -588,7 +599,8 @@
                     entry.file(function(file) {
                         const reader = new FileReader();
                         reader.onloadend = function() {
-                            audioCtx.decodeAudioData(this.result, function(buffer) {
+                        const ctx = getAudioCtx();
+                        if(ctx) ctx.decodeAudioData(this.result, function(buffer) {
                                 pad.buffer = buffer;
                                 pad.playbackRate = currentRecRate;
                                 updatePadVisuals(i, true);
