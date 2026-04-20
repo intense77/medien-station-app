@@ -351,18 +351,21 @@
                         t.mediaRecorder = new MediaRecorder(t.stream);
                         t.chunks = [];
                         t.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) t.chunks.push(e.data); };
-                        t.mediaRecorder.start(100);
+                        t.mediaRecorder.start(); // FIREFOX FIX: Chunking deaktiviert
                         
                         // Fake mediaRec für Visualizer-Loop
                         mediaRec = {
                             getCurrentAmplitude: (cb) => {
                                 if(!t.analyser) { cb(0); return; }
                                 const data = new Uint8Array(t.analyser.frequencyBinCount);
-                                t.analyser.getByteFrequencyData(data); // FIREFOX FIX: Frequenzen sind viel stabiler als TimeDomain
+                                t.analyser.getByteTimeDomainData(data); // LINUX DC-OFFSET FIX
+                                let dc = 0; 
+                                for(let i=0; i<data.length; i++) dc += data[i];
+                                dc /= data.length; // Die Grundspannung ermitteln
                                 let sum = 0;
-                                for(let i=0; i<data.length; i++) { sum += data[i]; }
-                                let avg = sum / data.length;
-                                cb(Math.min(32767, (avg / 50) * 32767)); // Skalierung auf Cordova-Niveau
+                                for(let i=0; i<data.length; i++) { const v = (data[i] - dc) / 128.0; sum += v*v; }
+                                const rms = Math.sqrt(sum / data.length);
+                                cb(Math.min(32767, rms * 32767 * 4)); // Faktor 4 für lebhaften Ausschlag
                             }
                         };
                     } catch(e) {
