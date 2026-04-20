@@ -142,7 +142,7 @@
         let mediaRec = null; let recInterval = null;
         let visualizerFrame = null;
         let currentAmp = 0;
-        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, webAudioSource: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, webAudioSource: null } };
+        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null } };
         
         // Tablet Hardening: Kontextmenü deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -213,6 +213,12 @@
         
         let recLock = false;
         
+        function releaseMic(t) {
+            if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
+            if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
+            if (t.dummyGain) { t.dummyGain.disconnect(); t.dummyGain = null; }
+        }
+
         async function toggleRecording(id) { 
             if (recLock) return;
             
@@ -234,6 +240,14 @@
             if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    // SAFARI FIX
+                    if (webAudioCtx) {
+                        t.webAudioSource = webAudioCtx.createMediaStreamSource(t.stream);
+                        t.dummyGain = webAudioCtx.createGain();
+                        t.dummyGain.gain.value = 0;
+                        t.webAudioSource.connect(t.dummyGain);
+                        t.dummyGain.connect(webAudioCtx.destination);
+                    }
                 } catch (e) {
                     alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
                     recLock = false;
@@ -313,14 +327,13 @@
                         t.mediaRecorder = new MediaRecorder(stream);
                         t.chunks = [];
                         t.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) t.chunks.push(e.data); };
-                        t.mediaRecorder.start();
+                        t.mediaRecorder.start(100);
                         
                         // Visualizer für Web
                         const analyser = webAudioCtx.createAnalyser();
                         analyser.fftSize = 256;
-                        const source = webAudioCtx.createMediaStreamSource(t.stream);
-                        source.connect(analyser);
-                        t.webAudioSource = source; // Speichern zum Trennen
+                        if (!t.webAudioSource) t.webAudioSource = webAudioCtx.createMediaStreamSource(t.stream);
+                        t.webAudioSource.connect(analyser);
                         
                         // Fake mediaRec für Visualizer-Loop
                         mediaRec = {
@@ -369,10 +382,7 @@
                 const txt = document.getElementById('instruction-text');
                 txt.classList.remove('hidden', 'move-up');
                 
-                // MIC FREIGEBEN!
-                if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
-                if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
-
+                releaseMic(t);
                 checkVisualizerState();
                 return; // WICHTIG: Hier beenden, damit keine Buttons erscheinen!
             }
@@ -384,20 +394,19 @@
                 // Web Stop
                 t.mediaRecorder.onstop = () => {
                     if (t.chunks.length > 0) {
-                        const mimeType = t.mediaRecorder.mimeType || 'audio/webm';
+                        const mimeType = t.mediaRecorder.mimeType || '';
                         const blob = new Blob(t.chunks, { type: mimeType });
                         if (t.blobUrl) URL.revokeObjectURL(t.blobUrl);
                         t.blobUrl = URL.createObjectURL(blob);
                     }
+                    releaseMic(t);
                     t.mediaRecorder = null;
                 };
                 if (t.mediaRecorder.state !== 'inactive') t.mediaRecorder.stop();
+            } else {
+                releaseMic(t);
             }
             mediaRec = null;
-            
-            // WICHTIG: WebRTC Hardware SOFORT freigeben, nicht erst im asynchronen onstop warten!
-            if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
-            if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
 
             t.isRecording = false; 
             t.hasData = true;

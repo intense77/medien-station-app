@@ -198,7 +198,10 @@
                     mediaObj: null, 
                     playbackRate: 1.0, 
                     startTimeout: null,
-                    chunks: []
+                    chunks: [],
+                    stream: null,
+                    webAudioSource: null,
+                    dummyGain: null
                 }); 
                 
                 const el = document.createElement('div'); 
@@ -236,6 +239,12 @@
         
         let recInitLock = false;
         let activeMediaRec = null;
+        
+        function releaseMic(pad) {
+            if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
+            if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
+            if (pad.dummyGain) { pad.dummyGain.disconnect(); pad.dummyGain = null; }
+        }
 
         async function handlePadTouch(i) { 
             if(window.resetIdleTimer) window.resetIdleTimer(); 
@@ -264,6 +273,14 @@
                 if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     try {
                         pad.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        // SAFARI FIX: Stream sofort an WebAudio binden, sonst schläft das Mic ein!
+                        if (audioCtx) {
+                            pad.webAudioSource = audioCtx.createMediaStreamSource(pad.stream);
+                            pad.dummyGain = audioCtx.createGain();
+                            pad.dummyGain.gain.value = 0;
+                            pad.webAudioSource.connect(pad.dummyGain);
+                            pad.dummyGain.connect(audioCtx.destination);
+                        }
                     } catch(e) {
                         alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
                         recInitLock = false;
@@ -433,13 +450,12 @@
                             pad.mediaRecorder = new MediaRecorder(pad.stream);
                             pad.chunks = [];
                             pad.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) pad.chunks.push(e.data); };
-                            pad.mediaRecorder.start();
+                            pad.mediaRecorder.start(100); // 100ms Interval zwingt Browser zu flushen
                             
                             // Fake activeMediaRec für Visualizer
                             const analyser = audioCtx.createAnalyser();
-                            const source = audioCtx.createMediaStreamSource(pad.stream);
-                            source.connect(analyser);
-                            pad.webAudioSource = source; // Speichern für sauberen Disconnect
+                            if (!pad.webAudioSource) pad.webAudioSource = audioCtx.createMediaStreamSource(pad.stream);
+                            pad.webAudioSource.connect(analyser);
                             activeMediaRec = {
                                 getCurrentAmplitude: (cb) => {
                                     const data = new Uint8Array(analyser.frequencyBinCount);
@@ -481,10 +497,7 @@
                 document.getElementById(`icon-rec-${i}`).classList.add('hidden'); 
                 el.classList.remove('pulse-rec', 'rec-active'); 
                 
-                // MIKROFON FREIGEBEN!
-                if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
-                if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
-
+                releaseMic(pad);
                 window.setMode('play');
                 return;
             }
@@ -496,33 +509,42 @@
                 // Web Stop
                 pad.mediaRecorder.onstop = () => {
                     if (pad.chunks.length > 0) {
-                        const mimeType = pad.mediaRecorder.mimeType || 'audio/webm';
+                        const mimeType = pad.mediaRecorder.mimeType || ''; // Leer lassen, Browser wählt bestes Format
                         const blob = new Blob(pad.chunks, { type: mimeType });
                         const reader = new FileReader();
                         reader.onloadend = () => {
                             audioCtx.decodeAudioData(reader.result, 
                                 (b) => { 
                                     pad.buffer = b; 
+                                    pad.playbackRate = currentRecRate; // Wichtig für Web!
                                     updatePadVisuals(i, true); 
                                     document.getElementById(`status-${i}`).innerText = "BELEGT";
+                                    releaseMic(pad);
+                                    window.setMode('play');
+                                    visLabel.innerText = "BEREIT";
+                                    visLabel.classList.replace('text-yellow-500', 'text-slate-500');
                                 },
                                 (e) => {
                                     console.error("Decode Fehler", e);
                                     document.getElementById(`status-${i}`).innerText = "FEHLER";
+                                    releaseMic(pad);
+                                    window.setMode('play');
                                 }
                             );
                         };
                         reader.readAsArrayBuffer(blob);
+                    } else {
+                        releaseMic(pad);
+                        window.setMode('play');
                     }
                     pad.mediaRecorder = null;
                 };
                 if (pad.mediaRecorder.state !== 'inactive') pad.mediaRecorder.stop();
+            } else {
+                releaseMic(pad);
+                window.setMode('play');
             }
             activeMediaRec = null;
-            
-            // WICHTIG: WebRTC Hardware SOFORT freigeben, nicht erst im asynchronen onstop warten!
-            if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
-            if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
 
             pad.isRecording = false; 
             
