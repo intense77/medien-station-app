@@ -419,16 +419,24 @@
                     } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && audioCtx) {
                         // WEB
                         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        
+                        // RACE CONDITION FIX: Falls User schon gestoppt hat, während das Mikrofon lud
+                        if (!pad.isRecording) {
+                            stream.getTracks().forEach(t => t.stop());
+                            return;
+                        }
+
                         pad.stream = stream;
                         pad.mediaRecorder = new MediaRecorder(stream);
                         pad.chunks = [];
-                        pad.mediaRecorder.ondataavailable = e => pad.chunks.push(e.data);
+                        pad.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) pad.chunks.push(e.data); };
                         pad.mediaRecorder.start();
                         
                         // Fake activeMediaRec für Visualizer
                         const analyser = audioCtx.createAnalyser();
                         const source = audioCtx.createMediaStreamSource(stream);
                         source.connect(analyser);
+                        pad.webAudioSource = source; // Speichern für sauberen Disconnect
                         activeMediaRec = {
                             getCurrentAmplitude: (cb) => {
                                 const data = new Uint8Array(analyser.frequencyBinCount);
@@ -475,17 +483,35 @@
             } else if (pad.mediaRecorder) {
                 // Web Stop
                 pad.mediaRecorder.onstop = () => {
-                    const blob = new Blob(pad.chunks, { type: 'audio/webm;codecs=opus' });
-                    // Direkt laden
-                    const reader = new FileReader();
-                    reader.onloadend = () => audioCtx.decodeAudioData(reader.result, (b) => { pad.buffer = b; updatePadVisuals(i, true); });
-                    reader.readAsArrayBuffer(blob);
-                    if(pad.stream) pad.stream.getTracks().forEach(t => t.stop());
+                    if (pad.chunks.length > 0) {
+                        const mimeType = pad.mediaRecorder.mimeType || 'audio/webm';
+                        const blob = new Blob(pad.chunks, { type: mimeType });
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            audioCtx.decodeAudioData(reader.result, 
+                                (b) => { 
+                                    pad.buffer = b; 
+                                    updatePadVisuals(i, true); 
+                                    document.getElementById(`status-${i}`).innerText = "BELEGT";
+                                },
+                                (e) => {
+                                    console.error("Decode Fehler", e);
+                                    document.getElementById(`status-${i}`).innerText = "FEHLER";
+                                }
+                            );
+                        };
+                        reader.readAsArrayBuffer(blob);
+                    }
+                    pad.mediaRecorder = null;
                 };
-                pad.mediaRecorder.stop();
+                if (pad.mediaRecorder.state !== 'inactive') pad.mediaRecorder.stop();
             }
             activeMediaRec = null;
             
+            // WICHTIG: WebRTC Hardware SOFORT freigeben, nicht erst im asynchronen onstop warten!
+            if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
+            if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
+
             pad.isRecording = false; 
             
             document.getElementById(`icon-rec-${i}`).classList.add('hidden'); 

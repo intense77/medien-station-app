@@ -294,10 +294,16 @@
                 } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && webAudioCtx) {
                     // 2. WEB BROWSER (Netlify / iOS / Android Chrome)
                     navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                        // RACE CONDITION FIX: Falls User schon gestoppt hat, bevor das Mikrofon freigegeben wurde
+                        if (!t.isRecording) {
+                            stream.getTracks().forEach(track => track.stop());
+                            return;
+                        }
+
                         t.stream = stream;
                         t.mediaRecorder = new MediaRecorder(stream);
                         t.chunks = [];
-                        t.mediaRecorder.ondataavailable = e => t.chunks.push(e.data);
+                        t.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) t.chunks.push(e.data); };
                         t.mediaRecorder.start();
                         
                         // Visualizer für Web
@@ -361,21 +367,25 @@
             if (window.cordova && t.mediaObj) {
                 // Native Stop
                 try { t.mediaObj.stopRecord(); t.mediaObj.release(); t.mediaObj = null; } catch(e){}
-            } else if (t.mediaRecorder && t.mediaRecorder.state !== 'inactive') {
+            } else if (t.mediaRecorder) {
                 // Web Stop
                 t.mediaRecorder.onstop = () => {
-                    const blob = new Blob(t.chunks, { type: 'audio/webm;codecs=opus' }); // WebM für Chrome, Safari mag mp4 lieber, aber Blob URL geht meist
-                    if (t.blobUrl) URL.revokeObjectURL(t.blobUrl);
-                    t.blobUrl = URL.createObjectURL(blob);
-                    
-                    // Cleanup Web Audio
-                    if (t.stream) t.stream.getTracks().forEach(track => track.stop());
-                    if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
+                    if (t.chunks.length > 0) {
+                        const mimeType = t.mediaRecorder.mimeType || 'audio/webm';
+                        const blob = new Blob(t.chunks, { type: mimeType });
+                        if (t.blobUrl) URL.revokeObjectURL(t.blobUrl);
+                        t.blobUrl = URL.createObjectURL(blob);
+                    }
+                    t.mediaRecorder = null;
                 };
-                t.mediaRecorder.stop();
+                if (t.mediaRecorder.state !== 'inactive') t.mediaRecorder.stop();
             }
             mediaRec = null;
             
+            // WICHTIG: WebRTC Hardware SOFORT freigeben, nicht erst im asynchronen onstop warten!
+            if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
+            if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
+
             t.isRecording = false; 
             t.hasData = true;
             clearInterval(t.timerInt); 
