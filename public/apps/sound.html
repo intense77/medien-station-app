@@ -260,6 +260,17 @@
                 if (recInitLock) return; // Verhindert Doppelklicks während Initialisierung
                 recInitLock = true;
 
+                // MIKROFON VOR DEM COUNTDOWN HOLEN (Safari Fix)
+                if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    try {
+                        pad.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    } catch(e) {
+                        alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
+                        recInitLock = false;
+                        return;
+                    }
+                }
+
                 // Start Countdown before recording
                 const overlay = document.getElementById('countdown-overlay');
                 const text = document.getElementById('countdown-text');
@@ -416,35 +427,31 @@
                         pad.mediaObj = new Media(path, () => console.log("Rec Success"), (e) => console.error("Rec Error", e));
                         pad.mediaObj.startRecord();
                         activeMediaRec = pad.mediaObj;
-                    } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && audioCtx) {
+                    } else if (pad.stream && audioCtx) {
                         // WEB
-                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        
-                        // RACE CONDITION FIX: Falls User schon gestoppt hat, während das Mikrofon lud
-                        if (!pad.isRecording) {
-                            stream.getTracks().forEach(t => t.stop());
-                            return;
+                        try {
+                            pad.mediaRecorder = new MediaRecorder(pad.stream);
+                            pad.chunks = [];
+                            pad.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) pad.chunks.push(e.data); };
+                            pad.mediaRecorder.start();
+                            
+                            // Fake activeMediaRec für Visualizer
+                            const analyser = audioCtx.createAnalyser();
+                            const source = audioCtx.createMediaStreamSource(pad.stream);
+                            source.connect(analyser);
+                            pad.webAudioSource = source; // Speichern für sauberen Disconnect
+                            activeMediaRec = {
+                                getCurrentAmplitude: (cb) => {
+                                    const data = new Uint8Array(analyser.frequencyBinCount);
+                                    analyser.getByteTimeDomainData(data);
+                                    let sum = 0; for(let j=0; j<data.length; j++) { const v = (data[j]-128)/128; sum += v*v; }
+                                    cb(Math.sqrt(sum / data.length) * 30000);
+                                }
+                            };
+                        } catch(e) {
+                            console.error(e);
+                            stopRecording(i);
                         }
-
-                        pad.stream = stream;
-                        pad.mediaRecorder = new MediaRecorder(stream);
-                        pad.chunks = [];
-                        pad.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) pad.chunks.push(e.data); };
-                        pad.mediaRecorder.start();
-                        
-                        // Fake activeMediaRec für Visualizer
-                        const analyser = audioCtx.createAnalyser();
-                        const source = audioCtx.createMediaStreamSource(stream);
-                        source.connect(analyser);
-                        pad.webAudioSource = source; // Speichern für sauberen Disconnect
-                        activeMediaRec = {
-                            getCurrentAmplitude: (cb) => {
-                                const data = new Uint8Array(analyser.frequencyBinCount);
-                                analyser.getByteTimeDomainData(data);
-                                let sum = 0; for(let i=0; i<data.length; i++) { const v = (data[i]-128)/128; sum += v*v; }
-                                cb(Math.sqrt(sum) * 30000);
-                            }
-                        };
                     } else {
                         alert("Aufnahme nicht möglich (Kein Mikrofon/Cordova).");
                         stopRecording(i);
@@ -473,6 +480,11 @@
                 pad.isRecording = false;
                 document.getElementById(`icon-rec-${i}`).classList.add('hidden'); 
                 el.classList.remove('pulse-rec', 'rec-active'); 
+                
+                // MIKROFON FREIGEBEN!
+                if (pad.stream) { pad.stream.getTracks().forEach(t => t.stop()); pad.stream = null; }
+                if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
+
                 window.setMode('play');
                 return;
             }

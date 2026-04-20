@@ -225,6 +225,22 @@
 
             recLock = true;
             
+            // AudioContext wecken! (Wichtig für Safari)
+            if (webAudioCtx && webAudioCtx.state === 'suspended') {
+                try { await webAudioCtx.resume(); } catch(e) { console.warn(e); }
+            }
+
+            // WebRTC Mikrofon BEREITS JETZT anfragen, vor dem Countdown!
+            if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                } catch (e) {
+                    alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
+                    recLock = false;
+                    return;
+                }
+            }
+
             // Start Countdown
             const overlay = document.getElementById('countdown-overlay');
             const text = document.getElementById('countdown-text');
@@ -291,16 +307,9 @@
                         t.mediaObj.startRecord();
                         mediaRec = t.mediaObj; 
                     } catch (e) { alert("Plugin Fehler: " + e.message); return; }
-                } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && webAudioCtx) {
-                    // 2. WEB BROWSER (Netlify / iOS / Android Chrome)
-                    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                        // RACE CONDITION FIX: Falls User schon gestoppt hat, bevor das Mikrofon freigegeben wurde
-                        if (!t.isRecording) {
-                            stream.getTracks().forEach(track => track.stop());
-                            return;
-                        }
-
-                        t.stream = stream;
+                } else if (t.stream && webAudioCtx) {
+                    // 2. WEB BROWSER (Mit dem vorab angefragten Stream)
+                    try {
                         t.mediaRecorder = new MediaRecorder(stream);
                         t.chunks = [];
                         t.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) t.chunks.push(e.data); };
@@ -309,7 +318,7 @@
                         // Visualizer für Web
                         const analyser = webAudioCtx.createAnalyser();
                         analyser.fftSize = 256;
-                        const source = webAudioCtx.createMediaStreamSource(stream);
+                        const source = webAudioCtx.createMediaStreamSource(t.stream);
                         source.connect(analyser);
                         t.webAudioSource = source; // Speichern zum Trennen
                         
@@ -320,13 +329,13 @@
                                 analyser.getByteTimeDomainData(data);
                                 let sum = 0;
                                 for(let i=0; i<data.length; i++) { const v = (data[i]-128)/128; sum += v*v; }
-                                cb(Math.sqrt(sum) * 30000); // Skalieren auf Cordova-Niveau
+                                cb(Math.sqrt(sum / data.length) * 30000); // Exakte RMS Skalierung auf Cordova-Niveau
                             }
                         };
-                    }).catch(e => {
-                        alert("Mikrofon-Zugriff verweigert: " + e.message);
+                    } catch(e) {
+                        console.error(e);
                         stopRecordingActual(id); // Abbruch
-                    });
+                    }
                 } else {
                     alert("Kein Mikrofon gefunden oder nicht unterstützt.");
                     stopRecordingActual(id);
@@ -360,6 +369,10 @@
                 const txt = document.getElementById('instruction-text');
                 txt.classList.remove('hidden', 'move-up');
                 
+                // MIC FREIGEBEN!
+                if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
+                if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
+
                 checkVisualizerState();
                 return; // WICHTIG: Hier beenden, damit keine Buttons erscheinen!
             }
