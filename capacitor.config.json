@@ -1,6 +1,14 @@
 {
-  "appId": "com.medienstation.app",
+  "appId": "com.museum.medienstation",
   "appName": "MedienStation",
   "webDir": "public",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
 }
