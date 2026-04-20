@@ -142,7 +142,7 @@
         let mediaRec = null; let recInterval = null;
         let visualizerFrame = null;
         let currentAmp = 0;
-        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, analyser: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, analyser: null } };
+        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blob: null, stream: null, webAudioSource: null, analyser: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blob: null, stream: null, webAudioSource: null, analyser: null } };
         
         // Tablet Hardening: Kontextmenü deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -399,13 +399,11 @@
                     if (t.chunks.length > 0) {
                         const mimeType = t.mediaRecorder.mimeType || 'audio/webm';
                         const blob = new Blob(t.chunks, { type: mimeType });
-                        if (t.blobUrl) URL.revokeObjectURL(t.blobUrl);
-                        t.blobUrl = URL.createObjectURL(blob);
+                        t.blob = blob;
                     }
                     t.mediaRecorder = null;
                 };
                 if (t.mediaRecorder.state !== 'inactive') {
-                    try { t.mediaRecorder.requestData(); } catch(e) {}
                     t.mediaRecorder.stop();
                 } else {
                     releaseMic(t);
@@ -506,11 +504,12 @@
                 }, function(e) { console.error("File Error", e); alert("Datei nicht gefunden"); });
             } else {
                 // 2. WEB BROWSER: Blob -> ArrayBuffer -> Web Audio
-                if (t.blobUrl) {
-                    fetch(t.blobUrl)
-                        .then(r => r.arrayBuffer())
-                        .then(b => playBuffer(b))
-                        .catch(e => console.error(e));
+                if (t.blob) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        playBuffer(reader.result);
+                    };
+                    reader.readAsArrayBuffer(t.blob);
                 }
             }
         }
