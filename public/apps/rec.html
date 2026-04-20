@@ -241,13 +241,15 @@
             if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    // SAFARI FIX & VISUALIZER SETUP
+                    if (webAudioCtx && webAudioCtx.state === 'suspended') await webAudioCtx.resume(); // FIREFOX FIX
+
+                    // SAFARI/FIREFOX FIX & VISUALIZER SETUP
                     if (webAudioCtx) {
                         t.webAudioSource = webAudioCtx.createMediaStreamSource(t.stream);
                         t.analyser = webAudioCtx.createAnalyser();
                         t.analyser.fftSize = 256;
                         t.dummyGain = webAudioCtx.createGain();
-                        t.dummyGain.gain.value = 0;
+                        t.dummyGain.gain.value = 0.001; // FIREFOX FIX: Nicht exakt 0, sonst schaltet FF den Kanal ab!
                         
                         t.webAudioSource.connect(t.analyser);
                         t.analyser.connect(t.dummyGain);
@@ -339,10 +341,11 @@
                             getCurrentAmplitude: (cb) => {
                                 if(!t.analyser) { cb(0); return; }
                                 const data = new Uint8Array(t.analyser.frequencyBinCount);
-                                t.analyser.getByteTimeDomainData(data);
+                                t.analyser.getByteFrequencyData(data); // FIREFOX FIX: Frequenzen sind viel stabiler als TimeDomain
                                 let sum = 0;
-                                for(let i=0; i<data.length; i++) { const v = (data[i]-128)/128; sum += v*v; }
-                                cb(Math.sqrt(sum / data.length) * 30000); // Exakte RMS Skalierung auf Cordova-Niveau
+                                for(let i=0; i<data.length; i++) { sum += data[i]; }
+                                let avg = sum / data.length;
+                                cb(Math.min(32767, (avg / 50) * 32767)); // Skalierung auf Cordova-Niveau
                             }
                         };
                     } catch(e) {

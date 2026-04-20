@@ -275,13 +275,15 @@
                 if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     try {
                         pad.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        // SAFARI FIX & VISUALIZER SETUP:
+                        if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume(); // FIREFOX FIX
+
+                        // SAFARI/FIREFOX FIX & VISUALIZER SETUP:
                         if (audioCtx) {
                             pad.webAudioSource = audioCtx.createMediaStreamSource(pad.stream);
                             pad.analyser = audioCtx.createAnalyser();
                             pad.analyser.fftSize = 256;
                             pad.dummyGain = audioCtx.createGain();
-                            pad.dummyGain.gain.value = 0;
+                            pad.dummyGain.gain.value = 0.001; // FIREFOX FIX: Nicht exakt 0, sonst kappt FF das Mikro!
                             
                             pad.webAudioSource.connect(pad.analyser);
                             pad.analyser.connect(pad.dummyGain);
@@ -463,9 +465,10 @@
                                 getCurrentAmplitude: (cb) => {
                                     if(!pad.analyser) { cb(0); return; }
                                     const data = new Uint8Array(pad.analyser.frequencyBinCount);
-                                    pad.analyser.getByteTimeDomainData(data);
-                                    let sum = 0; for(let j=0; j<data.length; j++) { const v = (data[j]-128)/128; sum += v*v; }
-                                    cb(Math.sqrt(sum / data.length) * 30000);
+                                    pad.analyser.getByteFrequencyData(data); // FIREFOX FIX: Frequenzen nutzen
+                                    let sum = 0; for(let j=0; j<data.length; j++) { sum += data[j]; }
+                                    let avg = sum / data.length;
+                                    cb(Math.min(32767, (avg / 50) * 32767));
                                 }
                             };
                         } catch(e) {
