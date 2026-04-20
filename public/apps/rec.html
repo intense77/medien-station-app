@@ -142,7 +142,7 @@
         let mediaRec = null; let recInterval = null;
         let visualizerFrame = null;
         let currentAmp = 0;
-        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blob: null, stream: null, webAudioSource: null, analyser: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blob: null, stream: null, webAudioSource: null, analyser: null } };
+        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blob: null, stream: null, webAudioSource: null, analyser: null, dummyGain: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blob: null, stream: null, webAudioSource: null, analyser: null, dummyGain: null } };
         
         // Tablet Hardening: Kontextmenü deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -217,6 +217,7 @@
             if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
             if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
             if (t.analyser) { t.analyser.disconnect(); t.analyser = null; }
+            if (t.dummyGain) { t.dummyGain.disconnect(); t.dummyGain = null; }
         }
 
         async function toggleRecording(id) { 
@@ -247,8 +248,12 @@
                         t.webAudioSource = webAudioCtx.createMediaStreamSource(t.stream);
                         t.analyser = webAudioCtx.createAnalyser();
                         t.analyser.fftSize = 256;
+                        t.dummyGain = webAudioCtx.createGain();
+                        t.dummyGain.gain.value = 0.00001; // Absolut unhörbar, aber hält Firefox aktiv!
                         
                         t.webAudioSource.connect(t.analyser);
+                        t.analyser.connect(t.dummyGain);
+                        t.dummyGain.connect(webAudioCtx.destination);
                     }
                 } catch (e) {
                     alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
