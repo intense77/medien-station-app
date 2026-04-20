@@ -474,11 +474,13 @@
                                 getCurrentAmplitude: (cb) => {
                                     if(!pad.analyser) { cb(0); return; }
                                     const data = new Uint8Array(pad.analyser.frequencyBinCount);
-                                    pad.analyser.getByteFrequencyData(data); // Kein TimeDomain wegen DC-Offset!
+                                    pad.analyser.getByteTimeDomainData(data); // LINUX DC-OFFSET FIX
+                                    let dc = 0; for(let j=0; j<data.length; j++) dc += data[j];
+                                    dc /= data.length;
                                     let sum = 0; 
-                                    for(let j=0; j<data.length; j++) { sum += data[j]; }
-                                    const avg = sum / data.length;
-                                    cb(Math.min(32767, (avg / 60) * 32767));
+                                    for(let j=0; j<data.length; j++) { const v = (data[j] - dc) / 128.0; sum += v*v; }
+                                    const rms = Math.sqrt(sum / data.length);
+                                    cb(Math.min(32767, rms * 32767 * 4));
                                 }
                             };
                         } catch(e) {
