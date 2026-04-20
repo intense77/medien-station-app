@@ -391,26 +391,32 @@
             if (window.cordova && t.mediaObj) {
                 // Native Stop
                 try { t.mediaObj.stopRecord(); t.mediaObj.release(); t.mediaObj = null; } catch(e){}
+                releaseMic(t);
             } else if (t.mediaRecorder) {
                 // Web Stop
                 t.mediaRecorder.onstop = () => {
+                    releaseMic(t); // WICHTIG: Erst nach der Datei das Mikro freigeben!
                     if (t.chunks.length > 0) {
-                        const mimeType = t.mediaRecorder.mimeType || '';
+                        const mimeType = t.mediaRecorder.mimeType || 'audio/webm';
                         const blob = new Blob(t.chunks, { type: mimeType });
                         if (t.blobUrl) URL.revokeObjectURL(t.blobUrl);
                         t.blobUrl = URL.createObjectURL(blob);
                     }
                     t.mediaRecorder = null;
                 };
-                if (t.mediaRecorder.state !== 'inactive') t.mediaRecorder.stop();
+                if (t.mediaRecorder.state !== 'inactive') {
+                    try { t.mediaRecorder.requestData(); } catch(e) {}
+                    t.mediaRecorder.stop();
+                } else {
+                    releaseMic(t);
+                }
+            } else {
+                releaseMic(t);
             }
             mediaRec = null;
 
             t.isRecording = false; 
             t.hasData = true;
-            
-            // WICHTIG: Die direkte Freigabe zwingt Firefox zum Beenden der Datei
-            releaseMic(t);
             
             clearInterval(t.timerInt); 
             btn.classList.remove('rec-active'); 

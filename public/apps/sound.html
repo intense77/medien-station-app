@@ -519,11 +519,13 @@
             if (window.cordova && pad.mediaObj) {
                 // Native Stop
                 try { pad.mediaObj.stopRecord(); pad.mediaObj.release(); pad.mediaObj = null; } catch(e){}
+                releaseMic(pad);
             } else if (pad.mediaRecorder) {
                 // Web Stop
                 pad.mediaRecorder.onstop = () => {
+                    releaseMic(pad); // WICHTIG: Erst nach der Datei das Mikro freigeben!
                     if (pad.chunks.length > 0) {
-                        const mimeType = pad.mediaRecorder.mimeType || ''; // Leer lassen, Browser wählt bestes Format
+                        const mimeType = pad.mediaRecorder.mimeType || 'audio/webm';
                         const blob = new Blob(pad.chunks, { type: mimeType });
                         const reader = new FileReader();
                         reader.onloadend = () => {
@@ -551,16 +553,19 @@
                     }
                     pad.mediaRecorder = null;
                 };
-                if (pad.mediaRecorder.state !== 'inactive') pad.mediaRecorder.stop();
+                if (pad.mediaRecorder.state !== 'inactive') {
+                    try { pad.mediaRecorder.requestData(); } catch(e) {}
+                    pad.mediaRecorder.stop();
+                } else {
+                    releaseMic(pad);
+                }
             } else {
+                releaseMic(pad);
                 window.setMode('play');
             }
             activeMediaRec = null;
 
             pad.isRecording = false; 
-            
-            // WICHTIG: Die sofortige Freigabe erzwingt das saubere Speichern in Firefox!
-            releaseMic(pad);
             
             document.getElementById(`icon-rec-${i}`).classList.add('hidden'); 
             el.classList.remove('pulse-rec', 'rec-active'); 
