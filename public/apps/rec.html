@@ -142,7 +142,7 @@
         let mediaRec = null; let recInterval = null;
         let visualizerFrame = null;
         let currentAmp = 0;
-        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null } };
+        const tracks = { 1: { isRecording: false, isPlaying: false, mediaObj: null, src: "track1.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null, analyser: null }, 2: { isRecording: false, isPlaying: false, mediaObj: null, src: "track2.aac", hasData: false, timerInt: null, startTime: 0, playbackRate: 1, startTimeout: null, blobUrl: null, stream: null, webAudioSource: null, dummyGain: null, analyser: null } };
         
         // Tablet Hardening: Kontextmenü deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -216,6 +216,7 @@
         function releaseMic(t) {
             if (t.stream) { t.stream.getTracks().forEach(track => track.stop()); t.stream = null; }
             if (t.webAudioSource) { t.webAudioSource.disconnect(); t.webAudioSource = null; }
+            if (t.analyser) { t.analyser.disconnect(); t.analyser = null; }
             if (t.dummyGain) { t.dummyGain.disconnect(); t.dummyGain = null; }
         }
 
@@ -240,12 +241,16 @@
             if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    // SAFARI FIX
+                    // SAFARI FIX & VISUALIZER SETUP
                     if (webAudioCtx) {
                         t.webAudioSource = webAudioCtx.createMediaStreamSource(t.stream);
+                        t.analyser = webAudioCtx.createAnalyser();
+                        t.analyser.fftSize = 256;
                         t.dummyGain = webAudioCtx.createGain();
                         t.dummyGain.gain.value = 0;
-                        t.webAudioSource.connect(t.dummyGain);
+                        
+                        t.webAudioSource.connect(t.analyser);
+                        t.analyser.connect(t.dummyGain);
                         t.dummyGain.connect(webAudioCtx.destination);
                     }
                 } catch (e) {
@@ -324,22 +329,17 @@
                 } else if (t.stream && webAudioCtx) {
                     // 2. WEB BROWSER (Mit dem vorab angefragten Stream)
                     try {
-                        t.mediaRecorder = new MediaRecorder(stream);
+                        t.mediaRecorder = new MediaRecorder(t.stream);
                         t.chunks = [];
                         t.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) t.chunks.push(e.data); };
                         t.mediaRecorder.start(100);
                         
-                        // Visualizer für Web
-                        const analyser = webAudioCtx.createAnalyser();
-                        analyser.fftSize = 256;
-                        if (!t.webAudioSource) t.webAudioSource = webAudioCtx.createMediaStreamSource(t.stream);
-                        t.webAudioSource.connect(analyser);
-                        
                         // Fake mediaRec für Visualizer-Loop
                         mediaRec = {
                             getCurrentAmplitude: (cb) => {
-                                const data = new Uint8Array(analyser.frequencyBinCount);
-                                analyser.getByteTimeDomainData(data);
+                                if(!t.analyser) { cb(0); return; }
+                                const data = new Uint8Array(t.analyser.frequencyBinCount);
+                                t.analyser.getByteTimeDomainData(data);
                                 let sum = 0;
                                 for(let i=0; i<data.length; i++) { const v = (data[i]-128)/128; sum += v*v; }
                                 cb(Math.sqrt(sum / data.length) * 30000); // Exakte RMS Skalierung auf Cordova-Niveau
