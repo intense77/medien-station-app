@@ -1,12 +1,12 @@
 {
   "name": "MedienStation",
   "short_name": "MedienStation",
-  "version": "7.2.1",
+  "version": "7.2.2",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "landscape",
+  "orientation": "any",
   "icons": [
     {
       "src": "assets/icons/icon-48.webp",
