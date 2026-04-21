@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link href="../css/style.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
@@ -81,6 +82,10 @@
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
+        @media (max-width: 767px) {
+            #pad-container { min-height: 300px; gap: 0.25rem; }
+            .pad-item > div:first-child { font-size: 2rem !important; }
+        }
     </style>
 </head>
 <body class="flex flex-col p-2 md:p-4">
@@ -230,6 +235,7 @@
                 el.className = `pad-item transition-all duration-100`; 
                 el.innerHTML = `
                     <div class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-700 transition-colors duration-300" id="label-${i}">${i+1}</div>
+                    <div class="text-4xl md:text-6xl font-black text-slate-700 transition-colors duration-300" id="label-${i}">${i+1}</div>
                     <div id="icon-loop-${i}" class="hidden absolute top-2 right-2 text-xl bg-blue-600 text-white rounded px-1 shadow-md">🔁</div>
                     <div id="icon-fx-${i}" class="absolute bottom-2 right-2 text-xl drop-shadow-md"></div>
                     <div id="icon-rec-${i}" class="hidden absolute top-3 left-3 w-4 h-4 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_red]"></div>
