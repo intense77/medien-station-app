@@ -7,8 +7,9 @@
 (function() {
     // Sicherer Zugriff auf Plugins (verhindert Absturz, wenn cordova.js fehlt)
     const SplashScreen = (window.Capacitor && window.Capacitor.Plugins) ? window.Capacitor.Plugins.SplashScreen : null;
-    const IDLE_TIMEOUT = 600000; // 10 Minuten
-    let idleTimer;
+    const IDLE_WARNING_TIME = 9 * 60 * 1000; // 9 Minuten
+    const IDLE_RESET_TIME = 60 * 1000; // 1 Minute Vorwarnung
+    let idleWarningTimer, idleResetTimer;
 
     // Hilfsfunktion: Sind wir in einer App oder auf dem Hub?
     const isSubApp = window.location.pathname.includes('/apps/');
@@ -100,38 +101,94 @@
     };
 
     // --- 3. Idle Timer ---
+    function createIdleWarningModal() {
+        let modal = document.getElementById('idle-warning-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'idle-warning-modal';
+            modal.className = 'hidden fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md items-center justify-center p-4 transition-opacity duration-300 opacity-0';
+            modal.innerHTML = `
+                <div class="bg-slate-800 border-4 border-yellow-400 rounded-[3rem] max-w-lg w-full p-10 shadow-2xl text-center transform scale-90 transition-transform duration-300" id="idle-warning-content">
+                    <div class="text-8xl mb-6 animate-bounce">👀</div>
+                    <h2 class="text-4xl font-black text-white mb-4">Bist du noch da?</h2>
+                    <p class="text-xl text-slate-300 mb-8 font-bold">Die Station geht gleich schlafen...</p>
+                    <button class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl text-2xl shadow-xl active:scale-95 transition border-b-8 border-yellow-700 active:border-b-0 active:translate-y-2 pointer-events-auto">
+                        👋 WEITERMACHEN!
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', (e) => {
+                if (window.playSound) window.playSound('click');
+                window.hideIdleWarning();
+                window.resetIdleTimer();
+            });
+        }
+        return modal;
+    }
+
+    window.hideIdleWarning = function() {
+        const modal = document.getElementById('idle-warning-modal');
+        if (modal && !modal.classList.contains('hidden')) {
+            modal.classList.add('opacity-0');
+            const content = document.getElementById('idle-warning-content');
+            if (content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+    };
+
+    window.showIdleWarning = function() {
+        const modal = createIdleWarningModal();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            const content = document.getElementById('idle-warning-content');
+            if (content) {
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            }
+        }, 10);
+    };
+
     window.resetIdleTimer = function() {
-        clearTimeout(idleTimer);
+        clearTimeout(idleWarningTimer);
+        clearTimeout(idleResetTimer);
         
-        idleTimer = setTimeout(() => {
-            // Prüfen, ob die App gerade beschäftigt ist (z.B. Aufnahme läuft)
-            // Wir suchen nach typischen Indikatoren für Aktivität
+        window.hideIdleWarning();
+        
+        idleWarningTimer = setTimeout(() => {
             const isBusy = document.querySelector('.rec-active, #countdown:not(.hidden), #saving-overlay:not(.hidden), #preview-overlay:not(.hidden)');
             
             if (isBusy) {
-                console.log("Idle Timer: App ist beschäftigt, Reset.");
                 window.resetIdleTimer(); // Timer neu starten
                 return;
             }
 
-            console.log("Idle Timer: Zeit abgelaufen.");
-            
-            if (isSubApp) {
-                // In einer App: Zurück zum Hub
-                try { window.cleanupSessionFiles(); } catch(e) {}
-                window.location.href = '../index.html';
-            } else {
-                // Auf dem Hub: Alles zurücksetzen
-                const modals = document.querySelectorAll('#admin-modal, #info-modal, #qr-modal');
-                modals.forEach(m => {
-                    m.classList.add('hidden');
-                    m.classList.remove('flex', 'modal-visible');
-                });
-                
-                const missionText = document.getElementById('mission-text');
-                if(missionText) missionText.innerText = "Wähle eine App! 👉";
-            }
-        }, IDLE_TIMEOUT);
+            window.showIdleWarning();
+
+            idleResetTimer = setTimeout(() => {
+                if (isSubApp) {
+                    try { window.cleanupSessionFiles(); } catch(e) {}
+                    window.location.href = '../index.html';
+                } else {
+                    const modals = document.querySelectorAll('#admin-modal, #info-modal, #qr-modal');
+                    modals.forEach(m => {
+                        m.classList.add('hidden');
+                        m.classList.remove('flex', 'modal-visible');
+                    });
+                    const missionText = document.getElementById('mission-text');
+                    if(missionText) missionText.innerText = "Wähle eine App! 👉";
+                }
+            }, IDLE_RESET_TIME);
+        }, IDLE_WARNING_TIME);
     };
 
     // --- 5. Wake Lock (Bildschirm wach halten) ---
