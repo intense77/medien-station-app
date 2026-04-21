@@ -97,69 +97,71 @@
         </div>
     </div>
 
-    <div id="main-grid" class="grid-cols-2 sm:grid-cols-4 md:grid-cols-12 md:grid-rows-12 gap-3 min-h-full w-full pb-8 md:pb-0" style="display: none;">
+    <div id="main-grid" class="grid-cols-2 sm:grid-cols-4 md:grid-cols-12 md:grid-rows-11 gap-3 max-w-7xl mx-auto min-h-full w-full pb-8 md:pb-0" style="display: none;">
         
-        <!-- Mission Header (2 Rows) -->
-        <div class="col-span-2 sm:col-span-4 md:col-span-12 md:row-span-2 bg-slate-800 rounded-3xl p-4 flex flex-col md:flex-row justify-between items-center shadow-lg border border-slate-700 relative overflow-hidden group min-h-[140px] md:min-h-0 gap-4 md:gap-0">
+        <!-- Mission Header (3 Rows) -->
+        <div class="col-span-2 sm:col-span-4 md:col-span-12 md:row-span-3 bg-slate-800 rounded-3xl p-4 flex flex-col justify-center items-center shadow-lg border border-slate-700 relative overflow-hidden group min-h-[160px] gap-4 text-center">
             <div class="absolute -right-10 -top-10 w-32 h-32 md:w-64 md:h-64 bg-yellow-400 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
-            <div class="flex flex-col md:flex-row items-center gap-3 md:gap-6 z-10 flex-1 text-center md:text-left">
-                <div class="select-none" onclick="triggerAdmin()">
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 z-10 w-full">
+                <div class="select-none flex-1 max-w-2xl" onclick="triggerAdmin()">
                     <h3 class="text-slate-400 text-sm font-bold tracking-widest uppercase mb-1 cursor-pointer">Deine Mission</h3>
                     <div id="mission-text" class="text-lg md:text-xl lg:text-3xl font-black text-white leading-snug transition-all duration-300">Wähle eine App! 👉</div>
                 </div>
-                <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-black text-2xl py-4 px-10 rounded-full shadow-lg active:translate-y-2 transition-all transform hover:scale-105 shrink-0">
+                <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xl py-3 px-8 rounded-full shadow-lg active:translate-y-2 transition-all transform hover:scale-105 shrink-0">
                     🎲 WÜRFELN
                 </button>
             </div>
-            <div class="flex items-start gap-4 z-10">
-                <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-6 py-2 rounded-full shadow-2xl flex items-center gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all">
-                    <img src="assets/logo.png" class="h-12 w-auto object-contain" alt="Logo" onerror="this.style.display='none'">
-                    <div class="flex flex-col text-left">
+            
+            <div class="flex items-center justify-center z-10 w-full">
+                <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-6 py-2 rounded-full shadow-2xl flex items-center justify-center gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all w-full sm:w-auto max-w-sm">
+                    <img src="assets/logo.png" class="h-10 w-auto object-contain shrink-0" alt="Logo" onerror="this.style.display='none'">
+                    <div class="flex flex-col text-left shrink-0">
                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Ein Projekt der</span>
-                        <span class="text-lg font-black text-white leading-none tracking-wide">AV-MEDIENZENTRALE</span>
+                        <span class="text-sm sm:text-base font-black text-white leading-none tracking-wide">AV-MEDIENZENTRALE</span>
                     </div>
                 </button>
             </div>
         </div>
 
-        <!-- Row 1 of Apps (5 Rows) -->
-        <div onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden">
+        <!-- Row 1 of Apps (4 Rows) -->
+        <div onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:-translate-y-2 transition-transform">🎹</div>
             <h3 class="text-xl md:text-2xl font-bold">Musik</h3>
         </div>
         
-        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 overflow-hidden">
+        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md">🎙️</div>
             <h3 class="text-xl md:text-2xl font-bold">Mikro</h3>
         </div>
 
-        <div onclick="openApp('apps/gif.html', 'Video Loop')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group overflow-hidden">
+        <div onclick="openApp('apps/gif.html', 'Video Loop')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:rotate-12 transition-transform">📹</div>
             <h3 class="text-xl md:text-2xl font-bold">Video</h3>
         </div>
         
-        <div onclick="openApp('apps/magic.html', 'Zauber Selfie')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0 overflow-hidden">
+        <div onclick="openApp('apps/magic.html', 'Zauber Selfie')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0 overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md">✨</div>
             <h3 class="text-xl md:text-2xl font-bold">Zauber Selfie</h3>
         </div>
 
-        <!-- Row 2 of Apps (5 Rows) -->
-        <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0 overflow-hidden">
+        <!-- Row 2 of Apps (4 Rows) -->
+        <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0 overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md font-mono">👾</div>
             <h3 class="text-xl md:text-2xl font-bold">Pixel</h3>
         </div>
 
-        <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 overflow-hidden">
+        <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 overflow-hidden">
             <div class="text-4xl md:text-5xl mb-2 drop-shadow-md">📰</div>
             <h3 class="text-lg md:text-xl font-bold">Nachrichten</h3>
         </div>
 
-        <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden">
+        <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md transform -rotate-6 transition-transform group-hover:rotate-0">📸</div>
             <h3 class="text-xl md:text-2xl font-black font-comic tracking-wide text-black">Comic</h3>
         </div>
 
-        <div onclick="toggleInfo(); window.playSound('click')" class="app-card col-span-1 md:col-span-3 md:row-span-5 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden">
+        <div onclick="toggleInfo(); window.playSound('click')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">💡</div>
             <h3 class="text-xl md:text-2xl font-bold text-slate-200">Infos</h3>
         </div>
