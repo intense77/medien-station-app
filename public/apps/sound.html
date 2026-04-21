@@ -251,6 +251,7 @@
             if (pad.webAudioSource) { pad.webAudioSource.disconnect(); pad.webAudioSource = null; }
             if (pad.analyser) { pad.analyser.disconnect(); pad.analyser = null; }
             if (pad.dummyGain) { pad.dummyGain.disconnect(); pad.dummyGain = null; }
+            if (pad.dummyAudio) { pad.dummyAudio.pause(); pad.dummyAudio.srcObject = null; pad.dummyAudio = null; }
         }
 
         async function handlePadTouch(i) { 

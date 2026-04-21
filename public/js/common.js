@@ -62,6 +62,16 @@
     window.goHome = function() {
         if (window.playSound) window.playSound('click');
         document.body.classList.add('fade-out');
+        
+        // GLOBALER KILLSWITCH: Hardware sofort freigeben (Kameras & Mikrofone)
+        try {
+            document.querySelectorAll('video, audio').forEach(el => {
+                if (el.srcObject && typeof el.srcObject.getTracks === 'function') {
+                    el.srcObject.getTracks().forEach(t => t.stop());
+                }
+            });
+        } catch(e) {}
+
         setTimeout(() => {
             // Aufräumen beim Verlassen einer App
             if (isSubApp) {
@@ -140,6 +150,18 @@
 
     // --- 4. Initialisierung ---
     function initCommon() {
+        // --- Globaler Sound-Debouncer (Entprellung für Klicks) ---
+        if (window.playSound) {
+            const originalPlay = window.playSound;
+            let lastClickTime = 0;
+            window.playSound = function(id) {
+                const now = Date.now();
+                if (id === 'click' && now - lastClickTime < 100) return; // 100ms Entprellung!
+                if (id === 'click') lastClickTime = now;
+                originalPlay(id);
+            };
+        }
+
         // Event Listener für Benutzeraktivität
         const events = ['mousedown', 'touchstart', 'scroll', 'keydown', 'input', 'pointerdown'];
         events.forEach(evt => {
