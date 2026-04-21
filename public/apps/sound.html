@@ -27,13 +27,15 @@
 
         body {
             /* Fixiertes Layout */
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            min-height: 100vh;
             margin: 0;
             
             background-color: #0f172a; 
             color: white;
-            overflow: hidden !important;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: none;
             user-select: none; 
             touch-action: manipulation;
             font-family: sans-serif;
@@ -134,7 +136,7 @@
         Modus: SPIELEN
     </div>
 
-    <div id="pad-container" class="flex-1 min-h-0 w-full max-w-5xl mx-auto z-10 pb-1"></div>
+    <div id="pad-container" class="flex-1 min-h-[300px] lg:min-h-0 w-full max-w-5xl mx-auto z-10 pb-4"></div>
 
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="toggleInfo()">
         <div class="bg-slate-800 border-4 border-rose-500 rounded-[2rem] max-w-3xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
@@ -227,7 +229,7 @@
                 el.id = `pad-${i}`; 
                 el.className = `pad-item transition-all duration-100`; 
                 el.innerHTML = `
-                    <div class="text-4xl md:text-6xl font-black text-slate-700 transition-colors duration-300" id="label-${i}">${i+1}</div>
+                    <div class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-700 transition-colors duration-300" id="label-${i}">${i+1}</div>
                     <div id="icon-loop-${i}" class="hidden absolute top-2 right-2 text-xl bg-blue-600 text-white rounded px-1 shadow-md">🔁</div>
                     <div id="icon-fx-${i}" class="absolute bottom-2 right-2 text-xl drop-shadow-md"></div>
                     <div id="icon-rec-${i}" class="hidden absolute top-3 left-3 w-4 h-4 bg-red-500 rounded-full animate-pulse shadow-[0_0_10px_red]"></div>
