@@ -299,4 +299,40 @@
         initCommon();
     }
 
+    // --- 7. Konfetti Effekt ---
+    window.triggerConfetti = function() {
+        if (window.playSound) window.playSound('success');
+        const colors = ['#facc15', '#ef4444', '#3b82f6', '#22c55e', '#a855f7'];
+        const numConfetti = 80;
+        const container = document.createElement('div');
+        container.className = 'fixed inset-0 pointer-events-none z-[999999] overflow-hidden';
+        document.body.appendChild(container);
+
+        for (let i = 0; i < numConfetti; i++) {
+            const conf = document.createElement('div');
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            conf.className = 'absolute w-3 h-4 rounded-sm shadow-sm';
+            conf.style.backgroundColor = color;
+            conf.style.left = Math.random() * 100 + 'vw';
+            conf.style.top = '-20px';
+            
+            const duration = Math.random() * 2 + 2; 
+            const delay = Math.random() * 0.5;
+            const xMovement = (Math.random() - 0.5) * 300; 
+            const rot = Math.random() * 360;
+            const rotSpeed = (Math.random() - 0.5) * 720;
+            
+            conf.animate([
+                { transform: `translate3d(0,0,0) rotate(${rot}deg)`, opacity: 1 },
+                { transform: `translate3d(${xMovement}px, 100vh, 0) rotate(${rot + rotSpeed}deg)`, opacity: 0 }
+            ], {
+                duration: duration * 1000,
+                delay: delay * 1000,
+                easing: 'cubic-bezier(.37,0,.63,1)',
+                fill: 'forwards'
+            });
+            container.appendChild(conf);
+        }
+        setTimeout(() => container.remove(), 5000);
+    };
 })();

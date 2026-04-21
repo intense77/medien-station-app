@@ -112,7 +112,8 @@ window.printImage = async function(dataUrl, jobName, btn) {
                     () => {
                         console.log("Erfolg mit:", pkg);
                         if (btn) btn.innerText = "✅ OK";
-                        if (window.playSound) window.playSound('success');
+                        if (window.triggerConfetti) window.triggerConfetti();
+                        else if (window.playSound) window.playSound('success');
                     }, 
                     (err) => {
                         console.warn(`App ${pkg} nicht verfügbar/sichtbar, versuche nächste...`);
@@ -138,6 +139,7 @@ window.printImage = async function(dataUrl, jobName, btn) {
                         title: 'Drucken'
                     });
                     if (btn) btn.innerText = "✅ OK";
+                    if (window.triggerConfetti) window.triggerConfetti();
                     return; // Beenden, wenn Teilen erfolgreich war
                 } catch (shareErr) {
                     console.warn("Share abgebrochen oder fehlgeschlagen, nutze Fallback:", shareErr);
