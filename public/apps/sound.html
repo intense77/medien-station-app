@@ -240,7 +240,19 @@
             startVisualizer(); 
         }
         
-        window.setMode = function(mode) { window.playSound('click'); if (currentMode === mode) currentMode = 'play'; else currentMode = mode; updateUI(); }
+        window.setMode = function(mode) { 
+            // Laufende Aufnahmen sicher beenden, bevor der Modus gewechselt wird
+            const activeRecIndex = pads.findIndex(p => p.isRecording || p.startTimeout);
+            if (activeRecIndex !== -1) {
+                stopRecording(activeRecIndex);
+                if (mode === 'rec') return; // REC fungiert bei laufender Aufnahme als intelligenter Stop-Button
+            }
+            
+            window.playSound('click'); 
+            if (currentMode === mode) currentMode = 'play'; 
+            else currentMode = mode; 
+            updateUI(); 
+        }
         function updateUI() { const btnRec = document.getElementById('btn-rec'); const btnLoop = document.getElementById('btn-loop'); const status = document.getElementById('status-bar'); const inactive = "border-transparent bg-slate-700 text-gray-300 hover:bg-slate-600"; const activeRec = "border-red-500 text-red-400 bg-slate-900 shadow-[0_0_10px_rgba(239,68,68,0.2)]"; const activeLoop = "border-blue-500 text-blue-400 bg-slate-900 shadow-[0_0_10px_rgba(59,130,246,0.2)]"; const base = "flex items-center justify-center gap-3 px-6 py-3 rounded-xl font-black text-lg transition-all border-b-4 active:scale-95 active:border-b-0 active:translate-y-1 min-w-[100px] "; btnRec.className = base + (currentMode === 'rec' ? activeRec : inactive); btnLoop.className = base + (currentMode === 'loop' ? activeLoop : inactive); if (currentMode === 'rec') { status.innerText = "🔴 AUFNAHME"; status.className = "text-center mb-1 font-mono text-sm uppercase tracking-widest text-red-400 animate-pulse font-bold"; } else if (currentMode === 'loop') { status.innerText = "🔁 LOOP SETZEN"; status.className = "text-center mb-1 font-mono text-sm uppercase tracking-widest text-blue-400 font-bold"; } else { status.innerText = "Modus: SPIELEN"; status.className = "text-center text-slate-400 mb-1 font-mono text-sm uppercase tracking-widest font-bold"; } }
         
         let recInitLock = false;
@@ -631,6 +643,9 @@
             window.playSound('click'); 
             if(pads && pads.length > 0) { 
                 pads.forEach((pad, i) => { 
+                    if (pad.isRecording || pad.startTimeout) {
+                        stopRecording(i);
+                    }
                     if (pad.sourceNode) { 
                         try { pad.sourceNode.stop(); } catch(e){} 
                         pad.sourceNode = null;
