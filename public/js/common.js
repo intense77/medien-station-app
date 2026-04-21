@@ -190,6 +190,15 @@
         // --- 6. Service Worker Registration (PWA) ---
         if ('serviceWorker' in navigator) {
             const swPath = isSubApp ? '../sw.js' : 'sw.js';
+            
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
+            });
+
             navigator.serviceWorker.register(swPath)
                 .then(() => console.log('✅ Service Worker registriert'))
                 .catch(err => console.warn('❌ Service Worker Fehler:', err));
