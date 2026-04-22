@@ -38,7 +38,7 @@
 
     <!-- HEADER ZEILE -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
-        <button onclick="goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
 
@@ -47,7 +47,7 @@
             VIDEO LOOP
         </h1>
 
-        <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
             ?
         </button>
     </div>
@@ -163,7 +163,7 @@
         let currentStream;
         let currentFacingMode = 'user';
 
-        window.onload = () => {
+        function initApp() {
             video = document.getElementById('video');
             canvas = document.getElementById('canvas');
             ctx = canvas.getContext('2d');
@@ -175,7 +175,11 @@
             switchBtn = document.getElementById('switch-btn');
             
             initCam();
-        };
+        }
+
+        // Execute immediately after DOM is ready to avoid window.onload hang
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } 
+        else { initApp(); }
 
         async function initCam() {
             if (!video) return;
@@ -240,8 +244,13 @@
 
         function record() {
             frames = [];
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            
+            // Memory optimization: Cap resolution at 800px wide for recording
+            const vW = video.videoWidth || 1280;
+            const vH = video.videoHeight || 720;
+            const scale = Math.min(1, 800 / vW); 
+            canvas.width = vW * scale;
+            canvas.height = vH * scale;
 
             videoContainer.classList.remove('border-slate-700');
             videoContainer.classList.add('border-red-600');
@@ -249,17 +258,20 @@
             recIndicator.style.display = 'flex';
             
             let startTime = Date.now();
+            let lastFrameTime = 0;
             
             function captureLoop() {
-                if (Date.now() - startTime < 2000) {
-                    ctx.save();
-                    if (currentFacingMode === 'user') {
-                        ctx.translate(canvas.width, 0);
-                        ctx.scale(-1, 1);
+                const now = Date.now();
+                if (now - startTime < 2000) {
+                    // Record at ~20 fps (every 50ms) to save RAM and prevent crashing
+                    if (now - lastFrameTime >= 50) {
+                        ctx.save();
+                        if (currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                        lastFrameTime = now;
                     }
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    ctx.restore();
-                    frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
                     requestAnimationFrame(captureLoop);
                 } else {
                     play();
@@ -281,8 +293,9 @@
             resultBtns.style.display = 'flex';
 
             speedWrapper.classList.remove('opacity-30', 'pointer-events-none');
-            window.setSpeed(40);
-
+            speed = 40;
+            updateSpeedUI();
+            
             const loopFrames = [...frames, ...[...frames].reverse()];
             startLoop(loopFrames, 0);
         }
@@ -380,6 +393,7 @@
         window.resetApp = function() {
             if(window.playSound) window.playSound('click');
             clearInterval(loopInterval);
+            frames = []; // Free memory
             video.classList.remove('hidden');
             canvas.classList.add('hidden');
 
