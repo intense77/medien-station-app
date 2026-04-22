@@ -7,6 +7,9 @@
     
     <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/print.js"></script>
 
     <style>
         body { background-color: #facc15; overflow: hidden; user-select: none; touch-action: none; }
@@ -84,93 +87,93 @@
     </style>
 </head>
 <body class="h-[100dvh] w-screen flex flex-col p-2 md:p-4 box-border text-black overflow-hidden" 
-      onclick="resetIdleTimer()" ontouchstart="resetIdleTimer()">
+      onclick="window.resetIdleTimer()" ontouchstart="window.resetIdleTimer()">
 
     <!-- Header -->
-    <div class="h-20 md:h-28 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
-        <a href="../index.html" class="bg-slate-900 text-white border-2 md:border-4 border-slate-700 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
-        </a>
+        </button>
 
-        <!-- Titel (nur Desktop/Tablet) -->
-        <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-2 md:top-4 text-4xl lg:text-7xl font-black font-comic text-black transform -rotate-2 tracking-widest drop-shadow-lg pointer-events-none z-10">
+        <!-- Titel -->
+        <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl lg:text-5xl font-black font-comic text-black transform -rotate-2 tracking-widest drop-shadow-lg pointer-events-none z-10">
             COMIC STUDIO
         </h1>
 
         <div class="flex items-center gap-2 md:gap-4 z-50">
-            <button onclick="switchCamera()" class="bg-white text-black w-10 h-10 md:w-14 md:h-14 rounded-full text-lg md:text-3xl border-2 md:border-4 border-black shadow-lg hover:scale-110 transition active:scale-95 flex items-center justify-center shrink-0" title="Kamera wechseln">
+            <button onclick="window.switchCamera()" class="bg-white text-black w-10 h-10 md:w-14 md:h-14 rounded-full text-lg md:text-2xl border-2 md:border-4 border-black shadow-lg hover:scale-110 transition active:scale-95 flex items-center justify-center shrink-0" title="Kamera wechseln">
                 🔄
             </button>
 
-            <div class="relative w-24 h-16 md:w-48 md:h-32 bg-black rounded-lg md:rounded-2xl border-2 md:border-4 border-black shadow-xl transform rotate-2 overflow-hidden shrink-0">
-                <video id="webcam" autoplay playsinline muted class="w-full h-full object-cover opacity-90"></video>
-                <div class="absolute bottom-1 right-1 md:bottom-2 md:right-2 bg-red-600 text-white text-[8px] md:text-xs px-1 md:px-2 py-0.5 md:py-1 rounded font-black uppercase tracking-wider animate-pulse">LIVE</div>
+            <div class="relative w-20 h-12 md:w-28 md:h-16 bg-black rounded-lg md:rounded-xl border-2 md:border-4 border-black shadow-xl transform rotate-2 overflow-hidden shrink-0">
+                <video id="webcam" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover opacity-90"></video>
+                <div class="absolute bottom-1 right-1 bg-red-600 text-white text-[8px] md:text-[10px] px-1 py-0.5 rounded font-black uppercase tracking-wider animate-pulse leading-none z-10">LIVE</div>
             </div>
 
-            <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+            <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
                 ?
             </button>
         </div>
     </div>
 
-    <!-- Comic Strip (Flexibel für Hoch/Quer) -->
-    <div class="flex-1 flex flex-col md:flex-row gap-3 md:gap-4 w-full max-w-[95rem] mx-auto mb-2 md:mb-6 px-1 md:px-2 overflow-y-auto no-scrollbar">
+    <!-- Comic Strip -->
+    <div class="flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 w-full max-w-[95rem] mx-auto mb-2 md:mb-4 px-1 md:px-2 overflow-y-auto landscape:overflow-y-hidden no-scrollbar">
         
         <!-- Panel 1 -->
-        <div class="flex-1 bg-white border-4 md:border-[8px] border-black relative shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] md:shadow-[10px_10px_0px_0px_rgba(0,0,0,0.8)] rounded-xl md:rounded-2xl overflow-hidden group min-h-[250px] md:min-h-[300px] shrink-0" id="panel-0">
-            <canvas class="w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
+        <div class="flex-1 bg-white border-4 md:border-[8px] border-black relative shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] md:shadow-[10px_10px_0px_0px_rgba(0,0,0,0.8)] rounded-xl md:rounded-2xl overflow-hidden group min-h-[200px] md:min-h-0 landscape:min-h-0 shrink-0" id="panel-0">
+            <canvas class="absolute inset-0 w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
             <div class="absolute top-0 left-0 bg-black text-white px-4 md:px-6 py-1 md:py-2 text-2xl md:text-4xl font-black font-comic rounded-br-xl md:rounded-br-2xl pointer-events-none z-10">1</div>
             
             <div class="bubble-container">
                 <div class="bubble-handle">✥</div>
-                <div contenteditable="true" class="bubble-text" onfocus="clearText(this, 'Start...')" onblur="resetText(this, 'Start...')">Start...</div>
+                <div contenteditable="true" class="bubble-text" onfocus="window.clearText(this, 'Start...')" onblur="window.resetText(this, 'Start...')">Start...</div>
             </div>
             
-            <button onclick="snap(0)" class="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full text-2xl md:text-4xl lg:text-5xl shadow-2xl border-2 md:border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
+            <button onclick="window.snap(0)" class="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full text-2xl md:text-4xl lg:text-5xl shadow-2xl border-2 md:border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
         </div>
 
         <!-- Panel 2 -->
-        <div class="flex-1 bg-white border-4 md:border-[8px] border-black relative shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] md:shadow-[10px_10px_0px_0px_rgba(0,0,0,0.8)] rounded-xl md:rounded-2xl overflow-hidden group min-h-[250px] md:min-h-[300px] shrink-0" id="panel-1">
-            <canvas class="w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
+        <div class="flex-1 bg-white border-4 md:border-[8px] border-black relative shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] md:shadow-[10px_10px_0px_0px_rgba(0,0,0,0.8)] rounded-xl md:rounded-2xl overflow-hidden group min-h-[200px] md:min-h-0 landscape:min-h-0 shrink-0" id="panel-1">
+            <canvas class="absolute inset-0 w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
             <div class="absolute top-0 left-0 bg-black text-white px-4 md:px-6 py-1 md:py-2 text-2xl md:text-4xl font-black font-comic rounded-br-xl md:rounded-br-2xl pointer-events-none z-10">2</div>
             
             <div class="bubble-container">
                 <div class="bubble-handle">✥</div>
-                <div contenteditable="true" class="bubble-text" onfocus="clearText(this, 'Dann...')" onblur="resetText(this, 'Dann...')">Dann...</div>
+                <div contenteditable="true" class="bubble-text" onfocus="window.clearText(this, 'Dann...')" onblur="window.resetText(this, 'Dann...')">Dann...</div>
             </div>
             
-            <button onclick="snap(1)" class="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full text-2xl md:text-4xl lg:text-5xl shadow-2xl border-2 md:border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
+            <button onclick="window.snap(1)" class="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full text-2xl md:text-4xl lg:text-5xl shadow-2xl border-2 md:border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
         </div>
 
         <!-- Panel 3 -->
-        <div class="flex-1 bg-white border-4 md:border-[8px] border-black relative shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] md:shadow-[10px_10px_0px_0px_rgba(0,0,0,0.8)] rounded-xl md:rounded-2xl overflow-hidden group min-h-[250px] md:min-h-[300px] shrink-0" id="panel-2">
-            <canvas class="w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
+        <div class="flex-1 bg-white border-4 md:border-[8px] border-black relative shadow-[6px_6px_0px_0px_rgba(0,0,0,0.8)] md:shadow-[10px_10px_0px_0px_rgba(0,0,0,0.8)] rounded-xl md:rounded-2xl overflow-hidden group min-h-[200px] md:min-h-0 landscape:min-h-0 shrink-0" id="panel-2">
+            <canvas class="absolute inset-0 w-full h-full object-cover bg-gray-100 pointer-events-none"></canvas>
             <div class="absolute top-0 left-0 bg-black text-white px-4 md:px-6 py-1 md:py-2 text-2xl md:text-4xl font-black font-comic rounded-br-xl md:rounded-br-2xl pointer-events-none z-10">3</div>
             
             <div class="bubble-container">
                 <div class="bubble-handle">✥</div>
-                <div contenteditable="true" class="bubble-text" onfocus="clearText(this, 'Ende!')" onblur="resetText(this, 'Ende!')">Ende!</div>
+                <div contenteditable="true" class="bubble-text" onfocus="window.clearText(this, 'Ende!')" onblur="window.resetText(this, 'Ende!')">Ende!</div>
             </div>
             
-            <button onclick="snap(2)" class="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full text-2xl md:text-4xl lg:text-5xl shadow-2xl border-2 md:border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
+            <button onclick="window.snap(2)" class="absolute bottom-2 right-2 md:bottom-4 md:right-4 bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full text-2xl md:text-4xl lg:text-5xl shadow-2xl border-2 md:border-4 border-white z-30 active:scale-90 transition flex items-center justify-center">📸</button>
         </div>
 
     </div>
 
     <!-- Footer Action -->
     <div class="text-center pb-2 md:pb-4 flex justify-center gap-3 md:gap-6 px-2 md:px-4 shrink-0">
-        <button onclick="downloadComic()" class="flex-1 max-w-sm bg-slate-900 text-white font-black font-comic text-base md:text-3xl py-3 md:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-slate-700 hover:border-slate-500 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
+        <button onclick="window.downloadComic()" class="flex-1 max-w-sm bg-slate-900 text-white font-black font-comic text-base md:text-3xl py-3 md:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-slate-700 hover:border-slate-500 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
             <span class="text-xl md:text-4xl">💾</span> <span class="hidden sm:inline">SPEICHERN</span>
         </button>
-        <button onclick="printComic()" class="flex-1 max-w-sm bg-white text-black font-black font-comic text-base md:text-3xl py-3 md:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-gray-300 hover:border-gray-400 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
+        <button onclick="window.printComic(this)" class="flex-1 max-w-sm bg-white text-black font-black font-comic text-base md:text-3xl py-3 md:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-gray-300 hover:border-gray-400 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
             <span class="text-xl md:text-4xl">🖨️</span> <span class="hidden sm:inline">DRUCKEN</span>
         </button>
     </div>
 
     <!-- HILFE MODAL -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo()">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-yellow-400 rounded-[2rem] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="toggleInfo()" class="absolute top-6 right-6 text-white hover:text-yellow-400 text-4xl font-bold transition">✖</button>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-yellow-400 text-4xl font-bold transition">✖</button>
             
             <h2 class="text-2xl md:text-4xl font-black text-white mb-4 md:mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-4xl md:text-6xl">📸</span> ANLEITUNG
@@ -196,7 +199,7 @@
                 </div>
             </div>
             
-            <button onclick="toggleInfo()" class="mt-6 md:mt-8 w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
+            <button onclick="window.toggleInfo()" class="mt-6 md:mt-8 w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
                 ALLES KLAR!
             </button>
         </div>
@@ -212,7 +215,7 @@
         let idleTimer;
 
         // --- IDLE TIMER ---
-        function resetIdleTimer() {
+        window.resetIdleTimer = function() {
             clearTimeout(idleTimer);
             // Nach 2 Minuten Inaktivität -> Zurück zum Hub
             idleTimer = setTimeout(() => {
@@ -220,14 +223,14 @@
             }, 120000);
         }
         
-        // Event Listener für alle relevanten Aktionen
         ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => 
-            document.addEventListener(evt, resetIdleTimer, {passive: true})
+            document.addEventListener(evt, window.resetIdleTimer, {passive: true})
         );
-        resetIdleTimer(); // Initial start
+        window.resetIdleTimer();
 
         // --- INFO MODAL ---
-        function toggleInfo() {
+        window.toggleInfo = function() {
+            if(window.playSound) window.playSound('click');
             const modal = document.getElementById('info-modal');
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
@@ -238,12 +241,11 @@
             }
         }
         
-        async function startCamera() {
+        window.initCam = async function() {
             try {
                 if (currentStream) {
                     currentStream.getTracks().forEach(track => track.stop());
                 }
-
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { 
                         width: { ideal: 1280 }, 
@@ -255,26 +257,25 @@
                 video.srcObject = stream;
             } catch (err) {
                 console.error(err);
-                alert("Kamera Fehler! Bitte erlaube den Zugriff.\n" + err.message);
             }
         }
 
         // --- KAMERA WECHSEL ---
-        function switchCamera() {
+        window.switchCamera = function() {
+            if(window.playSound) window.playSound('click');
             currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
-            startCamera();
+            window.initCam();
         }
         
-        function snap(panelIndex) {
+        window.snap = function(panelIndex) {
+            if(window.playSound) window.playSound('shutter');
             const panel = document.getElementById('panel-' + panelIndex);
             const canvas = panel.querySelector('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Fixe Auflösung für Export-Qualität
             canvas.width = 1280;
             canvas.height = 720;
             
-            // Cover-Logik für Video auf Canvas
             const vRatio = video.videoWidth / video.videoHeight;
             const cRatio = canvas.width / canvas.height;
             let sx, sy, sWidth, sHeight;
@@ -292,7 +293,6 @@
             }
 
             ctx.save();
-            // Spiegeln nur bei Frontkamera ('user') sinnvoll
             if(currentFacingMode === 'user') {
                 ctx.scale(-1, 1); 
                 ctx.drawImage(video, sx, sy, sWidth, sHeight, -canvas.width, 0, canvas.width, canvas.height);
@@ -301,14 +301,13 @@
             }
             ctx.restore();
             
-            // Blitz Feedback
             panel.style.borderColor = '#facc15';
             setTimeout(() => panel.style.borderColor = 'black', 200);
         }
 
         // --- TEXT LOGIK ---
-        function clearText(el, defaultText) { if (el.innerText.trim() === defaultText) el.innerText = ""; }
-        function resetText(el, defaultText) { if (el.innerText.trim() === "") el.innerText = defaultText; }
+        window.clearText = function(el, defaultText) { if (el.innerText.trim() === defaultText) el.innerText = ""; }
+        window.resetText = function(el, defaultText) { if (el.innerText.trim() === "") el.innerText = defaultText; }
 
         // --- DRAG & DROP (Nur via Handle) ---
         const handles = document.querySelectorAll('.bubble-handle');
@@ -461,7 +460,8 @@
             if (stroke) ctx.stroke();
         }
 
-        function downloadComic() {
+        window.downloadComic = function() {
+            if(window.playSound) window.playSound('success');
             const dataUrl = generateComicImage();
             const link = document.createElement('a');
             link.download = 'mein-comic.png';
@@ -469,15 +469,21 @@
             link.click();
         }
 
-        function printComic() {
+        window.printComic = function(btn) {
+            if(window.playSound) window.playSound('click');
             const dataUrl = generateComicImage();
-            const printImg = document.getElementById('print-img');
-            printImg.src = dataUrl;
-            setTimeout(() => { window.print(); }, 500);
+            
+            if (window.printImage) {
+                window.printImage(dataUrl, 'Comic-Studio', btn);
+            } else {
+                const printImg = document.getElementById('print-img');
+                printImg.src = dataUrl;
+                setTimeout(() => { window.print(); }, 500);
+            }
         }
 
-        startCamera();
-        
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', window.initCam); } 
+        else { window.initCam(); }
     </script>
 </body>
 </html>
