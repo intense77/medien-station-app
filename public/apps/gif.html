@@ -6,7 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <script src="../js/tailwind.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="../manifest.json">
+    <link rel="icon" href="../assets/logo.png">
+    <!-- iOS Meta Tags -->
+    <link rel="apple-touch-icon" href="../assets/logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link href="../css/style.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/common.js"></script>
 
     <style>
         /* Erzwingt Vollbild ohne Scrollen */
@@ -15,23 +27,52 @@
             background-color: #000; color: white; 
             overflow: hidden !important; 
             user-select: none; touch-action: none; 
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        html { width: 100%; height: 100%; background-color: #0f172a; }
+        body {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; margin: 0;
+            background-color: #0f172a; 
+            color: white; 
+            overflow: hidden !important;
+            user-select: none; 
+            touch-action: none;
             overscroll-behavior: none;
+            font-family: sans-serif;
+            animation: fadeIn 0.4s ease-out;
+            box-sizing: border-box;
+            padding-top: calc(10px + env(safe-area-inset-top));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
         
         /* Video und Canvas sollen Block-Elemente sein (verhindert weiße Linien unten) */
         video, canvas { display: block; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        button:active { transform: scale(0.95); transition: transform 0.1s; }
+        /* Countdown Animation */
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
     </style>
 </head>
 <body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen" onclick="resetIdleTimer()" ontouchstart="resetIdleTimer()">
+<body class="flex flex-col p-2 md:p-4">
 
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 px-1">
         <a href="../index.html" class="bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0">
+    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 px-1 relative w-full max-w-[95rem] mx-auto">
+        <button onclick="goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
         </a>
         
         <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+        </button>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+             <h1 class="text-2xl md:text-4xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] tracking-widest uppercase">
+                ✨ VIDEO LOOP
+            </h1>
+        </div>
+        <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
             ?
         </button>
     </div>
@@ -62,6 +103,16 @@
                 <button onclick="setFilter('hue-rotate(90deg)')" class="w-16 h-12 md:w-24 md:h-16 shrink-0 rounded-lg md:rounded-xl bg-emerald-500 text-white font-black text-[10px] md:text-xs hover:scale-105 active:scale-95 transition border-2 md:border-4 border-white/20 flex flex-col items-center justify-center shadow-lg" style="filter: hue-rotate(90deg)">
                     <span>👽</span> ALIEN
                 </button>
+    <div class="flex-1 flex flex-row gap-2 md:gap-4 min-h-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden pb-1">
+        <div class="w-48 md:w-64 flex flex-col gap-2 bg-gray-900/50 p-2 rounded-2xl border border-white/10 shadow-2xl shrink-0 h-full max-h-full overflow-hidden">
+            <div class="text-[8px] font-bold text-gray-500 uppercase tracking-widest text-center w-full py-1 shrink-0">Filter</div>
+            <div class="flex-1 overflow-hidden grid grid-cols-2 grid-rows-3 gap-2 w-full pb-1">
+                <button onclick="setFilter('')" class="w-full h-full rounded-xl bg-white text-black font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-transparent flex flex-col items-center justify-center"><span class="text-3xl mb-1">⚪</span> NORM</button>
+                <button onclick="setFilter('grayscale(100%) contrast(1.2)')" class="w-full h-full rounded-xl bg-gray-600 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: grayscale(100%)"><span class="text-3xl mb-1">⚫</span> S/W</button>
+                <button onclick="setFilter('sepia(80%)')" class="w-full h-full rounded-xl bg-amber-700 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: sepia(80%)"><span class="text-3xl mb-1">📜</span> ALT</button>
+                <button onclick="setFilter('invert(100%)')" class="w-full h-full rounded-xl bg-blue-600 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: invert(100%)"><span class="text-3xl mb-1">💀</span> XRAY</button>
+                <button onclick="setFilter('saturate(250%)')" class="w-full h-full rounded-xl bg-pink-500 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: saturate(250%)"><span class="text-3xl mb-1">🎨</span> POP</button>
+                <button onclick="setFilter('hue-rotate(90deg)')" class="w-full h-full rounded-xl bg-emerald-500 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: hue-rotate(90deg)"><span class="text-3xl mb-1">👽</span> ALIEN</button>
             </div>
         </div>
 
@@ -85,7 +136,15 @@
                     <div class="text-6xl animate-spin mb-4">💾</div>
                     <div class="text-2xl font-bold">Speichere Loop...</div>
                 </div>
+        <div id="video-container" class="relative flex-1 w-full h-full bg-gray-900 rounded-[1.5rem] overflow-hidden border-[6px] border-gray-800 shadow-2xl group transition-colors duration-200 flex items-center justify-center min-h-0">
+            <video id="video" autoplay playsinline muted class="w-full h-full object-contain"></video>
+            <canvas id="canvas" class="w-full h-full object-contain hidden"></canvas>
+            <div id="rec-indicator" class="absolute top-4 right-4 hidden items-center gap-2 z-30 bg-red-600 text-white px-3 py-1 rounded-full font-black text-sm animate-pulse shadow-lg"><div class="w-2 h-2 bg-white rounded-full"></div> REC</div>
+            <div id="saving-overlay" class="absolute inset-0 bg-black/80 z-50 hidden flex-col items-center justify-center text-white">
+                <div class="text-6xl animate-spin mb-4">💾</div>
+                <div class="text-2xl font-bold">Speichere...</div>
             </div>
+        </div>
 
             <!-- Button Area (Feste Höhe) -->
             <div class="h-16 md:h-24 w-full flex-shrink-0 flex items-center justify-center relative px-2">
@@ -112,8 +171,15 @@
                         💾 SPEICHERN
                     </button>
                 </div>
+        <div class="w-48 md:w-64 flex-shrink-0 flex flex-col gap-2 z-40 bg-gray-900/50 p-2 rounded-2xl border border-white/10 shadow-2xl h-full max-h-full overflow-hidden transition-opacity opacity-30 pointer-events-none" id="speed-controls">
+            <div class="text-center text-[8px] font-bold text-gray-400 mb-1 uppercase tracking-widest shrink-0">Tempo</div>
+            <div class="flex-1 flex flex-col justify-between gap-2">
+                <button id="btn-slow" onclick="setSpeed(150)" class="w-full flex-1 bg-green-700 hover:bg-green-600 text-white rounded-xl shadow-lg border-b-4 border-green-900 transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-5xl">🐢</span><span class="text-lg font-black uppercase">Langsam</span></button>
+                <button id="btn-norm" onclick="setSpeed(40)" class="w-full flex-1 bg-blue-700 hover:bg-blue-600 text-white rounded-xl shadow-lg border-b-4 border-blue-900 transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-5xl">🚶</span><span class="text-lg font-black uppercase">Mittel</span></button>
+                <button id="btn-turbo" onclick="setSpeed(10)" class="w-full flex-1 bg-red-700 hover:bg-red-600 text-white rounded-xl shadow-lg border-b-4 border-red-900 transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-5xl">🚀</span><span class="text-lg font-black uppercase">Turbo</span></button>
             </div>
         </div>
+    </div>
 
         <!-- 3. RECHTE SPALTE/ZEILE: Speed -->
         <div class="w-full md:w-32 flex flex-row md:flex-col justify-center gap-2 md:gap-3 z-40 bg-gray-900/50 p-2 rounded-xl md:rounded-2xl border border-white/10 shadow-2xl shrink-0 md:h-full max-h-full overflow-x-auto no-scrollbar transition-opacity opacity-30 pointer-events-none items-center" id="speed-controls">
@@ -132,17 +198,33 @@
                     <span class="text-lg md:text-2xl">🚀</span><span class="text-[10px] font-black uppercase hidden md:inline">Turbo</span>
                 </button>
             </div>
+    <div class="h-24 md:h-28 w-full flex-shrink-0 flex items-center justify-center relative max-w-[95rem] mx-auto mb-1">
+        <div id="start-overlay" class="absolute w-full flex justify-center items-center gap-4 md:gap-6 z-20 pointer-events-none">
+            <button onclick="switchCamera()" id="switch-btn" class="pointer-events-auto bg-slate-800/90 hover:bg-slate-700 text-white w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-slate-500 shadow-xl backdrop-blur flex items-center justify-center active:scale-95 transition shrink-0" title="Kamera wechseln">
+                <span class="text-5xl md:text-6xl">🔄</span>
+            </button>
+            <button onclick="startCountdown()" class="pointer-events-auto bg-white hover:bg-gray-200 text-black font-black h-20 md:h-24 px-10 md:px-12 rounded-full border-b-8 border-gray-400 active:border-b-0 active:translate-y-2 shadow-2xl text-3xl md:text-4xl flex items-center justify-center gap-3 transition active:scale-95">
+                <span class="text-4xl md:text-5xl">🎥</span> ACTION!
+            </button>
         </div>
 
+        
+        <div id="action-buttons" class="hidden gap-2 md:gap-4 w-full justify-center z-20 pointer-events-none">
+            <button onclick="reset()" class="pointer-events-auto bg-yellow-500 hover:bg-yellow-400 text-black text-2xl font-black py-3 px-6 rounded-xl border-b-4 border-yellow-700 active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-2 flex-1 max-w-[200px]">🔄 NOCHMAL</button>
+            <button onclick="saveLoopVideo()" class="pointer-events-auto bg-green-600 hover:bg-green-500 text-white text-2xl font-black py-3 px-6 rounded-xl border-b-4 border-green-800 active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-2 flex-1 max-w-[200px]">💾 SPEICHERN</button>
+        </div>
     </div>
 
     <!-- HILFE MODAL -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo()">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="toggleInfo()">
         <div class="bg-slate-800 border-4 border-sky-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
             <button onclick="toggleInfo()" class="absolute top-6 right-6 text-white hover:text-sky-400 text-4xl font-bold transition">✖</button>
             <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-6xl">📹</span> ANLEITUNG
             </h2>
+            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white hover:text-sky-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4"><span class="text-6xl">📹</span> ANLEITUNG</h2>
             <div class="text-lg text-slate-300 space-y-4">
                 <p>1. Wähle links einen <b>Filter</b>.</p>
                 <p>2. Drücke unten auf <b>ACTION!</b>.</p>
@@ -151,6 +233,11 @@
             </div>
             <button onclick="toggleInfo()" class="mt-8 w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
         </div>
+    </div>
+
+    <!-- Countdown Overlay -->
+    <div id="countdown-overlay" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm pointer-events-none">
+        <div class="text-[10rem] md:text-[15rem] font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] font-comic" id="countdown-text">3</div>
     </div>
 
     <script>
@@ -167,11 +254,14 @@
                 }
             }, 120000); // 2 Min
         }
+        let video, canvas, ctx, videoContainer, recIndicator, startBtn, resultBtns, speedWrapper, switchBtn; let frames = []; let speed = 40; let loopInterval; let currentStream; let currentFacingMode = 'user';
         
         ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => 
             document.addEventListener(evt, resetIdleTimer, {passive: true})
         );
         resetIdleTimer();
+        // Tablet Hardening: Kontextmenü deaktivieren
+        document.addEventListener('contextmenu', event => event.preventDefault());
 
         // --- INFO MODAL ---
         function toggleInfo() {
@@ -194,6 +284,9 @@
         const resultBtns = document.getElementById('action-buttons');
         const speedWrapper = document.getElementById('speed-controls');
         const switchBtn = document.getElementById('switch-btn');
+        window.initCam = async function() { video = document.getElementById('video'); canvas = document.getElementById('canvas'); ctx = canvas.getContext('2d'); videoContainer = document.getElementById('video-container'); recIndicator = document.getElementById('rec-indicator'); startBtn = document.getElementById('start-overlay'); resultBtns = document.getElementById('action-buttons'); speedWrapper = document.getElementById('speed-controls'); switchBtn = document.getElementById('switch-btn'); if(!video) return; try { if (currentStream && typeof currentStream.getTracks === 'function') currentStream.getTracks().forEach(track => track.stop()); const stream = await navigator.mediaDevices.getUserMedia({ video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode } }); currentStream = stream; video.srcObject = stream; video.onloadedmetadata = () => { video.play(); }; video.style.transform = (currentFacingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)'; } catch (err) { alert("Kamera-Fehler: " + err.message); } }
+        window.switchCamera = function() { currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user'; window.initCam(); }
+        window.setFilter = function(filter) { window.playSound('click'); if(video) video.style.filter = filter; if(canvas) canvas.style.filter = filter; }
         
         let frames = [];
         let speed = 40; 
@@ -233,6 +326,7 @@
         }
 
         function startCountdown() {
+        window.startCountdown = function() { 
             startBtn.classList.add('hidden'); 
             switchBtn.classList.add('hidden'); 
             
@@ -240,8 +334,11 @@
             cd.classList.remove('hidden');
             cd.style.display = 'flex';
             
+            const overlay = document.getElementById('countdown-overlay');
+            const text = document.getElementById('countdown-text');
             let count = 3;
             cd.innerText = count;
+            overlay.classList.remove('hidden');
             
             const timer = setInterval(() => {
                 count--;
@@ -250,6 +347,16 @@
                 } else {
                     clearInterval(timer);
                     cd.style.display = 'none';
+            const tick = () => {
+                text.innerText = count;
+                text.classList.remove('animate-pop');
+                void text.offsetWidth; 
+                text.classList.add('animate-pop');
+                window.playSound('click'); 
+                
+                if (count === 0) {
+                    overlay.classList.add('hidden');
+                    window.playSound('shutter'); 
                     record();
                 }
             }, 800);
@@ -280,6 +387,8 @@
                     requestAnimationFrame(captureLoop);
                 } else {
                     play();
+                    count--;
+                    setTimeout(tick, 1000);
                 }
             }
             captureLoop();
@@ -340,6 +449,7 @@
                 active.classList.remove('opacity-50', 'border-transparent');
                 active.classList.add('opacity-100', 'scale-105', 'border-white');
             }
+            tick();
         }
 
         function saveLoopVideo() {
@@ -388,6 +498,15 @@
             }
         });
 
+        function record() { frames = []; canvas.width = video.videoWidth; canvas.height = video.videoHeight; videoContainer.classList.replace('border-gray-800', 'border-red-600'); recIndicator.classList.remove('hidden'); recIndicator.style.display = 'flex'; let startTime = Date.now(); function captureLoop() { if (Date.now() - startTime < 2000) { ctx.save(); if (currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); } ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.restore(); frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); requestAnimationFrame(captureLoop); } else { play(); } } captureLoop(); }
+        function play() { videoContainer.classList.replace('border-red-600', 'border-gray-800'); recIndicator.classList.add('hidden'); recIndicator.style.display = ''; video.classList.add('hidden'); canvas.classList.remove('hidden'); resultBtns.classList.remove('hidden'); resultBtns.style.display = 'flex'; speedWrapper.classList.remove('opacity-30', 'pointer-events-none'); window.setSpeed(40); const loopFrames = [...frames, ...[...frames].reverse()]; startLoop(loopFrames, 0); }
+        function startLoop(loopFrames, i) { clearInterval(loopInterval); loopInterval = setInterval(() => { ctx.putImageData(loopFrames[i], 0, 0); i = (i + 1) % loopFrames.length; }, speed); }
+        window.setSpeed = function(ms) { window.playSound('click'); speed = ms; updateSpeedUI(); if (canvas && !canvas.classList.contains('hidden')) { const loopFrames = [...frames, ...[...frames].reverse()]; startLoop(loopFrames, 0); } }
+        function updateSpeedUI() { const btns = { 150: document.getElementById('btn-slow'), 40: document.getElementById('btn-norm'), 10: document.getElementById('btn-turbo') }; Object.values(btns).forEach(btn => { if(btn) { btn.classList.remove('opacity-100', 'scale-105', 'border-white'); btn.classList.add('opacity-50', 'border-transparent'); } }); const active = btns[speed]; if(active) { active.classList.remove('opacity-50', 'border-transparent'); active.classList.add('opacity-100', 'scale-105', 'border-white'); } }
+        window.saveLoopVideo = function() { window.playSound('success'); document.getElementById('saving-overlay').classList.remove('hidden'); document.getElementById('saving-overlay').style.display = 'flex'; const stream = canvas.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); const chunks = []; recorder.ondataavailable = e => chunks.push(e.data); recorder.onstop = () => { const blob = new Blob(chunks, { type: 'video/webm' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'mein-loop.webm'; a.click(); document.getElementById('saving-overlay').classList.add('hidden'); document.getElementById('saving-overlay').style.display = ''; }; recorder.start(); setTimeout(() => recorder.stop(), 3000); }
+        window.reset = function() { clearInterval(loopInterval); video.classList.remove('hidden'); canvas.classList.add('hidden'); startBtn.classList.remove('hidden'); resultBtns.classList.add('hidden'); resultBtns.style.display = 'none'; speedWrapper.classList.add('opacity-30', 'pointer-events-none'); switchBtn.classList.remove('hidden'); window.setSpeed(40); videoContainer.classList.replace('border-red-600', 'border-gray-800'); recIndicator.classList.add('hidden'); recIndicator.style.display = ''; }
+        window.addEventListener('beforeunload', () => { try { if(currentStream) currentStream.getTracks().forEach(track => track.stop()); } catch(e) {} });
+        window.onload = window.initCam;
     </script>
 </body>
 </html>
