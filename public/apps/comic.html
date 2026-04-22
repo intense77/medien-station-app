@@ -7,6 +7,7 @@
     
     <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
     <script src="../js/print.js"></script>
@@ -86,8 +87,7 @@
         }
     </style>
 </head>
-<body class="h-[100dvh] w-screen flex flex-col p-2 md:p-4 box-border text-black overflow-hidden" 
-      onclick="window.resetIdleTimer()" ontouchstart="window.resetIdleTimer()">
+<body class="h-[100dvh] w-full flex flex-col p-2 md:p-4 box-border text-black overflow-hidden">
 
     <!-- Header -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
@@ -162,10 +162,10 @@
 
     <!-- Footer Action -->
     <div class="text-center pb-2 md:pb-4 flex justify-center gap-3 md:gap-6 px-2 md:px-4 shrink-0">
-        <button onclick="window.downloadComic()" class="flex-1 max-w-sm bg-slate-900 text-white font-black font-comic text-base md:text-3xl py-3 md:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-slate-700 hover:border-slate-500 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
+        <button onclick="window.downloadComic()" class="flex-1 max-w-sm bg-slate-900 text-white font-black font-comic text-base md:text-3xl py-3 md:py-6 landscape:py-2 md:landscape:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-slate-700 hover:border-slate-500 hover:translate-y-[-2px] active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
             <span class="text-xl md:text-4xl">💾</span> <span class="hidden sm:inline">SPEICHERN</span>
         </button>
-        <button onclick="window.printComic(this)" class="flex-1 max-w-sm bg-white text-black font-black font-comic text-base md:text-3xl py-3 md:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-gray-300 hover:border-gray-400 hover:translate-y-[-2px] active:border-b-0 active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
+        <button onclick="window.printComic(this)" class="flex-1 max-w-sm bg-white text-black font-black font-comic text-base md:text-3xl py-3 md:py-6 landscape:py-2 md:landscape:py-6 rounded-xl md:rounded-3xl border-b-4 md:border-b-[10px] border-gray-300 hover:border-gray-400 hover:translate-y-[-2px] active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all shadow-2xl flex items-center justify-center gap-2 md:gap-3">
             <span class="text-xl md:text-4xl">🖨️</span> <span class="hidden sm:inline">DRUCKEN</span>
         </button>
     </div>
@@ -212,34 +212,6 @@
         const video = document.getElementById('webcam');
         let currentFacingMode = 'user'; // Startet mit Frontkamera
         let currentStream;
-        let idleTimer;
-
-        // --- IDLE TIMER ---
-        window.resetIdleTimer = function() {
-            clearTimeout(idleTimer);
-            // Nach 2 Minuten Inaktivität -> Zurück zum Hub
-            idleTimer = setTimeout(() => {
-                window.location.href = '../index.html';
-            }, 120000);
-        }
-        
-        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => 
-            document.addEventListener(evt, window.resetIdleTimer, {passive: true})
-        );
-        window.resetIdleTimer();
-
-        // --- INFO MODAL ---
-        window.toggleInfo = function() {
-            if(window.playSound) window.playSound('click');
-            const modal = document.getElementById('info-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
         
         window.initCam = async function() {
             try {
@@ -306,7 +278,7 @@
         }
 
         // --- TEXT LOGIK ---
-        window.clearText = function(el, defaultText) { if (el.innerText.trim() === defaultText) el.innerText = ""; }
+        window.clearText = function(el, defaultText) { if(window.playSound) window.playSound('click'); if (el.innerText.trim() === defaultText) el.innerText = ""; }
         window.resetText = function(el, defaultText) { if (el.innerText.trim() === "") el.innerText = defaultText; }
 
         // --- DRAG & DROP (Nur via Handle) ---
