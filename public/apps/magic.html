@@ -7,6 +7,10 @@
     
     <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/print.js"></script>
     <script src="../js/camera_utils.js"></script>
     <script src="../js/selfie_segmentation.js"></script>
 
@@ -28,22 +32,21 @@
         }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen" 
-      onclick="window.resetIdleTimer()" ontouchstart="window.resetIdleTimer()">
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-full">
 
     <!-- HEADER ZEILE -->
-    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 px-1">
-        <a href="../index.html" class="bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0">
+    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 px-1 relative">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
-        </a>
+        </button>
         
-        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
             ?
         </button>
     </div>
 
     <!-- MAIN BEREICH (2 Spalten auf Tablet, 2 Zeilen auf Mobile) -->
-    <div class="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 min-h-0 min-w-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden pb-1">
+    <div class="flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 min-w-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden pb-1">
 
         <!-- LINKER BEREICH: Live Bild -->
         <div class="relative flex-1 bg-black flex flex-col items-center justify-center overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border-4 md:border-[8px] border-slate-800 shadow-2xl w-full min-h-0 min-w-0">
@@ -51,30 +54,6 @@
             <video id="ai-video" autoplay playsinline muted class="hidden"></video>
             <canvas id="ai-canvas" class="w-full h-full object-contain"></canvas>
 
-            <!-- VORSCHAU OVERLAY (Versteckt bis Foto gemacht) -->
-            <div id="preview-overlay" class="absolute inset-0 bg-slate-900 z-50 hidden flex-col items-center justify-center p-4">
-                <h2 class="text-xl md:text-3xl font-bold text-white mb-4 md:mb-6 animate-bounce">Dein magisches Foto!</h2>
-                
-                <!-- Das Bild -->
-                <div class="relative w-full max-w-[90%] md:max-w-[70%] h-[50%] md:h-[60%] border-4 md:border-8 border-white shadow-2xl rounded-xl overflow-hidden bg-black">
-                    <img id="preview-img-display" class="w-full h-full object-contain" src="">
-                </div>
-                
-                <div class="flex flex-wrap justify-center gap-3 md:gap-6 mt-4 md:mt-8 w-full max-w-2xl px-2">
-                    <button onclick="window.closePreview()" class="flex-1 min-w-[120px] bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 px-2 md:py-4 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl active:scale-95 transition border-b-4 md:border-b-8 border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
-                        🔄 NOCHMAL
-                    </button>
-                    <!-- Drucken ruft window.print() auf -->
-                    <button onclick="window.printFromPreview()" class="flex-1 min-w-[120px] bg-white text-slate-900 font-black py-3 px-2 md:py-4 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl hover:bg-gray-100 active:scale-95 transition border-b-4 md:border-b-8 border-gray-400 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
-                        🖨️ DRUCKEN
-                    </button>
-                    <!-- Optional: Speichern -->
-                    <button onclick="window.saveFromPreview()" class="flex-1 min-w-[120px] bg-violet-600 text-white font-black py-3 px-2 md:py-4 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl hover:bg-violet-500 active:scale-95 transition border-b-4 md:border-b-8 border-violet-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
-                        💾 FOTO
-                    </button>
-                </div>
-            </div>
-        
             <!-- Lade-Screen -->
             <div id="ai-loading" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-40 p-4 text-center">
                 <div class="text-6xl animate-spin mb-4">🔮</div>
@@ -89,25 +68,25 @@
             </div>
 
             <!-- Buttons Unten (Nur sichtbar wenn KEINE Vorschau) -->
-            <div id="main-controls" class="absolute bottom-4 md:bottom-6 flex gap-3 md:gap-4 z-30 w-full justify-center px-4 pointer-events-none">
+            <div id="main-controls" class="absolute bottom-2 md:bottom-6 flex gap-2 md:gap-4 z-30 w-full justify-center px-2 pointer-events-none">
                 
                 <!-- KAMERA WECHSELN -->
-                <button onclick="window.switchCamera()" class="pointer-events-auto w-14 h-14 md:w-20 md:h-20 bg-slate-700 hover:bg-slate-600 text-white font-black rounded-xl md:rounded-2xl text-xl md:text-3xl shadow-xl hover:scale-105 active:scale-95 transition border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-2 flex items-center justify-center shrink-0" title="Kamera wechseln">
+                <button onclick="window.switchCamera()" class="pointer-events-auto w-12 h-12 md:w-20 md:h-20 bg-slate-700 hover:bg-slate-600 text-white font-black rounded-xl md:rounded-2xl text-lg md:text-3xl shadow-xl hover:scale-105 active:scale-95 transition border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex items-center justify-center shrink-0" title="Kamera wechseln">
                     🔄
                 </button>
 
                 <!-- FOTO MACHEN -->
-                <button onclick="window.capturePhoto()" class="pointer-events-auto flex-1 max-w-[200px] md:max-w-[250px] bg-violet-600 hover:bg-violet-500 text-white font-black py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-2xl shadow-xl hover:scale-105 active:scale-95 transition border-b-4 md:border-b-[8px] border-violet-900 active:border-b-0 active:translate-y-2 flex items-center justify-center gap-2">
+                <button onclick="window.capturePhoto()" class="pointer-events-auto flex-1 max-w-[180px] md:max-w-[250px] bg-violet-600 hover:bg-violet-500 text-white font-black py-2 md:py-4 rounded-xl md:rounded-2xl text-sm md:text-2xl shadow-xl hover:scale-105 active:scale-95 transition border-b-4 md:border-b-[8px] border-violet-900 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex items-center justify-center gap-1 md:gap-2">
                     ✨ FOTO
                 </button>
             </div>
         </div>
 
         <!-- RECHTER BEREICH: Auswahl -->
-        <div class="w-full md:w-1/3 md:min-w-[280px] md:max-w-md bg-slate-800 p-2 md:p-4 rounded-xl md:rounded-[2rem] border-4 border-slate-700 flex flex-col shrink-0 h-28 md:h-full z-20 shadow-2xl">
-            <h3 class="text-white font-black text-[10px] md:text-xl mb-1 md:mb-4 text-center uppercase tracking-wider shrink-0 hidden md:block">🌍 Reiseziel</h3>
+        <div class="w-full md:w-1/3 landscape:w-1/3 md:min-w-[280px] md:max-w-md bg-slate-800 p-2 md:p-4 landscape:p-4 rounded-xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col shrink-0 h-28 landscape:h-full md:h-full z-20 shadow-2xl">
+            <h3 class="text-white font-black text-[10px] md:text-xl landscape:text-lg mb-1 md:mb-4 landscape:mb-2 text-center uppercase tracking-wider shrink-0 hidden md:block landscape:block">🌍 Reiseziel</h3>
             
-            <div class="flex-1 flex flex-row md:grid md:grid-cols-2 gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar items-center md:items-start px-1 md:px-0 pb-1 md:pb-4">
+            <div class="flex-1 flex flex-row md:grid md:grid-cols-2 landscape:grid landscape:grid-cols-2 gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto landscape:overflow-y-auto landscape:overflow-x-hidden no-scrollbar items-center md:items-start px-1 md:px-0 pb-1 md:pb-4">
                 <!-- Bilder -->
                 <div onclick="window.setBg('../assets/weltraum.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
                     <img src="../assets/weltraum.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
@@ -160,6 +139,28 @@
         </div>
     </div>
 
+    <!-- VORSCHAU OVERLAY (Aus dem Frame geholt für volle Bildschirmgröße!) -->
+    <div id="preview-overlay" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center p-2 md:p-4">
+        <h2 class="text-xl md:text-4xl font-black text-white mb-2 md:mb-6 animate-bounce">Dein magisches Foto!</h2>
+        
+        <!-- Das Bild -->
+        <div class="relative w-full max-w-[95%] md:max-w-[80%] h-[50%] md:h-[70%] border-4 md:border-8 border-white shadow-2xl rounded-xl md:rounded-3xl overflow-hidden bg-black flex shrink-0">
+            <img id="preview-img-display" class="w-full h-full object-contain" src="">
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-2 md:gap-6 mt-4 md:mt-8 w-full max-w-3xl px-1">
+            <button onclick="window.closePreview()" class="flex-1 min-w-[100px] md:min-w-[150px] bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl active:scale-95 transition border-b-4 md:border-b-[8px] border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                🔄 NOCHMAL
+            </button>
+            <button onclick="window.saveFromPreview()" class="flex-1 min-w-[100px] md:min-w-[150px] bg-violet-600 text-white font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl hover:bg-violet-500 active:scale-95 transition border-b-4 md:border-b-[8px] border-violet-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                💾 SPEICHERN
+            </button>
+            <button onclick="window.printFromPreview(this)" class="flex-1 min-w-[100px] md:min-w-[150px] bg-white text-slate-900 font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl hover:bg-gray-100 active:scale-95 transition border-b-4 md:border-b-[8px] border-gray-400 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                🖨️ DRUCKEN
+            </button>
+        </div>
+    </div>
+
     <!-- HILFE MODAL -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-violet-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
@@ -181,33 +182,6 @@
     <div id="print-container" class="hidden"><img id="print-img" src=""></div>
 
     <script>
-        // --- IDLE TIMER ---
-        let idleTimer;
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(() => {
-                if (document.getElementById('preview-overlay').classList.contains('hidden')) {
-                     window.location.href = '../index.html';
-                }
-            }, 90000);
-        }
-        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => 
-            document.addEventListener(evt, window.resetIdleTimer, {passive: true})
-        );
-        window.resetIdleTimer();
-
-        // --- HELPER FUNKTIONEN ---
-        window.toggleInfo = function() {
-            const modal = document.getElementById('info-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
-
         window.logAi = function(msg, color="white") { 
             const box = document.getElementById('ai-debug-box'); 
             if(box) { box.innerHTML += `<div><span style="color:${color}">${msg}</span></div>`; box.scrollTop = box.scrollHeight; }
@@ -337,11 +311,13 @@
         }
 
         window.setBg = function(path, color = null) { 
+            if(window.playSound) window.playSound('click');
             if (color) { bgColor = color; } else { bgColor = null; bgImage.src = path; } 
         }
 
         // --- CAPTURE & PREVIEW ---
         window.capturePhoto = function() { 
+            if(window.playSound) window.playSound('shutter');
             flashEffect(); 
             isRunning = false; // KI Pause
             const dataUrl = canvas.toDataURL('image/png');
@@ -352,6 +328,7 @@
         }
 
         window.closePreview = function() {
+            if(window.playSound) window.playSound('click');
             document.getElementById('preview-overlay').classList.add('hidden');
             document.getElementById('preview-overlay').style.display = 'none';
             document.getElementById('main-controls').classList.remove('hidden');
@@ -360,6 +337,7 @@
         }
 
         window.saveFromPreview = function() {
+            if(window.playSound) window.playSound('success');
             const dataUrl = document.getElementById('preview-img-display').src;
             const link = document.createElement('a'); 
             link.download = 'magic-booth.png'; 
@@ -367,10 +345,16 @@
             link.click(); 
         }
 
-        window.printFromPreview = function() {
+        window.printFromPreview = function(btn) {
+            if(window.playSound) window.playSound('click');
             const dataUrl = document.getElementById('preview-img-display').src;
-            document.getElementById('print-img').src = dataUrl;
-            setTimeout(() => window.print(), 250);
+            
+            if (window.printImage) {
+                window.printImage(dataUrl, 'Zauber-Selfie', btn);
+            } else {
+                document.getElementById('print-img').src = dataUrl;
+                setTimeout(() => window.print(), 250);
+            }
         }
 
         // Alte Funktion für Kompatibilität

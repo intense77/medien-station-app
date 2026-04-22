@@ -7,6 +7,10 @@
     
     <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/print.js"></script>
 
     <style>
         /* FIX: w-full statt w-screen verhindert horizontalen Scrollbalken */
@@ -53,74 +57,73 @@
         }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen"
-      onclick="resetIdleTimer()" ontouchstart="resetIdleTimer()">
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-full">
 
     <!-- HEADER ZEILE (Menü, Titel, Hilfe) -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 px-1">
-        <a href="../index.html" class="bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
-        </a>
+        </button>
 
         <h1 class="text-2xl md:text-5xl font-black text-emerald-400 font-mono tracking-wider drop-shadow-lg hidden md:block">&lt;PIXEL /&gt;</h1>
         
-        <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
             ?
         </button>
     </div>
 
     <!-- HAUPT-BEREICH -->
-    <div class="flex-1 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 min-h-0 min-w-0 w-full max-w-[95rem] mx-auto pb-1">
+    <div class="flex-1 flex flex-col md:flex-row landscape:flex-row items-center justify-center gap-2 md:gap-4 min-h-0 min-w-0 w-full max-w-[95rem] mx-auto pb-1">
         
         <!-- Das Gitter (Container) -->
-        <div class="relative flex-1 w-full max-w-full md:max-w-[650px] flex items-center justify-center p-1 md:p-2 min-h-0 min-w-0">
+        <div class="relative flex-1 w-full max-w-full md:max-w-[650px] landscape:max-w-[650px] flex items-center justify-center p-1 md:p-2 min-h-0 min-w-0">
             <div id="grid" class="pixel-grid w-full h-auto max-h-full aspect-square">
                 <!-- Zellen per JS -->
             </div>
         </div>
 
         <!-- Werkzeugleiste -->
-        <div class="bg-slate-800 p-2 md:p-6 rounded-xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col gap-2 md:gap-4 shadow-2xl w-full md:w-auto h-auto md:h-full justify-start md:justify-between shrink-0 overflow-y-auto no-scrollbar">
+        <div class="bg-slate-800 p-2 md:p-4 landscape:p-4 rounded-xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col gap-2 md:gap-4 shadow-2xl w-full landscape:w-32 md:w-auto h-auto landscape:h-full md:h-full justify-start md:justify-between shrink-0 overflow-y-auto no-scrollbar">
             
             <!-- Farben (Horizontal Scroll auf Mobile, 2-Spaltig auf Desktop) -->
-            <div class="flex flex-row md:grid md:grid-cols-2 gap-2 md:gap-3 flex-shrink-0 justify-start md:justify-items-center overflow-x-auto no-scrollbar pb-1 md:pb-0 w-full" id="palette">
+            <div class="flex flex-row md:grid md:grid-cols-2 landscape:grid landscape:grid-cols-2 gap-2 md:gap-3 flex-shrink-0 justify-start md:justify-items-center overflow-x-auto no-scrollbar pb-1 md:pb-0 w-full" id="palette">
                 <!-- Schwarz/Weiß -->
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-black border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition ring-4 ring-white shadow-lg" data-color="#000000" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-white border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ffffff" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-black border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition ring-4 ring-white shadow-lg" data-color="#000000" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-white border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ffffff" onclick="setColor(this)"></div>
                 
                 <!-- Bunt -->
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-red-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ef4444" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-blue-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#3b82f6" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-green-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#22c55e" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-yellow-400 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#facc15" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-purple-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#a855f7" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-red-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ef4444" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-blue-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#3b82f6" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-green-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#22c55e" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-yellow-400 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#facc15" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-purple-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#a855f7" onclick="setColor(this)"></div>
                 
                 <!-- Radierer -->
-                <div class="color-btn shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-slate-600 border-2 md:border-4 border-slate-500 cursor-pointer active:scale-90 transition flex items-center justify-center text-xl md:text-3xl shadow-lg" data-color="white" onclick="setColor(this)" title="Radierer">🧽</div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-slate-600 border-2 md:border-4 border-slate-500 cursor-pointer active:scale-90 transition flex items-center justify-center text-lg md:text-3xl landscape:text-xl shadow-lg" data-color="white" onclick="setColor(this)" title="Radierer">🧽</div>
             </div>
 
             <!-- Trenner -->
             <div class="h-1 w-full bg-slate-700 my-1 hidden md:block rounded-full shrink-0"></div>
 
             <!-- Aktionen -->
-            <div class="flex flex-row md:flex-col gap-2 md:gap-3 w-full shrink-0 justify-between md:justify-center">
-                <button onclick="downloadArt()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-2 rounded-lg md:rounded-2xl font-black text-xs md:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
-                    <span class="text-sm md:text-xl">💾</span> <span class="inline">SAVE</span>
+            <div class="flex flex-row md:flex-col landscape:flex-col gap-2 md:gap-3 w-full shrink-0 justify-between md:justify-center">
+                <button onclick="downloadArt()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">💾</span> <span class="inline landscape:hidden md:landscape:inline">SAVE</span>
                 </button>
-                <button onclick="printArt()" class="flex-1 bg-white text-emerald-900 hover:bg-gray-200 py-3 px-2 rounded-lg md:rounded-2xl font-black text-xs md:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
-                    <span class="text-sm md:text-xl">🖨️</span> <span class="inline">DRUCK</span>
+                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-200 py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🖨️</span> <span class="inline landscape:hidden md:landscape:inline">DRUCK</span>
                 </button>
-                <button onclick="clearGrid()" class="flex-1 bg-slate-700 hover:bg-red-500/80 text-white py-3 px-2 rounded-lg md:rounded-2xl font-black text-xs md:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-slate-900 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
-                    <span class="text-sm md:text-xl">🗑️</span> <span class="hidden sm:inline">LÖSCHEN</span><span class="inline sm:hidden">DEL</span>
+                <button onclick="clearGrid()" class="flex-1 bg-slate-700 hover:bg-red-500/80 text-white py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-slate-900 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🗑️</span> <span class="hidden sm:inline landscape:hidden md:landscape:inline">LÖSCHEN</span><span class="inline sm:hidden landscape:inline md:landscape:hidden">DEL</span>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- HILFE MODAL -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo()">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-emerald-500 rounded-[2rem] max-w-3xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="toggleInfo()" class="absolute top-6 right-6 text-white hover:text-emerald-400 text-4xl font-bold transition">✖</button>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-emerald-400 text-4xl font-bold transition">✖</button>
             
             <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-6xl">👾</span> ANLEITUNG
@@ -161,34 +164,6 @@
         const grid = document.getElementById('grid');
         let currentColor = '#000000';
         let isDrawing = false;
-        let idleTimer;
-
-        // --- IDLE TIMER ---
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            // Rückkehr zum Hub nach 90 Sekunden
-            idleTimer = setTimeout(() => {
-                window.location.href = '../index.html'; 
-            }, 90000);
-        }
-        
-        // Event Listener für alle relevanten Aktionen
-        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => 
-            document.addEventListener(evt, resetIdleTimer, {passive: true})
-        );
-        resetIdleTimer();
-
-        // --- INFO MODAL ---
-        function toggleInfo() {
-            const modal = document.getElementById('info-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
 
         // Grid bauen (16x16 = 256)
         function initGrid() {
@@ -218,12 +193,14 @@
         document.body.addEventListener('touchend', () => isDrawing = false);
 
         function setColor(btn) {
+            if(window.playSound) window.playSound('click');
             currentColor = btn.getAttribute('data-color');
             document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-4', 'ring-white'));
             btn.classList.add('ring-4', 'ring-white');
         }
 
         function clearGrid() {
+            if(window.playSound) window.playSound('click');
             if(confirm("Wirklich alles löschen?")) {
                 document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = 'white');
             }
@@ -247,6 +224,7 @@
         }
 
         function downloadArt() {
+            if(window.playSound) window.playSound('success');
             const canvas = generateCanvas();
             const link = document.createElement('a');
             link.download = 'mein-pixel-art.png';
@@ -254,12 +232,17 @@
             link.click();
         }
 
-        function printArt() {
+        function printArt(btn) {
+            if(window.playSound) window.playSound('click');
             const canvas = generateCanvas();
             const dataUrl = canvas.toDataURL();
-            const printImg = document.getElementById('print-img');
-            printImg.src = dataUrl;
-            setTimeout(() => { window.print(); }, 100);
+            if (window.printImage) {
+                window.printImage(dataUrl, 'Pixel', btn);
+            } else {
+                const printImg = document.getElementById('print-img');
+                printImg.src = dataUrl;
+                setTimeout(() => { window.print(); }, 100);
+            }
         }
 
         window.onload = initGrid;

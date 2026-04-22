@@ -15,6 +15,7 @@
 
     <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
 
@@ -90,7 +91,7 @@
                 <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain"></video>
                 <canvas id="canvas" class="absolute inset-0 w-full h-full object-contain hidden"></canvas>
                 
-                <div id="countdown-overlay" class="absolute inset-0 flex items-center justify-center hidden bg-black/50 backdrop-blur-sm z-30">
+                <div id="countdown" class="absolute inset-0 flex items-center justify-center hidden bg-black/50 backdrop-blur-sm z-30">
                     <div id="countdown-text" class="text-[8rem] md:text-[12rem] font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] font-comic">3</div>
                 </div>
                 
@@ -107,19 +108,19 @@
             <!-- BUTTONS -->
             <div class="h-16 md:h-24 w-full flex-shrink-0 flex items-center justify-center relative px-2">
                 <div id="start-overlay" class="absolute w-full flex justify-center items-center gap-3 md:gap-4 z-20 pointer-events-none">
-                    <button onclick="window.switchCamera()" id="switch-btn" class="pointer-events-auto w-14 h-14 md:w-20 md:h-20 bg-slate-700 hover:bg-slate-600 text-white rounded-xl md:rounded-2xl shadow-xl border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-2 transition-all flex items-center justify-center shrink-0" title="Kamera wechseln">
+                    <button onclick="window.switchCamera()" id="switch-btn" class="pointer-events-auto w-12 h-12 md:w-20 md:h-20 landscape:w-12 landscape:h-12 bg-slate-700 hover:bg-slate-600 text-white rounded-xl md:rounded-2xl shadow-xl border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all flex items-center justify-center shrink-0" title="Kamera wechseln">
                         <span class="text-2xl md:text-3xl">🔄</span>
                     </button>
-                    <button onclick="window.startCountdown()" class="pointer-events-auto bg-sky-500 hover:bg-sky-400 text-white text-xl md:text-4xl font-black py-3 md:py-6 px-6 md:px-16 rounded-xl md:rounded-2xl shadow-2xl border-b-4 md:border-b-[8px] border-sky-700 active:border-b-0 active:translate-y-2 transition-all w-full max-w-[250px] md:max-w-xs flex items-center justify-center gap-2">
+                    <button onclick="window.startCountdown()" class="pointer-events-auto bg-sky-500 hover:bg-sky-400 text-white text-xl md:text-4xl landscape:text-xl font-black py-3 md:py-6 landscape:py-2 md:landscape:py-6 px-6 md:px-16 rounded-xl md:rounded-2xl shadow-2xl border-b-4 md:border-b-[8px] border-sky-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all w-full max-w-[250px] md:max-w-xs flex items-center justify-center gap-2">
                         <span>🎥</span> ACTION!
                     </button>
                 </div>
                 
                 <div id="action-buttons" class="hidden gap-2 md:gap-4 w-full justify-center z-20 pointer-events-none px-2">
-                    <button onclick="window.resetApp()" class="pointer-events-auto bg-yellow-500 hover:bg-yellow-400 text-black text-sm md:text-2xl font-black py-3 md:py-4 px-3 md:px-6 rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-yellow-700 active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-1 md:gap-2 flex-1 max-w-[180px]">
+                    <button onclick="window.resetApp()" class="pointer-events-auto bg-yellow-500 hover:bg-yellow-400 text-black text-sm md:text-2xl font-black py-3 md:py-4 landscape:py-2 md:landscape:py-4 px-3 md:px-6 rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-1 md:gap-2 flex-1 max-w-[180px]">
                         🔄 NOCHMAL
                     </button>
-                    <button onclick="window.saveLoopVideo()" class="pointer-events-auto bg-green-600 hover:bg-green-500 text-white text-sm md:text-2xl font-black py-3 md:py-4 px-3 md:px-6 rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-green-800 active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-1 md:gap-2 flex-1 max-w-[180px]">
+                    <button onclick="window.saveLoopVideo()" class="pointer-events-auto bg-green-600 hover:bg-green-500 text-white text-sm md:text-2xl font-black py-3 md:py-4 landscape:py-2 md:landscape:py-4 px-3 md:px-6 rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-green-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-1 md:gap-2 flex-1 max-w-[180px]">
                         💾 SPEICHERN
                     </button>
                 </div>
@@ -147,7 +148,7 @@
     <!-- HILFE MODAL -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-sky-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="window.toggleInfo(); window.playSound('click')" class="absolute top-6 right-6 text-white hover:text-sky-400 text-4xl font-bold transition">✖</button>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-sky-400 text-4xl font-bold transition">✖</button>
             <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4"><span class="text-6xl">📹</span> ANLEITUNG</h2>
             <div class="text-lg text-slate-300 space-y-4">
                 <p>1. Wähle links einen <b>Filter</b>.</p>
@@ -220,7 +221,7 @@
             startBtn.classList.add('hidden');
             switchBtn.classList.add('hidden');
             
-            const overlay = document.getElementById('countdown-overlay');
+            const overlay = document.getElementById('countdown');
             const textEl = document.getElementById('countdown-text');
             overlay.classList.remove('hidden');
             overlay.style.display = 'flex';
@@ -258,6 +259,7 @@
 
             videoContainer.classList.remove('border-slate-700');
             videoContainer.classList.add('border-red-600');
+            videoContainer.classList.add('rec-active');
             recIndicator.classList.remove('hidden');
             recIndicator.style.display = 'flex';
             
@@ -287,6 +289,7 @@
         function play() {
             videoContainer.classList.remove('border-red-600');
             videoContainer.classList.add('border-slate-700');
+            videoContainer.classList.remove('rec-active');
             recIndicator.classList.add('hidden');
             recIndicator.style.display = '';
 
@@ -410,21 +413,10 @@
 
             videoContainer.classList.remove('border-red-600');
             videoContainer.classList.add('border-slate-700');
+            videoContainer.classList.remove('rec-active');
             recIndicator.classList.add('hidden');
             recIndicator.style.display = '';
             window.setSpeed(40);
-        }
-
-        window.toggleInfo = function() {
-            if(window.playSound) window.playSound('click');
-            const modal = document.getElementById('info-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
         }
 
         window.addEventListener('beforeunload', () => {

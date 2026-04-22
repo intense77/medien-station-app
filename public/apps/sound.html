@@ -7,6 +7,9 @@
     
     <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/common.js"></script>
 
     <style>
         body { background-color: #0f172a; color: white; overflow: hidden; user-select: none; touch-action: manipulation; }
@@ -22,9 +25,9 @@
 
     <!-- HEADER ZEILE -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
-        <a href="../index.html" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
-        </a>
+        </button>
 
         <!-- Titel (nur Desktop/Tablet) -->
         <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl lg:text-5xl font-black text-rose-500 tracking-wider drop-shadow-lg pointer-events-none z-10">
@@ -259,6 +262,7 @@
         // --- PAD LOGIK ---
         async function handlePadTouch(i) {
             resetIdleTimer();
+            if(window.resetIdleTimer) window.resetIdleTimer();
             if (audioCtx.state === 'suspended') await audioCtx.resume();
 
             const pad = pads[i];
@@ -327,40 +331,112 @@
             const pad = pads[i];
             const el = document.getElementById(`pad-${i}`);
 
+            pad.isRecording = true;
+            document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
+            el.classList.add('pulse-rec', 'rec-active'); // 'rec-active' blockiert den globalen Idle-Timer!
+
+            // 1. Nativer Cordova Modus (Tablet/App)
+            if (window.cordova && typeof Media !== 'undefined') {
+                const fileName = `pad_${i}.aac`;
+                const path = (cordova.file && cordova.file.dataDirectory) ? cordova.file.dataDirectory + fileName : fileName;
+                pad.src = path;
+                
+                try {
+                    if (pad.mediaObj) { pad.mediaObj.release(); }
+                    pad.mediaObj = new Media(path, 
+                        () => console.log("Rec Success"), 
+                        (e) => console.error("Rec Error", e)
+                    );
+                    pad.mediaObj.startRecord();
+                } catch(e) {
+                    alert("Plugin Fehler: " + e.message);
+                    stopRecording(i);
+                }
+                return;
+            }
+
+            // 2. Browser Modus (Web Fallback)
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                pad.stream = stream;
                 pad.mediaRecorder = new MediaRecorder(stream);
                 pad.chunks = [];
 
-                pad.mediaRecorder.ondataavailable = (e) => pad.chunks.push(e.data);
+                pad.mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) pad.chunks.push(e.data);
+                };
                 
                 pad.mediaRecorder.onstop = async () => {
-                    const blob = new Blob(pad.chunks, { 'type' : 'audio/ogg; codecs=opus' });
-                    const arrayBuffer = await blob.arrayBuffer();
+                    const mimeType = pad.mediaRecorder.mimeType || '';
+                    const blob = new Blob(pad.chunks, { type: mimeType });
+                    
+                    let arrayBuffer;
+                    if (blob.arrayBuffer) {
+                        arrayBuffer = await blob.arrayBuffer();
+                    } else {
+                        arrayBuffer = await new Promise(res => {
+                            const r = new FileReader();
+                            r.onloadend = () => res(r.result);
+                            r.readAsArrayBuffer(blob);
+                        });
+                    }
                     
                     audioCtx.decodeAudioData(arrayBuffer, (decodedBuffer) => {
                         pad.buffer = decodedBuffer;
                         updatePadVisuals(i, true);
-                    }, (e) => console.error(e));
+                    }, (e) => console.error("Decode Error:", e));
                     
-                    stream.getTracks().forEach(track => track.stop());
+                    if (pad.stream) {
+                        pad.stream.getTracks().forEach(track => track.stop());
+                        pad.stream = null;
+                    }
                 };
 
                 pad.mediaRecorder.start();
-                pad.isRecording = true;
-                document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
-                el.classList.add('pulse-rec');
                 
-            } catch (err) { alert("Mikrofon Fehler: " + err.message); }
+            } catch (err) { 
+                console.error(err);
+                alert("Mikrofon Fehler: " + err.message); 
+                stopRecording(i);
+            }
         }
 
         function stopRecording(i) {
             const pad = pads[i];
             const el = document.getElementById(`pad-${i}`);
-            if (pad.mediaRecorder && pad.mediaRecorder.state !== 'inactive') pad.mediaRecorder.stop();
+            
+            if (!pad.isRecording) return;
             pad.isRecording = false;
+
+            if (window.cordova && pad.mediaObj) {
+                // Cordova Modus stoppen
+                try {
+                    pad.mediaObj.stopRecord();
+                    pad.mediaObj.release();
+                } catch(e) {}
+                
+                // Datei lesen und für die Web Audio API encodieren (für schnelle Loops!)
+                window.resolveLocalFileSystemURL(pad.src, function(fileEntry) {
+                    fileEntry.file(function(file) {
+                        var reader = new FileReader();
+                        reader.onloadend = function() {
+                            audioCtx.decodeAudioData(this.result, (decodedBuffer) => {
+                                pad.buffer = decodedBuffer;
+                                updatePadVisuals(i, true);
+                            }, (e) => console.error("Decode Error", e));
+                        };
+                        reader.readAsArrayBuffer(file);
+                    });
+                }, function(e) { console.error("File Error", e); });
+                
+                pad.mediaObj = null;
+            } else if (pad.mediaRecorder && pad.mediaRecorder.state !== 'inactive') {
+                // Browser Modus stoppen
+                pad.mediaRecorder.stop();
+            }
+
             document.getElementById(`icon-rec-${i}`).classList.add('hidden');
-            el.classList.remove('pulse-rec');
+            el.classList.remove('pulse-rec', 'rec-active');
         }
 
         function updatePadVisuals(i, hasSound) {

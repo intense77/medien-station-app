@@ -14,6 +14,7 @@
     
     <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
     <script src="../js/print.js"></script>
@@ -82,33 +83,11 @@
                     
                     <div class="bg-yellow-400 text-black font-bold py-1 px-2 md:py-2 md:px-4 text-[10px] md:text-xl uppercase tracking-wide whitespace-nowrap overflow-hidden flex items-center mt-1 md:mt-2 mx-2 md:mx-8 mb-1 md:mb-4 rounded-b-md md:rounded-b-lg">
                         <span class="bg-red-600 text-white px-1 md:px-2 mr-2 md:mr-4 text-[8px] md:text-sm rounded flex-shrink-0">NEWS</span>
-                        <div class="ticker-wrap flex-1 cursor-text" contenteditable="true" id="ticker-input"
-                             onfocus="window.clearText(this, '+++ Tippe hier für deine Eilmeldung +++')" 
-                             onblur="window.resetText(this, '+++ Tippe hier für deine Eilmeldung +++')">
-                            <div class="ticker">+++ Sensation im Jugendzentrum +++ Pizza für alle +++ Aliens gelandet +++ Ferien verlängert +++</div>
+                        <div class="ticker-wrap flex-1">
+                            <div class="ticker cursor-text outline-none focus:bg-yellow-500/50 px-2" contenteditable="true" id="ticker-input"
+                                 onfocus="this.style.animationPlayState='paused'; window.clearText(this, '+++ EILMELDUNG +++ Tickertext hier eingeben +++')" 
+                                 onblur="this.style.animationPlayState='running'; window.resetText(this, '+++ EILMELDUNG +++ Tickertext hier eingeben +++')">+++ EILMELDUNG +++ Tickertext hier eingeben +++</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- VORSCHAU OVERLAY -->
-                <div id="preview-overlay" class="absolute inset-0 bg-slate-900 z-50 hidden flex-col items-center justify-center">
-                    <h2 class="text-base md:text-3xl font-bold text-white mb-2 md:mb-6 animate-bounce">Deine Nachricht!</h2>
-                    
-                    <!-- Das Bild -->
-                    <div class="relative w-full max-w-[90%] md:max-w-[70%] h-[45%] md:h-[60%] border-2 md:border-8 border-white shadow-2xl rounded-xl overflow-hidden bg-black">
-                        <img id="preview-img-display" class="w-full h-full object-contain" src="">
-                    </div>
-                    
-                    <div class="flex flex-wrap justify-center gap-2 md:gap-6 mt-2 md:mt-8 w-full max-w-2xl px-1">
-                        <button onclick="window.closePreview()" class="flex-1 min-w-[100px] md:min-w-[120px] bg-yellow-500 hover:bg-yellow-400 text-black font-black py-2 md:py-4 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl active:scale-95 transition border-b-4 md:border-b-8 border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
-                            🔄 NOCHMAL
-                        </button>
-                        <button onclick="window.saveFromPreview()" class="flex-1 min-w-[100px] md:min-w-[120px] bg-red-600 text-white font-black py-2 md:py-4 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl hover:bg-red-500 active:scale-95 transition border-b-4 md:border-b-8 border-red-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
-                            💾 SPEICHERN
-                        </button>
-                        <button onclick="window.printFromPreview(this)" class="flex-1 min-w-[100px] md:min-w-[120px] bg-white text-slate-900 font-black py-2 md:py-4 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl hover:bg-gray-100 active:scale-95 transition border-b-4 md:border-b-8 border-gray-400 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
-                            🖨️ DRUCKEN
-                        </button>
                     </div>
                 </div>
             </div>
@@ -118,6 +97,28 @@
         <div id="main-controls" class="flex flex-row landscape:flex-col gap-3 md:gap-6 shrink-0 z-30 mb-2 md:mb-4 landscape:mb-0 landscape:mx-2 justify-center items-center">
             <button onclick="window.switchCamera()" class="w-14 h-14 md:w-20 md:h-20 bg-slate-700 hover:bg-slate-600 text-white font-black rounded-xl md:rounded-2xl text-xl md:text-3xl shadow-xl hover:scale-105 active:scale-95 transition border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-2 flex items-center justify-center shrink-0 mx-auto" title="Kamera wechseln">🔄</button>
             <button onclick="window.takeSnapshot()" class="bg-red-600 hover:bg-red-500 text-white font-black py-3 px-6 md:py-4 md:px-12 rounded-xl md:rounded-2xl text-base md:text-2xl shadow-xl active:scale-95 transition border-b-4 md:border-b-[8px] border-red-800 active:border-b-0 active:translate-y-2 flex items-center justify-center gap-2 md:gap-3 shrink-0">📸 FOTO</button>
+        </div>
+    </div>
+
+    <!-- VORSCHAU OVERLAY (Aus dem TV-Frame geholt für volle Bildschirmgröße!) -->
+    <div id="preview-overlay" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center p-2 md:p-4">
+        <h2 class="text-xl md:text-4xl font-black text-white mb-2 md:mb-6 animate-bounce">Deine Nachricht!</h2>
+        
+        <!-- Das Bild -->
+        <div class="relative w-full max-w-[95%] md:max-w-[80%] h-[50%] md:h-[70%] border-4 md:border-8 border-white shadow-2xl rounded-xl md:rounded-3xl overflow-hidden bg-black flex shrink-0">
+            <img id="preview-img-display" class="w-full h-full object-contain" src="">
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-2 md:gap-6 mt-4 md:mt-8 w-full max-w-3xl px-1">
+            <button onclick="window.closePreview()" class="flex-1 min-w-[100px] md:min-w-[150px] bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl active:scale-95 transition border-b-4 md:border-b-[8px] border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                🔄 NOCHMAL
+            </button>
+            <button onclick="window.saveFromPreview()" class="flex-1 min-w-[100px] md:min-w-[150px] bg-red-600 text-white font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl hover:bg-red-500 active:scale-95 transition border-b-4 md:border-b-[8px] border-red-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                💾 SPEICHERN
+            </button>
+            <button onclick="window.printFromPreview(this)" class="flex-1 min-w-[100px] md:min-w-[150px] bg-white text-slate-900 font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl hover:bg-gray-100 active:scale-95 transition border-b-4 md:border-b-[8px] border-gray-400 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                🖨️ DRUCKEN
+            </button>
         </div>
     </div>
 
@@ -183,7 +184,7 @@
         if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initCam); } 
         else { initCam(); }
 
-        window.clearText = function(el, def) { if(el.innerText === def) el.innerText = ""; }
+        window.clearText = function(el, def) { if(window.playSound) window.playSound('click'); if(el.innerText.trim() === def.trim()) el.innerText = ""; }
         window.resetText = function(el, def) { if(el.innerText.trim() === "") el.innerText = def; }
 
         function generateImage() {
