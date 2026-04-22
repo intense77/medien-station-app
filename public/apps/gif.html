@@ -33,7 +33,7 @@
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen" 
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-full w-full" 
       onclick="window.resetIdleTimer()" ontouchstart="window.resetIdleTimer()">
 
     <!-- HEADER ZEILE -->
@@ -82,10 +82,10 @@
         </div>
 
         <!-- 2. MITTLERE SPALTE: Video & Action -->
-        <div class="flex-1 flex flex-col items-center h-full min-w-0 min-h-0 w-full gap-2 md:gap-4 overflow-hidden relative">
-            <div id="video-container" class="relative flex-1 w-full h-full bg-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center min-h-0 group transition-colors duration-300">
-                <video id="video" autoplay playsinline muted class="w-full h-full object-contain"></video>
-                <canvas id="canvas" class="w-full h-full object-contain hidden"></canvas>
+        <div class="flex-1 flex flex-col items-center min-w-0 min-h-0 w-full gap-2 md:gap-4 overflow-hidden relative">
+            <div id="video-container" class="relative flex-1 w-full bg-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center min-h-0 group transition-colors duration-300">
+                <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain"></video>
+                <canvas id="canvas" class="absolute inset-0 w-full h-full object-contain hidden"></canvas>
                 
                 <div id="countdown-overlay" class="absolute inset-0 flex items-center justify-center hidden bg-black/50 backdrop-blur-sm z-30">
                     <div id="countdown-text" class="text-[8rem] md:text-[12rem] font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] font-comic">3</div>
