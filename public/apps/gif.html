@@ -20,7 +20,6 @@
 
     <style>
         body { background-color: #0f172a; color: white; overflow: hidden; user-select: none; touch-action: manipulation; }
-        html, body { height: 100%; width: 100%; margin: 0; padding: 0; }
         
         /* Video und Canvas sollen Block-Elemente sein (verhindert weiße Linien unten) */
         video, canvas { display: block; }
@@ -33,7 +32,7 @@
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-full w-full" 
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen" 
       onclick="window.resetIdleTimer()" ontouchstart="window.resetIdleTimer()">
 
     <!-- HEADER ZEILE -->
@@ -56,33 +55,37 @@
     <div class="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 min-h-0 min-w-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden pb-1">
         
         <!-- 1. SPALTE/ZEILE: Filter -->
-        <div class="w-full md:w-32 flex flex-row md:flex-col gap-2 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl shrink-0 md:h-full max-h-full overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start md:justify-start">
+        <div class="flex-none md:flex-shrink-0 w-full md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 md:gap-4 overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start">
             <div class="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest text-center w-full shrink-0 hidden md:block mb-2">Filter</div>
             
-            <div class="flex flex-row md:flex-col gap-2 md:gap-4 w-max md:w-full items-center">
-                <button onclick="window.setFilter('')" class="w-16 h-14 md:w-full md:h-20 shrink-0 rounded-xl bg-slate-700 text-white font-black text-[10px] md:text-xs hover:bg-slate-600 active:scale-95 transition flex flex-col items-center justify-center shadow">
-                <span class="text-xl md:text-2xl mb-1">⚪</span> NORM
+            <button onclick="window.setFilter('')" class="flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">⚪</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">NORM</span>
             </button>
-                <button onclick="window.setFilter('grayscale(100%) contrast(1.2)')" class="w-16 h-14 md:w-full md:h-20 shrink-0 rounded-xl bg-slate-700 text-white font-black text-[10px] md:text-xs hover:bg-slate-600 active:scale-95 transition flex flex-col items-center justify-center shadow" style="filter: grayscale(100%)">
-                <span class="text-xl md:text-2xl mb-1">⚫</span> S/W
+            <button onclick="window.setFilter('grayscale(100%) contrast(1.2)')" class="flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: grayscale(100%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">⚫</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">S/W</span>
             </button>
-                <button onclick="window.setFilter('sepia(80%)')" class="w-16 h-14 md:w-full md:h-20 shrink-0 rounded-xl bg-slate-700 text-white font-black text-[10px] md:text-xs hover:bg-slate-600 active:scale-95 transition flex flex-col items-center justify-center shadow" style="filter: sepia(80%)">
-                <span class="text-xl md:text-2xl mb-1">📜</span> ALT
+            <button onclick="window.setFilter('sepia(80%)')" class="flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: sepia(80%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">📜</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">ALT</span>
             </button>
-                <button onclick="window.setFilter('invert(100%)')" class="w-16 h-14 md:w-full md:h-20 shrink-0 rounded-xl bg-slate-700 text-white font-black text-[10px] md:text-xs hover:bg-slate-600 active:scale-95 transition flex flex-col items-center justify-center shadow" style="filter: invert(100%)">
-                <span class="text-xl md:text-2xl mb-1">💀</span> XRAY
+            <button onclick="window.setFilter('invert(100%)')" class="flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: invert(100%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">💀</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">XRAY</span>
             </button>
-                <button onclick="window.setFilter('saturate(250%)')" class="w-16 h-14 md:w-full md:h-20 shrink-0 rounded-xl bg-slate-700 text-white font-black text-[10px] md:text-xs hover:bg-slate-600 active:scale-95 transition flex flex-col items-center justify-center shadow" style="filter: saturate(250%)">
-                <span class="text-xl md:text-2xl mb-1">🎨</span> POP
+            <button onclick="window.setFilter('saturate(250%)')" class="flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: saturate(250%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">🎨</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">POP</span>
             </button>
-                <button onclick="window.setFilter('hue-rotate(90deg)')" class="w-16 h-14 md:w-full md:h-20 shrink-0 rounded-xl bg-slate-700 text-white font-black text-[10px] md:text-xs hover:bg-slate-600 active:scale-95 transition flex flex-col items-center justify-center shadow" style="filter: hue-rotate(90deg)">
-                <span class="text-xl md:text-2xl mb-1">👽</span> ALIEN
+            <button onclick="window.setFilter('hue-rotate(90deg)')" class="flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: hue-rotate(90deg)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">👽</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">ALIEN</span>
             </button>
-            </div>
         </div>
 
         <!-- 2. MITTLERE SPALTE: Video & Action -->
-        <div class="flex-1 flex flex-col items-center min-w-0 min-h-0 w-full gap-2 md:gap-4 overflow-hidden relative">
+        <div class="flex-1 flex flex-col min-h-[30vh] min-w-0 w-full gap-2 md:gap-4 overflow-hidden relative">
             <div id="video-container" class="relative flex-1 w-full bg-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center min-h-0 group transition-colors duration-300">
                 <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain"></video>
                 <canvas id="canvas" class="absolute inset-0 w-full h-full object-contain hidden"></canvas>
@@ -124,19 +127,20 @@
         </div>
 
         <!-- SPEED -->
-        <div id="speed-controls" class="w-full md:w-32 flex flex-row md:flex-col gap-2 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl shrink-0 md:h-full max-h-full overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start md:justify-start opacity-30 pointer-events-none transition-opacity duration-300">
+        <div id="speed-controls" class="flex-none md:flex-shrink-0 w-full md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 md:gap-4 overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start opacity-30 pointer-events-none transition-opacity duration-300">
             <div class="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest text-center w-full shrink-0 hidden md:block mb-2">Tempo</div>
-            <div class="flex flex-row md:flex-col gap-2 md:gap-4 w-max md:w-full items-center">
-                <button id="btn-slow" onclick="window.setSpeed(150)" class="w-24 md:w-full h-14 md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
-                <span class="text-xl md:text-3xl">🐢</span><span class="text-[10px] font-black uppercase">Langsam</span>
+            <button id="btn-slow" onclick="window.setSpeed(150)" class="flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl leading-none">🐢</span>
+                <span class="text-[10px] font-black uppercase leading-none">Langsam</span>
             </button>
-                <button id="btn-norm" onclick="window.setSpeed(40)" class="w-24 md:w-full h-14 md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
-                <span class="text-xl md:text-3xl">🚶</span><span class="text-[10px] font-black uppercase">Mittel</span>
+            <button id="btn-norm" onclick="window.setSpeed(40)" class="flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl leading-none">🚶</span>
+                <span class="text-[10px] font-black uppercase leading-none">Mittel</span>
             </button>
-                <button id="btn-turbo" onclick="window.setSpeed(10)" class="w-24 md:w-full h-14 md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
-                <span class="text-xl md:text-3xl">🚀</span><span class="text-[10px] font-black uppercase">Turbo</span>
+            <button id="btn-turbo" onclick="window.setSpeed(10)" class="flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl leading-none">🚀</span>
+                <span class="text-[10px] font-black uppercase leading-none">Turbo</span>
             </button>
-            </div>
         </div>
     </div>
 
