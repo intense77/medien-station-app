@@ -2,387 +2,398 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Zauber Selfie</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="../manifest.json">
-    <link rel="icon" href="../assets/logo.png">
-    <!-- iOS Meta Tags -->
-    <link rel="apple-touch-icon" href="../assets/logo.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <link href="../css/style.css" rel="stylesheet">
+    <title>Magic Booth</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../js/camera_utils.js"></script>
     <script src="../js/selfie_segmentation.js"></script>
-    <script src="../js/audio.js"></script>
-    <script src="../js/common.js"></script>
-    <script src="../js/print.js"></script>
 
     <style>
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        html {
-            width: 100%; height: 100%;
-            background-color: #0f172a;
-        }
-
-        body {
-            /* Fixiertes Layout */
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0;
-            margin: 0;
-            
-            background-color: #0f172a; 
-            color: white; 
-            overflow: hidden !important;
-            user-select: none; 
-            touch-action: none; 
-            transition: background-color 0.5s;
-            animation: fadeIn 0.4s ease-out;
-            
-            box-sizing: border-box;
-            
-            /* Body Padding */
-            padding-top: calc(10px + env(safe-area-inset-top));
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-        }
-
+        body { background-color: #0f172a; color: white; overflow: hidden; user-select: none; touch-action: none; }
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        button:active { transform: scale(0.95); transition: transform 0.1s; }
         
+        /* Druck-Styles: Nur das Bild drucken */
         @media print {
             body * { visibility: hidden; }
             #print-container, #print-container * { visibility: visible; }
-            #print-container { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: flex !important; align-items: center; justify-content: center; background: white; z-index: 99999; }
+            #print-container { 
+                position: fixed; left: 0; top: 0; width: 100%; height: 100%; 
+                display: flex !important; align-items: center; justify-content: center; 
+                background: white; z-index: 99999; 
+            }
             #print-img { max-width: 100%; max-height: 100%; object-fit: contain; }
         }
-
-        /* Countdown Animation */
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
     </style>
 </head>
-<body class="flex flex-col md:flex-row bg-slate-900">
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen" 
+      onclick="window.resetIdleTimer()" ontouchstart="window.resetIdleTimer()">
 
-    <button onclick="goHome()" class="absolute left-6 z-[100] bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-6 py-2 rounded-full text-xl font-black shadow-2xl flex items-center gap-3 transition-transform active:scale-95 no-underline" style="top: calc(16px + env(safe-area-inset-top));">
-        🏠 MENÜ
-    </button>
-    
-    <div class="absolute w-full text-center pointer-events-none z-50 hidden md:block" style="top: calc(16px + env(safe-area-inset-top));">
-        <h1 class="text-3xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] tracking-widest">
-            ✨ ZAUBER SELFIE
-        </h1>
-    </div>
-    
-    <button onclick="window.playSound('click'); window.toggleInfo()" class="absolute right-6 z-[100] w-12 h-12 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-xl" style="top: calc(16px + env(safe-area-inset-top));">
-        ?
-    </button>
-
-    <div class="relative flex-1 bg-black flex flex-col items-center justify-center overflow-hidden h-[60%] md:h-full w-full rounded-b-3xl md:rounded-r-3xl md:rounded-bl-none shadow-2xl z-10">
+    <!-- HEADER ZEILE -->
+    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 px-1">
+        <a href="../index.html" class="bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0">
+            🏠 <span class="hidden md:inline">MENÜ</span>
+        </a>
         
-        <div class="relative w-full flex-1 flex items-center justify-center p-2 min-h-0">
-            <video id="ai-video" autoplay playsinline muted class="hidden"></video>
-            <canvas id="ai-canvas" class="max-w-full max-h-full object-contain shadow-2xl rounded-lg"></canvas>
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+            ?
+        </button>
+    </div>
+
+    <!-- MAIN BEREICH (2 Spalten auf Tablet, 2 Zeilen auf Mobile) -->
+    <div class="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 min-h-0 min-w-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden pb-1">
+
+        <!-- LINKER BEREICH: Live Bild -->
+        <div class="relative flex-1 bg-black flex flex-col items-center justify-center overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] border-4 md:border-[8px] border-slate-800 shadow-2xl w-full min-h-0 min-w-0">
             
-            <div id="preview-overlay" class="absolute inset-0 bg-slate-900 z-50 hidden flex-col items-center justify-center">
-                <h2 class="text-3xl font-bold text-white mb-6 animate-bounce">Dein Zauber Foto!</h2>
-                <div class="relative max-w-[90%] max-h-[60%] border-8 border-white shadow-2xl rounded-xl overflow-hidden bg-black">
+            <video id="ai-video" autoplay playsinline muted class="hidden"></video>
+            <canvas id="ai-canvas" class="w-full h-full object-contain"></canvas>
+
+            <!-- VORSCHAU OVERLAY (Versteckt bis Foto gemacht) -->
+            <div id="preview-overlay" class="absolute inset-0 bg-slate-900 z-50 hidden flex-col items-center justify-center p-4">
+                <h2 class="text-xl md:text-3xl font-bold text-white mb-4 md:mb-6 animate-bounce">Dein magisches Foto!</h2>
+                
+                <!-- Das Bild -->
+                <div class="relative w-full max-w-[90%] md:max-w-[70%] h-[50%] md:h-[60%] border-4 md:border-8 border-white shadow-2xl rounded-xl overflow-hidden bg-black">
                     <img id="preview-img-display" class="w-full h-full object-contain" src="">
                 </div>
-                <div class="flex gap-6 mt-8">
-                    <button onclick="window.closePreview()" class="bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 px-8 rounded-2xl text-2xl shadow-xl active:scale-95 transition border-b-8 border-yellow-700 active:border-b-0 active:translate-y-2 flex items-center gap-2">🔄 NOCHMAL</button>
-                    <button id="btn-print" onclick="window.printFromPreview(this)" class="bg-white text-slate-900 font-black py-4 px-8 rounded-2xl text-2xl shadow-xl hover:bg-gray-100 active:scale-95 transition border-b-8 border-gray-400 active:border-b-0 active:translate-y-2 flex items-center gap-2">🖨️ DRUCKEN</button>
-                    <button onclick="window.saveFromPreview()" class="bg-violet-600 text-white font-black py-4 px-8 rounded-2xl text-2xl shadow-xl hover:bg-violet-500 active:scale-95 transition border-b-8 border-violet-800 active:border-b-0 active:translate-y-2 flex items-center gap-2">💾 FOTO</button>
+                
+                <div class="flex flex-wrap justify-center gap-3 md:gap-6 mt-4 md:mt-8 w-full max-w-2xl px-2">
+                    <button onclick="window.closePreview()" class="flex-1 min-w-[120px] bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 px-2 md:py-4 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl active:scale-95 transition border-b-4 md:border-b-8 border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                        🔄 NOCHMAL
+                    </button>
+                    <!-- Drucken ruft window.print() auf -->
+                    <button onclick="window.printFromPreview()" class="flex-1 min-w-[120px] bg-white text-slate-900 font-black py-3 px-2 md:py-4 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl hover:bg-gray-100 active:scale-95 transition border-b-4 md:border-b-8 border-gray-400 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                        🖨️ DRUCKEN
+                    </button>
+                    <!-- Optional: Speichern -->
+                    <button onclick="window.saveFromPreview()" class="flex-1 min-w-[120px] bg-violet-600 text-white font-black py-3 px-2 md:py-4 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-xl shadow-xl hover:bg-violet-500 active:scale-95 transition border-b-4 md:border-b-8 border-violet-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">
+                        💾 FOTO
+                    </button>
+                </div>
+            </div>
+        
+            <!-- Lade-Screen -->
+            <div id="ai-loading" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-40 p-4 text-center">
+                <div class="text-6xl animate-spin mb-4">🔮</div>
+                <div class="text-2xl font-bold mb-4">Lade KI...</div>
+                <div id="ai-debug-box" class="text-[10px] md:text-xs text-left font-mono bg-black/80 border border-gray-700 p-2 md:p-4 rounded-lg md:rounded-xl mt-2 md:mt-4 max-w-sm md:max-w-lg w-full h-24 md:h-32 overflow-y-auto opacity-70">
+                    <div>[Log] App gestartet...</div>
+                </div>
+                <div class="mt-4 md:mt-8 flex flex-wrap justify-center gap-3 md:gap-6">
+                    <button onclick="location.reload()" class="border-2 border-white/30 px-4 py-2 md:px-6 md:py-3 rounded-full hover:bg-white/10 text-sm md:text-base">Neu laden</button>
+                    <button onclick="window.drawFallback(); document.getElementById('ai-loading').style.display='none';" class="bg-red-600 px-4 py-2 md:px-6 md:py-3 rounded-full font-bold hover:bg-red-500 text-sm md:text-base">Ohne KI starten</button>
+                </div>
+            </div>
+
+            <!-- Buttons Unten (Nur sichtbar wenn KEINE Vorschau) -->
+            <div id="main-controls" class="absolute bottom-4 md:bottom-6 flex gap-3 md:gap-4 z-30 w-full justify-center px-4 pointer-events-none">
+                
+                <!-- KAMERA WECHSELN -->
+                <button onclick="window.switchCamera()" class="pointer-events-auto w-14 h-14 md:w-20 md:h-20 bg-slate-700 hover:bg-slate-600 text-white font-black rounded-xl md:rounded-2xl text-xl md:text-3xl shadow-xl hover:scale-105 active:scale-95 transition border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-2 flex items-center justify-center shrink-0" title="Kamera wechseln">
+                    🔄
+                </button>
+
+                <!-- FOTO MACHEN -->
+                <button onclick="window.capturePhoto()" class="pointer-events-auto flex-1 max-w-[200px] md:max-w-[250px] bg-violet-600 hover:bg-violet-500 text-white font-black py-3 md:py-4 rounded-xl md:rounded-2xl text-base md:text-2xl shadow-xl hover:scale-105 active:scale-95 transition border-b-4 md:border-b-[8px] border-violet-900 active:border-b-0 active:translate-y-2 flex items-center justify-center gap-2">
+                    ✨ FOTO
+                </button>
+            </div>
+        </div>
+
+        <!-- RECHTER BEREICH: Auswahl -->
+        <div class="w-full md:w-1/3 md:min-w-[280px] md:max-w-md bg-slate-800 p-2 md:p-4 rounded-xl md:rounded-[2rem] border-4 border-slate-700 flex flex-col shrink-0 h-28 md:h-full z-20 shadow-2xl">
+            <h3 class="text-white font-black text-[10px] md:text-xl mb-1 md:mb-4 text-center uppercase tracking-wider shrink-0 hidden md:block">🌍 Reiseziel</h3>
+            
+            <div class="flex-1 flex flex-row md:grid md:grid-cols-2 gap-2 md:gap-3 overflow-x-auto md:overflow-y-auto no-scrollbar items-center md:items-start px-1 md:px-0 pb-1 md:pb-4">
+                <!-- Bilder -->
+                <div onclick="window.setBg('../assets/weltraum.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/weltraum.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-indigo-900/50 z-0"><span class="text-3xl md:text-5xl">🚀</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">WELTALL</span>
+                </div>
+
+                <div onclick="window.setBg('../assets/paris.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/paris.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-blue-900/50 z-0"><span class="text-3xl md:text-5xl">🇫🇷</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">PARIS</span>
+                </div>
+                
+                <div onclick="window.setBg('../assets/dschungel.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/dschungel.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-green-900/50 z-0"><span class="text-3xl md:text-5xl">🌴</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">DSCHUNGEL</span>
+                </div>
+
+                <div onclick="window.setBg('../assets/unterwasser.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/unterwasser.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-cyan-900/50 z-0"><span class="text-3xl md:text-5xl">🐠</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">OZEAN</span>
+                </div>
+
+                <div onclick="window.setBg('../assets/wolken.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/wolken.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-sky-500/50 z-0"><span class="text-3xl md:text-5xl">☁️</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">HIMMEL</span>
+                </div>
+
+                <div onclick="window.setBg('../assets/schloss.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/schloss.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-purple-900/50 z-0"><span class="text-3xl md:text-5xl">🏰</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">SCHLOSS</span>
+                </div>
+
+                <div onclick="window.setBg('../assets/dino.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/dino.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-amber-900/50 z-0"><span class="text-3xl md:text-5xl">🦖</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">DINO</span>
+                </div>
+
+                <div onclick="window.setBg('../assets/stadion.jpg')" class="h-full md:h-auto w-auto md:w-full aspect-square shrink-0 bg-slate-700 rounded-xl md:rounded-2xl cursor-pointer border-2 md:border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg">
+                    <img src="../assets/stadion.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center bg-green-800/50 z-0"><span class="text-3xl md:text-5xl">⚽</span></div>
+                    <span class="absolute bottom-1 md:bottom-2 left-2 md:left-3 text-[8px] md:text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">STADION</span>
                 </div>
             </div>
         </div>
-
-        <div id="ai-loading" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center z-40 p-4 text-center">
-            <div class="text-6xl animate-spin mb-4">🔮</div>
-            <div class="text-2xl font-bold mb-4">Lade KI...</div>
-            <div id="ai-debug-box" class="text-xs text-left font-mono bg-black/80 border border-gray-700 p-4 rounded-xl mt-4 max-w-lg w-full h-32 overflow-y-auto opacity-70"><div>[Log] App gestartet...</div></div>
-            <div class="mt-8 flex gap-6">
-                <button onclick="location.reload()" class="border-2 border-white/30 px-6 py-3 rounded-full hover:bg-white/10">Neu laden</button>
-                <button onclick="window.drawFallback(); document.getElementById('ai-loading').style.display='none'" class="bg-red-600 px-6 py-3 rounded-full font-bold hover:bg-red-500">Ohne KI starten</button>
-            </div>
-        </div>
-
-        <div id="main-controls" class="h-24 md:h-28 w-full flex items-center justify-center gap-4 md:gap-6 z-30 shrink-0 mb-1">
-            <button onclick="window.switchCamera()" class="bg-slate-800/90 hover:bg-slate-700 text-white w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-slate-500 shadow-xl backdrop-blur flex items-center justify-center active:scale-95 transition shrink-0" title="Kamera wechseln">
-                <span class="text-5xl md:text-6xl">🔄</span>
-            </button>
-            <button onclick="window.triggerCapture()" class="bg-white hover:bg-gray-200 text-black font-black h-20 md:h-24 px-10 md:px-12 rounded-full border-b-8 border-gray-400 active:border-b-0 active:translate-y-2 shadow-2xl text-3xl md:text-4xl flex items-center justify-center gap-3 transition active:scale-95">
-                <span class="text-4xl md:text-5xl">✨</span> FOTO
-            </button>
-        </div>
     </div>
 
-    <div class="h-[40%] md:h-full md:w-1/3 min-w-[280px] max-w-md bg-slate-800 p-4 border-t-4 md:border-t-0 md:border-l-4 border-slate-700 overflow-y-auto no-scrollbar z-20 flex flex-col">
-        <h3 class="text-white font-black text-xl mb-4 text-center uppercase tracking-wider sticky top-0 bg-slate-800 pb-2 z-10 pt-2">🌍 Reiseziel</h3>
-        <div class="grid grid-cols-2 gap-3 pb-4">
-            <div onclick="window.setBg('../assets/weltraum.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/weltraum.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-indigo-900/50 z-0"><span class="text-5xl">🚀</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">WELTALL</span></div>
-            <div onclick="window.setBg('../assets/paris.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/paris.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-blue-900/50 z-0"><span class="text-5xl">🇫🇷</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">PARIS</span></div>
-            <div onclick="window.setBg('../assets/dschungel.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/dschungel.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-green-900/50 z-0"><span class="text-5xl">🌴</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">DSCHUNGEL</span></div>
-            <div onclick="window.setBg('../assets/unterwasser.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/unterwasser.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-cyan-900/50 z-0"><span class="text-5xl">🐠</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">OZEAN</span></div>
-            <div onclick="window.setBg('../assets/wolken.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/wolken.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-sky-500/50 z-0"><span class="text-5xl">☁️</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">HIMMEL</span></div>
-            <div onclick="window.setBg('../assets/schloss.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/schloss.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-purple-900/50 z-0"><span class="text-5xl">🏰</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">SCHLOSS</span></div>
-            <div onclick="window.setBg('../assets/dino.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/dino.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-amber-900/50 z-0"><span class="text-5xl">🦖</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">DINO</span></div>
-            <div onclick="window.setBg('../assets/stadion.jpg')" class="bg-selector aspect-square bg-slate-700 rounded-2xl cursor-pointer border-4 border-transparent hover:border-violet-400 relative group overflow-hidden active:scale-95 transition shadow-lg"><img src="../assets/stadion.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'"><div class="absolute inset-0 flex items-center justify-center bg-green-800/50 z-0"><span class="text-5xl">⚽</span></div><span class="absolute bottom-2 left-3 text-xs font-black drop-shadow-md z-10 text-white uppercase tracking-wider">STADION</span></div>
-        </div>
-    </div>
-
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.playSound('click'); window.toggleInfo()">
+    <!-- HILFE MODAL -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-violet-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="window.playSound('click'); window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-violet-400 text-4xl font-bold transition" data-no-sound="true">✖</button>
-            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4"><span class="text-6xl">✨</span> ANLEITUNG</h2>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-violet-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
+                <span class="text-6xl">✨</span> ANLEITUNG
+            </h2>
             <div class="text-lg text-slate-300 space-y-4">
                 <p>1. Wähle rechts einen <b>Hintergrund</b>.</p>
                 <p>2. Die KI schneidet dich automatisch aus.</p>
                 <p>3. Drücke <b>FOTO</b> für eine Vorschau.</p>
                 <p>4. Dann kannst du <b>Drucken</b> oder nochmal probieren.</p>
             </div>
-            <button onclick="window.playSound('click'); window.toggleInfo()" class="mt-8 w-full bg-violet-600 hover:bg-violet-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+            <button onclick="window.toggleInfo()" class="mt-8 w-full bg-violet-600 hover:bg-violet-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
         </div>
     </div>
 
+    <!-- Print Container -->
     <div id="print-container" class="hidden"><img id="print-img" src=""></div>
 
-    <!-- Countdown Overlay -->
-    <div id="countdown-overlay" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm pointer-events-none">
-        <div class="text-[10rem] md:text-[15rem] font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] font-comic" id="countdown-text">3</div>
-    </div>
-
     <script>
-        window.logAi = function(msg, color="white") {
-            const box = document.getElementById('ai-debug-box');
-            if(box) { box.innerHTML += `<div><span style="color:${color}">${msg}</span></div>`; box.scrollTop = box.scrollHeight; }
-            console.log(msg);
-        }
-
-        // Tablet Hardening: Kontextmenü deaktivieren
-        document.addEventListener('contextmenu', event => event.preventDefault());
-
-        window.triggerCapture = function() {
-            const overlay = document.getElementById('countdown-overlay');
-            const text = document.getElementById('countdown-text');
-            let count = 3;
-            
-            overlay.classList.remove('hidden');
-            
-            const tick = () => {
-                text.innerText = count;
-                text.classList.remove('animate-pop');
-                void text.offsetWidth; // Trigger reflow
-                text.classList.add('animate-pop');
-                window.playSound('click'); 
-                
-                if (count === 0) {
-                    overlay.classList.add('hidden');
-                    window.capturePhoto();
-                } else {
-                    count--;
-                    setTimeout(tick, 1000);
+        // --- IDLE TIMER ---
+        let idleTimer;
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                if (document.getElementById('preview-overlay').classList.contains('hidden')) {
+                     window.location.href = '../index.html';
                 }
-            };
-            tick();
+            }, 90000);
         }
+        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => 
+            document.addEventListener(evt, window.resetIdleTimer, {passive: true})
+        );
+        window.resetIdleTimer();
 
-        // --- ROBUSTER OFFLINE-LADER FÜR KI-MODELLE ---
-        async function loadFile(url) {
-            try {
-                // Versuch 1: Fetch (Standard)
-                const response = await fetch(url, {cache: 'no-store'});
-                if (!response.ok) throw new Error(response.statusText);
-                return await response.arrayBuffer();
-            } catch (e) {
-                console.warn(`Fetch failed for ${url}, trying XHR...`, e);
-                // Versuch 2: XHR (Fallback für file:// Protokoll)
-                return new Promise((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('GET', url, true);
-                    xhr.responseType = 'arraybuffer';
-                    xhr.onload = () => {
-                        if ((xhr.status === 200 || xhr.status === 0) && xhr.response) resolve(xhr.response);
-                        else reject(new Error(`XHR Status ${xhr.status}`));
-                    };
-                    xhr.onerror = () => {
-                        if (window.location.protocol === 'file:') {
-                            reject(new Error("CORS-Fehler: Browser blockiert file:// Zugriff. Bitte lokalen Server nutzen!"));
-                        } else {
-                            reject(new Error(`XHR Network Error`));
-                        }
-                    };
-                    xhr.send();
-                });
+        // --- HELPER FUNKTIONEN ---
+        window.toggleInfo = function() {
+            const modal = document.getElementById('info-modal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
         }
 
-        let seg = null; const video = document.getElementById('ai-video'); const canvas = document.getElementById('ai-canvas'); const ctx = canvas.getContext('2d'); const loadingEl = document.getElementById('ai-loading');
-        let isRunning = false; let bgImage = new Image(); bgImage.src = "../assets/weltraum.jpg"; let bgColor = null; let loadTimer = null; let currentFacingMode = 'user'; let currentStream;
+        window.logAi = function(msg, color="white") { 
+            const box = document.getElementById('ai-debug-box'); 
+            if(box) { box.innerHTML += `<div><span style="color:${color}">${msg}</span></div>`; box.scrollTop = box.scrollHeight; }
+            console.log(msg); 
+        }
 
+        // --- APP LOGIK ---
+        let seg = null; 
+        const video = document.getElementById('ai-video'); 
+        const canvas = document.getElementById('ai-canvas'); 
+        const ctx = canvas.getContext('2d'); 
+        const loadingEl = document.getElementById('ai-loading');
+        
+        let isRunning = false; 
+        let bgImage = new Image(); 
+        bgImage.src = "../assets/weltraum.jpg"; 
+        let bgColor = null; 
+        let loadTimer = null;
+        let currentFacingMode = 'user';
+        let currentStream;
+
+        async function checkFiles() {
+            const files = ['selfie_segmentation.binarypb', 'selfie_segmentation_solution_simd_wasm_bin.wasm'];
+            for(let f of files) { 
+                try { 
+                    const r = await fetch('../models/' + f, {method: 'GET', cache: 'no-store'}); 
+                    if(!r.ok) window.logAi(`WARNUNG: ${f} fehlt evtl. (Status ${r.status})`, "orange"); 
+                    else window.logAi(`OK: ${f}`, "green"); 
+                } catch(e) { window.logAi(`Check ignorieren: ${e.message}`, "gray"); } 
+            }
+        }
+
+        // --- KAMERA STARTEN & WAIT LOOP ---
         async function initCam() {
+            // Check Files nicht blockierend starten
+            checkFiles();
+
             try {
                 if(currentStream) currentStream.getTracks().forEach(t => t.stop());
+
                 window.logAi("Starte Kamera...");
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode } });
-                currentStream = stream; video.srcObject = stream; await video.play();
-                if(currentFacingMode === 'user') { video.style.transform = 'scaleX(-1)'; } else { video.style.transform = 'scaleX(1)'; }
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode } 
+                });
+                currentStream = stream;
+                video.srcObject = stream; 
+                
+                // Explizit abspielen!
+                await video.play();
+                
+                // Spiegelung
+                if(currentFacingMode === 'user') { video.style.transform = 'scaleX(-1)'; }
+                else { video.style.transform = 'scaleX(1)'; }
+
                 loadTimer = setTimeout(() => { window.logAi("Timeout! Klicke 'Ohne KI starten'.", "yellow"); }, 30000);
+                
+                // ROBUSTE SCHLEIFE STATT EVENT LISTENER
                 window.logAi("Warte auf Videodaten...");
                 waitForVideo();
-            } catch(e) { window.logAi("Kamera-Fehler: " + e.message, "red"); alert("Kamera konnte nicht gestartet werden."); }
-        }
-        function waitForVideo() {
-            if (video.readyState >= 2 && video.videoWidth > 0) { 
-                window.logAi("Video läuft. Starte KI..."); 
-                preloadAndInitAI(); 
-            } else { requestAnimationFrame(waitForVideo); }
-        }
-        window.switchCamera = function() { currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user'; initCam(); }
-        
-        async function preloadAndInitAI() {
-            if(seg) { isRunning = true; processLoop(); return; }
-            window.logAi("Initialisiere KI...", "cyan");
 
-            try {
-                // Absolute Pfade erzwingen, um Probleme mit relativen Pfaden in Webviews zu vermeiden
-                const getModelPath = (file) => {
-                    return new URL(`../models/${file}`, window.location.href).href;
-                };
-
-                seg = new SelfieSegmentation({locateFile: getModelPath});
-
-                const files = [
-                    'selfie_segmentation.binarypb',
-                    'selfie_segmentation_landscape.tflite',
-                    'selfie_segmentation_solution_simd_wasm_bin.wasm',
-                    'selfie_segmentation_solution_wasm_bin.wasm'
-                ];
-
-                for(const file of files) {
-                    const url = getModelPath(file);
-                    window.logAi(`Lade ${file}...`, "yellow");
-                    try {
-                        const buffer = await loadFile(url);
-                        seg.overrideFile(file, new Uint8Array(buffer));
-                        window.logAi(`OK: ${file}`, "green");
-                    } catch(e) {
-                        window.logAi(`Fehler beim Vorladen von ${file}: ${e.message}`, "orange");
-                        if (window.location.protocol === 'file:') throw e; // Sofort abbrechen bei file:// Problemen
-                    }
-                }
-
-                window.logAi("Konfiguriere...", "cyan");
-                seg.setOptions({ modelSelection: 1, selfieMode: true });
-                seg.onResults(onResults);
-                
-                await seg.initialize();
-                
-                isRunning = true; processLoop();
             } catch(e) { 
-                window.logAi("KI Init Fehler: " + e.message, "red"); 
-                console.error(e);
-                if (window.location.protocol === 'file:') {
-                    alert("⚠️ ACHTUNG: Diese App funktioniert nicht direkt per Doppelklick (file://).\n\nBrowser blockieren aus Sicherheit den Zugriff auf die KI-Modelle.\n\nLÖSUNG: Starte einen lokalen Server!\n(z.B. im Terminal: 'python3 -m http.server' im public-Ordner)");
-                }
+                window.logAi("Kamera-Fehler: " + e.message, "red"); 
+                alert("Kamera konnte nicht gestartet werden.");
             }
         }
-        
-        async function processLoop() { 
-            if(!isRunning) return; 
+
+        // Polling Funktion, die prüft, ob das Video wirklich bereit ist
+        function waitForVideo() {
+            if (video.readyState >= 2 && video.videoWidth > 0) {
+                window.logAi("Video läuft (" + video.videoWidth + "x" + video.videoHeight + "). Starte KI...");
+                setupAI();
+            } else {
+                requestAnimationFrame(waitForVideo);
+            }
+        }
+
+        window.switchCamera = function() {
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+            initCam();
+        }
+
+        function setupAI() {
+            if(seg) {
+                // Falls schon da, nur reaktivieren
+                loadingEl.style.display = 'none';
+                isRunning = true; 
+                processLoop();
+                return;
+            }
+
+            window.logAi("Lade KI-Modell...", "cyan");
+            try {
+                seg = new SelfieSegmentation({locateFile: (file) => `../models/${file}`});
+                seg.setOptions({ modelSelection: 1, selfieMode: true });
+                seg.onResults(onResults);
+                isRunning = true; 
+                processLoop();
+            } catch(e) {
+                window.logAi("KI Init Fehler: " + e, "red");
+            }
+        }
+
+        async function processLoop() {
+            if(!isRunning) return;
             if(video.videoWidth > 0 && !video.paused) { 
-                try { 
-                    await seg.send({image: video}); 
-                } catch(e) { console.warn("KI Frame Fehler (ignoriert)", e); } 
-            } 
-            if(isRunning) requestAnimationFrame(processLoop); 
+                try { await seg.send({image: video}); } catch(e) { /* Fehler ignorieren */ } 
+            }
+            requestAnimationFrame(processLoop);
         }
 
         function onResults(results) {
-            if(loadingEl.style.display !== 'none') { clearTimeout(loadTimer); loadingEl.style.display = 'none'; window.logAi("KI läuft!", "green"); }
-            
-            // FIX: 3:2 Format für Druck (1080x720 bei HD Input)
-            const vW = video.videoWidth;
-            const vH = video.videoHeight;
-            const targetRatio = 3/2;
-            const targetW = Math.round(vH * targetRatio); // z.B. 720 * 1.5 = 1080
-            const targetH = vH;
-            const cropX = (vW - targetW) / 2;
-
-            canvas.width = targetW; 
-            canvas.height = targetH;
-            
+            if(loadingEl.style.display !== 'none') { 
+                clearTimeout(loadTimer); loadingEl.style.display = 'none'; window.logAi("KI läuft!", "green"); 
+            }
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             ctx.save(); ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Maske zuschneiden
-            ctx.drawImage(results.segmentationMask, cropX, 0, targetW, targetH, 0, 0, targetW, targetH);
-            
-            // Bild zuschneiden (Source-In)
+            ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'source-in'; 
-            ctx.drawImage(results.image, cropX, 0, targetW, targetH, 0, 0, targetW, targetH);
-            
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'destination-over';
+            
             if (bgColor) { ctx.fillStyle = bgColor; ctx.fillRect(0, 0, canvas.width, canvas.height); }
-            else if (bgImage.complete && bgImage.naturalWidth > 0) { 
-                // Hintergrundbild einpassen (Cover-Modus für 3:2)
-                drawBgCover(ctx, bgImage, canvas.width, canvas.height);
-            }
+            else if (bgImage.complete && bgImage.naturalWidth > 0) { ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height); }
             else { ctx.fillStyle = '#111'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
             ctx.restore();
         }
-        window.setBg = function(path, color = null) { if (color) { bgColor = color; } else { bgColor = null; bgImage.src = path; } }
-        
-        window.capturePhoto = function() {
-            window.playSound('shutter');
-            flashEffect(); isRunning = false; 
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.9); // JPEG für Performance!
+
+        window.setBg = function(path, color = null) { 
+            if (color) { bgColor = color; } else { bgColor = null; bgImage.src = path; } 
+        }
+
+        // --- CAPTURE & PREVIEW ---
+        window.capturePhoto = function() { 
+            flashEffect(); 
+            isRunning = false; // KI Pause
+            const dataUrl = canvas.toDataURL('image/png');
             document.getElementById('preview-img-display').src = dataUrl;
-            document.getElementById('preview-overlay').classList.remove('hidden'); document.getElementById('preview-overlay').style.display = 'flex';
+            document.getElementById('preview-overlay').classList.remove('hidden');
+            document.getElementById('preview-overlay').style.display = 'flex';
             document.getElementById('main-controls').classList.add('hidden');
         }
+
         window.closePreview = function() {
-            document.getElementById('preview-overlay').classList.add('hidden'); document.getElementById('preview-overlay').style.display = 'none';
-            document.getElementById('main-controls').classList.remove('hidden'); isRunning = true; processLoop();
+            document.getElementById('preview-overlay').classList.add('hidden');
+            document.getElementById('preview-overlay').style.display = 'none';
+            document.getElementById('main-controls').classList.remove('hidden');
+            isRunning = true; 
+            processLoop();
         }
+
         window.saveFromPreview = function() {
-            window.playSound('success'); 
-            const dataUrl = document.getElementById('preview-img-display').src; const link = document.createElement('a'); link.download = 'zauber-selfie.jpg'; link.href = dataUrl; link.click();
+            const dataUrl = document.getElementById('preview-img-display').src;
+            const link = document.createElement('a'); 
+            link.download = 'magic-booth.png'; 
+            link.href = dataUrl; 
+            link.click(); 
         }
-        window.printFromPreview = async function(el) {
-            const btn = el || document.getElementById('btn-print'); const dataUrl = document.getElementById('preview-img-display').src; await window.printImage(dataUrl, 'Zauber-Selfie', btn);
+
+        window.printFromPreview = function() {
+            const dataUrl = document.getElementById('preview-img-display').src;
+            document.getElementById('print-img').src = dataUrl;
+            setTimeout(() => window.print(), 250);
         }
+
+        // Alte Funktion für Kompatibilität
         window.takePhoto = function() { window.capturePhoto(); }
+
         function flashEffect() { canvas.style.filter = "brightness(10)"; setTimeout(() => canvas.style.filter = "none", 100); }
+        
         window.drawFallback = function() {
             isRunning = false; loadingEl.style.display = 'none'; window.logAi("KI deaktiviert.");
             function loop() {
-                const vW = video.videoWidth;
-                const vH = video.videoHeight;
-                const targetW = Math.round(vH * 1.5);
-                const cropX = (vW - targetW) / 2;
-                
-                canvas.width = targetW; canvas.height = vH;
-                
+                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
                 ctx.save(); 
-                if(currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
-                ctx.drawImage(video, cropX, 0, targetW, vH, 0, 0, targetW, vH); 
+                if(currentFacingMode === 'user') ctx.scale(-1, 1); 
+                ctx.drawImage(video, currentFacingMode === 'user' ? -canvas.width : 0, 0); 
                 ctx.restore();
-                
                 ctx.fillStyle = "white"; ctx.font = "20px sans-serif"; ctx.fillText("Ohne KI", 20, 40);
                 requestAnimationFrame(loop);
             } loop();
         }
-        
-        // Helper für Hintergrund-Skalierung (Object-Fit: Cover)
-        function drawBgCover(ctx, img, w, h) {
-            const ratio = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-            const centerShift_x = (w - img.naturalWidth * ratio) / 2;
-            const centerShift_y = (h - img.naturalHeight * ratio) / 2;
-            ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, centerShift_x, centerShift_y, img.naturalWidth * ratio, img.naturalHeight * ratio);
-        }
+
+        // START
         initCam();
+
     </script>
 </body>
 </html>
