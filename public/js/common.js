@@ -364,4 +364,90 @@
         }
         setTimeout(() => container.remove(), 5000);
     };
+
+    // --- 9. Kinderfreundliche Fehlermeldungen ---
+    window.showError = function(message, icon = "🙊") {
+        let modal = document.getElementById('error-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'error-modal';
+            modal.className = 'hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm items-center justify-center p-4 transition-opacity duration-300 opacity-0';
+            modal.innerHTML = `
+                <div class="bg-slate-800 border-4 border-red-500 rounded-[3rem] max-w-md w-full p-8 shadow-2xl text-center transform scale-90 transition-transform duration-300" id="error-modal-content">
+                    <div class="text-6xl md:text-8xl mb-4 animate-bounce" id="error-modal-icon">🙊</div>
+                    <h2 class="text-2xl md:text-4xl font-black text-white mb-4">Hoppla!</h2>
+                    <p class="text-lg md:text-xl text-slate-300 mb-8 font-bold" id="error-modal-text">Ein Fehler ist aufgetreten.</p>
+                    <button onclick="window.hideError()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-red-800 active:border-b-0 active:translate-y-2 pointer-events-auto flex items-center justify-center gap-2">
+                        <span class="text-2xl">👍</span> ALLES KLAR
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        document.getElementById('error-modal-icon').innerText = icon;
+        document.getElementById('error-modal-text').innerText = message;
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        // Fehler für das Kind vorlesen
+        if (window.speakText) window.speakText("Hoppla! " + message);
+
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            const content = document.getElementById('error-modal-content');
+            if (content) {
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            }
+        }, 10);
+    };
+
+    window.hideError = function() {
+        if (window.playSound) window.playSound('click');
+        const modal = document.getElementById('error-modal');
+        if (modal && !modal.classList.contains('hidden')) {
+            modal.classList.add('opacity-0');
+            const content = document.getElementById('error-modal-content');
+            if (content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+    };
+
+    // --- 10. Magic Sparkles (Visuelles Touch-Feedback) ---
+    document.addEventListener('pointerdown', (e) => {
+        // Nicht auslösen bei Textfeldern, um beim Tippen nicht zu stören
+        if (e.target.tagName === 'INPUT' || e.target.isContentEditable) return;
+
+        const colors = ['#facc15', '#ef4444', '#3b82f6', '#22c55e', '#a855f7', '#ffffff'];
+        for (let i = 0; i < 3; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '✨';
+            sparkle.className = 'fixed pointer-events-none z-[999998]';
+            sparkle.style.left = e.clientX + 'px';
+            sparkle.style.top = e.clientY + 'px';
+            sparkle.style.color = colors[Math.floor(Math.random() * colors.length)];
+            sparkle.style.fontSize = (Math.random() * 10 + 15) + 'px';
+            document.body.appendChild(sparkle);
+
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 30 + 15;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+
+            const anim = sparkle.animate([
+                { transform: 'translate(-50%, -50%) scale(0)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(1.5)`, opacity: 1, offset: 0.5 },
+                { transform: `translate(calc(-50% + ${tx*1.5}px), calc(-50% + ${ty*1.5}px)) scale(0)`, opacity: 0 }
+            ], { duration: 600 + Math.random() * 300, easing: 'cubic-bezier(0,.9,.57,1)' });
+            anim.onfinish = () => sparkle.remove();
+        }
+    }, {passive: true});
 })();

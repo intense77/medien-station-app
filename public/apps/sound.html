@@ -231,7 +231,7 @@
                 try {
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 } catch(e) {
-                    alert("Audio-System konnte nicht gestartet werden. Bitte App neu laden.");
+                    if(window.showError) window.showError("Das Ton-System schläft noch! Bitte lade die Seite neu.", "🎹");
                     console.error("Web Audio API init error:", e);
                     return; // Abbrechen, wenn Audio nicht geht
                 }
@@ -323,7 +323,7 @@
                     );
                     pad.mediaObj.startRecord();
                 } catch(e) {
-                    alert("Plugin Fehler: " + e.message);
+                    if(window.showError) window.showError("Aufnahme klappt gerade nicht!", "🎤");
                     stopRecording(i);
                 }
                 return;
@@ -370,7 +370,7 @@
                 
             } catch (err) { 
                 console.error(err);
-                alert("Mikrofon Fehler: " + err.message); 
+                if(window.showError) window.showError("Dein Mikrofon klemmt! Bitte sag einem Erwachsenen Bescheid.", "🎤");
                 stopRecording(i);
             }
         }

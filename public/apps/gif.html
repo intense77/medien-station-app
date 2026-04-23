@@ -387,7 +387,7 @@
                 recorder.start();
                 setTimeout(() => recorder.stop(), 4000); // 4 seconds recording
             } catch(e) {
-                alert("Speichern auf diesem Gerät leider nicht möglich.");
+                if(window.showError) window.showError("Puh, das Video Speichern klappt hier leider nicht!", "💾");
                 document.getElementById('saving-overlay').classList.add('hidden');
                 document.getElementById('saving-overlay').style.display = '';
             };
