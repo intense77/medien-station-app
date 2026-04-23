@@ -70,6 +70,18 @@
                 <span class="text-xl md:text-3xl">💀</span>
                 <span class="text-[8px] md:text-xs font-black uppercase">XRAY</span>
             </button>
+            <button onclick="window.setFilter('sepia(100%)')" class="side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition" style="filter: sepia(100%)">
+                <span class="text-xl md:text-3xl">🤎</span>
+                <span class="text-[8px] md:text-xs font-black uppercase">SEPIA</span>
+            </button>
+            <button onclick="window.setFilter('hue-rotate(90deg)')" class="side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition" style="filter: hue-rotate(90deg)">
+                <span class="text-xl md:text-3xl">👽</span>
+                <span class="text-[8px] md:text-xs font-black uppercase">BUNT</span>
+            </button>
+            <button onclick="window.setFilter('blur(4px)')" class="side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition">
+                <span class="text-xl md:text-3xl">🌫️</span>
+                <span class="text-[8px] md:text-xs font-black uppercase">BLUR</span>
+            </button>
         </div>
 
         <div class="flex-1 flex flex-col min-h-0 w-full gap-2">
@@ -156,7 +168,7 @@
                     console.warn("Kamera-Versuch fehlgeschlagen:", err.name);
                 }
             }
-            alert("Kamera konnte nicht gestartet werden. Bitte Berechtigungen prüfen!");
+            if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
         }
 
         window.switchCamera = () => {
@@ -265,9 +277,6 @@
             video.style.filter = f;
             canvas.style.filter = f;
         };
-
-        window.goHome = () => window.location.href = '../index.html';
-        window.toggleInfo = () => document.getElementById('info-modal')?.classList.toggle('hidden');
 
         // Start erst wenn alles bereit ist, um Cordova-Fehler zu puffern
         window.addEventListener('load', () => setTimeout(initCam, 500));
