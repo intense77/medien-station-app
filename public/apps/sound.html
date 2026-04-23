@@ -168,14 +168,8 @@
                     <div id="status-${i}" class="hidden absolute bottom-1 md:bottom-4 w-full text-center text-[8px] md:text-sm font-black uppercase tracking-widest text-emerald-400">BELEGT</div>
                 `;
 
-                // Events - Getrennt für Touch und Maus (behebt blockierende Pointer-Events in Firefox/Android)
-                el.ontouchstart = (e) => {
-                    e.preventDefault();
-                    handlePadTouch(i);
-                };
-                el.onmousedown = (e) => {
-                    if (e.button !== 0) return; // Nur Links-Klick
-                    e.preventDefault();
+                // Events - Standard Click ist am sichersten auf allen Plattformen
+                el.onclick = (e) => {
                     handlePadTouch(i);
                 };
 
