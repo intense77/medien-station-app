@@ -96,6 +96,9 @@
             } else {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                }
             }
         }
     };
