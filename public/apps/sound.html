@@ -331,6 +331,10 @@
 
             // 2. Browser Modus (Web Fallback)
             try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("Mikrofon blockiert! Der Browser erfordert eine sichere HTTPS-Verbindung.");
+                }
+                
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 pad.stream = stream;
                 pad.mediaRecorder = new MediaRecorder(stream);
@@ -370,7 +374,11 @@
                 
             } catch (err) { 
                 console.error(err);
-                if(window.showError) window.showError("Dein Mikrofon klemmt! Bitte sag einem Erwachsenen Bescheid.", "🎤");
+                if (err.message.includes("HTTPS")) {
+                    if(window.showError) window.showError("Das Mikrofon braucht eine sichere Verbindung (HTTPS)!", "🔒");
+                } else {
+                    if(window.showError) window.showError("Dein Mikrofon klemmt! Bitte sag einem Erwachsenen Bescheid.", "🎤");
+                }
                 stopRecording(i);
             }
         }
