@@ -266,7 +266,8 @@
                 }
             });
 
-            navigator.serviceWorker.register(swPath)
+            // CACHE-BUSTER: Zwingt den Browser, IMMER die neueste Version zu laden!
+            navigator.serviceWorker.register(swPath + '?v=' + new Date().getTime())
                 .then(() => console.log('✅ Service Worker registriert'))
                 .catch(err => console.warn('❌ Service Worker Fehler:', err));
         }
