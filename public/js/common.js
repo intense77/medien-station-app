@@ -244,6 +244,16 @@
         });
         document.addEventListener('click', requestWakeLock, {once: true}); // Fallback bei erster Interaktion
         
+        // --- KIOSK HARDENING: Android Back-Button abfangen ---
+        document.addEventListener('deviceready', () => {
+            document.addEventListener('backbutton', (e) => {
+                e.preventDefault();
+                // Wenn wir in einer App sind, sicher zum Menü zurückkehren
+                if (isSubApp) window.goHome();
+                // Im Hauptmenü passiert einfach gar nichts (App schließt sich nicht)
+            }, false);
+        });
+
         // --- 6. Service Worker Registration (PWA) ---
         if ('serviceWorker' in navigator) {
             const swPath = isSubApp ? '../sw.js' : 'sw.js';
@@ -298,6 +308,25 @@
     } else {
         initCommon();
     }
+
+    // --- 8. Vorlese-Funktion (Text-to-Speech) für Kinder ---
+    window.speakText = function(text, event) {
+        if (event) event.stopPropagation();
+        window.resetIdleTimer();
+        
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Laufende Sprache abbrechen
+            
+            // Emojis filtern, damit sie nicht laut vorgelesen werden ("Lächelndes Gesicht mit Schweißperle...")
+            const cleanText = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+            
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'de-DE';
+            utterance.rate = 0.9; // Etwas langsamer für Kinder
+            utterance.pitch = 1.2; // Etwas hellere, freundlichere Stimme
+            window.speechSynthesis.speak(utterance);
+        }
+    };
 
     // --- 7. Konfetti Effekt ---
     window.triggerConfetti = function() {
