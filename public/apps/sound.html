@@ -22,13 +22,11 @@
 </head>
 <body class="h-[100dvh] w-full flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden">
 
-    <!-- HEADER ZEILE -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
         <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
 
-        <!-- Titel (nur Desktop/Tablet) -->
         <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl lg:text-5xl font-black text-rose-500 tracking-wider drop-shadow-lg pointer-events-none z-10">
             SOUND LABOR
         </h1>
@@ -38,11 +36,9 @@
         </button>
     </div>
 
-    <!-- Control Center & Info -->
     <div class="flex flex-col items-center mb-2 md:mb-4 gap-2 z-40 w-full max-w-7xl mx-auto px-1">
         <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full">
             
-            <!-- Action Buttons -->
             <div class="flex gap-2 md:gap-3 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-3xl border-2 md:border-4 border-slate-700 shadow-xl w-full md:w-auto justify-center shrink-0">
                 <button id="btn-rec" onclick="setMode('rec')" class="flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 py-2 md:px-6 md:py-4 rounded-lg md:rounded-2xl font-black text-[10px] md:text-xl transition-all border-2 md:border-4 border-transparent bg-slate-700 hover:bg-slate-600 text-gray-300 active:scale-95">
                     <div class="w-3 h-3 md:w-6 md:h-6 rounded-full bg-red-500 shadow-sm"></div> <span class="inline">REC</span>
@@ -58,138 +54,84 @@
                 </button>
             </div>
             
-            <!-- FX Buttons -->
             <div class="flex gap-2 md:gap-3 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-3xl border-2 md:border-4 border-slate-700 shadow-xl w-full md:w-auto justify-center shrink-0">
                 <button onclick="setGlobalEffect(0.6, this)" class="fx-btn w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-purple-600 text-2xl md:text-3xl shadow-lg border-b-4 border-purple-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center hover:brightness-110" title="Monster">🧟</button>
                 <button onclick="setGlobalEffect(1.0, this)" class="fx-btn w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-blue-600 text-2xl md:text-3xl shadow-lg border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center hover:brightness-110 ring-4 ring-white scale-110" title="Normal">🙂</button>
                 <button onclick="setGlobalEffect(1.7, this)" class="fx-btn w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-yellow-500 text-2xl md:text-3xl shadow-lg border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition flex items-center justify-center hover:brightness-110" title="Maus">🐭</button>
             </div>
-            
         </div>
         
-        <!-- Info Leiste -->
         <div id="status-bar" class="text-center text-slate-400 font-mono text-[10px] md:text-lg uppercase tracking-widest font-bold transition-all duration-300">
             Modus: SPIELEN (Tippe auf Pads)
         </div>
     </div>
 
-    <!-- The Grid -->
     <div id="pad-container" class="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 flex-1 pb-1 md:pb-4 max-w-7xl mx-auto w-full z-10 px-1 md:px-2 min-h-0">
-        <!-- Pads werden per JS generiert -->
-    </div>
+        </div>
 
-    <!-- HILFE MODAL -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-rose-500 rounded-[2rem] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative" onclick="event.stopPropagation()">
             <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
-            
             <h2 class="text-2xl md:text-4xl font-black text-white mb-4 md:mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-4xl md:text-6xl">🎹</span> ANLEITUNG
-                <button onclick="window.speakText('Anleitung für das Sound Labor. Aufnehmen: Tippe auf REC. Wähle ein Pad. Sprich rein. Tippe das Pad nochmal zum Speichern. Loopen: Tippe auf LOOP. Wähle Pads aus. Diese spielen jetzt immer wieder von vorne. Abspielen: Tippe einfach auf die grünen Pads, um deine Töne zu hören.', event)" class="ml-auto bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
             </h2>
-            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-sm md:text-base">
                 <div class="p-4 md:p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
                     <div class="text-3xl md:text-4xl mb-2 md:mb-4">🎤</div>
                     <h3 class="text-rose-400 font-bold text-lg md:text-xl mb-2">Aufnehmen</h3>
-                    <p class="text-slate-300 leading-snug">1. Tippe auf <b>REC</b>.<br>2. Wähle ein Pad.<br>3. Sprich rein.<br>4. Tippe Pad nochmal zum Speichern.</p>
+                    <p class="text-slate-300 leading-snug">REC tippen -> Pad wählen -> Sprechen -> Pad erneut tippen.</p>
                 </div>
-                
                 <div class="p-4 md:p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
                     <div class="text-3xl md:text-4xl mb-2 md:mb-4">🔁</div>
                     <h3 class="text-blue-400 font-bold text-lg md:text-xl mb-2">Loopen</h3>
-                    <p class="text-slate-300 leading-snug">1. Tippe auf <b>LOOP</b>.<br>2. Wähle Pads aus.<br>3. Diese Pads spielen jetzt immer wieder von vorne.</p>
+                    <p class="text-slate-300 leading-snug">LOOP tippen -> Pads für Endlosschleife markieren.</p>
                 </div>
-
                 <div class="p-4 md:p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
                     <div class="text-3xl md:text-4xl mb-2 md:mb-4">▶️</div>
                     <h3 class="text-emerald-400 font-bold text-lg md:text-xl mb-2">Abspielen</h3>
-                    <p class="text-slate-300 leading-snug">Ist kein Modus aktiv, kannst du einfach auf die <b>grünen Pads</b> tippen, um deine Töne zu hören.</p>
+                    <p class="text-slate-300 leading-snug">Im Spielmodus einfach auf grüne Pads drücken.</p>
                 </div>
             </div>
-            
-            <button onclick="window.toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
-                ALLES KLAR!
-            </button>
+            <button onclick="window.toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">ALLES KLAR!</button>
         </div>
     </div>
 
     <script>
-        // --- AUDIO ENGINE ---
         let audioCtx;
         let pads = []; 
-        let currentMode = 'play'; // 'play', 'rec', 'loop'
+        let currentMode = 'play';
         let globalPlaybackRate = 1.0;
 
         function setGlobalEffect(rate, btn) {
             if(window.playSound) window.playSound('click');
             globalPlaybackRate = rate;
-            
-            document.querySelectorAll('.fx-btn').forEach(b => {
-                b.classList.remove('ring-4', 'ring-white', 'scale-110');
-            });
+            document.querySelectorAll('.fx-btn').forEach(b => b.classList.remove('ring-4', 'ring-white', 'scale-110'));
             if(btn) btn.classList.add('ring-4', 'ring-white', 'scale-110');
-
-            pads.forEach(pad => {
-                if(pad.sourceNode) {
-                    try { pad.sourceNode.playbackRate.value = rate; } catch(e){}
-                }
-            });
+            pads.forEach(pad => { if(pad.sourceNode) try { pad.sourceNode.playbackRate.value = rate; } catch(e){} });
         }
 
         function init() {
             const container = document.getElementById('pad-container');
-            
-            // 12 Pads erstellen
             for(let i = 0; i < 12; i++) {
-                pads.push({
-                    buffer: null,
-                    loop: false,
-                    sourceNode: null,
-                    isRecording: false,
-                    mediaRecorder: null,
-                    chunks: []
-                });
-
+                pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, mediaRecorder: null, chunks: [] });
                 const el = document.createElement('div');
                 el.id = `pad-${i}`;
-                // Standard Style
-                el.className = `bg-slate-800 h-full rounded-xl md:rounded-3xl flex flex-col items-center justify-center cursor-pointer border-b-4 md:border-b-[10px] border-slate-900 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all relative group select-none shadow-2xl overflow-hidden`;
-                
+                el.className = `bg-slate-800 h-full rounded-xl md:rounded-3xl flex flex-col items-center justify-center cursor-pointer border-b-4 md:border-b-[10px] border-slate-900 active:border-b-0 active:translate-y-1 transition-all relative group shadow-2xl overflow-hidden`;
                 el.innerHTML = `
-                    <div class="text-3xl md:text-6xl font-black text-slate-700 transition-colors duration-300" id="label-${i}">${i+1}</div>
-                    
-                    <!-- Icons -->
-                    <div id="icon-loop-${i}" class="hidden absolute top-2 right-2 md:top-4 md:right-4 text-base md:text-2xl bg-blue-600 text-white rounded-md md:rounded-lg px-1 py-0.5 md:px-2 md:py-1 shadow-md font-bold">🔁</div>
+                    <div class="text-3xl md:text-6xl font-black text-slate-700" id="label-${i}">${i+1}</div>
+                    <div id="icon-loop-${i}" class="hidden absolute top-2 right-2 md:top-4 md:right-4 text-base md:text-2xl bg-blue-600 text-white rounded-md px-1 py-0.5 shadow-md">🔁</div>
                     <div id="icon-rec-${i}" class="hidden absolute top-2 left-2 md:top-4 md:left-4 w-3 h-3 md:w-6 md:h-6 bg-red-500 rounded-full animate-pulse shadow-[0_0_15px_red]"></div>
-                    
-                    <!-- Status Text -->
-                    <div id="status-${i}" class="hidden absolute bottom-1 md:bottom-4 w-full text-center text-[8px] md:text-sm font-black uppercase tracking-widest text-emerald-400">BELEGT</div>
+                    <div id="status-${i}" class="hidden absolute bottom-1 md:bottom-4 w-full text-center text-[8px] md:text-sm font-black uppercase text-emerald-400">BELEGT</div>
                 `;
-
-                // Events - Standard Click ist am sichersten auf allen Plattformen
-                el.onclick = (e) => {
-                    handlePadTouch(i);
-                };
-
+                el.onclick = () => handlePadTouch(i);
                 container.appendChild(el);
             }
         }
 
-        // --- MODUS WECHSEL ---
         function setMode(mode) {
             if(window.playSound) window.playSound('click');
-            
-            pads.forEach((pad, i) => {
-                if (pad.isRecording) stopRecording(i);
-            });
-
-            // Toggle Logic
-            if (currentMode === mode) {
-                currentMode = 'play';
-            } else {
-                currentMode = mode;
-            }
+            pads.forEach((pad, i) => { if (pad.isRecording) stopRecording(i); });
+            currentMode = (currentMode === mode) ? 'play' : mode;
             updateUI();
         }
 
@@ -197,63 +139,38 @@
             const btnRec = document.getElementById('btn-rec');
             const btnLoop = document.getElementById('btn-loop');
             const status = document.getElementById('status-bar');
-            
             const inactive = "border-transparent bg-slate-700 text-gray-300 hover:bg-slate-600";
             const activeRec = "border-red-500 text-red-400 bg-slate-900 shadow-[0_0_20px_rgba(239,68,68,0.2)]";
             const activeLoop = "border-blue-500 text-blue-400 bg-slate-900 shadow-[0_0_20px_rgba(59,130,246,0.2)]";
+            const base = "flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 py-2 md:px-6 md:py-4 rounded-lg md:rounded-2xl font-black text-[10px] md:text-xl transition-all border-2 md:border-4 active:scale-95 ";
 
-            // Reset classes logic
-            const baseBtnClasses = "flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 py-2 md:px-6 md:py-4 rounded-lg md:rounded-2xl font-black text-[10px] md:text-xl transition-all border-2 md:border-4 active:scale-95 ";
-
-            btnRec.className = baseBtnClasses + (currentMode === 'rec' ? activeRec : inactive);
-            btnLoop.className = baseBtnClasses + (currentMode === 'loop' ? activeLoop : inactive);
+            btnRec.className = base + (currentMode === 'rec' ? activeRec : inactive);
+            btnLoop.className = base + (currentMode === 'loop' ? activeLoop : inactive);
             
             if (currentMode === 'rec') {
-                status.innerText = "🔴 AUFNAHME: Pad antippen -> Sprechen -> Speichern";
-                status.className = "text-center font-mono text-[10px] md:text-lg uppercase tracking-widest text-red-400 animate-pulse font-bold transition-all duration-300";
+                status.innerText = "🔴 AUFNAHME: Pad tippen -> Sprechen -> Speichern";
+                status.className = "text-center font-mono text-[10px] md:text-lg uppercase text-red-400 animate-pulse font-bold";
             } else if (currentMode === 'loop') {
                 status.innerText = "🔁 LOOP: Wähle Pads für Wiederholung";
-                status.className = "text-center font-mono text-[10px] md:text-lg uppercase tracking-widest text-blue-400 font-bold transition-all duration-300";
+                status.className = "text-center font-mono text-[10px] md:text-lg uppercase text-blue-400 font-bold";
             } else {
                 status.innerText = "Modus: SPIELEN (Tippe belegte Pads)";
-                status.className = "text-center text-slate-400 font-mono text-[10px] md:text-lg uppercase tracking-widest font-bold transition-all duration-300";
+                status.className = "text-center text-slate-400 font-mono text-[10px] md:text-lg uppercase font-bold";
             }
         }
 
-        // --- PAD LOGIK ---
         async function handlePadTouch(i) {
-            if(window.resetIdleTimer) window.resetIdleTimer();
-
-            // LAZY INIT: AudioContext erst bei erster Nutzerinteraktion erstellen (iOS/Safari-Fix)
             if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } catch(e) {
-                    if(window.showError) window.showError("Das Ton-System schläft noch! Bitte lade die Seite neu.", "🎹");
-                    console.error("Web Audio API init error:", e);
-                    return; // Abbrechen, wenn Audio nicht geht
-                }
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-
-            if (audioCtx.state === 'suspended') {
-                try { await audioCtx.resume(); } 
-                catch(e) { console.warn("AudioContext resume blockiert:", e); }
-            }
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
 
             const pad = pads[i];
             const el = document.getElementById(`pad-${i}`);
 
             if (currentMode === 'play') {
-                // Abspielen
-                if (!pad.buffer) {
-                    // Visuelles Feedback, dass das Pad leer ist (damit man nicht denkt, es sei kaputt)
-                    el.classList.add('bg-slate-700');
-                    setTimeout(() => el.classList.remove('bg-slate-700'), 150);
-                    return;
-                }
-
+                if (!pad.buffer) return;
                 if (pad.loop) {
-                    // Loop Toggle
                     if (pad.sourceNode) {
                         pad.sourceNode.stop();
                         pad.sourceNode = null;
@@ -265,25 +182,17 @@
                         el.classList.add('bg-blue-600', 'border-blue-800');
                     }
                 } else {
-                    // One-Shot
                     playSound(i, false);
                     el.classList.add('bg-emerald-500');
                     setTimeout(() => el.classList.remove('bg-emerald-500'), 150);
                 }
-
             } else if (currentMode === 'loop') {
-                // Config Loop
                 if (!pad.buffer) return;
                 pad.loop = !pad.loop;
                 document.getElementById(`icon-loop-${i}`).classList.toggle('hidden', !pad.loop);
-                el.classList.add('scale-95');
-                setTimeout(() => el.classList.remove('scale-95'), 100);
-
             } else if (currentMode === 'rec') {
-                // Aufnahme
-                if (pad.isRecording) {
-                    stopRecording(i);
-                } else {
+                if (pad.isRecording) stopRecording(i);
+                else {
                     pads.forEach((p, idx) => { if(p.isRecording) stopRecording(idx); });
                     startRecording(i);
                 }
@@ -292,180 +201,76 @@
 
         function playSound(i, loop) {
             const pad = pads[i];
-            if (pad.sourceNode) {
-                try { pad.sourceNode.stop(); } catch(e){}
-                pad.sourceNode = null;
-            }
-
+            if (pad.sourceNode) try { pad.sourceNode.stop(); } catch(e){}
             const source = audioCtx.createBufferSource();
             source.buffer = pad.buffer;
             source.loop = loop;
             source.playbackRate.value = globalPlaybackRate;
             source.connect(audioCtx.destination);
             source.start(0);
-
             if (loop) pad.sourceNode = source;
         }
 
         async function startRecording(i) {
             const pad = pads[i];
-            const el = document.getElementById(`pad-${i}`);
-
             pad.isRecording = true;
             document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
-            el.classList.add('pulse-rec', 'rec-active'); // 'rec-active' blockiert den globalen Idle-Timer!
+            document.getElementById(`pad-${i}`).classList.add('pulse-rec');
 
-            // 1. Nativer Cordova Modus (Tablet/App)
             if (window.cordova && typeof Media !== 'undefined') {
-                const fileName = `pad_${i}.aac`;
-                const path = (cordova.file && cordova.file.dataDirectory) ? cordova.file.dataDirectory + fileName : fileName;
+                const path = `pad_${i}.aac`;
+                pad.mediaObj = new Media(path, () => {}, (e) => console.error(e));
+                pad.mediaObj.startRecord();
                 pad.src = path;
-                
-                try {
-                    if (pad.mediaObj) { pad.mediaObj.release(); }
-                    pad.mediaObj = new Media(path, 
-                        () => console.log("Rec Success"), 
-                        (e) => console.error("Rec Error", e)
-                    );
-                    pad.mediaObj.startRecord();
-                } catch(e) {
-                    if(window.showError) window.showError("Aufnahme klappt gerade nicht!", "🎤");
-                    setTimeout(() => stopRecording(i), 0);
-                }
                 return;
             }
 
-            // 2. Browser Modus (Web Fallback)
             try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("Mikrofon blockiert! Der Browser erfordert eine sichere HTTPS-Verbindung.");
-                }
-                
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // WICHTIG: Race-Condition Schutz (Wurde in der Zwischenzeit schon wieder auf Stop gedrückt?)
-                if (!pad.isRecording) {
-                    stream.getTracks().forEach(track => track.stop());
-                    return;
-                }
-                
                 pad.stream = stream;
                 
-                // HACK 1: Zwingt Firefox & Mobile Browser, das Mikrofon aktiv zu halten (sonst ist die Aufnahme leer!)
-                pad.dummyAudio = new Audio();
-                pad.dummyAudio.muted = true;
-                pad.dummyAudio.srcObject = stream;
-                pad.dummyAudio.play().catch(e => console.warn(e));
-
-                // Web Audio Context Hack (bewährt in rec.html, hält den Stream auf Firefox/Android aktiv)
-                if (audioCtx) {
-                    pad.webAudioSource = audioCtx.createMediaStreamSource(stream);
-                    pad.dummyGain = audioCtx.createGain();
-                    pad.dummyGain.gain.value = 0.00001; // unhörbar
-                    pad.webAudioSource.connect(pad.dummyGain);
-                    pad.dummyGain.connect(audioCtx.destination);
-                }
-                
-                pad.mediaRecorder = new MediaRecorder(stream);
+                // MIME-Type Check für Browser-Kompatibilität
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+                pad.mediaRecorder = new MediaRecorder(stream, { mimeType });
                 pad.chunks = [];
 
-                pad.mediaRecorder.ondataavailable = (e) => {
-                    if (e.data.size > 0) pad.chunks.push(e.data);
+                pad.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) pad.chunks.push(e.data); };
+                pad.mediaRecorder.onstop = async () => {
+                    const blob = new Blob(pad.chunks, { type: mimeType });
+                    const arrayBuffer = await blob.arrayBuffer();
+                    audioCtx.decodeAudioData(arrayBuffer, (decoded) => {
+                        pad.buffer = decoded;
+                        updatePadVisuals(i, true);
+                    });
+                    stream.getTracks().forEach(t => t.stop());
                 };
-                
-                pad.mediaRecorder.onstop = () => {
-                    // Hack aufräumen
-                    if (pad.dummyAudio) {
-                        pad.dummyAudio.pause();
-                        pad.dummyAudio.srcObject = null;
-                        pad.dummyAudio = null;
-                    }
-                    if (pad.webAudioSource) {
-                        pad.webAudioSource.disconnect();
-                        pad.webAudioSource = null;
-                    }
-                    if (pad.dummyGain) {
-                        pad.dummyGain.disconnect();
-                        pad.dummyGain = null;
-                    }
-
-                    if (pad.chunks.length > 0) {
-                        let mimeType = pad.mediaRecorder.mimeType;
-                        if (!mimeType) mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4';
-                        
-                        const blob = new Blob(pad.chunks, { type: mimeType });
-                        
-                        // FileReader ist 100% sicher auf allen Plattformen
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                            audioCtx.decodeAudioData(reader.result, (decodedBuffer) => {
-                                pad.buffer = decodedBuffer;
-                                updatePadVisuals(i, true);
-                            }, (e) => {
-                                console.error("Decode Error:", e);
-                                if(window.showError) window.showError("Die Aufnahme war zu kurz oder defekt!", "🤔");
-                            });
-                        };
-                        reader.readAsArrayBuffer(blob);
-                    }
-                    
-                    if (pad.stream) {
-                        pad.stream.getTracks().forEach(track => track.stop());
-                        pad.stream = null;
-                    }
-                };
-
-                // FIREFOX FIX: KEIN Timeslice! (start(100) zerstört die WebM-Header für den Web Audio Decoder)
                 pad.mediaRecorder.start();
-                
-            } catch (err) { 
+            } catch (err) {
                 console.error(err);
-                if (err.message.includes("HTTPS")) {
-                    if(window.showError) window.showError("Das Mikrofon braucht eine sichere Verbindung (HTTPS)!", "🔒");
-                } else {
-                    if(window.showError) window.showError("Dein Mikrofon klemmt! Bitte sag einem Erwachsenen Bescheid.", "🎤");
-                }
-                setTimeout(() => stopRecording(i), 0);
+                stopRecording(i);
             }
         }
 
         function stopRecording(i) {
             const pad = pads[i];
-            const el = document.getElementById(`pad-${i}`);
-            
             if (!pad.isRecording) return;
             pad.isRecording = false;
-
-            // UI sofort zurücksetzen, um doppelte Klicks abzufangen
             document.getElementById(`icon-rec-${i}`).classList.add('hidden');
-            el.classList.remove('pulse-rec', 'rec-active');
+            document.getElementById(`pad-${i}`).classList.remove('pulse-rec');
 
             if (window.cordova && pad.mediaObj) {
-                // Cordova Modus stoppen
-                try {
-                    pad.mediaObj.stopRecord();
-                    pad.mediaObj.release();
-                } catch(e) {}
-                
-                // Timeout: Dem Gerät kurz Zeit geben, die Datei auf den Speicher zu schreiben (Race-Condition Fix)
+                pad.mediaObj.stopRecord();
+                // Simulierter FileReader für Cordova
                 setTimeout(() => {
-                    window.resolveLocalFileSystemURL(pad.src, function(fileEntry) {
-                        fileEntry.file(function(file) {
-                            var reader = new FileReader();
-                            reader.onloadend = function() {
-                                audioCtx.decodeAudioData(this.result, (decodedBuffer) => {
-                                    pad.buffer = decodedBuffer;
-                                    updatePadVisuals(i, true);
-                                }, (e) => console.error("Decode Error", e));
-                            };
-                            reader.readAsArrayBuffer(file);
+                    window.resolveLocalFileSystemURL(cordova.file.externalCacheDirectory + pad.src, (entry) => {
+                        entry.file(f => {
+                            let r = new FileReader();
+                            r.onloadend = () => audioCtx.decodeAudioData(r.result, d => {pad.buffer = d; updatePadVisuals(i, true);});
+                            r.readAsArrayBuffer(f);
                         });
-                    }, function(e) { console.error("File Error", e); });
+                    });
                 }, 500);
-                
-                pad.mediaObj = null;
-            } else if (pad.mediaRecorder && pad.mediaRecorder.state !== 'inactive') {
-                // Browser Modus stoppen
+            } else if (pad.mediaRecorder) {
                 pad.mediaRecorder.stop();
             }
         }
@@ -474,33 +279,21 @@
             const el = document.getElementById(`pad-${i}`);
             const label = document.getElementById(`label-${i}`);
             const status = document.getElementById(`status-${i}`);
-
             if (hasSound) {
-                el.classList.remove('border-slate-900');
-                el.classList.add('border-emerald-500'); // Grüner Rahmen zeigt "Belegt"
-                label.classList.remove('text-slate-700');
+                el.classList.add('border-emerald-500');
                 label.classList.add('text-white');
                 status.classList.remove('hidden');
             }
         }
 
         function stopAll() {
-            if(window.playSound) window.playSound('click');
-            
             pads.forEach((pad, i) => {
                 if (pad.isRecording) stopRecording(i);
-                
-                if (pad.sourceNode) {
-                    try { pad.sourceNode.stop(); } catch(e){}
-                    pad.sourceNode = null;
-                }
+                if (pad.sourceNode) try { pad.sourceNode.stop(); } catch(e){}
+                pad.sourceNode = null;
                 const el = document.getElementById(`pad-${i}`);
                 el.classList.remove('bg-blue-600', 'border-blue-800', 'bg-emerald-500');
                 el.classList.add('bg-slate-800');
-                
-                // Border wiederherstellen
-                if (pad.buffer) el.classList.add('border-emerald-500');
-                else el.classList.add('border-slate-900');
             });
             setMode('play');
         }
