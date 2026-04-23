@@ -24,7 +24,7 @@
 
     <!-- HEADER ZEILE -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
-        <button onclick="goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
 
@@ -33,7 +33,7 @@
             SOUND LABOR
         </h1>
 
-        <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
             ?
         </button>
     </div>
@@ -79,9 +79,9 @@
     </div>
 
     <!-- HILFE MODAL -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo()">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-rose-500 rounded-[2rem] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
             
             <h2 class="text-2xl md:text-4xl font-black text-white mb-4 md:mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-4xl md:text-6xl">🎹</span> ANLEITUNG
@@ -108,7 +108,7 @@
                 </div>
             </div>
             
-            <button onclick="toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
+            <button onclick="window.toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
                 ALLES KLAR!
             </button>
         </div>
@@ -351,6 +351,12 @@
                 
                 pad.stream = stream;
                 
+                // HACK 1: Zwingt Firefox & Mobile Browser, das Mikrofon aktiv zu halten (sonst ist die Aufnahme leer!)
+                pad.dummyAudio = new Audio();
+                pad.dummyAudio.muted = true;
+                pad.dummyAudio.srcObject = stream;
+                pad.dummyAudio.play().catch(e => console.warn(e));
+
                 // Web Audio Context Hack (bewährt in rec.html, hält den Stream auf Firefox/Android aktiv)
                 if (audioCtx) {
                     pad.webAudioSource = audioCtx.createMediaStreamSource(stream);
@@ -369,6 +375,11 @@
                 
                 pad.mediaRecorder.onstop = () => {
                     // Hack aufräumen
+                    if (pad.dummyAudio) {
+                        pad.dummyAudio.pause();
+                        pad.dummyAudio.srcObject = null;
+                        pad.dummyAudio = null;
+                    }
                     if (pad.webAudioSource) {
                         pad.webAudioSource.disconnect();
                         pad.webAudioSource = null;
@@ -404,8 +415,8 @@
                     }
                 };
 
-                // Timeslice 100ms erzwingt regelmäßiges Senden von Daten, verhindert leere Aufnahmen
-                pad.mediaRecorder.start(100);
+                // FIREFOX FIX: KEIN Timeslice! (start(100) zerstört die WebM-Header für den Web Audio Decoder)
+                pad.mediaRecorder.start();
                 
             } catch (err) { 
                 console.error(err);
