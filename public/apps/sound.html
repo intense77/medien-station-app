@@ -239,7 +239,7 @@
                 el.classList.add('pulse-rec');
                 document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
             } catch (err) {
-                alert("Mikrofon Zugriff verweigert oder nicht gefunden.");
+                if(window.showError) window.showError("Dein Mikrofon klemmt! Bitte sag einem Erwachsenen Bescheid.", "🎤");
             }
         }
 
