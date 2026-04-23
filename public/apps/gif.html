@@ -192,18 +192,30 @@
         async function initCam() {
             if (!video) return;
             try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("HTTPS erforderlich!");
+                }
                 if (currentStream && typeof currentStream.getTracks === 'function') {
                     currentStream.getTracks().forEach(track => track.stop());
                 }
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode }
+                    // 'ideal' ist für Desktop-Laptops entscheidend, sonst stürzt die Abfrage ab!
+                    video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: {ideal: currentFacingMode} }
                 });
                 currentStream = stream;
                 video.srcObject = stream;
-                video.onloadedmetadata = () => { video.play(); };
+                
+                // Direkt abspielen statt auf unzuverlässige onloadedmetadata Events zu warten
+                await video.play().catch(e => console.warn(e));
+                
                 video.style.transform = (currentFacingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
             } catch (err) {
-                console.error("Kamera-Fehler: " + err.message);
+                console.error("Kamera-Fehler: ", err);
+                if (err.message && err.message.includes("HTTPS")) {
+                    if(window.showError) window.showError("Die Kamera braucht eine sichere Verbindung (HTTPS)!", "🔒");
+                } else {
+                    if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
+                }
             }
         }
 
