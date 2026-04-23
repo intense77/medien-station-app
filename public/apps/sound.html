@@ -23,9 +23,9 @@
 <body class="flex flex-col p-2 md:p-4 min-h-screen">
       
     <div class="flex justify-between items-center h-16 mb-2">
-        <button onclick="goHome()" class="bg-slate-800 border-4 border-slate-600 px-6 py-2 rounded-full font-black">🏠 MENÜ</button>
+        <button onclick="window.goHome()" class="bg-slate-800 border-4 border-slate-600 px-6 py-2 rounded-full font-black z-50">🏠 MENÜ</button>
         <h1 class="text-xl md:text-3xl font-black tracking-widest uppercase">✨ MUSIK LABOR</h1>
-        <button onclick="toggleInfo()" class="w-12 h-12 bg-slate-800 rounded-full font-bold border-4 border-slate-600">?</button>
+        <button onclick="window.toggleInfo()" class="w-12 h-12 bg-slate-800 rounded-full font-bold border-4 border-slate-600 z-50">?</button>
     </div>
 
     <div class="flex flex-wrap justify-center gap-4 mb-4">
@@ -55,6 +55,24 @@
         <div class="text-[12rem] font-black text-white" id="countdown-text">3</div>
     </div>
 
+    <!-- HILFE MODAL -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
+        <div class="bg-slate-800 border-4 border-emerald-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-emerald-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
+                <span class="text-6xl">🎹</span> ANLEITUNG
+                <button onclick="window.speakText('Anleitung für das Musik Labor. Wähle zuerst den Modus. Aufnehmen: Tippe auf einen roten REC Button, dann auf ein Pad. Schleife: Tippe auf LOOP, dann auf ein Pad, damit es sich wiederholt. Spielen: Tippe einfach auf die Pads, um Musik zu machen.', event)" class="ml-auto bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+            </h2>
+            <div class="text-lg text-slate-300 space-y-4">
+                <p>1. <b>🔴 REC</b>: Nimm einen Ton auf ein freies Pad auf.</p>
+                <p>2. <b>🔁 LOOP</b>: Lass ein Pad sich immer wiederholen.</p>
+                <p>3. <b>⏹ STOP</b>: Beendet alle Töne sofort.</p>
+                <p>Nutze die Monster- und Maus-Filter links für lustige Stimmen!</p>
+            </div>
+            <button onclick="window.toggleInfo()" class="mt-8 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+        </div>
+    </div>
+
     <script>
         let audioCtx = null;
         let pads = [];
@@ -79,7 +97,7 @@
             const container = document.getElementById('pad-container');
             container.innerHTML = '';
             for(let i = 0; i < 12; i++) {
-                pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, chunks: [], stream: null });
+                pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, isCountingDown: false, chunks: [], stream: null });
                 const el = document.createElement('div');
                 el.id = `pad-${i}`;
                 el.className = `pad-item`;
@@ -96,6 +114,7 @@
         }
 
         function setMode(mode) {
+            if(window.playSound) window.playSound('click');
             initAudio(); // Aktivierung bei Klick
             if (currentMode === mode) currentMode = 'play';
             else currentMode = mode;
@@ -122,6 +141,7 @@
 
             if (currentMode === 'rec') {
                 if (pad.isRecording) { stopRecording(i); } 
+                else if (pad.isCountingDown) { return; } // Schutz vor Kinder-Doppelklicks!
                 else { startCountdown(i); }
             } else if (currentMode === 'loop') {
                 if (!pad.buffer) return;
@@ -134,18 +154,23 @@
         }
 
         function startCountdown(i) {
+            const pad = pads[i];
+            pad.isCountingDown = true;
             const overlay = document.getElementById('countdown-overlay');
             const text = document.getElementById('countdown-text');
             overlay.classList.remove('hidden');
             let count = 3;
             
+            if(window.playSound) window.playSound('click');
             const timer = setInterval(() => {
                 text.innerText = count;
                 if (count <= 0) {
                     clearInterval(timer);
                     overlay.classList.add('hidden');
+                    pad.isCountingDown = false;
+                    if(window.playSound) window.playSound('shutter');
                     startRecording(i);
-                }
+                } else { if(window.playSound) window.playSound('click'); }
                 count--;
             }, 800);
         }
@@ -216,6 +241,7 @@
         }
 
         function stopAll() {
+            if(window.playSound) window.playSound('click');
             pads.forEach((p, i) => {
                 if (p.sourceNode) p.sourceNode.stop();
                 document.getElementById(`pad-${i}`).style.backgroundColor = "#1e293b";
@@ -223,6 +249,7 @@
         }
 
         function setGlobalFx(rate, btn) {
+            if(window.playSound) window.playSound('click');
             currentRecRate = rate;
             document.querySelectorAll('.fx-btn').forEach(b => b.classList.remove('fx-active'));
             btn.classList.add('fx-active');
