@@ -4,24 +4,34 @@
     <meta charset="UTF-8">
     <title>Loop Cam</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
 
     <style>
-        body { background-color: #0f172a; color: white; overflow: hidden; user-select: none; touch-action: manipulation; }
-        video, canvas { display: block; }
+        body { 
+            background-color: #0f172a; 
+            color: white; 
+            overflow: hidden; 
+            user-select: none; 
+            touch-action: manipulation; 
+            height: 100dvh;
+            margin: 0;
+        }
+        
+        video, canvas { display: block; border-radius: inherit; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
         /* Optimierung für Smartphone Querformat */
         @media (max-height: 500px) and (orientation: landscape) {
             .header-area { height: 3.5rem !important; margin-bottom: 0 !important; }
-            .filter-sidebar { width: 5rem !important; padding: 0.25rem !important; }
-            .filter-btn { height: 3.5rem !important; }
-            .speed-sidebar { width: 5rem !important; padding: 0.25rem !important; }
-            .speed-btn { height: 3.5rem !important; }
+            .side-bar { width: 4.5rem !important; padding: 0.25rem !important; gap: 0.5rem !important; }
+            .side-btn { height: 3.5rem !important; width: 3.5rem !important; }
             .action-area { height: 4rem !important; }
+            .video-main { border-width: 4px !important; }
         }
         
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -29,7 +39,7 @@
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen">
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900">
 
     <div class="header-area h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
         <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
@@ -45,59 +55,63 @@
         </button>
     </div>
 
-    <div class="flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden">
+    <div class="flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
         
-        <div class="filter-sidebar flex-none w-full md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start h-auto md:h-full">
-            <button onclick="window.setFilter('')" class="filter-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition">
+        <div class="side-bar flex-none w-full md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start h-auto md:h-full">
+            <button onclick="window.setFilter('')" class="side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition">
                 <span class="text-xl md:text-3xl">⚪</span>
                 <span class="text-[8px] md:text-xs font-black uppercase">NORM</span>
             </button>
-            <button onclick="window.setFilter('grayscale(100%)')" class="filter-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition" style="filter: grayscale(100%)">
+            <button onclick="window.setFilter('grayscale(100%)')" class="side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition" style="filter: grayscale(100%)">
                 <span class="text-xl md:text-3xl">⚫</span>
                 <span class="text-[8px] md:text-xs font-black uppercase">S/W</span>
             </button>
-            <button onclick="window.setFilter('invert(100%)')" class="filter-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition" style="filter: invert(100%)">
+            <button onclick="window.setFilter('invert(100%)')" class="side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center active:scale-95 transition" style="filter: invert(100%)">
                 <span class="text-xl md:text-3xl">💀</span>
                 <span class="text-[8px] md:text-xs font-black uppercase">XRAY</span>
             </button>
         </div>
 
-        <div class="flex-1 flex flex-col min-h-0 w-full gap-2 overflow-hidden">
-            <div id="video-container" class="relative flex-1 w-full bg-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center">
+        <div class="flex-1 flex flex-col min-h-0 w-full gap-2">
+            <div id="video-container" class="video-main relative flex-1 w-full bg-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center">
                 <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain"></video>
                 <canvas id="canvas" class="absolute inset-0 w-full h-full object-contain hidden"></canvas>
                 
                 <div id="countdown" class="absolute inset-0 flex items-center justify-center hidden bg-black/50 backdrop-blur-sm z-30">
                     <div id="countdown-text" class="text-[8rem] md:text-[12rem] font-black text-white font-comic">3</div>
                 </div>
+                
+                <div id="rec-indicator" class="absolute top-4 right-4 hidden items-center gap-2 z-30 bg-red-600 text-white px-3 py-1 rounded-full font-black animate-pulse shadow-lg">
+                    <div class="w-2 h-2 bg-white rounded-full"></div> REC
+                </div>
             </div>
 
-            <div class="action-area h-16 md:h-24 w-full flex items-center justify-center gap-4">
+            <div class="action-area h-16 md:h-24 w-full flex items-center justify-center gap-4 px-2">
                 <div id="start-overlay" class="flex gap-4 w-full justify-center">
                     <button onclick="window.switchCamera()" class="w-12 h-12 md:w-20 md:h-20 bg-slate-700 text-white rounded-xl md:rounded-2xl border-b-4 border-slate-900 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center">
-                        <span class="text-2xl md:text-3xl">🔄</span>
+                        <span class="text-2xl md:text-4xl">🔄</span>
                     </button>
-                    <button onclick="window.startCountdown()" class="bg-sky-500 text-white text-lg md:text-4xl font-black px-12 md:px-20 rounded-xl md:rounded-2xl border-b-4 border-sky-700 active:translate-y-1 active:border-b-0 transition-all">
+                    <button onclick="window.startCountdown()" class="flex-1 max-w-sm bg-sky-500 text-white text-xl md:text-4xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-8 border-sky-700 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-3">
                         🎥 ACTION!
                     </button>
                 </div>
                 
                 <div id="action-buttons" class="hidden gap-4 w-full justify-center">
-                    <button onclick="window.resetApp()" class="flex-1 max-w-[200px] bg-yellow-500 text-black font-black py-3 rounded-xl border-b-4 border-yellow-700 active:translate-y-1 active:border-b-0">🔄 NOCHMAL</button>
-                    <button onclick="window.saveLoopVideo()" class="flex-1 max-w-[200px] bg-green-600 text-white font-black py-3 rounded-xl border-b-4 border-green-800 active:translate-y-1 active:border-b-0">💾 SPEICHERN</button>
+                    <button onclick="window.resetApp()" class="flex-1 max-w-[200px] bg-yellow-500 text-black font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-yellow-700 active:translate-y-1 active:border-b-0">🔄 NOCHMAL</button>
+                    <button onclick="window.saveLoopVideo()" class="flex-1 max-w-[200px] bg-green-600 text-white font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-green-800 active:translate-y-1 active:border-b-0">💾 SPEICHERN</button>
                 </div>
             </div>
         </div>
 
-        <div id="speed-controls" class="speed-sidebar flex-none w-full md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start opacity-30 pointer-events-none transition-opacity duration-300">
-            <button onclick="window.setSpeed(150)" class="speed-btn flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl active:scale-95 transition flex flex-col items-center justify-center">
-                <span class="text-2xl">🐢</span>
+        <div id="speed-controls" class="side-bar flex-none w-full md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start opacity-30 pointer-events-none transition-opacity duration-300 h-auto md:h-full">
+            <button id="sp-150" onclick="window.setSpeed(150)" class="side-btn flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl active:scale-95 transition flex flex-col items-center justify-center">
+                <span class="text-2xl md:text-4xl">🐢</span>
             </button>
-            <button onclick="window.setSpeed(40)" class="speed-btn flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl active:scale-95 transition flex flex-col items-center justify-center">
-                <span class="text-2xl">🚶</span>
+            <button id="sp-40" onclick="window.setSpeed(40)" class="side-btn flex-none w-20 h-16 md:w-full md:h-24 bg-sky-600 text-white rounded-xl active:scale-95 transition flex flex-col items-center justify-center border-2 border-white">
+                <span class="text-2xl md:text-4xl">🚶</span>
             </button>
-            <button onclick="window.setSpeed(10)" class="speed-btn flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl active:scale-95 transition flex flex-col items-center justify-center">
-                <span class="text-2xl">🚀</span>
+            <button id="sp-10" onclick="window.setSpeed(10)" class="side-btn flex-none w-20 h-16 md:w-full md:h-24 bg-slate-700 text-white rounded-xl active:scale-95 transition flex flex-col items-center justify-center">
+                <span class="text-2xl md:text-4xl">🚀</span>
             </button>
         </div>
     </div>
@@ -109,49 +123,50 @@
         let loopInterval;
         let currentFacingMode = 'user';
 
+        // --- ROBUSTE KAMERA INITIALISIERUNG ---
         async function initCam() {
             video = document.getElementById('video');
             if (!video) return;
 
-            const constraints = {
-                video: {
-                    facingMode: currentFacingMode,
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
-            };
-
-            try {
-                if (currentStream) currentStream.getTracks().forEach(t => t.stop());
-                
-                // Erster Versuch mit idealen Settings
-                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = currentStream;
-                await video.play().catch(e => console.warn(e));
-                
-            } catch (err) {
-                console.warn("Versuche Kamera-Fallback...", err);
-                try {
-                    // Zweiter Versuch: Ganz ohne spezielle Constraints (hilft Firefox/Edge auf Laptops)
-                    currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    video.srcObject = currentStream;
-                    await video.play().catch(e => console.warn(e));
-                } catch (e) {
-                    if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
-                }
-            }
-
             if (currentStream) {
-                video.style.transform = currentFacingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                currentStream.getTracks().forEach(t => t.stop());
             }
+
+            // Strategie-Kaskade für Desktop & Mobile
+            const strategies = [
+                { video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
+                { video: { facingMode: currentFacingMode } },
+                { video: true } 
+            ];
+
+            for (let constraints of strategies) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    currentStream = stream;
+                    video.srcObject = stream;
+                    
+                    await new Promise((resolve) => {
+                        video.onloadedmetadata = () => resolve();
+                    });
+                    
+                    video.play();
+                    video.style.transform = currentFacingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                    return; 
+                } catch (err) {
+                    console.warn("Kamera-Versuch fehlgeschlagen:", err.name);
+                }
+            }
+            alert("Kamera konnte nicht gestartet werden. Bitte Berechtigungen prüfen!");
         }
 
         window.switchCamera = () => {
-            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+            if(window.playSound) window.playSound('click');
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
             initCam();
         };
 
         window.startCountdown = () => {
+            if(window.playSound) window.playSound('click');
             const overlay = document.getElementById('countdown');
             const textEl = document.getElementById('countdown-text');
             document.getElementById('start-overlay').classList.add('hidden');
@@ -161,8 +176,12 @@
             let count = 3;
             const tick = () => {
                 textEl.innerText = count;
+                textEl.classList.remove('animate-pop');
+                void textEl.offsetWidth; 
+                textEl.classList.add('animate-pop');
                 if (count === 0) {
                     overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
                     record();
                 } else {
                     count--;
@@ -173,11 +192,14 @@
         };
 
         function record() {
+            if(window.playSound) window.playSound('shutter');
             frames = [];
             canvas = document.getElementById('canvas');
             ctx = canvas.getContext('2d');
             canvas.width = video.videoWidth || 640;
             canvas.height = video.videoHeight || 480;
+            
+            document.getElementById('rec-indicator').classList.remove('hidden');
             
             let startTime = Date.now();
             const capture = () => {
@@ -191,6 +213,7 @@
                     frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
                     requestAnimationFrame(capture);
                 } else {
+                    document.getElementById('rec-indicator').classList.add('hidden');
                     play();
                 }
             };
@@ -208,28 +231,46 @@
             let i = 0;
             clearInterval(loopInterval);
             loopInterval = setInterval(() => {
-                ctx.putImageData(loopFrames[i], 0, 0);
+                if(loopFrames[i]) ctx.putImageData(loopFrames[i], 0, 0);
                 i = (i + 1) % loopFrames.length;
             }, speed);
         }
 
         window.setSpeed = (ms) => {
+            if(window.playSound) window.playSound('click');
             speed = ms;
-            play(); // Neustart mit neuem Intervall
+            // UI Update
+            [150, 40, 10].forEach(v => {
+                const el = document.getElementById('sp-' + v);
+                el.classList.remove('bg-sky-600', 'border-2', 'border-white');
+                el.classList.add('bg-slate-700');
+            });
+            document.getElementById('sp-' + ms).classList.add('bg-sky-600', 'border-2', 'border-white');
+            play();
+        };
+
+        window.saveLoopVideo = function() {
+            if(window.playSound) window.playSound('success');
+            // Hier kommt deine Speicherlogik (Blob/MediaRecorder) rein
+            alert("Video wird vorbereitet...");
         };
 
         window.resetApp = () => {
+            if(window.playSound) window.playSound('click');
             location.reload();
         };
 
         window.setFilter = (f) => {
+            if(window.playSound) window.playSound('click');
             video.style.filter = f;
             canvas.style.filter = f;
         };
 
         window.goHome = () => window.location.href = '../index.html';
+        window.toggleInfo = () => document.getElementById('info-modal')?.classList.toggle('hidden');
 
-        window.onload = initCam;
+        // Start erst wenn alles bereit ist, um Cordova-Fehler zu puffern
+        window.addEventListener('load', () => setTimeout(initCam, 500));
     </script>
 </body>
 </html>
