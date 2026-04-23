@@ -198,10 +198,16 @@
                 if (currentStream && typeof currentStream.getTracks === 'function') {
                     currentStream.getTracks().forEach(track => track.stop());
                 }
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    // 'ideal' ist für Desktop-Laptops entscheidend, sonst stürzt die Abfrage ab!
-                    video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: {ideal: currentFacingMode} }
-                });
+                
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: {ideal: currentFacingMode} }
+                    });
+                } catch(e) {
+                    console.warn("Kamera Fallback...", e);
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
                 currentStream = stream;
                 video.srcObject = stream;
                 

@@ -3,130 +3,249 @@
 <head>
     <meta charset="UTF-8">
     <title>Pixel Labor</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="../manifest.json">
-    <link rel="icon" href="../assets/logo.png">
-    <!-- iOS Meta Tags -->
-    <link rel="apple-touch-icon" href="../assets/logo.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <link href="../css/style.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
     <script src="../js/print.js"></script>
 
     <style>
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        html { width: 100%; height: 100%; background-color: #0f172a; }
-        body { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; margin: 0;
-            background-color: #0f172a; 
-            color: white; 
-            overflow: hidden !important;
-            user-select: none; 
-            touch-action: none;
-            font-family: sans-serif;
-            animation: fadeIn 0.4s ease-out;
-            box-sizing: border-box;
-            padding-top: calc(10px + env(safe-area-inset-top));
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        /* FIX: w-full statt w-screen verhindert horizontalen Scrollbalken */
+        html, body { 
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            background-color: #0f172a; color: white; 
+            overflow: hidden; user-select: none; touch-action: manipulation; 
         }
-        .pixel-grid { display: grid; grid-template-columns: repeat(16, 1fr); grid-template-rows: repeat(16, 1fr); gap: 1px; background: #334155; border: 8px solid #10b981; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); border-radius: 1rem; overflow: hidden; touch-action: none; width: 100%; height: 100%; aspect-ratio: 1 / 1; }
+        
+        /* Das Gitter */
+        .pixel-grid { 
+            display: grid; 
+            grid-template-columns: repeat(16, 1fr); 
+            grid-template-rows: repeat(16, 1fr); 
+            gap: 1px; 
+            background: #334155; 
+            border: 8px solid #10b981; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); 
+            border-radius: 1rem;
+            overflow: hidden;
+            touch-action: none;
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1 / 1;
+        }
+        
         .cell { background-color: white; cursor: pointer; transition: background-color 0.05s; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        button:active { transform: scale(0.95); transition: transform 0.1s; }
-        @media print { body * { visibility: hidden; } #print-container, #print-container * { visibility: visible; } #print-container { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: flex !important; align-items: center; justify-content: center; background: white; z-index: 99999; } #print-img { max-width: 90%; max-height: 90%; object-fit: contain; border: 4px solid black; image-rendering: pixelated; } }
+
+        @media print {
+            body * { visibility: hidden; }
+            #print-container, #print-container * { visibility: visible; }
+            #print-container {
+                position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+                display: flex !important; align-items: center; justify-content: center;
+                background: white; z-index: 99999;
+            }
+            #print-img {
+                max-width: 90%; max-height: 90%; object-fit: contain;
+                border: 4px solid black;
+                image-rendering: pixelated;
+            }
+        }
     </style>
 </head>
-<body class="flex flex-col p-4">
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-full">
 
-    <div class="flex-none flex justify-between items-center shrink-0 mb-2 px-2 relative z-50 h-16">
-        <button onclick="goHome()" class="bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-6 py-2 rounded-full text-xl font-black shadow-xl flex items-center gap-2 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
-            🏠 MENÜ
+    <!-- HEADER ZEILE (Menü, Titel, Hilfe) -->
+    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 px-1">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+            🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-             <h1 class="text-2xl md:text-4xl font-black text-emerald-400 font-mono tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] uppercase">
-                &lt;PIXEL&gt;
-            </h1>
-        </div>
-        <button onclick="toggleInfo()" class="w-12 h-12 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-xl shrink-0 z-50">
+
+        <h1 class="text-2xl md:text-5xl font-black text-emerald-400 font-mono tracking-wider drop-shadow-lg hidden md:block">&lt;PIXEL /&gt;</h1>
+        
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
             ?
         </button>
     </div>
 
-    <div class="flex-1 flex flex-col lg:flex-row items-center justify-center gap-4 min-h-0 w-full max-w-[95rem] mx-auto pb-1">
-        <div class="relative w-full max-w-[650px] flex items-center justify-center p-1 min-h-0 h-full">
-            <div id="grid" class="pixel-grid max-h-full"></div>
+    <!-- HAUPT-BEREICH -->
+    <div class="flex-1 flex flex-col md:flex-row landscape:flex-row items-center justify-center gap-2 md:gap-4 min-h-0 min-w-0 w-full max-w-[95rem] mx-auto pb-1">
+        
+        <!-- Das Gitter (Container) -->
+        <div class="relative flex-1 w-full max-w-full md:max-w-[650px] landscape:max-w-[650px] flex items-center justify-center p-1 md:p-2 min-h-0 min-w-0">
+            <div id="grid" class="pixel-grid w-full h-auto max-h-full aspect-square">
+                <!-- Zellen per JS -->
+            </div>
         </div>
 
-        <div class="bg-slate-800 p-3 lg:p-4 rounded-[1.5rem] border-4 border-slate-700 flex flex-row lg:flex-col gap-3 shadow-2xl w-full lg:w-auto h-auto lg:h-full justify-between overflow-x-auto lg:overflow-visible lg:overflow-y-auto no-scrollbar">
+        <!-- Werkzeugleiste -->
+        <div class="bg-slate-800 p-2 md:p-4 landscape:p-4 rounded-xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col gap-2 md:gap-4 shadow-2xl w-full landscape:w-32 md:w-auto h-auto landscape:h-full md:h-full justify-start md:justify-between shrink-0 overflow-y-auto no-scrollbar">
             
-            <div class="grid grid-cols-4 lg:grid-cols-4 gap-3 flex-shrink-0 justify-items-center" id="palette">
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-black border-4 border-slate-600 cursor-pointer active:scale-90 transition ring-4 ring-white shadow-lg" data-color="#000000" onclick="setColor(this)"></div>
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-white border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ffffff" onclick="setColor(this)"></div>
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-red-500 border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ef4444" onclick="setColor(this)"></div>
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-blue-500 border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#3b82f6" onclick="setColor(this)"></div>
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-green-500 border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#22c55e" onclick="setColor(this)"></div>
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-yellow-400 border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#facc15" onclick="setColor(this)"></div>
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-purple-500 border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#a855f7" onclick="setColor(this)"></div>
-                <div class="color-btn w-16 h-16 lg:w-20 lg:h-20 rounded-2xl bg-slate-600 border-4 border-slate-500 cursor-pointer active:scale-90 transition flex items-center justify-center text-4xl shadow-lg" data-color="white" onclick="setColor(this)" title="Radierer">🧽</div>
+            <!-- Farben (Horizontal Scroll auf Mobile, 2-Spaltig auf Desktop) -->
+            <div class="flex flex-row md:grid md:grid-cols-2 landscape:grid landscape:grid-cols-2 gap-2 md:gap-3 flex-shrink-0 justify-start md:justify-items-center overflow-x-auto no-scrollbar pb-1 md:pb-0 w-full" id="palette">
+                <!-- Schwarz/Weiß -->
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-black border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition ring-4 ring-white shadow-lg" data-color="#000000" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-white border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ffffff" onclick="setColor(this)"></div>
+                
+                <!-- Bunt -->
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-red-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ef4444" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-blue-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#3b82f6" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-green-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#22c55e" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-yellow-400 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#facc15" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-purple-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#a855f7" onclick="setColor(this)"></div>
+                
+                <!-- Radierer -->
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-slate-600 border-2 md:border-4 border-slate-500 cursor-pointer active:scale-90 transition flex items-center justify-center text-lg md:text-3xl landscape:text-xl shadow-lg" data-color="white" onclick="setColor(this)" title="Radierer">🧽</div>
             </div>
 
-            <div class="h-1 w-full bg-slate-700 my-1 lg:block hidden rounded-full shrink-0"></div>
-            <div class="w-1 h-full bg-slate-700 mx-2 lg:hidden block rounded-full shrink-0"></div>
+            <!-- Trenner -->
+            <div class="h-1 w-full bg-slate-700 my-1 hidden md:block rounded-full shrink-0"></div>
 
-            <div class="flex flex-col gap-3 w-full min-w-[200px] shrink-0">
-                <button onclick="undo()" class="bg-yellow-500 hover:bg-yellow-400 text-black py-3 px-4 rounded-2xl font-black text-lg shadow-lg active:translate-y-1 transition border-b-8 border-yellow-700 active:border-b-0 flex items-center justify-center gap-2">↩️ ZURÜCK</button>
-                <button onclick="downloadArt()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-4 rounded-2xl font-black text-lg shadow-lg active:translate-y-1 transition border-b-8 border-emerald-800 active:border-b-0 flex items-center justify-center gap-2">💾 SPEICHERN</button>
-                <button id="btn-print" onclick="window.printArt(this)" class="bg-white text-emerald-900 hover:bg-gray-200 py-3 px-4 rounded-2xl font-black text-lg shadow-lg active:translate-y-1 transition border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-2">🖨️ DRUCKEN</button>
-                <button onclick="clearGrid()" class="bg-slate-700 hover:bg-red-500/80 text-white py-3 px-4 rounded-2xl font-bold transition text-lg border-b-8 border-slate-900 active:border-b-0 active:translate-y-1 w-full flex items-center justify-center gap-2">🗑️ LÖSCHEN</button>
+            <!-- Aktionen -->
+            <div class="flex flex-row md:flex-col landscape:flex-col gap-2 md:gap-3 w-full shrink-0 justify-between md:justify-center">
+                <button onclick="downloadArt()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">💾</span> <span class="inline landscape:hidden md:landscape:inline">SAVE</span>
+                </button>
+                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-200 py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🖨️</span> <span class="inline landscape:hidden md:landscape:inline">DRUCK</span>
+                </button>
+                <button onclick="clearGrid()" class="flex-1 bg-slate-700 hover:bg-red-500/80 text-white py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-slate-900 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🗑️</span> <span class="hidden sm:inline landscape:hidden md:landscape:inline">LÖSCHEN</span><span class="inline sm:hidden landscape:inline md:landscape:hidden">DEL</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="toggleInfo()">
+    <!-- HILFE MODAL -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-emerald-500 rounded-[2rem] max-w-3xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white hover:text-emerald-400 text-4xl font-bold transition">✖</button>
-            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4"><span class="text-6xl">👾</span> ANLEITUNG</h2>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-emerald-400 text-4xl font-bold transition">✖</button>
+            
+            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
+                <span class="text-6xl">👾</span> ANLEITUNG
+                <button onclick="window.speakText('Anleitung für das Pixel Labor. Malen: Wähle rechts eine Farbe und tippe oder ziehe über die Quadrate. Radieren: Wähle den Schwamm oder drücke auf LÖSCHEN, um von vorne zu beginnen. Fertig? Speichere dein Pixel-Kunstwerk oder drucke es direkt aus.', event)" class="ml-auto mr-12 md:mr-16 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+            </h2>
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-base">
-                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center"><div class="text-4xl mb-4">🎨</div><h3 class="text-emerald-400 font-bold text-xl mb-2">Malen</h3><p class="text-slate-300 leading-snug">Wähle rechts eine <b>Farbe</b> und tippe oder ziehe über die Quadrate.</p></div>
-                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center"><div class="text-4xl mb-4">🧽</div><h3 class="text-white font-bold text-xl mb-2">Radieren</h3><p class="text-slate-300 leading-snug">Wähle den <b>Schwamm</b> oder drücke auf "LÖSCHEN", um von vorne zu beginnen.</p></div>
-                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center"><div class="text-4xl mb-4">💾</div><h3 class="text-white font-bold text-xl mb-2">Fertig?</h3><p class="text-slate-300 leading-snug">Speichere dein Pixel-Kunstwerk oder drucke es direkt aus.</p></div>
+                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
+                    <div class="text-4xl mb-4">🎨</div>
+                    <h3 class="text-emerald-400 font-bold text-xl mb-2">Malen</h3>
+                    <p class="text-slate-300 leading-snug">Wähle rechts eine <b>Farbe</b> und tippe oder ziehe über die Quadrate.</p>
+                </div>
+                
+                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
+                    <div class="text-4xl mb-4">🧽</div>
+                    <h3 class="text-white font-bold text-xl mb-2">Radieren</h3>
+                    <p class="text-slate-300 leading-snug">Wähle den <b>Schwamm</b> oder drücke auf "LÖSCHEN", um von vorne zu beginnen.</p>
+                </div>
+
+                <div class="p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
+                    <div class="text-4xl mb-4">💾</div>
+                    <h3 class="text-white font-bold text-xl mb-2">Fertig?</h3>
+                    <p class="text-slate-300 leading-snug">Speichere dein Pixel-Kunstwerk oder drucke es direkt aus.</p>
+                </div>
             </div>
-            <button onclick="toggleInfo(); playSound('click')" class="mt-8 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+            
+            <button onclick="toggleInfo()" class="mt-8 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-xl text-xl transition">
+                ALLES KLAR!
+            </button>
         </div>
     </div>
 
-    <div id="print-container" class="hidden"><img id="print-img" src="" alt="Druckvorschau"></div>
+    <!-- Versteckter Container für den Druck -->
+    <div id="print-container" class="hidden">
+        <img id="print-img" src="" alt="Druckvorschau">
+    </div>
 
     <script>
-        function playPaintSound() {}
-        const grid = document.getElementById('grid'); let currentColor = '#000000'; let isDrawing = false; let history = [];
-        
-        function saveState() {
-            const state = Array.from(document.querySelectorAll('.cell')).map(c => c.style.backgroundColor);
-            history.push(state);
-            if (history.length > 20) history.shift(); // Max 20 Schritte
-        }
-        
-        function undo() {
-            if (history.length === 0) return;
-            window.playSound('click');
-            const lastState = history.pop();
-            document.querySelectorAll('.cell').forEach((c, i) => c.style.backgroundColor = lastState[i]);
+        const grid = document.getElementById('grid');
+        let currentColor = '#000000';
+        let isDrawing = false;
+
+        // Grid bauen (16x16 = 256)
+        function initGrid() {
+            grid.innerHTML = ''; 
+            for(let i=0; i<256; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                
+                cell.addEventListener('mousedown', () => { isDrawing = true; cell.style.backgroundColor = currentColor; });
+                cell.addEventListener('mouseenter', () => { if(isDrawing) cell.style.backgroundColor = currentColor; });
+                cell.addEventListener('touchstart', (e) => { isDrawing = true; cell.style.backgroundColor = currentColor; }, {passive: false});
+
+                grid.appendChild(cell);
+            }
         }
 
-        function initGrid() { grid.innerHTML = ''; for(let i=0; i<256; i++) { const cell = document.createElement('div'); cell.className = 'cell'; cell.addEventListener('mousedown', () => { saveState(); isDrawing = true; cell.style.backgroundColor = currentColor; playPaintSound(); }); cell.addEventListener('mouseenter', () => { if(isDrawing) { cell.style.backgroundColor = currentColor; } }); cell.addEventListener('touchstart', (e) => { saveState(); isDrawing = true; cell.style.backgroundColor = currentColor; playPaintSound(); }, {passive: false}); grid.appendChild(cell); } }
-        grid.addEventListener('touchmove', (e) => { e.preventDefault(); if(!isDrawing) return; const t = e.touches[0]; const el = document.elementFromPoint(t.clientX, t.clientY); if(el && el.classList.contains('cell')) { el.style.backgroundColor = currentColor; } }, {passive: false});
-        document.body.addEventListener('mouseup', () => isDrawing = false); document.body.addEventListener('touchend', () => isDrawing = false);
-        function setColor(btn) { window.playSound('click'); currentColor = btn.getAttribute('data-color'); document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-4', 'ring-white')); btn.classList.add('ring-4', 'ring-white'); }
-        function clearGrid() { window.playSound('click'); if(confirm("Wirklich alles löschen?")) { saveState(); document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = 'white'); window.playSound('shutter'); } }
-        function generateCanvas() { const c = document.createElement('canvas'); const ctx = c.getContext('2d'); const s = 32; c.width = 16 * s; c.height = 16 * s; document.querySelectorAll('.cell').forEach((cell, i) => { const x = (i % 16) * s; const y = Math.floor(i / 16) * s; ctx.fillStyle = cell.style.backgroundColor || 'white'; ctx.fillRect(x, y, s, s); }); return c; }
-        function downloadArt() { window.playSound('success'); const c = generateCanvas(); const l = document.createElement('a'); l.download = 'mein-pixel-art.png'; l.href = c.toDataURL(); l.click(); }
-        window.printArt = async function(el) { window.playSound('click'); const btn = el || document.getElementById('btn-print'); const c = generateCanvas(); const d = c.toDataURL(); await window.printImage(d, 'Pixel-Art', btn); }
+        // Globaler Touch Move Handler
+        grid.addEventListener('touchmove', (e) => {
+            e.preventDefault(); 
+            if(!isDrawing) return;
+            const touch = e.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if(target && target.classList.contains('cell')) { target.style.backgroundColor = currentColor; }
+        }, {passive: false});
+
+        document.body.addEventListener('mouseup', () => isDrawing = false);
+        document.body.addEventListener('touchend', () => isDrawing = false);
+
+        function setColor(btn) {
+            if(window.playSound) window.playSound('click');
+            currentColor = btn.getAttribute('data-color');
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-4', 'ring-white'));
+            btn.classList.add('ring-4', 'ring-white');
+        }
+
+        function clearGrid() {
+            if(window.playSound) window.playSound('click');
+            if(confirm("Wirklich alles löschen?")) {
+                document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = 'white');
+            }
+        }
+
+        function generateCanvas() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 32; 
+            canvas.width = 16 * size;
+            canvas.height = 16 * size;
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, i) => {
+                const x = (i % 16) * size;
+                const y = Math.floor(i / 16) * size;
+                const color = cell.style.backgroundColor || 'white';
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, size, size);
+            });
+            return canvas;
+        }
+
+        function downloadArt() {
+            if(window.playSound) window.playSound('success');
+            const canvas = generateCanvas();
+            const link = document.createElement('a');
+            link.download = 'mein-pixel-art.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function printArt(btn) {
+            if(window.playSound) window.playSound('click');
+            const canvas = generateCanvas();
+            const dataUrl = canvas.toDataURL();
+            if (window.printImage) {
+                window.printImage(dataUrl, 'Pixel', btn);
+            } else {
+                const printImg = document.getElementById('print-img');
+                printImg.src = dataUrl;
+                setTimeout(() => { window.print(); }, 100);
+            }
+        }
+
         window.onload = initGrid;
     </script>
 </body>

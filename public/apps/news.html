@@ -136,9 +136,15 @@
         async function initCam() {
             try {
                 if (currentStream) currentStream.getTracks().forEach(track => track.stop());
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode } 
-                });
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: {ideal: currentFacingMode} } 
+                    });
+                } catch(e) {
+                    console.warn("Kamera Fallback...", e);
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
                 currentStream = stream; 
                 video.srcObject = stream;
                 if (currentFacingMode === 'user') video.style.transform = 'scaleX(-1)';

@@ -7,154 +7,252 @@
     <meta name="theme-color" content="#0f172a">
     <link rel="manifest" href="../manifest.json">
     <link rel="icon" href="../assets/logo.png">
+    
     <!-- iOS Meta Tags -->
     <link rel="apple-touch-icon" href="../assets/logo.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <link href="../css/style.css" rel="stylesheet">
+    <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
 
     <style>
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        html { width: 100%; height: 100%; background-color: #0f172a; }
-        body {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; margin: 0;
-            background-color: #0f172a; 
-            color: white; 
-            overflow: hidden !important;
-            user-select: none; 
-            touch-action: none;
-            overscroll-behavior: none;
-            font-family: sans-serif;
-            animation: fadeIn 0.4s ease-out;
-            box-sizing: border-box;
-            padding-top: calc(10px + env(safe-area-inset-top));
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-        }
+        body { background-color: #0f172a; color: white; overflow: hidden; user-select: none; touch-action: manipulation; }
+        
+        /* Video und Canvas sollen Block-Elemente sein (verhindert weiße Linien unten) */
         video, canvas { display: block; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        button:active { transform: scale(0.95); transition: transform 0.1s; }
+        
         /* Countdown Animation */
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4">
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden h-[100dvh] w-screen" 
+      onclick="window.resetIdleTimer()" ontouchstart="window.resetIdleTimer()">
 
-    <div class="flex-none flex justify-between items-center z-50 mb-2 relative h-16">
-        <button onclick="goHome()" class="bg-slate-800 text-white border-4 border-slate-600 hover:border-white px-6 py-2 rounded-full text-xl font-black shadow-xl flex items-center gap-2 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
-            🏠 MENÜ
+    <!-- HEADER ZEILE -->
+    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+            🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-             <h1 class="text-2xl md:text-4xl font-black text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] tracking-widest uppercase">
-                ✨ VIDEO LOOP
-            </h1>
-        </div>
-        <button onclick="toggleInfo()" class="w-12 h-12 bg-slate-800 text-white rounded-full font-bold border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-xl shrink-0 z-50">
+
+        <!-- Titel (nur Desktop/Tablet) -->
+        <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl lg:text-5xl font-black text-sky-500 tracking-wider drop-shadow-lg pointer-events-none z-10">
+            VIDEO LOOP
+        </h1>
+
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
             ?
         </button>
     </div>
 
-    <div class="flex-1 flex flex-row gap-2 md:gap-4 min-h-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden pb-1">
-        <div class="w-48 md:w-64 flex flex-col gap-2 bg-gray-900/50 p-2 rounded-2xl border border-white/10 shadow-2xl shrink-0 h-full max-h-full overflow-hidden">
-            <div class="text-[8px] font-bold text-gray-500 uppercase tracking-widest text-center w-full py-1 shrink-0">Filter</div>
-            <div class="flex-1 overflow-hidden grid grid-cols-2 grid-rows-3 gap-2 w-full pb-1">
-                <button onclick="setFilter('')" class="w-full h-full rounded-xl bg-white text-black font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-transparent flex flex-col items-center justify-center"><span class="text-3xl mb-1">⚪</span> NORM</button>
-                <button onclick="setFilter('grayscale(100%) contrast(1.2)')" class="w-full h-full rounded-xl bg-gray-600 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: grayscale(100%)"><span class="text-3xl mb-1">⚫</span> S/W</button>
-                <button onclick="setFilter('sepia(80%)')" class="w-full h-full rounded-xl bg-amber-700 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: sepia(80%)"><span class="text-3xl mb-1">📜</span> ALT</button>
-                <button onclick="setFilter('invert(100%)')" class="w-full h-full rounded-xl bg-blue-600 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: invert(100%)"><span class="text-3xl mb-1">💀</span> XRAY</button>
-                <button onclick="setFilter('saturate(250%)')" class="w-full h-full rounded-xl bg-pink-500 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: saturate(250%)"><span class="text-3xl mb-1">🎨</span> POP</button>
-                <button onclick="setFilter('hue-rotate(90deg)')" class="w-full h-full rounded-xl bg-emerald-500 text-white font-black text-lg hover:scale-105 active:scale-95 transition border-2 border-white/20 flex flex-col items-center justify-center" style="filter: hue-rotate(90deg)"><span class="text-3xl mb-1">👽</span> ALIEN</button>
-            </div>
-        </div>
-
-        <div id="video-container" class="relative flex-1 w-full h-full bg-gray-900 rounded-[1.5rem] overflow-hidden border-[6px] border-gray-800 shadow-2xl group transition-colors duration-200 flex items-center justify-center min-h-0">
-            <video id="video" autoplay playsinline muted class="w-full h-full object-contain"></video>
-            <canvas id="canvas" class="w-full h-full object-contain hidden"></canvas>
-            <div id="rec-indicator" class="absolute top-4 right-4 hidden items-center gap-2 z-30 bg-red-600 text-white px-3 py-1 rounded-full font-black text-sm animate-pulse shadow-lg"><div class="w-2 h-2 bg-white rounded-full"></div> REC</div>
-            <div id="saving-overlay" class="absolute inset-0 bg-black/80 z-50 hidden flex-col items-center justify-center text-white">
-                <div class="text-6xl animate-spin mb-4">💾</div>
-                <div class="text-2xl font-bold">Speichere...</div>
-            </div>
-        </div>
-
-        <div class="w-48 md:w-64 flex-shrink-0 flex flex-col gap-2 z-40 bg-gray-900/50 p-2 rounded-2xl border border-white/10 shadow-2xl h-full max-h-full overflow-hidden transition-opacity opacity-30 pointer-events-none" id="speed-controls">
-            <div class="text-center text-[8px] font-bold text-gray-400 mb-1 uppercase tracking-widest shrink-0">Tempo</div>
-            <div class="flex-1 flex flex-col justify-between gap-2">
-                <button id="btn-slow" onclick="setSpeed(150)" class="w-full flex-1 bg-green-700 hover:bg-green-600 text-white rounded-xl shadow-lg border-b-4 border-green-900 transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-5xl">🐢</span><span class="text-lg font-black uppercase">Langsam</span></button>
-                <button id="btn-norm" onclick="setSpeed(40)" class="w-full flex-1 bg-blue-700 hover:bg-blue-600 text-white rounded-xl shadow-lg border-b-4 border-blue-900 transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-5xl">🚶</span><span class="text-lg font-black uppercase">Mittel</span></button>
-                <button id="btn-turbo" onclick="setSpeed(10)" class="w-full flex-1 bg-red-700 hover:bg-red-600 text-white rounded-xl shadow-lg border-b-4 border-red-900 transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50"><span class="text-5xl">🚀</span><span class="text-lg font-black uppercase">Turbo</span></button>
-            </div>
-        </div>
-    </div>
-
-    <div class="h-24 md:h-28 w-full flex-shrink-0 flex items-center justify-center relative max-w-[95rem] mx-auto mb-1">
-        <div id="start-overlay" class="absolute w-full flex justify-center items-center gap-4 md:gap-6 z-20 pointer-events-none">
-            <button onclick="switchCamera()" id="switch-btn" class="pointer-events-auto bg-slate-800/90 hover:bg-slate-700 text-white w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-slate-500 shadow-xl backdrop-blur flex items-center justify-center active:scale-95 transition shrink-0" title="Kamera wechseln">
-                <span class="text-5xl md:text-6xl">🔄</span>
-            </button>
-            <button onclick="startCountdown()" class="pointer-events-auto bg-white hover:bg-gray-200 text-black font-black h-20 md:h-24 px-10 md:px-12 rounded-full border-b-8 border-gray-400 active:border-b-0 active:translate-y-2 shadow-2xl text-3xl md:text-4xl flex items-center justify-center gap-3 transition active:scale-95">
-                <span class="text-4xl md:text-5xl">🎥</span> ACTION!
-            </button>
-        </div>
+    <!-- MAIN BEREICH (3 Spalten auf Tablet, vertikal auf Mobile) -->
+    <div class="flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 min-w-0 items-center justify-center w-full max-w-[95rem] mx-auto overflow-hidden pb-1">
         
-        <div id="action-buttons" class="hidden gap-2 md:gap-4 w-full justify-center z-20 pointer-events-none">
-            <button onclick="reset()" class="pointer-events-auto bg-yellow-500 hover:bg-yellow-400 text-black text-2xl font-black py-3 px-6 rounded-xl border-b-4 border-yellow-700 active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-2 flex-1 max-w-[200px]">🔄 NOCHMAL</button>
-            <button onclick="saveLoopVideo()" class="pointer-events-auto bg-green-600 hover:bg-green-500 text-white text-2xl font-black py-3 px-6 rounded-xl border-b-4 border-green-800 active:border-b-0 active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-2 flex-1 max-w-[200px]">💾 SPEICHERN</button>
+        <!-- 1. SPALTE/ZEILE: Filter -->
+        <div class="flex-none md:flex-shrink-0 w-full md:w-32 landscape:w-20 landscape:md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2 md:gap-4 overflow-x-auto md:overflow-y-auto landscape:overflow-y-auto landscape:overflow-x-hidden no-scrollbar items-center justify-start h-auto md:h-full landscape:h-full">
+            <div class="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest text-center w-full shrink-0 hidden md:block landscape:block mb-2">Filter</div>
+            
+            <button onclick="window.setFilter('')" class="flex-none w-16 h-16 md:w-full md:h-20 landscape:w-full landscape:h-14 landscape:md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">⚪</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">NORM</span>
+            </button>
+            <button onclick="window.setFilter('grayscale(100%) contrast(1.2)')" class="flex-none w-16 h-16 md:w-full md:h-20 landscape:w-full landscape:h-14 landscape:md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: grayscale(100%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">⚫</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">S/W</span>
+            </button>
+            <button onclick="window.setFilter('sepia(80%)')" class="flex-none w-16 h-16 md:w-full md:h-20 landscape:w-full landscape:h-14 landscape:md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: sepia(80%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">📜</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">ALT</span>
+            </button>
+            <button onclick="window.setFilter('invert(100%)')" class="flex-none w-16 h-16 md:w-full md:h-20 landscape:w-full landscape:h-14 landscape:md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: invert(100%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">💀</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">XRAY</span>
+            </button>
+            <button onclick="window.setFilter('saturate(250%)')" class="flex-none w-16 h-16 md:w-full md:h-20 landscape:w-full landscape:h-14 landscape:md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: saturate(250%)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">🎨</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">POP</span>
+            </button>
+            <button onclick="window.setFilter('hue-rotate(90deg)')" class="flex-none w-16 h-16 md:w-full md:h-20 landscape:w-full landscape:h-14 landscape:md:h-20 rounded-xl bg-slate-700 text-white flex flex-col items-center justify-center shadow active:scale-95 transition hover:bg-slate-600" style="filter: hue-rotate(90deg)">
+                <span class="text-2xl md:text-3xl mb-1 leading-none">👽</span>
+                <span class="text-[10px] md:text-xs font-black uppercase leading-none">ALIEN</span>
+            </button>
+        </div>
+
+        <!-- 2. MITTLERE SPALTE: Video & Action -->
+        <div class="flex-1 flex flex-col min-h-[30vh] landscape:min-h-0 min-w-0 w-full gap-2 md:gap-4 overflow-hidden relative">
+            <div id="video-container" class="relative flex-1 w-full bg-slate-800 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center min-h-0 group transition-colors duration-300">
+                <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain"></video>
+                <canvas id="canvas" class="absolute inset-0 w-full h-full object-contain hidden"></canvas>
+                
+                <div id="countdown" class="absolute inset-0 flex items-center justify-center hidden bg-black/50 backdrop-blur-sm z-30">
+                    <div id="countdown-text" class="text-[8rem] md:text-[12rem] font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] font-comic">3</div>
+                </div>
+                
+                <div id="rec-indicator" class="absolute top-4 right-4 hidden items-center gap-2 z-30 bg-red-600 text-white px-3 py-1 md:px-4 md:py-2 rounded-full font-black text-sm md:text-lg animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.8)]">
+                    <div class="w-2 h-2 md:w-3 md:h-3 bg-white rounded-full"></div> REC
+                </div>
+
+                <div id="saving-overlay" class="absolute inset-0 bg-black/80 z-50 hidden flex-col items-center justify-center text-white">
+                    <div class="text-6xl animate-spin mb-4">💾</div>
+                    <div class="text-2xl font-bold">Speichere...</div>
+                </div>
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="h-16 md:h-24 w-full flex-shrink-0 flex items-center justify-center relative px-2">
+                <div id="start-overlay" class="absolute w-full flex justify-center items-center gap-3 md:gap-4 z-20 pointer-events-none">
+                    <button onclick="window.switchCamera()" id="switch-btn" class="pointer-events-auto w-12 h-12 md:w-20 md:h-20 landscape:w-12 landscape:h-12 bg-slate-700 hover:bg-slate-600 text-white rounded-xl md:rounded-2xl shadow-xl border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all flex items-center justify-center shrink-0" title="Kamera wechseln">
+                        <span class="text-2xl md:text-3xl">🔄</span>
+                    </button>
+                    <button onclick="window.startCountdown()" class="pointer-events-auto bg-sky-500 hover:bg-sky-400 text-white text-xl md:text-4xl landscape:text-xl font-black py-3 md:py-6 landscape:py-2 md:landscape:py-6 px-6 md:px-16 rounded-xl md:rounded-2xl shadow-2xl border-b-4 md:border-b-[8px] border-sky-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all w-full max-w-[250px] md:max-w-xs flex items-center justify-center gap-2">
+                        <span>🎥</span> ACTION!
+                    </button>
+                </div>
+                
+                <div id="action-buttons" class="hidden gap-2 md:gap-4 w-full justify-center z-20 pointer-events-none px-2">
+                    <button onclick="window.resetApp()" class="pointer-events-auto bg-yellow-500 hover:bg-yellow-400 text-black text-sm md:text-2xl font-black py-3 md:py-4 landscape:py-2 md:landscape:py-4 px-3 md:px-6 rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-1 md:gap-2 flex-1 max-w-[180px]">
+                        🔄 NOCHMAL
+                    </button>
+                    <button onclick="window.saveLoopVideo()" class="pointer-events-auto bg-green-600 hover:bg-green-500 text-white text-sm md:text-2xl font-black py-3 md:py-4 landscape:py-2 md:landscape:py-4 px-3 md:px-6 rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-green-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 transition-all shadow-xl flex items-center justify-center gap-1 md:gap-2 flex-1 max-w-[180px]">
+                        💾 SPEICHERN
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SPEED -->
+        <div id="speed-controls" class="flex-none md:flex-shrink-0 w-full md:w-32 landscape:w-20 landscape:md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2 md:gap-4 overflow-x-auto md:overflow-y-auto landscape:overflow-y-auto landscape:overflow-x-hidden no-scrollbar items-center justify-start opacity-30 pointer-events-none transition-opacity duration-300 h-auto md:h-full landscape:h-full">
+            <div class="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest text-center w-full shrink-0 hidden md:block landscape:block mb-2">Tempo</div>
+            <button id="btn-slow" onclick="window.setSpeed(150)" class="flex-none w-20 h-16 md:w-full md:h-24 landscape:w-full landscape:h-14 landscape:md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl leading-none">🐢</span>
+                <span class="text-[10px] font-black uppercase leading-none">Langsam</span>
+            </button>
+            <button id="btn-norm" onclick="window.setSpeed(40)" class="flex-none w-20 h-16 md:w-full md:h-24 landscape:w-full landscape:h-14 landscape:md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl leading-none">🚶</span>
+                <span class="text-[10px] font-black uppercase leading-none">Mittel</span>
+            </button>
+            <button id="btn-turbo" onclick="window.setSpeed(10)" class="flex-none w-20 h-16 md:w-full md:h-24 landscape:w-full landscape:h-14 landscape:md:h-24 bg-slate-700 text-white rounded-xl shadow border-2 border-transparent transition active:scale-95 flex flex-col items-center justify-center gap-1 opacity-50 hover:bg-slate-600">
+                <span class="text-2xl md:text-3xl leading-none">🚀</span>
+                <span class="text-[10px] font-black uppercase leading-none">Turbo</span>
+            </button>
         </div>
     </div>
 
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="toggleInfo()">
+    <!-- HILFE MODAL -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-sky-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white hover:text-sky-400 text-4xl font-bold transition">✖</button>
-            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4"><span class="text-6xl">📹</span> ANLEITUNG</h2>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-sky-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
+                <span class="text-6xl">📹</span> ANLEITUNG
+                <button onclick="window.speakText('Anleitung für den Video Loop. Erstens: Wähle links einen Filter. Zweitens: Drücke unten auf ACTION. Drittens: Nach der Aufnahme kannst du rechts das Tempo ändern. Viertens: Mit dem runden Pfeil wechselst du die Kamera.', event)" class="ml-auto mr-12 md:mr-16 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+            </h2>
             <div class="text-lg text-slate-300 space-y-4">
                 <p>1. Wähle links einen <b>Filter</b>.</p>
                 <p>2. Drücke unten auf <b>ACTION!</b>.</p>
                 <p>3. Nach der Aufnahme kannst du rechts das <b>Tempo</b> ändern.</p>
                 <p>4. Mit <b>🔄</b> wechselst du die Kamera.</p>
             </div>
-            <button onclick="toggleInfo()" class="mt-8 w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+            <button onclick="window.toggleInfo()" class="mt-8 w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
         </div>
     </div>
 
-    <!-- Countdown Overlay -->
-    <div id="countdown-overlay" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm pointer-events-none">
-        <div class="text-[10rem] md:text-[15rem] font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] font-comic" id="countdown-text">3</div>
-    </div>
-
     <script>
-        let video, canvas, ctx, videoContainer, recIndicator, startBtn, resultBtns, speedWrapper, switchBtn; let frames = []; let speed = 40; let loopInterval; let currentStream; let currentFacingMode = 'user';
-        
-        // Tablet Hardening: Kontextmenü deaktivieren
-        document.addEventListener('contextmenu', event => event.preventDefault());
+        let video, canvas, ctx, videoContainer, recIndicator, startBtn, resultBtns, speedWrapper, switchBtn;
+        let frames = [];
+        let speed = 40;
+        let loopInterval;
+        let currentStream;
+        let currentFacingMode = 'user';
 
-        window.initCam = async function() { video = document.getElementById('video'); canvas = document.getElementById('canvas'); ctx = canvas.getContext('2d'); videoContainer = document.getElementById('video-container'); recIndicator = document.getElementById('rec-indicator'); startBtn = document.getElementById('start-overlay'); resultBtns = document.getElementById('action-buttons'); speedWrapper = document.getElementById('speed-controls'); switchBtn = document.getElementById('switch-btn'); if(!video) return; try { if (currentStream && typeof currentStream.getTracks === 'function') currentStream.getTracks().forEach(track => track.stop()); const stream = await navigator.mediaDevices.getUserMedia({ video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode } }); currentStream = stream; video.srcObject = stream; video.onloadedmetadata = () => { video.play(); }; video.style.transform = (currentFacingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)'; } catch (err) { alert("Kamera-Fehler: " + err.message); } }
-        window.switchCamera = function() { currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user'; window.initCam(); }
-        window.setFilter = function(filter) { window.playSound('click'); if(video) video.style.filter = filter; if(canvas) canvas.style.filter = filter; }
-        
-        window.startCountdown = function() { 
-            startBtn.classList.add('hidden'); 
-            switchBtn.classList.add('hidden'); 
-            const overlay = document.getElementById('countdown-overlay');
-            const text = document.getElementById('countdown-text');
-            let count = 3;
-            overlay.classList.remove('hidden');
+        function initApp() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            ctx = canvas.getContext('2d');
+            videoContainer = document.getElementById('video-container');
+            recIndicator = document.getElementById('rec-indicator');
+            startBtn = document.getElementById('start-overlay');
+            resultBtns = document.getElementById('action-buttons');
+            speedWrapper = document.getElementById('speed-controls');
+            switchBtn = document.getElementById('switch-btn');
             
+            initCam();
+        }
+
+        // Execute immediately after DOM is ready to avoid window.onload hang
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initApp); } 
+        else { initApp(); }
+
+        async function initCam() {
+            if (!video) return;
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("HTTPS erforderlich!");
+                }
+                if (currentStream && typeof currentStream.getTracks === 'function') {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    // 'ideal' ist für Desktop-Laptops entscheidend, sonst stürzt die Abfrage ab!
+                    video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: {ideal: currentFacingMode} }
+                });
+                currentStream = stream;
+                video.srcObject = stream;
+                
+                // Direkt abspielen statt auf unzuverlässige onloadedmetadata Events zu warten
+                await video.play().catch(e => console.warn(e));
+                
+                video.style.transform = (currentFacingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
+            } catch (err) {
+                console.error("Kamera-Fehler: ", err);
+                if (err.message && err.message.includes("HTTPS")) {
+                    if(window.showError) window.showError("Die Kamera braucht eine sichere Verbindung (HTTPS)!", "🔒");
+                } else {
+                    if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
+                }
+            }
+        }
+
+        window.switchCamera = function() {
+            if(window.playSound) window.playSound('click');
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+            initCam();
+        }
+
+        window.setFilter = function(filterStr) {
+            if(window.playSound) window.playSound('click');
+            if(video) video.style.filter = filterStr;
+            if(canvas) canvas.style.filter = filterStr;
+        }
+
+        window.startCountdown = function() {
+            if(window.playSound) window.playSound('click');
+            startBtn.classList.add('hidden');
+            switchBtn.classList.add('hidden');
+            
+            const overlay = document.getElementById('countdown');
+            const textEl = document.getElementById('countdown-text');
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+            
+            let count = 3;
             const tick = () => {
-                text.innerText = count;
-                text.classList.remove('animate-pop');
-                void text.offsetWidth; 
-                text.classList.add('animate-pop');
-                window.playSound('click'); 
+                textEl.innerText = count;
+                textEl.classList.remove('animate-pop');
+                void textEl.offsetWidth; // trigger reflow
+                textEl.classList.add('animate-pop');
+                if(window.playSound) window.playSound('click');
                 
                 if (count === 0) {
                     overlay.classList.add('hidden');
-                    window.playSound('shutter'); 
+                    overlay.style.display = 'none';
+                    if(window.playSound) window.playSound('shutter');
                     record();
                 } else {
                     count--;
@@ -163,16 +261,184 @@
             };
             tick();
         }
+
+        function record() {
+            frames = [];
+            
+            // Memory optimization: Cap resolution at 800px wide for recording
+            const vW = video.videoWidth || 1280;
+            const vH = video.videoHeight || 720;
+            const scale = Math.min(1, 800 / vW); 
+            canvas.width = vW * scale;
+            canvas.height = vH * scale;
+
+            videoContainer.classList.remove('border-slate-700');
+            videoContainer.classList.add('border-red-600');
+            videoContainer.classList.add('rec-active');
+            recIndicator.classList.remove('hidden');
+            recIndicator.style.display = 'flex';
+            
+            let startTime = Date.now();
+            let lastFrameTime = 0;
+            
+            function captureLoop() {
+                const now = Date.now();
+                if (now - startTime < 2000) {
+                    // Record at ~20 fps (every 50ms) to save RAM and prevent crashing
+                    if (now - lastFrameTime >= 50) {
+                        ctx.save();
+                        if (currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                        lastFrameTime = now;
+                    }
+                    requestAnimationFrame(captureLoop);
+                } else {
+                    play();
+                }
+            }
+            captureLoop();
+        }
+
+        function play() {
+            videoContainer.classList.remove('border-red-600');
+            videoContainer.classList.add('border-slate-700');
+            videoContainer.classList.remove('rec-active');
+            recIndicator.classList.add('hidden');
+            recIndicator.style.display = '';
+
+            video.classList.add('hidden');
+            canvas.classList.remove('hidden');
+            
+            resultBtns.classList.remove('hidden');
+            resultBtns.style.display = 'flex';
+
+            speedWrapper.classList.remove('opacity-30', 'pointer-events-none');
+            speed = 40;
+            updateSpeedUI();
+            
+            const loopFrames = [...frames, ...[...frames].reverse()];
+            startLoop(loopFrames, 0);
+        }
+
+        function startLoop(loopFrames, i) {
+            clearInterval(loopInterval);
+            loopInterval = setInterval(() => {
+                if (loopFrames[i]) ctx.putImageData(loopFrames[i], 0, 0);
+                i = (i + 1) % loopFrames.length;
+            }, speed);
+        }
+
+        window.setSpeed = function(ms) {
+            if(window.playSound) window.playSound('click');
+            speed = ms;
+            updateSpeedUI();
+            if (canvas && !canvas.classList.contains('hidden')) {
+                const loopFrames = [...frames, ...[...frames].reverse()];
+                startLoop(loopFrames, 0);
+            }
+        }
         
-        function record() { frames = []; canvas.width = video.videoWidth; canvas.height = video.videoHeight; videoContainer.classList.replace('border-gray-800', 'border-red-600'); recIndicator.classList.remove('hidden'); recIndicator.style.display = 'flex'; let startTime = Date.now(); function captureLoop() { if (Date.now() - startTime < 2000) { ctx.save(); if (currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); } ctx.drawImage(video, 0, 0, canvas.width, canvas.height); ctx.restore(); frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height)); requestAnimationFrame(captureLoop); } else { play(); } } captureLoop(); }
-        function play() { videoContainer.classList.replace('border-red-600', 'border-gray-800'); recIndicator.classList.add('hidden'); recIndicator.style.display = ''; video.classList.add('hidden'); canvas.classList.remove('hidden'); resultBtns.classList.remove('hidden'); resultBtns.style.display = 'flex'; speedWrapper.classList.remove('opacity-30', 'pointer-events-none'); window.setSpeed(40); const loopFrames = [...frames, ...[...frames].reverse()]; startLoop(loopFrames, 0); }
-        function startLoop(loopFrames, i) { clearInterval(loopInterval); loopInterval = setInterval(() => { ctx.putImageData(loopFrames[i], 0, 0); i = (i + 1) % loopFrames.length; }, speed); }
-        window.setSpeed = function(ms) { window.playSound('click'); speed = ms; updateSpeedUI(); if (canvas && !canvas.classList.contains('hidden')) { const loopFrames = [...frames, ...[...frames].reverse()]; startLoop(loopFrames, 0); } }
-        function updateSpeedUI() { const btns = { 150: document.getElementById('btn-slow'), 40: document.getElementById('btn-norm'), 10: document.getElementById('btn-turbo') }; Object.values(btns).forEach(btn => { if(btn) { btn.classList.remove('opacity-100', 'scale-105', 'border-white'); btn.classList.add('opacity-50', 'border-transparent'); } }); const active = btns[speed]; if(active) { active.classList.remove('opacity-50', 'border-transparent'); active.classList.add('opacity-100', 'scale-105', 'border-white'); } }
-        window.saveLoopVideo = function() { window.playSound('success'); document.getElementById('saving-overlay').classList.remove('hidden'); document.getElementById('saving-overlay').style.display = 'flex'; const stream = canvas.captureStream(30); const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' }); const chunks = []; recorder.ondataavailable = e => chunks.push(e.data); recorder.onstop = () => { const blob = new Blob(chunks, { type: 'video/webm' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'mein-loop.webm'; a.click(); document.getElementById('saving-overlay').classList.add('hidden'); document.getElementById('saving-overlay').style.display = ''; }; recorder.start(); setTimeout(() => recorder.stop(), 3000); }
-        window.reset = function() { clearInterval(loopInterval); video.classList.remove('hidden'); canvas.classList.add('hidden'); startBtn.classList.remove('hidden'); resultBtns.classList.add('hidden'); resultBtns.style.display = 'none'; speedWrapper.classList.add('opacity-30', 'pointer-events-none'); switchBtn.classList.remove('hidden'); window.setSpeed(40); videoContainer.classList.replace('border-red-600', 'border-gray-800'); recIndicator.classList.add('hidden'); recIndicator.style.display = ''; }
-        window.addEventListener('beforeunload', () => { try { if(currentStream) currentStream.getTracks().forEach(track => track.stop()); } catch(e) {} });
-        window.onload = window.initCam;
+        function updateSpeedUI() {
+            const btns = {
+                150: document.getElementById('btn-slow'),
+                40: document.getElementById('btn-norm'), 
+                10: document.getElementById('btn-turbo') 
+            };
+
+            Object.values(btns).forEach(btn => {
+                if(btn) {
+                    btn.classList.remove('opacity-100', 'border-white', 'bg-sky-600');
+                    btn.classList.add('opacity-50', 'border-transparent', 'bg-slate-700');
+                }
+            });
+
+            const active = btns[speed];
+            if(active) {
+                active.classList.remove('opacity-50', 'border-transparent', 'bg-slate-700');
+                active.classList.add('opacity-100', 'border-white', 'bg-sky-600');
+            }
+        }
+
+        window.saveLoopVideo = function() {
+            if(window.playSound) window.playSound('success');
+            document.getElementById('saving-overlay').classList.remove('hidden');
+            document.getElementById('saving-overlay').style.display = 'flex';
+            
+            let mime = 'video/webm';
+            if (!MediaRecorder.isTypeSupported(mime)) {
+                mime = 'video/mp4'; // fallback for Safari/iOS
+            }
+            
+            try {
+                const stream = canvas.captureStream(30);
+                const recorder = new MediaRecorder(stream, { mimeType: mime });
+                const chunks = [];
+                recorder.ondataavailable = e => chunks.push(e.data);
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: mime });
+                    const url = URL.createObjectURL(blob);
+
+                    if (navigator.share) {
+                        const file = new File([blob], 'loop.mp4', { type: mime });
+                        navigator.share({
+                            files: [file],
+                            title: 'Video Loop',
+                        }).catch(e => {
+                            downloadFile(url);
+                        });
+                    } else {
+                        downloadFile(url);
+                    }
+
+                    document.getElementById('saving-overlay').classList.add('hidden');
+                    document.getElementById('saving-overlay').style.display = '';
+                };
+
+                recorder.start();
+                setTimeout(() => recorder.stop(), 4000); // 4 seconds recording
+            } catch(e) {
+                if(window.showError) window.showError("Puh, das Video Speichern klappt hier leider nicht!", "💾");
+                document.getElementById('saving-overlay').classList.add('hidden');
+                document.getElementById('saving-overlay').style.display = '';
+            };
+        }
+        
+        function downloadFile(url) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mein-loop.mp4';
+            a.click();
+        }
+
+        window.resetApp = function() {
+            if(window.playSound) window.playSound('click');
+            clearInterval(loopInterval);
+            frames = []; // Free memory
+            video.classList.remove('hidden');
+            canvas.classList.add('hidden');
+
+            startBtn.classList.remove('hidden');
+            resultBtns.classList.add('hidden');
+            resultBtns.style.display = 'none';
+
+            speedWrapper.classList.add('opacity-30', 'pointer-events-none');
+            switchBtn.classList.remove('hidden');
+
+            videoContainer.classList.remove('border-red-600');
+            videoContainer.classList.add('border-slate-700');
+            videoContainer.classList.remove('rec-active');
+            recIndicator.classList.add('hidden');
+            recIndicator.style.display = '';
+            window.setSpeed(40);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            try {
+                if(currentStream) currentStream.getTracks().forEach(track => track.stop());
+            } catch(e) {}
+        });
     </script>
 </body>
 </html>

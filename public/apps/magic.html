@@ -224,9 +224,15 @@
                 if(currentStream) currentStream.getTracks().forEach(t => t.stop());
 
                 window.logAi("Starte Kamera...");
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: currentFacingMode } 
-                });
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: {ideal: currentFacingMode} } 
+                    });
+                } catch(e) {
+                    window.logAi("Kamera Fallback...", "yellow");
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
                 currentStream = stream;
                 video.srcObject = stream; 
                 
