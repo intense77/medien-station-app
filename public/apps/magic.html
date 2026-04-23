@@ -245,7 +245,7 @@
 
             } catch(e) { 
                 window.logAi("Kamera-Fehler: " + e.message, "red"); 
-                alert("Kamera konnte nicht gestartet werden.");
+                if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
             }
         }
 

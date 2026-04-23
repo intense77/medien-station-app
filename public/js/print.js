@@ -99,7 +99,7 @@ window.printImage = async function(dataUrl, jobName, btn) {
                     window.plugins.socialsharing.share(
                         null, 'Foto drucken', base64Data, null,
                         () => { if (btn) btn.innerText = "✅ OK"; if (window.playSound) window.playSound('success'); },
-                        (err) => { alert("Fehler: " + err); if (btn) btn.innerText = "❌"; }
+                    (err) => { if(window.showError) window.showError("Der Drucker möchte gerade nicht!", "🖨️"); if (btn) btn.innerText = "❌"; }
                     );
                     return;
                 }
@@ -169,7 +169,7 @@ window.printImage = async function(dataUrl, jobName, btn) {
 
     } catch (e) {
         console.error(e);
-        alert("Fehler: " + e.message);
+        if(window.showError) window.showError("Oh nein, der Drucker klemmt! Bitte ruf jemanden zu Hilfe.", "🖨️");
         if (btn) btn.innerText = "❌";
     } finally {
         if (btn) setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000);

@@ -276,7 +276,7 @@
                         t.dummyGain.connect(webAudioCtx.destination);
                     }
                 } catch (e) {
-                    alert("Mikrofon nicht gefunden oder Zugriff verweigert!");
+                    if(window.showError) window.showError("Das Mikrofon ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "🎤");
                     recLock = false;
                     return;
                 }
@@ -347,7 +347,7 @@
                         t.mediaObj = new Media(path, () => console.log("Rec Success"), (e) => console.error("Rec Error", e));
                         t.mediaObj.startRecord();
                         mediaRec = t.mediaObj; 
-                    } catch (e) { alert("Plugin Fehler: " + e.message); return; }
+                    } catch (e) { if(window.showError) window.showError("Aufnahme klappt gerade nicht!", "🎤"); return; }
                 } else if (t.stream && webAudioCtx) {
                     // 2. WEB BROWSER (Mit dem vorab angefragten Stream)
                     try {
@@ -377,7 +377,7 @@
                         return; // WICHTIG: Verhindert, dass der Zähler als Zombie weiterläuft!
                     }
                 } else {
-                    alert("Kein Mikrofon gefunden oder nicht unterstützt.");
+                    if(window.showError) window.showError("Ich finde kein Mikrofon! Bitte hilf mir suchen.", "🕵️");
                     stopRecordingActual(id);
                 }
 
@@ -514,7 +514,7 @@
                     startVisualizer();
                     btn.classList.add('playing'); 
                     btn.innerHTML = "<span>⏹</span> STOP";
-                }, (e) => { console.error("Decode Error", e); alert("Audio Fehler"); });
+                }, (e) => { console.error("Decode Error", e); if(window.showError) window.showError("Da hat etwas mit dem Ton nicht geklappt!", "🎶"); });
             };
 
             if (window.cordova && typeof Media !== 'undefined') {
@@ -527,7 +527,7 @@
                         };
                         reader.readAsArrayBuffer(file);
                     });
-                }, function(e) { console.error("File Error", e); alert("Datei nicht gefunden"); });
+                }, function(e) { console.error("File Error", e); if(window.showError) window.showError("Die Aufnahme ist leider verschwunden!", "🕵️"); });
             } else {
                 // 2. WEB BROWSER: Blob -> ArrayBuffer -> Web Audio
                 if (t.blob) {
