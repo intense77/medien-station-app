@@ -86,7 +86,13 @@
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 globalAnalyser = audioCtx.createAnalyser();
                 globalAnalyser.fftSize = 128;
-                globalAnalyser.connect(audioCtx.destination);
+                
+                // Dummy-Gain (stumm), damit der Browser den Analyser nicht "wegoptimiert"
+                const silentGain = audioCtx.createGain();
+                silentGain.gain.value = 0;
+                globalAnalyser.connect(silentGain);
+                silentGain.connect(audioCtx.destination);
+                
                 startVisualizer();
             }
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -97,7 +103,7 @@
             const container = document.getElementById('pad-container');
             container.innerHTML = '';
             for(let i = 0; i < 12; i++) {
-                pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, isCountingDown: false, chunks: [], stream: null });
+                pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, isCountingDown: false, chunks: [], stream: null, micSource: null });
                 const el = document.createElement('div');
                 el.id = `pad-${i}`;
                 el.className = `pad-item`;
@@ -185,6 +191,10 @@
                 pad.isRecording = true;
                 pad.chunks = [];
 
+                // Mikrofon an den Visualizer anschließen (ohne Lautsprecher-Ausgabe!)
+                pad.micSource = audioCtx.createMediaStreamSource(stream);
+                pad.micSource.connect(globalAnalyser);
+
                 // MIME-Type Auswahl für Firefox/Chrome/Android
                 const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
                 const recorder = new MediaRecorder(stream, { mimeType });
@@ -199,6 +209,10 @@
                         document.getElementById(`status-${i}`).classList.remove('hidden');
                         el.style.borderColor = "#10b981";
                     });
+                    if (pad.micSource) {
+                        pad.micSource.disconnect();
+                        pad.micSource = null;
+                    }
                     stream.getTracks().forEach(t => t.stop());
                 };
 
@@ -231,6 +245,7 @@
             source.buffer = pad.buffer;
             source.playbackRate.value = pad.playbackRate || 1.0;
             source.loop = pad.loop;
+            source.connect(audioCtx.destination); // Ton an Lautsprecher senden
             source.connect(globalAnalyser);
             source.start(0);
             pad.sourceNode = source;
