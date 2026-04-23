@@ -168,9 +168,14 @@
                     <div id="status-${i}" class="hidden absolute bottom-1 md:bottom-4 w-full text-center text-[8px] md:text-sm font-black uppercase tracking-widest text-emerald-400">BELEGT</div>
                 `;
 
-                // Events
-                el.onpointerdown = (e) => {
-                    e.preventDefault(); 
+                // Events - Getrennt für Touch und Maus (behebt blockierende Pointer-Events in Firefox/Android)
+                el.ontouchstart = (e) => {
+                    e.preventDefault();
+                    handlePadTouch(i);
+                };
+                el.onmousedown = (e) => {
+                    if (e.button !== 0) return; // Nur Links-Klick
+                    e.preventDefault();
                     handlePadTouch(i);
                 };
 
@@ -237,7 +242,10 @@
                 }
             }
 
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            if (audioCtx.state === 'suspended') {
+                try { await audioCtx.resume(); } 
+                catch(e) { console.warn("AudioContext resume blockiert:", e); }
+            }
 
             const pad = pads[i];
             const el = document.getElementById(`pad-${i}`);
