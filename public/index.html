@@ -168,20 +168,20 @@
             <h3 class="text-xl md:text-2xl font-bold text-slate-900">Comic</h3>
         </div>
 
-        <div onclick="toggleInfo(); window.playSound('click')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden">
+        <div onclick="window.toggleInfo()" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden">
             <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">💡</div>
             <h3 class="text-xl md:text-2xl font-bold text-slate-200">Infos</h3>
         </div>
     </div>
 
     <!-- Info Modal -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo(); window.playSound('click')">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-2 border-slate-600 rounded-[2rem] max-w-6xl w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="toggleInfo(); window.playSound('click')" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-slate-400 transition">✖</button>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-slate-400 transition">✖</button>
             
             <h2 class="text-4xl md:text-5xl font-black text-white mb-2 flex justify-between items-center">
                 <span>INFO</span>
-                <button onclick="window.speakText('Info. Medienpädagogische Station für Kitas und Grundschulen. Die Apps: Musik Labor, Mikro Check, Video Loop, Zauber Selfie, Pixel Art, Nachrichten Studio und Comic Story. Pädagogik: Kinder lernen spielerisch Medienkompetenz, Sprachförderung, Kreativität und soziales Lernen.', event)" class="bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+                <button onclick="window.speakText('Info. Medienpädagogische Station für Kitas und Grundschulen. Die Apps: Musik Labor, Mikro Check, Video Loop, Zauber Selfie, Pixel Art, Nachrichten Studio und Comic Story. Pädagogik: Kinder lernen spielerisch Medienkompetenz, Sprachförderung, Kreativität und soziales Lernen.', event)" class="mr-14 md:mr-16 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Info vorlesen">🔊</button>
             </h2>
             <p class="text-slate-400 text-xl mb-8 font-bold">Medienpädagogische Station für Kitas & Grundschulen</p>
 

@@ -112,7 +112,10 @@
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-blue-600 rounded-[2rem] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative" onclick="event.stopPropagation()">
             <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white text-4xl font-bold">✖</button>
-            <h2 class="text-2xl md:text-4xl font-black text-white mb-4 flex items-center gap-4">📰 ANLEITUNG</h2>
+            <h2 class="text-2xl md:text-4xl font-black text-white mb-4 flex items-center gap-4">
+                <span>📰 ANLEITUNG</span>
+                <button onclick="window.speakText('Anleitung für das Nachrichten Studio. Schlagzeile: Tippe auf den Text im Bild, um ihn zu ändern. Laufschrift: Tippe auf den gelben Balken für einen eigenen Ticker.', event)" class="ml-auto mr-12 md:mr-16 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+            </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base text-slate-300">
                 <p>✍️ <b>Schlagzeile:</b> Tippe auf den Text im Bild, um ihn zu ändern.</p>
                 <p>🏃 <b>Laufschrift:</b> Tippe auf den gelben Balken für einen eigenen Ticker.</p>
