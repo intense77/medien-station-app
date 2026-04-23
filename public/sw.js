@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v182';
+const CACHE_NAME = 'medien-station-v183';
 const ASSETS = [
     './',
     './index.html',
@@ -53,13 +53,23 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch: Erst Cache, dann Netzwerk (Offline-First)
+// Fetch: ERST Netzwerk, dann Cache (Network-First für perfekte Updates!)
 self.addEventListener('fetch', (event) => {
     // Ignoriere POST requests oder chrome-extension schemes
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
     event.respondWith(
-        caches.match(event.request, { ignoreSearch: true })
-        .then((response) => response || fetch(event.request))
+        fetch(event.request)
+        .then((networkResponse) => {
+            // Erfolgreich aus dem Netz geladen -> In den Cache legen für Offline-Nutzung
+            return caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, networkResponse.clone());
+                return networkResponse;
+            });
+        })
+        .catch(() => {
+            // Offline? Dann aus dem Cache laden!
+            return caches.match(event.request, { ignoreSearch: true });
+        })
     );
 });

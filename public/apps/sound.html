@@ -5,7 +5,6 @@
     <title>Sound Labor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <script src="../js/tailwind.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
@@ -25,7 +24,7 @@
 
     <!-- HEADER ZEILE -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
-        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+        <button onclick="goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
 
@@ -34,7 +33,7 @@
             SOUND LABOR
         </h1>
 
-        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+        <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
             ?
         </button>
     </div>
@@ -80,9 +79,9 @@
     </div>
 
     <!-- HILFE MODAL -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo()">
         <div class="bg-slate-800 border-4 border-rose-500 rounded-[2rem] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
+            <button onclick="toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
             
             <h2 class="text-2xl md:text-4xl font-black text-white mb-4 md:mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-4xl md:text-6xl">🎹</span> ANLEITUNG
@@ -109,7 +108,7 @@
                 </div>
             </div>
             
-            <button onclick="window.toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
+            <button onclick="toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
                 ALLES KLAR!
             </button>
         </div>
@@ -246,7 +245,12 @@
 
             if (currentMode === 'play') {
                 // Abspielen
-                if (!pad.buffer) return;
+                if (!pad.buffer) {
+                    // Visuelles Feedback, dass das Pad leer ist (damit man nicht denkt, es sei kaputt)
+                    el.classList.add('bg-slate-700');
+                    setTimeout(() => el.classList.remove('bg-slate-700'), 150);
+                    return;
+                }
 
                 if (pad.loop) {
                     // Loop Toggle
