@@ -21,7 +21,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="h-[100dvh] w-screen flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden">
+<body class="h-[100dvh] w-full flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden">
 
     <!-- HEADER ZEILE -->
     <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
@@ -34,7 +34,7 @@
             SOUND LABOR
         </h1>
 
-        <button onclick="toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
             ?
         </button>
     </div>
@@ -80,9 +80,9 @@
     </div>
 
     <!-- HILFE MODAL -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="toggleInfo()">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-rose-500 rounded-[2rem] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
             
             <h2 class="text-2xl md:text-4xl font-black text-white mb-4 md:mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-4xl md:text-6xl">🎹</span> ANLEITUNG
@@ -108,47 +108,13 @@
                 </div>
             </div>
             
-            <button onclick="toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
+            <button onclick="window.toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">
                 ALLES KLAR!
             </button>
         </div>
     </div>
 
     <script>
-        // --- SMARTER IDLE TIMER ---
-        let idleTimer;
-        
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            // 2 Minuten (120000ms) Zeit, falls man intensiv aufnimmt/mixt
-            idleTimer = setTimeout(() => {
-                // Nur zurücksetzen, wenn keine Aufnahme läuft
-                const recording = pads.some(p => p.isRecording);
-                if (!recording) {
-                    window.location.href = '../index.html';
-                }
-            }, 120000);
-        }
-        
-        // WICHTIG: Wir hören auf ALLES, was Aktivität bedeutet
-        // mousedown/touchstart für Klicks, keydown/input für Tastatur (falls vorhanden)
-        ['mousedown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(evt => 
-            document.addEventListener(evt, resetIdleTimer, {passive: true})
-        );
-        resetIdleTimer(); // Initial start
-
-        // --- INFO MODAL ---
-        function toggleInfo() {
-            const modal = document.getElementById('info-modal');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
-
         // --- AUDIO ENGINE ---
         let audioCtx;
         let pads = []; 
@@ -172,10 +138,6 @@
         }
 
         function init() {
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            } catch(e) { console.error("Web Audio API Error"); }
-
             const container = document.getElementById('pad-container');
             
             // 12 Pads erstellen
@@ -261,8 +223,19 @@
 
         // --- PAD LOGIK ---
         async function handlePadTouch(i) {
-            resetIdleTimer();
             if(window.resetIdleTimer) window.resetIdleTimer();
+
+            // LAZY INIT: AudioContext erst bei erster Nutzerinteraktion erstellen (iOS/Safari-Fix)
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch(e) {
+                    alert("Audio-System konnte nicht gestartet werden. Bitte App neu laden.");
+                    console.error("Web Audio API init error:", e);
+                    return; // Abbrechen, wenn Audio nicht geht
+                }
+            }
+
             if (audioCtx.state === 'suspended') await audioCtx.resume();
 
             const pad = pads[i];
@@ -415,19 +388,21 @@
                     pad.mediaObj.release();
                 } catch(e) {}
                 
-                // Datei lesen und für die Web Audio API encodieren (für schnelle Loops!)
-                window.resolveLocalFileSystemURL(pad.src, function(fileEntry) {
-                    fileEntry.file(function(file) {
-                        var reader = new FileReader();
-                        reader.onloadend = function() {
-                            audioCtx.decodeAudioData(this.result, (decodedBuffer) => {
-                                pad.buffer = decodedBuffer;
-                                updatePadVisuals(i, true);
-                            }, (e) => console.error("Decode Error", e));
-                        };
-                        reader.readAsArrayBuffer(file);
-                    });
-                }, function(e) { console.error("File Error", e); });
+                // Timeout: Dem Gerät kurz Zeit geben, die Datei auf den Speicher zu schreiben (Race-Condition Fix)
+                setTimeout(() => {
+                    window.resolveLocalFileSystemURL(pad.src, function(fileEntry) {
+                        fileEntry.file(function(file) {
+                            var reader = new FileReader();
+                            reader.onloadend = function() {
+                                audioCtx.decodeAudioData(this.result, (decodedBuffer) => {
+                                    pad.buffer = decodedBuffer;
+                                    updatePadVisuals(i, true);
+                                }, (e) => console.error("Decode Error", e));
+                            };
+                            reader.readAsArrayBuffer(file);
+                        });
+                    }, function(e) { console.error("File Error", e); });
+                }, 500);
                 
                 pad.mediaObj = null;
             } else if (pad.mediaRecorder && pad.mediaRecorder.state !== 'inactive') {
