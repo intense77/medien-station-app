@@ -122,6 +122,16 @@
         function setMode(mode) {
             if(window.playSound) window.playSound('click');
             initAudio(); // Aktivierung bei Klick
+            
+            // Laufende Aufnahmen & Countdowns abbrechen, ohne den Modus intern sofort zu ändern
+            pads.forEach((p, i) => {
+                if (p.isRecording) stopRecording(i, true);
+                if (p.isCountingDown) {
+                    p.isCountingDown = false;
+                    document.getElementById('countdown-overlay').classList.add('hidden');
+                }
+            });
+
             if (currentMode === mode) currentMode = 'play';
             else currentMode = mode;
             updateUI();
@@ -169,6 +179,13 @@
             
             if(window.playSound) window.playSound('click');
             const timer = setInterval(() => {
+                // Falls der Countdown durch STOP oder einen Modus-Wechsel abgebrochen wurde
+                if (!pad.isCountingDown) {
+                    clearInterval(timer);
+                    overlay.classList.add('hidden');
+                    return;
+                }
+
                 text.innerText = count;
                 if (count <= 0) {
                     clearInterval(timer);
@@ -226,14 +243,14 @@
             }
         }
 
-        function stopRecording(i) {
+        function stopRecording(i, keepMode = false) {
             const pad = pads[i];
             if (pad.recorder && pad.isRecording) {
                 pad.recorder.stop();
                 pad.isRecording = false;
                 document.getElementById(`icon-rec-${i}`).classList.add('hidden');
                 document.getElementById(`pad-${i}`).classList.remove('pulse-rec');
-                setMode('play');
+                if (!keepMode) setMode('play');
             }
         }
 
@@ -258,9 +275,16 @@
         function stopAll() {
             if(window.playSound) window.playSound('click');
             pads.forEach((p, i) => {
+                // Laufende Aufnahmen und Countdowns ebenfalls stoppen!
+                if (p.isRecording) stopRecording(i, true);
+                if (p.isCountingDown) {
+                    p.isCountingDown = false;
+                    document.getElementById('countdown-overlay').classList.add('hidden');
+                }
                 if (p.sourceNode) p.sourceNode.stop();
                 document.getElementById(`pad-${i}`).style.backgroundColor = "#1e293b";
             });
+            setMode('play'); // Stop setzt auch den Modus sicher auf SPIELEN zurück
         }
 
         function setGlobalFx(rate, btn) {
