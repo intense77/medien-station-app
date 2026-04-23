@@ -17,6 +17,21 @@
  specific language governing permissions and limitations
  under the License.
 */
+
+// Web Fallback für window.Capacitor (verhindert Abstürze im normalen Browser)
+if (typeof window !== 'undefined' && !window.Capacitor) {
+  window.Capacitor = {
+    getPlatform: function() { return 'web'; },
+    createEvent: function(type, data) {
+      var evt = document.createEvent('Event');
+      evt.initEvent(type, false, false);
+      if (data) { for (var k in data) { evt[k] = data[k]; } }
+      return evt;
+    },
+    Plugins: {}
+  };
+}
+
 (function () {
   var PLATFORM_VERSION_BUILD_LABEL = '1.0.0';
   // file: src/scripts/require.js
