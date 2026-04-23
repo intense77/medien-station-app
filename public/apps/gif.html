@@ -127,6 +127,7 @@
                 // Erster Versuch mit idealen Settings
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = currentStream;
+                await video.play().catch(e => console.warn(e));
                 
             } catch (err) {
                 console.warn("Versuche Kamera-Fallback...", err);
@@ -134,8 +135,9 @@
                     // Zweiter Versuch: Ganz ohne spezielle Constraints (hilft Firefox/Edge auf Laptops)
                     currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
                     video.srcObject = currentStream;
+                    await video.play().catch(e => console.warn(e));
                 } catch (e) {
-                    alert("Kamera konnte nicht gestartet werden. Bitte Berechtigung prüfen!");
+                    if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
                 }
             }
 
