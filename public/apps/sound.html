@@ -3,135 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <title>Sound Labor</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
     <script src="../js/common.js"></script>
 
     <style>
-        body { background-color: #0f172a; color: white; overflow: hidden; user-select: none; touch-action: manipulation; }
-        
-        /* Animationen für Feedback */
+        body { background-color: #0f172a; color: white; user-select: none; touch-action: manipulation; }
+        .pad-item { background-color: #1e293b; border-radius: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border-bottom: 6px solid #0f172a; position: relative; transition: all 0.1s; }
+        .pad-item:active { border-bottom-width: 0; transform: translateY(4px); }
         .pulse-rec { animation: pulseRed 1s infinite; border-color: #ef4444 !important; box-shadow: 0 0 25px #ef4444; }
         @keyframes pulseRed { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .fx-active { ring: 4px solid white; transform: scale(1.1); filter: brightness(1.2); }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
-<body class="h-[100dvh] w-full flex flex-col p-2 md:p-4 box-border bg-slate-900 overflow-hidden">
-
-    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
-        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
-            🏠 <span class="hidden md:inline">MENÜ</span>
-        </button>
-
-        <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl lg:text-5xl font-black text-rose-500 tracking-wider drop-shadow-lg pointer-events-none z-10">
-            SOUND LABOR
-        </h1>
-
-        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0">
-            ?
-        </button>
+<body class="flex flex-col p-2 md:p-4 min-h-screen">
+      
+    <div class="flex justify-between items-center h-16 mb-2">
+        <button onclick="goHome()" class="bg-slate-800 border-4 border-slate-600 px-6 py-2 rounded-full font-black">🏠 MENÜ</button>
+        <h1 class="text-xl md:text-3xl font-black tracking-widest uppercase">✨ MUSIK LABOR</h1>
+        <button onclick="toggleInfo()" class="w-12 h-12 bg-slate-800 rounded-full font-bold border-4 border-slate-600">?</button>
     </div>
 
-    <div class="flex flex-col items-center mb-2 md:mb-4 gap-2 z-40 w-full max-w-7xl mx-auto px-1">
-        <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full">
-            
-            <div class="flex gap-2 md:gap-3 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-3xl border-2 md:border-4 border-slate-700 shadow-xl w-full md:w-auto justify-center shrink-0">
-                <button id="btn-rec" onclick="setMode('rec')" class="flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 py-2 md:px-6 md:py-4 rounded-lg md:rounded-2xl font-black text-[10px] md:text-xl transition-all border-2 md:border-4 border-transparent bg-slate-700 hover:bg-slate-600 text-gray-300 active:scale-95">
-                    <div class="w-3 h-3 md:w-6 md:h-6 rounded-full bg-red-500 shadow-sm"></div> <span class="inline">REC</span>
-                </button>
-                
-                <button id="btn-loop" onclick="setMode('loop')" class="flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 py-2 md:px-6 md:py-4 rounded-lg md:rounded-2xl font-black text-[10px] md:text-xl transition-all border-2 md:border-4 border-transparent bg-slate-700 hover:bg-slate-600 text-gray-300 active:scale-95">
-                    <span class="text-sm md:text-2xl">🔁</span> LOOP
-                </button>
-                
-                <div class="w-1 bg-slate-600 mx-1 hidden md:block rounded-full"></div>
-                <button onclick="stopAll()" class="flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 py-2 md:px-6 md:py-4 rounded-lg md:rounded-2xl font-black text-[10px] md:text-xl bg-slate-700 hover:bg-red-500 hover:text-white transition-all text-gray-300 border-2 md:border-4 border-transparent active:scale-95">
-                    <span class="text-sm md:text-2xl">⏹</span> STOP
-                </button>
+    <div class="flex flex-wrap justify-center gap-4 mb-4">
+        <div class="flex items-center gap-3 bg-slate-800/50 p-2 rounded-2xl border border-slate-700">
+            <div id="visualizer-box" class="w-40 h-12 bg-slate-900 rounded-xl border-2 border-slate-600 overflow-hidden relative">
+                <canvas id="visualizer" class="w-full h-full"></canvas>
             </div>
-            
-            <div class="flex gap-2 md:gap-3 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-3xl border-2 md:border-4 border-slate-700 shadow-xl w-full md:w-auto justify-center shrink-0">
-                <button onclick="setGlobalEffect(0.6, this)" class="fx-btn w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-purple-600 text-2xl md:text-3xl shadow-lg border-b-4 border-purple-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center hover:brightness-110" title="Monster">🧟</button>
-                <button onclick="setGlobalEffect(1.0, this)" class="fx-btn w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-blue-600 text-2xl md:text-3xl shadow-lg border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition flex items-center justify-center hover:brightness-110 ring-4 ring-white scale-110" title="Normal">🙂</button>
-                <button onclick="setGlobalEffect(1.7, this)" class="fx-btn w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-yellow-500 text-2xl md:text-3xl shadow-lg border-b-4 border-yellow-700 active:border-b-0 active:translate-y-1 transition flex items-center justify-center hover:brightness-110" title="Maus">🐭</button>
+            <div class="flex gap-2">
+                <button onclick="setGlobalFx(0.6, this)" class="fx-btn w-12 h-12 rounded-xl bg-purple-600 text-2xl">🧟</button>
+                <button onclick="setGlobalFx(1.0, this)" class="fx-btn w-12 h-12 rounded-xl bg-blue-600 text-2xl fx-active">🙂</button>
+                <button onclick="setGlobalFx(1.7, this)" class="fx-btn w-12 h-12 rounded-xl bg-yellow-500 text-2xl">🐭</button>
             </div>
         </div>
-        
-        <div id="status-bar" class="text-center text-slate-400 font-mono text-[10px] md:text-lg uppercase tracking-widest font-bold transition-all duration-300">
-            Modus: SPIELEN (Tippe auf Pads)
+
+        <div class="flex gap-2 bg-slate-800 p-2 rounded-2xl border-2 border-slate-700 shadow-xl">
+            <button id="btn-rec" onclick="setMode('rec')" class="px-4 py-2 rounded-xl font-black bg-slate-700 text-gray-300 border-b-4 border-transparent">🔴 REC</button>
+            <button id="btn-loop" onclick="setMode('loop')" class="px-4 py-2 rounded-xl font-black bg-slate-700 text-gray-300 border-b-4 border-transparent">🔁 LOOP</button>
+            <button onclick="stopAll()" class="px-4 py-2 rounded-xl font-black bg-slate-700 hover:bg-red-600">⏹ STOP</button>
         </div>
     </div>
 
-    <div id="pad-container" class="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4 flex-1 pb-1 md:pb-4 max-w-7xl mx-auto w-full z-10 px-1 md:px-2 min-h-0">
-        </div>
+    <div id="status-bar" class="text-center text-slate-400 font-mono text-sm uppercase mb-2">Modus: SPIELEN</div>
 
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
-        <div class="bg-slate-800 border-4 border-rose-500 rounded-[2rem] max-w-3xl w-full p-6 md:p-8 shadow-2xl relative" onclick="event.stopPropagation()">
-            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-rose-400 text-4xl font-bold transition">✖</button>
-            <h2 class="text-2xl md:text-4xl font-black text-white mb-4 md:mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
-                <span class="text-4xl md:text-6xl">🎹</span> ANLEITUNG
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-sm md:text-base">
-                <div class="p-4 md:p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
-                    <div class="text-3xl md:text-4xl mb-2 md:mb-4">🎤</div>
-                    <h3 class="text-rose-400 font-bold text-lg md:text-xl mb-2">Aufnehmen</h3>
-                    <p class="text-slate-300 leading-snug">REC tippen -> Pad wählen -> Sprechen -> Pad erneut tippen.</p>
-                </div>
-                <div class="p-4 md:p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
-                    <div class="text-3xl md:text-4xl mb-2 md:mb-4">🔁</div>
-                    <h3 class="text-blue-400 font-bold text-lg md:text-xl mb-2">Loopen</h3>
-                    <p class="text-slate-300 leading-snug">LOOP tippen -> Pads für Endlosschleife markieren.</p>
-                </div>
-                <div class="p-4 md:p-6 bg-slate-700/50 rounded-2xl border border-slate-600 flex flex-col items-center text-center">
-                    <div class="text-3xl md:text-4xl mb-2 md:mb-4">▶️</div>
-                    <h3 class="text-emerald-400 font-bold text-lg md:text-xl mb-2">Abspielen</h3>
-                    <p class="text-slate-300 leading-snug">Im Spielmodus einfach auf grüne Pads drücken.</p>
-                </div>
-            </div>
-            <button onclick="window.toggleInfo()" class="mt-6 md:mt-8 w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 md:py-4 rounded-xl text-lg md:text-xl transition">ALLES KLAR!</button>
-        </div>
+    <div id="pad-container" class="grid grid-cols-4 grid-rows-3 gap-2 flex-1 w-full max-w-5xl mx-auto pb-4"></div>
+
+    <div id="countdown-overlay" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none">
+        <div class="text-[12rem] font-black text-white" id="countdown-text">3</div>
     </div>
 
     <script>
-        let audioCtx;
-        let pads = []; 
+        let audioCtx = null;
+        let pads = [];
         let currentMode = 'play';
-        let globalPlaybackRate = 1.0;
+        let currentRecRate = 1.0;
+        let globalAnalyser = null;
 
-        function setGlobalEffect(rate, btn) {
-            if(window.playSound) window.playSound('click');
-            globalPlaybackRate = rate;
-            document.querySelectorAll('.fx-btn').forEach(b => b.classList.remove('ring-4', 'ring-white', 'scale-110'));
-            if(btn) btn.classList.add('ring-4', 'ring-white', 'scale-110');
-            pads.forEach(pad => { if(pad.sourceNode) try { pad.sourceNode.playbackRate.value = rate; } catch(e){} });
+        // Sicherstellen, dass AudioContext nach User-Geste startet
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                globalAnalyser = audioCtx.createAnalyser();
+                globalAnalyser.fftSize = 128;
+                globalAnalyser.connect(audioCtx.destination);
+                startVisualizer();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
         }
 
         function init() {
             const container = document.getElementById('pad-container');
+            container.innerHTML = '';
             for(let i = 0; i < 12; i++) {
-                pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, mediaRecorder: null, chunks: [] });
+                pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, chunks: [], stream: null });
                 const el = document.createElement('div');
                 el.id = `pad-${i}`;
-                el.className = `bg-slate-800 h-full rounded-xl md:rounded-3xl flex flex-col items-center justify-center cursor-pointer border-b-4 md:border-b-[10px] border-slate-900 active:border-b-0 active:translate-y-1 transition-all relative group shadow-2xl overflow-hidden`;
+                el.className = `pad-item`;
                 el.innerHTML = `
-                    <div class="text-3xl md:text-6xl font-black text-slate-700" id="label-${i}">${i+1}</div>
-                    <div id="icon-loop-${i}" class="hidden absolute top-2 right-2 md:top-4 md:right-4 text-base md:text-2xl bg-blue-600 text-white rounded-md px-1 py-0.5 shadow-md">🔁</div>
-                    <div id="icon-rec-${i}" class="hidden absolute top-2 left-2 md:top-4 md:left-4 w-3 h-3 md:w-6 md:h-6 bg-red-500 rounded-full animate-pulse shadow-[0_0_15px_red]"></div>
-                    <div id="status-${i}" class="hidden absolute bottom-1 md:bottom-4 w-full text-center text-[8px] md:text-sm font-black uppercase text-emerald-400">BELEGT</div>
+                    <div class="text-4xl font-black text-slate-700" id="label-${i}">${i+1}</div>
+                    <div id="icon-loop-${i}" class="hidden absolute top-2 right-2 text-sm bg-blue-600 rounded px-1">🔁</div>
+                    <div id="icon-rec-${i}" class="hidden absolute top-2 left-2 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    <div id="status-${i}" class="hidden absolute bottom-1 text-[8px] font-bold text-emerald-400">BEREIT</div>
                 `;
-                el.onclick = () => handlePadTouch(i);
+                // Wichtig: Pointer-Events für Tablets
+                el.onpointerdown = (e) => { e.preventDefault(); handlePadTouch(i); };
                 container.appendChild(el);
             }
         }
 
         function setMode(mode) {
-            if(window.playSound) window.playSound('click');
-            pads.forEach((pad, i) => { if (pad.isRecording) stopRecording(i); });
-            currentMode = (currentMode === mode) ? 'play' : mode;
+            initAudio(); // Aktivierung bei Klick
+            if (currentMode === mode) currentMode = 'play';
+            else currentMode = mode;
             updateUI();
         }
 
@@ -139,166 +106,146 @@
             const btnRec = document.getElementById('btn-rec');
             const btnLoop = document.getElementById('btn-loop');
             const status = document.getElementById('status-bar');
-            const inactive = "border-transparent bg-slate-700 text-gray-300 hover:bg-slate-600";
-            const activeRec = "border-red-500 text-red-400 bg-slate-900 shadow-[0_0_20px_rgba(239,68,68,0.2)]";
-            const activeLoop = "border-blue-500 text-blue-400 bg-slate-900 shadow-[0_0_20px_rgba(59,130,246,0.2)]";
-            const base = "flex-1 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-3 px-2 py-2 md:px-6 md:py-4 rounded-lg md:rounded-2xl font-black text-[10px] md:text-xl transition-all border-2 md:border-4 active:scale-95 ";
-
-            btnRec.className = base + (currentMode === 'rec' ? activeRec : inactive);
-            btnLoop.className = base + (currentMode === 'loop' ? activeLoop : inactive);
             
-            if (currentMode === 'rec') {
-                status.innerText = "🔴 AUFNAHME: Pad tippen -> Sprechen -> Speichern";
-                status.className = "text-center font-mono text-[10px] md:text-lg uppercase text-red-400 animate-pulse font-bold";
-            } else if (currentMode === 'loop') {
-                status.innerText = "🔁 LOOP: Wähle Pads für Wiederholung";
-                status.className = "text-center font-mono text-[10px] md:text-lg uppercase text-blue-400 font-bold";
-            } else {
-                status.innerText = "Modus: SPIELEN (Tippe belegte Pads)";
-                status.className = "text-center text-slate-400 font-mono text-[10px] md:text-lg uppercase font-bold";
-            }
+            btnRec.classList.toggle('border-red-500', currentMode === 'rec');
+            btnRec.classList.toggle('text-red-400', currentMode === 'rec');
+            btnLoop.classList.toggle('border-blue-500', currentMode === 'loop');
+            btnLoop.classList.toggle('text-blue-400', currentMode === 'loop');
+            
+            status.innerText = currentMode === 'rec' ? "🔴 AUFNAHME MODUS" : (currentMode === 'loop' ? "🔁 LOOP MODUS" : "Modus: SPIELEN");
         }
 
         async function handlePadTouch(i) {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
-
+            initAudio();
             const pad = pads[i];
             const el = document.getElementById(`pad-${i}`);
 
-            if (currentMode === 'play') {
-                if (!pad.buffer) return;
-                if (pad.loop) {
-                    if (pad.sourceNode) {
-                        pad.sourceNode.stop();
-                        pad.sourceNode = null;
-                        el.classList.remove('bg-blue-600', 'border-blue-800');
-                        el.classList.add('bg-slate-800', 'border-emerald-500'); 
-                    } else {
-                        playSound(i, true);
-                        el.classList.remove('bg-slate-800', 'border-emerald-500');
-                        el.classList.add('bg-blue-600', 'border-blue-800');
-                    }
-                } else {
-                    playSound(i, false);
-                    el.classList.add('bg-emerald-500');
-                    setTimeout(() => el.classList.remove('bg-emerald-500'), 150);
-                }
+            if (currentMode === 'rec') {
+                if (pad.isRecording) { stopRecording(i); } 
+                else { startCountdown(i); }
             } else if (currentMode === 'loop') {
                 if (!pad.buffer) return;
                 pad.loop = !pad.loop;
                 document.getElementById(`icon-loop-${i}`).classList.toggle('hidden', !pad.loop);
-            } else if (currentMode === 'rec') {
-                if (pad.isRecording) stopRecording(i);
-                else {
-                    pads.forEach((p, idx) => { if(p.isRecording) stopRecording(idx); });
-                    startRecording(i);
-                }
+            } else {
+                if (!pad.buffer) return;
+                playPad(i);
             }
         }
 
-        function playSound(i, loop) {
-            const pad = pads[i];
-            if (pad.sourceNode) try { pad.sourceNode.stop(); } catch(e){}
-            const source = audioCtx.createBufferSource();
-            source.buffer = pad.buffer;
-            source.loop = loop;
-            source.playbackRate.value = globalPlaybackRate;
-            source.connect(audioCtx.destination);
-            source.start(0);
-            if (loop) pad.sourceNode = source;
+        function startCountdown(i) {
+            const overlay = document.getElementById('countdown-overlay');
+            const text = document.getElementById('countdown-text');
+            overlay.classList.remove('hidden');
+            let count = 3;
+            
+            const timer = setInterval(() => {
+                text.innerText = count;
+                if (count <= 0) {
+                    clearInterval(timer);
+                    overlay.classList.add('hidden');
+                    startRecording(i);
+                }
+                count--;
+            }, 800);
         }
 
         async function startRecording(i) {
             const pad = pads[i];
-            pad.isRecording = true;
-            document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
-            document.getElementById(`pad-${i}`).classList.add('pulse-rec');
-
-            if (window.cordova && typeof Media !== 'undefined') {
-                const path = `pad_${i}.aac`;
-                pad.mediaObj = new Media(path, () => {}, (e) => console.error(e));
-                pad.mediaObj.startRecord();
-                pad.src = path;
-                return;
-            }
-
+            const el = document.getElementById(`pad-${i}`);
+            
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 pad.stream = stream;
-                
-                // MIME-Type Check für Browser-Kompatibilität
-                const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
-                pad.mediaRecorder = new MediaRecorder(stream, { mimeType });
+                pad.isRecording = true;
                 pad.chunks = [];
 
-                pad.mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) pad.chunks.push(e.data); };
-                pad.mediaRecorder.onstop = async () => {
+                // MIME-Type Auswahl für Firefox/Chrome/Android
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+                const recorder = new MediaRecorder(stream, { mimeType });
+                
+                recorder.ondataavailable = (e) => { if (e.data.size > 0) pad.chunks.push(e.data); };
+                recorder.onstop = async () => {
                     const blob = new Blob(pad.chunks, { type: mimeType });
                     const arrayBuffer = await blob.arrayBuffer();
                     audioCtx.decodeAudioData(arrayBuffer, (decoded) => {
                         pad.buffer = decoded;
-                        updatePadVisuals(i, true);
+                        pad.playbackRate = currentRecRate;
+                        document.getElementById(`status-${i}`).classList.remove('hidden');
+                        el.style.borderColor = "#10b981";
                     });
                     stream.getTracks().forEach(t => t.stop());
                 };
-                pad.mediaRecorder.start();
+
+                pad.recorder = recorder;
+                recorder.start();
+                
+                el.classList.add('pulse-rec');
+                document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
             } catch (err) {
-                console.error(err);
-                stopRecording(i);
+                alert("Mikrofon Zugriff verweigert oder nicht gefunden.");
             }
         }
 
         function stopRecording(i) {
             const pad = pads[i];
-            if (!pad.isRecording) return;
-            pad.isRecording = false;
-            document.getElementById(`icon-rec-${i}`).classList.add('hidden');
-            document.getElementById(`pad-${i}`).classList.remove('pulse-rec');
-
-            if (window.cordova && pad.mediaObj) {
-                pad.mediaObj.stopRecord();
-                // Simulierter FileReader für Cordova
-                setTimeout(() => {
-                    window.resolveLocalFileSystemURL(cordova.file.externalCacheDirectory + pad.src, (entry) => {
-                        entry.file(f => {
-                            let r = new FileReader();
-                            r.onloadend = () => audioCtx.decodeAudioData(r.result, d => {pad.buffer = d; updatePadVisuals(i, true);});
-                            r.readAsArrayBuffer(f);
-                        });
-                    });
-                }, 500);
-            } else if (pad.mediaRecorder) {
-                pad.mediaRecorder.stop();
+            if (pad.recorder && pad.isRecording) {
+                pad.recorder.stop();
+                pad.isRecording = false;
+                document.getElementById(`icon-rec-${i}`).classList.add('hidden');
+                document.getElementById(`pad-${i}`).classList.remove('pulse-rec');
+                setMode('play');
             }
         }
 
-        function updatePadVisuals(i, hasSound) {
+        function playPad(i) {
+            const pad = pads[i];
+            if (pad.sourceNode) { try { pad.sourceNode.stop(); } catch(e){} }
+            
+            const source = audioCtx.createBufferSource();
+            source.buffer = pad.buffer;
+            source.playbackRate.value = pad.playbackRate || 1.0;
+            source.loop = pad.loop;
+            source.connect(globalAnalyser);
+            source.start(0);
+            pad.sourceNode = source;
+            
             const el = document.getElementById(`pad-${i}`);
-            const label = document.getElementById(`label-${i}`);
-            const status = document.getElementById(`status-${i}`);
-            if (hasSound) {
-                el.classList.add('border-emerald-500');
-                label.classList.add('text-white');
-                status.classList.remove('hidden');
-            }
+            el.style.backgroundColor = "#10b981";
+            setTimeout(() => el.style.backgroundColor = "#1e293b", 150);
         }
 
         function stopAll() {
-            pads.forEach((pad, i) => {
-                if (pad.isRecording) stopRecording(i);
-                if (pad.sourceNode) try { pad.sourceNode.stop(); } catch(e){}
-                pad.sourceNode = null;
-                const el = document.getElementById(`pad-${i}`);
-                el.classList.remove('bg-blue-600', 'border-blue-800', 'bg-emerald-500');
-                el.classList.add('bg-slate-800');
+            pads.forEach((p, i) => {
+                if (p.sourceNode) p.sourceNode.stop();
+                document.getElementById(`pad-${i}`).style.backgroundColor = "#1e293b";
             });
-            setMode('play');
         }
 
-        init();
+        function setGlobalFx(rate, btn) {
+            currentRecRate = rate;
+            document.querySelectorAll('.fx-btn').forEach(b => b.classList.remove('fx-active'));
+            btn.classList.add('fx-active');
+        }
+
+        function startVisualizer() {
+            const canvas = document.getElementById('visualizer');
+            const ctx = canvas.getContext('2d');
+            function draw() {
+                requestAnimationFrame(draw);
+                const data = new Uint8Array(globalAnalyser.frequencyBinCount);
+                globalAnalyser.getByteFrequencyData(data);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#22c55e';
+                for (let i = 0; i < data.length; i++) {
+                    const h = (data[i] / 255) * canvas.height;
+                    ctx.fillRect(i * 3, canvas.height - h, 2, h);
+                }
+            }
+            draw();
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
