@@ -71,6 +71,11 @@
             <button onclick="window.setBg('space')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-indigo-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🚀</button>
             <button onclick="window.setBg('jungle')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-emerald-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🌴</button>
             <button onclick="window.setBg('underwater')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-blue-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🐙</button>
+            <button onclick="window.setBg('paris')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-pink-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🗼</button>
+            <button onclick="window.setBg('wolken')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-sky-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">☁️</button>
+            <button onclick="window.setBg('schloss')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-purple-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🏰</button>
+            <button onclick="window.setBg('dino')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-orange-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🦖</button>
+            <button onclick="window.setBg('stadion')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-green-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">⚽</button>
         </div>
 
         <div class="flex-1 bg-black rounded-[1.5rem] md:rounded-[2.5rem] border-4 md:border-[8px] border-slate-700 shadow-2xl relative overflow-hidden">
@@ -136,11 +141,21 @@
         const bgs = {
             space: new Image(),
             jungle: new Image(),
-            underwater: new Image()
+            underwater: new Image(),
+            paris: new Image(),
+            wolken: new Image(),
+            schloss: new Image(),
+            dino: new Image(),
+            stadion: new Image()
         };
         bgs.space.src = '../assets/weltraum.jpg';
         bgs.jungle.src = '../assets/dschungel.jpg';
         bgs.underwater.src = '../assets/unterwasser.jpg';
+        bgs.paris.src = '../assets/paris.jpg';
+        bgs.wolken.src = '../assets/wolken.jpg';
+        bgs.schloss.src = '../assets/schloss.jpg';
+        bgs.dino.src = '../assets/dino.jpg';
+        bgs.stadion.src = '../assets/stadion.jpg';
 
         // 2. KI Modell initialisieren
         const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`});
