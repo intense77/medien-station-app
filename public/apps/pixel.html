@@ -83,23 +83,23 @@
         </div>
 
         <!-- Werkzeugleiste -->
-        <div class="bg-slate-800 p-2 md:p-4 landscape:p-4 rounded-xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col gap-2 md:gap-4 shadow-2xl w-full landscape:w-32 md:w-auto h-auto landscape:h-full md:h-full justify-start md:justify-between shrink-0 overflow-y-auto no-scrollbar">
+        <div class="bg-slate-800 p-2 md:p-6 landscape:p-2 md:landscape:p-6 rounded-xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col gap-2 md:gap-4 shadow-2xl w-full landscape:w-24 md:landscape:w-auto md:w-auto md:min-w-[220px] h-auto landscape:h-full md:h-full justify-start md:justify-between shrink-0 overflow-y-auto no-scrollbar">
             
             <!-- Farben (Horizontal Scroll auf Mobile, 2-Spaltig auf Desktop) -->
             <div class="flex flex-row md:grid md:grid-cols-2 landscape:grid landscape:grid-cols-2 gap-2 md:gap-3 flex-shrink-0 justify-start md:justify-items-center overflow-x-auto no-scrollbar pb-1 md:pb-0 w-full" id="palette">
                 <!-- Schwarz/Weiß -->
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-black border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition ring-4 ring-white shadow-lg" data-color="#000000" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-white border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ffffff" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-black border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition ring-4 ring-white shadow-lg" data-color="#000000" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-white border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ffffff" onclick="setColor(this)"></div>
                 
                 <!-- Bunt -->
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-red-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ef4444" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-blue-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#3b82f6" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-green-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#22c55e" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-yellow-400 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#facc15" onclick="setColor(this)"></div>
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-purple-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#a855f7" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-red-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#ef4444" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-blue-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#3b82f6" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-green-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#22c55e" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-yellow-400 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#facc15" onclick="setColor(this)"></div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-purple-500 border-2 md:border-4 border-slate-600 cursor-pointer active:scale-90 transition shadow-lg" data-color="#a855f7" onclick="setColor(this)"></div>
                 
                 <!-- Radierer -->
-                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 rounded-lg md:rounded-2xl bg-slate-600 border-2 md:border-4 border-slate-500 cursor-pointer active:scale-90 transition flex items-center justify-center text-lg md:text-3xl landscape:text-xl shadow-lg" data-color="white" onclick="setColor(this)" title="Radierer">🧽</div>
+                <div class="color-btn shrink-0 w-10 h-10 md:w-16 md:h-16 landscape:w-10 landscape:h-10 md:landscape:w-16 md:landscape:h-16 rounded-lg md:rounded-2xl bg-slate-600 border-2 md:border-4 border-slate-500 cursor-pointer active:scale-90 transition flex items-center justify-center text-lg md:text-3xl landscape:text-xl md:landscape:text-3xl shadow-lg" data-color="white" onclick="setColor(this)" title="Radierer">🧽</div>
             </div>
 
             <!-- Trenner -->
@@ -107,13 +107,13 @@
 
             <!-- Aktionen -->
             <div class="flex flex-row md:flex-col landscape:flex-col gap-2 md:gap-3 w-full shrink-0 justify-between md:justify-center">
-                <button onclick="downloadArt()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                <button onclick="downloadArt()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 md:py-4 landscape:py-2 md:landscape:py-4 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
                     <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">💾</span> <span class="inline landscape:hidden md:landscape:inline">SAVE</span>
                 </button>
-                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-200 py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-200 py-2 md:py-4 landscape:py-2 md:landscape:py-4 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
                     <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🖨️</span> <span class="inline landscape:hidden md:landscape:inline">DRUCK</span>
                 </button>
-                <button onclick="clearGrid()" class="flex-1 bg-slate-700 hover:bg-red-500/80 text-white py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-slate-900 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                <button onclick="clearGrid()" class="flex-1 bg-slate-700 hover:bg-red-500/80 text-white py-2 md:py-4 landscape:py-2 md:landscape:py-4 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-slate-900 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
                     <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🗑️</span> <span class="hidden sm:inline landscape:hidden md:landscape:inline">LÖSCHEN</span><span class="inline sm:hidden landscape:inline md:landscape:hidden">DEL</span>
                 </button>
             </div>
