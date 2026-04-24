@@ -91,6 +91,37 @@
         </div>
     </div>
 
+    <!-- VORSCHAU OVERLAY -->
+    <div id="preview-overlay" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm z-[100] hidden flex-col items-center justify-center p-4 md:p-8 pb-6 md:pb-10">
+        <h2 class="flex-none text-2xl md:text-4xl font-black text-white mb-4 md:mb-6 animate-bounce">Dein magisches Foto!</h2>
+        <div class="relative w-full max-w-[95%] lg:max-w-[80%] max-h-[55vh] md:max-h-[65vh] flex-1 min-h-0 border-4 md:border-8 border-white shadow-2xl rounded-xl md:rounded-3xl overflow-hidden bg-black flex items-center justify-center">
+            <img id="preview-img-display" class="w-full h-full object-contain" src="">
+        </div>
+        <div class="flex-none flex flex-wrap justify-center gap-2 md:gap-6 mt-4 md:mt-8 w-full max-w-3xl px-1">
+            <button onclick="window.closePreview()" class="flex-1 min-w-[100px] md:min-w-[150px] bg-yellow-500 hover:bg-yellow-400 text-black font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl active:scale-95 transition border-b-4 md:border-b-[8px] border-yellow-700 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">🔄 NOCHMAL</button>
+            <button onclick="window.saveFromPreview()" class="flex-1 min-w-[100px] md:min-w-[150px] bg-violet-600 text-white font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl hover:bg-violet-500 active:scale-95 transition border-b-4 md:border-b-[8px] border-violet-800 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">💾 SPEICHERN</button>
+            <button onclick="window.printFromPreview(this)" class="flex-1 min-w-[100px] md:min-w-[150px] bg-white text-slate-900 font-black py-3 md:py-5 px-2 md:px-8 rounded-xl md:rounded-2xl text-xs md:text-2xl shadow-xl hover:bg-gray-100 active:scale-95 transition border-b-4 md:border-b-[8px] border-gray-400 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex justify-center items-center gap-1 md:gap-2">🖨️ DRUCKEN</button>
+        </div>
+    </div>
+
+    <!-- HILFE MODAL -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="window.toggleInfo()">
+        <div class="bg-slate-800 border-4 border-violet-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-violet-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-3xl md:text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4 flex items-center gap-4">
+                <span>✨ ANLEITUNG</span>
+                <button onclick="window.speakText('Anleitung für das Zauber Selfie. Erstens: Wähle links einen Hintergrund. Zweitens: Die Kamera schneidet dich automatisch aus. Drittens: Drücke FOTO für eine Vorschau. Viertens: Dann kannst du Drucken oder es nochmal probieren.', event)" class="ml-auto mr-12 md:mr-16 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+            </h2>
+            <div class="text-lg text-slate-300 space-y-4">
+                <p>1. Wähle links einen <b>Hintergrund</b>.</p>
+                <p>2. Die Kamera schneidet dich automatisch aus.</p>
+                <p>3. Drücke <b>FOTO</b> für eine Vorschau.</p>
+                <p>4. Dann kannst du <b>Speichern</b>, <b>Drucken</b> oder es nochmal probieren.</p>
+            </div>
+            <button onclick="window.toggleInfo()" class="mt-8 w-full bg-violet-600 hover:bg-violet-500 text-white font-black py-4 rounded-xl text-xl transition">ALLES KLAR!</button>
+        </div>
+    </div>
+
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('output_canvas');
@@ -101,7 +132,23 @@
         let currentFacingMode = 'user';
         let activeBg = 'space';
 
-        // 1. Robuste Kamera-Initialisierung (Umgeht Cordova-Probleme)
+        // 1. Bilder vorladen
+        const bgs = {
+            space: new Image(),
+            jungle: new Image(),
+            underwater: new Image()
+        };
+        bgs.space.src = '../assets/weltraum.jpg';
+        bgs.jungle.src = '../assets/dschungel.jpg';
+        bgs.underwater.src = '../assets/unterwasser.jpg';
+
+        // 2. KI Modell initialisieren
+        const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`});
+        selfieSegmentation.setOptions({ modelSelection: 1 });
+        selfieSegmentation.onResults(onResults);
+        let isRunning = false;
+
+        // 3. Robuste Kamera-Initialisierung
         async function initCam() {
             console.log("Starte Magic Cam...");
             if (currentStream) {
@@ -109,52 +156,75 @@
             }
 
             try {
-                currentStream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: 1280, height: 720, facingMode: currentFacingMode }
-                });
+                let stream;
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: {ideal: 1280}, height: {ideal: 720}, facingMode: {ideal: currentFacingMode} }
+                    });
+                } catch(e) {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                }
+                currentStream = stream;
                 video.srcObject = currentStream;
                 
                 video.onloadedmetadata = () => {
-                    video.play();
-                    loadingEl.style.display = 'none';
-                    startRenderLoop();
+                    video.play().catch(e => console.warn(e));
+                    isRunning = true;
+                    renderLoop();
                 };
             } catch (err) {
                 console.error("Kamera-Fehler:", err);
-                loadingEl.innerHTML = "<p class='text-red-500'>Kamera blockiert!</p>";
+                if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
             }
         }
 
-        // 2. Render-Loop (Zeichnet das Bild auf das Canvas)
-        function startRenderLoop() {
-            function render() {
-                if (video.paused || video.ended) return;
-
-                // Canvas an Video-Größe anpassen
-                if (canvas.width !== video.videoWidth) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                }
-
-                ctx.save();
-                
-                // Hintergrund zeichnen (Platzhalter)
-                ctx.fillStyle = (activeBg === 'space') ? '#020617' : (activeBg === 'jungle' ? '#064e3b' : '#0c4a6e');
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // Video spiegeln und zeichnen
-                if (currentFacingMode === 'user') {
-                    ctx.translate(canvas.width, 0);
-                    ctx.scale(-1, 1);
-                }
-                
-                // Hier würde normalerweise die Maskierung der Segmentation-KI hängen
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                ctx.restore();
-                requestAnimationFrame(render);
+        // 4. Schleife, um Video-Frames an die KI zu senden
+        async function renderLoop() {
+            if (!isRunning) return;
+            if (video.readyState >= 2) {
+                await selfieSegmentation.send({image: video});
             }
-            requestAnimationFrame(render);
+            requestAnimationFrame(renderLoop);
+        }
+
+        // 5. Ergebnis von der KI auf das Canvas zeichnen
+        function onResults(results) {
+            loadingEl.style.display = 'none';
+            
+            canvas.width = results.image.width;
+            canvas.height = results.image.height;
+
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (currentFacingMode === 'user') {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            // Maske zeichnen
+            ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
+            
+            // Person in die Maske zeichnen
+            ctx.globalCompositeOperation = 'source-in';
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+            // Hintergrund HINTER die Person zeichnen
+            ctx.globalCompositeOperation = 'destination-atop';
+            if (bgs[activeBg] && bgs[activeBg].complete) {
+                const img = bgs[activeBg];
+                const cRatio = canvas.width / canvas.height;
+                const iRatio = img.width / img.height;
+                let dW = canvas.width, dH = canvas.height, dX = 0, dY = 0;
+                if (iRatio > cRatio) { dW = canvas.height * iRatio; dX = (canvas.width - dW) / 2; } 
+                else { dH = canvas.width / iRatio; dY = (canvas.height - dH) / 2; }
+                ctx.drawImage(img, dX, dY, dW, dH);
+            } else {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            ctx.restore();
         }
 
         window.switchCamera = () => {
@@ -166,12 +236,37 @@
 
         window.capturePhoto = () => {
             if(window.playSound) window.playSound('shutter');
-            // Hier käme deine Preview-Logik rein
-            alert("Selfie erstellt!");
+            isRunning = false; // KI Pause
+            const dataUrl = canvas.toDataURL('image/png');
+            document.getElementById('preview-img-display').src = dataUrl;
+            const overlay = document.getElementById('preview-overlay');
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
         };
 
-        window.goHome = () => window.location.href = '../index.html';
-        window.toggleInfo = () => alert("Wähle einen Hintergrund!");
+        window.closePreview = () => {
+            if(window.playSound) window.playSound('click');
+            const overlay = document.getElementById('preview-overlay');
+            overlay.classList.add('hidden');
+            overlay.style.display = 'none';
+            isRunning = true;
+            renderLoop(); // KI weiterlaufen lassen
+        };
+
+        window.saveFromPreview = () => {
+            if(window.playSound) window.playSound('success');
+            const dataUrl = document.getElementById('preview-img-display').src;
+            const link = document.createElement('a'); 
+            link.download = 'zauber_selfie.png'; 
+            link.href = dataUrl; 
+            link.click();
+        };
+
+        window.printFromPreview = (btn) => {
+            if(window.playSound) window.playSound('click');
+            const dataUrl = document.getElementById('preview-img-display').src;
+            if (window.printImage) window.printImage(dataUrl, 'Zauber-Selfie', btn);
+        };
 
         // Start mit Verzögerung gegen Cordova-Crash
         window.addEventListener('load', () => setTimeout(initCam, 800));
