@@ -51,8 +51,7 @@
         }
         
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
-        .app-card { cursor: pointer; transition: transform 0.1s; }
-        .app-card:active { transform: scale(0.95); filter: brightness(1.2); }
+        .app-card { cursor: pointer; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
@@ -132,44 +131,44 @@
         </div>
 
         <!-- Row 1 of Apps (4 Rows) -->
-        <div onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">🎹</div>
+        <div onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-rose-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎹</div>
             <h3 class="text-xl md:text-2xl font-bold">Musik</h3>
         </div>
         
-        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 group overflow-hidden">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">🎙️</div>
+        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-red-600/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎙️</div>
             <h3 class="text-xl md:text-2xl font-bold">Mikro</h3>
         </div>
 
-        <div onclick="openApp('apps/gif.html', 'Video Loop')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group overflow-hidden">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">📹</div>
+        <div onclick="openApp('apps/gif.html', 'Video Loop')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-sky-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">📹</div>
             <h3 class="text-xl md:text-2xl font-bold">Video</h3>
         </div>
         
-        <div onclick="openApp('apps/magic.html', 'Zauber Selfie')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0 group overflow-hidden">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">✨</div>
+        <div onclick="openApp('apps/magic.html', 'Zauber Selfie')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-6 transition-all duration-300">✨</div>
             <h3 class="text-xl md:text-2xl font-bold">Zauber Selfie</h3>
         </div>
 
         <!-- Row 2 of Apps (4 Rows) -->
-        <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0 group overflow-hidden">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md font-mono group-hover:scale-110 transition-transform">👾</div>
+        <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md font-mono group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">👾</div>
             <h3 class="text-xl md:text-2xl font-bold">Pixel</h3>
         </div>
 
-        <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 group overflow-hidden">
-            <div class="text-4xl md:text-5xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">📰</div>
+        <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-4xl md:text-5xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">📰</div>
             <h3 class="text-lg md:text-xl font-bold">Nachrichten</h3>
         </div>
 
-        <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">📸</div>
-            <h3 class="text-xl md:text-2xl font-bold text-slate-900">Comic</h3>
+        <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-rotate-6 transition-all duration-300">📸</div>
+            <h3 class="text-xl md:text-2xl font-bold text-white">Comic</h3>
         </div>
 
-        <div onclick="window.toggleInfo()" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-110 transition-transform">💡</div>
+        <div onclick="window.toggleInfo()" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">💡</div>
             <h3 class="text-xl md:text-2xl font-bold text-slate-200">Infos</h3>
         </div>
     </div>
