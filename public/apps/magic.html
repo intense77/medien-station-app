@@ -15,75 +15,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
 
     <style>
-        body { 
-            background-color: #0f172a; 
-            color: white; 
-            overflow: hidden; 
-            user-select: none; 
-            touch-action: none; 
-            height: 100dvh;
-            width: 100vw;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 1. Hauptbereich: Nimmt den verfügbaren Platz ein */
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 0.5rem;
-            padding-bottom: 8rem; /* Platzhalter für die fixierten Buttons unten */
-            min-height: 0;
-        }
-
-        /* 2. Kamera-Rahmen: Muss schrumpfen können */
-        .stage-frame {
-            flex: 1;
-            background: black;
-            border: 4px solid #334155;
-            border-radius: 1.5rem;
-            position: relative;
-            overflow: hidden;
-            min-height: 0; 
-        }
-
-        /* 3. FIXIERTER FOOTER: Hier liegt die Lösung */
-        .fixed-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 7rem; /* Feste Höhe für die Button-Zone */
-            background: linear-gradient(to top, #0f172a 70%, transparent);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1.5rem;
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 100; /* Immer ganz oben */
-            pointer-events: none; /* Klicks gehen durch den Hintergrund... */
-        }
-
-        .fixed-footer button {
-            pointer-events: auto; /* ...aber die Buttons fangen sie ab! */
-        }
-
-        /* Laptop Landscape Fix */
+        body { background-color: #0f172a; color: white; overflow: hidden; user-select: none; touch-action: none; height: 100dvh; width: 100vw; margin: 0; display: flex; flex-direction: column; }
+        .main-content { flex: 1; display: flex; flex-direction: column; padding: 0.5rem; padding-bottom: 8rem; min-height: 0; }
+        .stage-frame { flex: 1; background: black; border: 4px solid #334155; border-radius: 1.5rem; position: relative; overflow: hidden; min-height: 0; }
+        .fixed-footer { position: fixed; bottom: 0; left: 0; right: 0; height: 7rem; background: linear-gradient(to top, #0f172a 70%, transparent); display: flex; justify-content: center; align-items: center; gap: 1.5rem; padding-bottom: env(safe-area-inset-bottom); z-index: 100; pointer-events: none; }
+        .fixed-footer button { pointer-events: auto; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
         @media (min-width: 768px) {
-            .main-content {
-                flex-direction: row;
-                padding-bottom: 1rem;
-            }
-            .fixed-footer {
-                position: relative;
-                height: auto;
-                background: transparent;
-                flex-direction: column;
-                width: 8rem;
-                padding: 0;
-            }
+            .main-content { flex-direction: row; padding-bottom: 1rem; }
+            .fixed-footer { position: relative; height: auto; background: transparent; flex-direction: column; width: 8rem; padding: 0; }
         }
     </style>
 </head>
@@ -121,8 +62,22 @@
         <button onclick="window.startCountdown()" class="w-48 h-16 bg-purple-600 text-white font-black rounded-2xl border-b-4 border-purple-900 flex items-center justify-center text-2xl shadow-2xl active:translate-y-1 active:border-b-0">✨ FOTO</button>
     </footer>
 
+    <div id="preview-overlay" class="hidden fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div class="relative max-w-4xl w-full aspect-video border-4 border-white rounded-2xl overflow-hidden shadow-2xl">
+            <img id="preview-img-display" class="w-full h-full object-contain" src="">
+        </div>
+        <div class="flex gap-4 mt-8 w-full max-w-2xl">
+            <button onclick="window.closePreview()" class="flex-1 bg-slate-700 py-4 rounded-xl font-bold">ZURÜCK</button>
+            <button onclick="window.saveFromPreview()" class="flex-1 bg-purple-600 py-4 rounded-xl font-bold">SPEICHERN</button>
+            <button onclick="window.printFromPreview(this)" class="flex-1 bg-white text-black py-4 rounded-xl font-bold">DRUCKEN</button>
+        </div>
+    </div>
+
+    <div id="countdown-overlay" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/20">
+        <div id="countdown-text" class="text-[12rem] font-black text-white drop-shadow-2xl">3</div>
+    </div>
+
     <script>
-        // ... (Kamera- und KI-Logik bleibt gleich) ...
         const video = document.getElementById('video');
         const canvas = document.getElementById('output_canvas');
         const ctx = canvas.getContext('2d');
@@ -134,7 +89,7 @@
             paris: new Image(), wolken: new Image(), schloss: new Image(),
             dino: new Image(), stadion: new Image()
         };
-        // WICHTIG: Hier deine Pfade einfügen
+        // Pfade (ggf. anpassen)
         bgs.space.src = '../assets/weltraum.jpg'; bgs.jungle.src = '../assets/dschungel.jpg';
         bgs.underwater.src = '../assets/unterwasser.jpg'; bgs.paris.src = '../assets/paris.jpg';
         bgs.wolken.src = '../assets/wolken.jpg'; bgs.schloss.src = '../assets/schloss.jpg';
@@ -180,9 +135,60 @@
             ctx.restore();
         }
 
+        // --- AKTIONEN ---
+        window.startCountdown = function() {
+            if(window.playSound) window.playSound('click');
+            const overlay = document.getElementById('countdown-overlay');
+            const text = document.getElementById('countdown-text');
+            overlay.classList.remove('hidden');
+            let count = 3;
+            text.innerText = count;
+
+            const tick = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    text.innerText = count;
+                    if(window.playSound) window.playSound('click');
+                } else {
+                    clearInterval(tick);
+                    overlay.classList.add('hidden');
+                    window.capturePhoto();
+                }
+            }, 800);
+        };
+
+        window.capturePhoto = function() {
+            if(window.playSound) window.playSound('shutter');
+            const dataUrl = canvas.toDataURL('image/png');
+            document.getElementById('preview-img-display').src = dataUrl;
+            document.getElementById('preview-overlay').classList.remove('hidden');
+            isRunning = false; // KI pausieren
+        };
+
+        window.closePreview = () => {
+            document.getElementById('preview-overlay').classList.add('hidden');
+            isRunning = true;
+            renderLoop();
+        };
+
+        window.saveFromPreview = () => {
+            if(window.playSound) window.playSound('success');
+            const a = document.createElement('a');
+            a.href = document.getElementById('preview-img-display').src;
+            a.download = 'magic-selfie.png';
+            a.click();
+        };
+
+        window.printFromPreview = (btn) => {
+            if(window.playSound) window.playSound('click');
+            if(window.printImage) window.printImage(document.getElementById('preview-img-display').src, 'Magic-Selfie', btn);
+        };
+
         window.setBg = (bg) => { activeBg = bg; if(window.playSound) window.playSound('click'); };
         window.switchCamera = () => { currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user'; initCam(); };
         window.goHome = () => window.location.href = '../index.html';
+        window.toggleInfo = () => alert("Hintergrund wählen und FOTO drücken!");
+        
         window.addEventListener('load', () => setTimeout(initCam, 800));
     </script>
 </body>
