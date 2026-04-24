@@ -156,6 +156,7 @@
         // --- ROBUSTE KAMERA INITIALISIERUNG ---
         async function initCam() {
             video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
             if (!video) return;
 
             if (currentStream) {
@@ -292,8 +293,8 @@
 
         window.setFilter = (f) => {
             if(window.playSound) window.playSound('click');
-            video.style.filter = f;
-            canvas.style.filter = f;
+            if (video) video.style.filter = f;
+            if (canvas) canvas.style.filter = f;
         };
 
         // Start erst wenn alles bereit ist, um Cordova-Fehler zu puffern
