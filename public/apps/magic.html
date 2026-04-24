@@ -109,6 +109,11 @@
         </div>
     </div>
 
+    <!-- COUNTDOWN OVERLAY -->
+    <div id="countdown-overlay" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+        <div id="countdown-text" class="text-[10rem] md:text-[15rem] font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">3</div>
+    </div>
+
     <!-- HILFE MODAL -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-violet-500 rounded-[2rem] max-w-2xl w-full p-8 shadow-2xl relative" onclick="event.stopPropagation()">
@@ -182,11 +187,9 @@
                 currentStream = stream;
                 video.srcObject = currentStream;
                 
-                video.onloadedmetadata = () => {
-                    video.play().catch(e => console.warn(e));
-                    isRunning = true;
-                    renderLoop();
-                };
+                await video.play().catch(e => console.warn(e));
+                isRunning = true;
+                renderLoop();
             } catch (err) {
                 console.error("Kamera-Fehler:", err);
                 if(window.showError) window.showError("Die Kamera ist noch versteckt! Bitte sag einem Erwachsenen Bescheid.", "📷");
@@ -248,6 +251,38 @@
         };
 
         window.setBg = (bg) => { activeBg = bg; if(window.playSound) window.playSound('click'); };
+
+        let isCountingDown = false;
+        window.startCountdown = () => {
+            if (isCountingDown) return;
+            isCountingDown = true;
+            if(window.playSound) window.playSound('click');
+            
+            const overlay = document.getElementById('countdown-overlay');
+            const textEl = document.getElementById('countdown-text');
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+            
+            let count = 3;
+            const tick = () => {
+                textEl.innerText = count;
+                textEl.classList.remove('animate-bounce');
+                void textEl.offsetWidth; 
+                textEl.classList.add('animate-bounce');
+                
+                if (count === 0) {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                    isCountingDown = false;
+                    window.capturePhoto();
+                } else {
+                    if (count < 3 && window.playSound) window.playSound('click');
+                    count--;
+                    setTimeout(tick, 1000);
+                }
+            };
+            tick();
+        };
 
         window.capturePhoto = () => {
             if(window.playSound) window.playSound('shutter');
