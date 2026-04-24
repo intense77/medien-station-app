@@ -67,7 +67,7 @@
 
     <div class="flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
         
-        <div class="bg-selector flex-none flex flex-row landscape:flex-col gap-2 overflow-x-auto p-1 no-scrollbar">
+        <div class="bg-selector flex-none flex flex-row md:flex-col landscape:flex-col gap-2 overflow-x-auto md:overflow-y-auto landscape:overflow-y-auto p-1 no-scrollbar md:w-28 landscape:w-28 shrink-0">
             <button onclick="window.setBg('space')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-indigo-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🚀</button>
             <button onclick="window.setBg('jungle')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-emerald-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🌴</button>
             <button onclick="window.setBg('underwater')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-blue-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">🐙</button>
@@ -78,21 +78,23 @@
             <button onclick="window.setBg('stadion')" class="w-16 h-16 md:w-24 md:h-24 rounded-xl bg-green-900 border-2 border-white flex-none flex items-center justify-center text-2xl md:text-4xl shadow-lg active:scale-90">⚽</button>
         </div>
 
-        <div class="flex-1 bg-black rounded-[1.5rem] md:rounded-[2.5rem] border-4 md:border-[8px] border-slate-700 shadow-2xl relative overflow-hidden">
-            <div id="stage-container">
-                <video id="video" autoplay playsinline muted class="hidden"></video>
-                <canvas id="output_canvas"></canvas>
+        <div class="flex-1 flex flex-col min-h-0 w-full gap-2 md:gap-4 pb-2">
+            <div class="flex-1 bg-black rounded-[1.5rem] md:rounded-[2.5rem] border-4 md:border-[8px] border-slate-700 shadow-2xl relative overflow-hidden min-h-0">
+                <div id="stage-container" class="absolute inset-0 w-full h-full">
+                    <video id="video" autoplay playsinline muted class="hidden"></video>
+                    <canvas id="output_canvas" class="w-full h-full object-contain block"></canvas>
+                </div>
+
+                <div id="loading-ai" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center z-40">
+                    <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p class="font-black text-purple-400 animate-pulse text-xs uppercase">Initialisiere Kamera...</p>
+                </div>
             </div>
 
-            <div id="loading-ai" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center z-40">
-                <div class="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p class="font-black text-purple-400 animate-pulse text-xs uppercase">Initialisiere Kamera...</p>
+            <div class="flex-none h-14 md:h-20 flex justify-center items-center gap-3 md:gap-6 shrink-0 px-2">
+                <button onclick="window.switchCamera()" class="w-14 h-14 md:w-20 md:h-20 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl md:rounded-2xl text-xl md:text-3xl shadow-xl active:scale-95 transition border-b-4 md:border-b-[8px] border-slate-900 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex items-center justify-center shrink-0" title="Kamera wechseln">🔄</button>
+                <button onclick="window.startCountdown()" class="flex-1 max-w-[200px] md:max-w-[300px] h-14 md:h-20 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl md:rounded-2xl text-lg md:text-3xl shadow-xl active:scale-95 transition border-b-4 md:border-b-[8px] border-purple-900 active:border-b-0 active:translate-y-1 md:active:translate-y-2 flex items-center justify-center gap-2 shrink-0">✨ FOTO</button>
             </div>
-        </div>
-
-        <div class="flex flex-row md:flex-col landscape:flex-col gap-3 justify-center items-center py-2">
-            <button onclick="window.switchCamera()" class="w-14 h-14 md:w-24 md:h-24 bg-slate-800 text-white rounded-2xl border-b-4 md:border-b-8 border-slate-900 active:translate-y-1 active:border-b-0 flex items-center justify-center text-2xl md:text-5xl shadow-xl">🔄</button>
-            <button onclick="window.capturePhoto()" class="w-14 h-14 md:w-24 md:h-24 bg-purple-600 text-white rounded-2xl border-b-4 md:border-b-8 border-purple-900 active:translate-y-1 active:border-b-0 flex items-center justify-center text-2xl md:text-5xl shadow-xl">📸</button>
         </div>
     </div>
 
