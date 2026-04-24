@@ -112,7 +112,7 @@
             modal.className = 'hidden fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md items-center justify-center p-4 transition-opacity duration-300 opacity-0';
             modal.innerHTML = `
                 <div class="bg-slate-800 border-4 border-yellow-400 rounded-[3rem] max-w-lg w-full p-10 shadow-2xl text-center transform scale-90 transition-transform duration-300" id="idle-warning-content">
-                    <div class="text-8xl mb-6 animate-bounce"></div>
+                    <div class="text-8xl mb-6 animate-bounce">👾</div>
                     <h2 class="text-4xl font-black text-white mb-4">Bist du noch da?</h2>
                     <p class="text-xl text-slate-300 mb-8 font-bold">Das Aufräum-Monster räumt gleich auf...</p>
                     <button class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl text-2xl shadow-xl active:scale-95 transition border-b-8 border-yellow-700 active:border-b-0 active:translate-y-2 pointer-events-auto">
@@ -178,9 +178,9 @@
             window.showIdleWarning();
 
             idleResetTimer = setTimeout(() => {
+                window.hideIdleWarning();
                 if (isSubApp) {
-                    try { window.cleanupSessionFiles(); } catch(e) {}
-                    window.location.href = '../index.html';
+                    window.goHome();
                 } else {
                     const modals = document.querySelectorAll('#admin-modal, #info-modal, #qr-modal');
                     modals.forEach(m => {
