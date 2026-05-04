@@ -15,6 +15,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
 
     <style>
+        :root {
+            --header-h: 60px;
+            --footer-h: 100px;
+        }
+
         body { 
             background-color: #0f172a; 
             color: white; 
@@ -24,21 +29,20 @@
             height: 100dvh; 
             width: 100vw; 
             margin: 0; 
-            display: flex; 
-            flex-direction: column; 
+            display: grid;
+            /* Definiert 3 feste Bereiche: Header, Main (flexibel), Footer (fest) */
+            grid-template-rows: var(--header-h) 1fr var(--footer-h);
         }
 
-        /* Standard-Layout: Alles untereinander */
-        .main-container {
+        /* Hauptbereich: Bild und Hintergründe */
+        .main-stage {
             display: flex;
             flex-direction: column;
-            flex: 1;
-            min-height: 0;
-            padding: 0.5rem;
-            gap: 0.5rem;
+            min-height: 0; /* WICHTIG: Erlaubt dem Container zu schrumpfen */
+            padding: 8px;
+            gap: 8px;
         }
 
-        /* Canvas-Bereich */
         .stage-frame {
             flex: 1;
             background: black;
@@ -50,41 +54,40 @@
         }
 
         /* Smartphone Querformat Optimierung */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .header-area { height: 3rem !important; margin-bottom: 0 !important; }
-            .header-area h1 { display: none; } /* Titel weg für mehr Platz */
-            
-            .main-container {
-                flex-direction: row !important; /* Hintergründe links, Bild Mitte */
-                padding-bottom: 0.5rem;
+        @media (orientation: landscape) {
+            :root {
+                --header-h: 50px;
+                --footer-h: 0px; /* Buttons wandern nach rechts */
             }
-
+            body {
+                grid-template-rows: var(--header-h) 1fr;
+            }
+            .main-stage {
+                flex-direction: row !important;
+                padding-right: 100px; /* Platz für fixierte Buttons rechts */
+            }
             .bg-selector {
-                width: 5rem !important;
-                grid-template-columns: 1fr !important; /* Nur 1 Spalte links */
-                overflow-y: auto;
+                width: 80px !important;
+                grid-template-columns: 1fr !important;
             }
-
-            .footer-area {
-                position: static !important;
-                flex-direction: column !important; /* Buttons rechts übereinander */
-                width: 5rem !important;
-                height: 100% !important;
-                padding: 0 !important;
-                background: transparent !important;
-            }
-
-            .footer-area button {
-                width: 4rem !important;
-                height: 4rem !important;
+            .fixed-controls-landscape {
+                position: fixed;
+                right: 10px;
+                top: 60px;
+                bottom: 10px;
+                width: 80px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 15px;
+                z-index: 100;
             }
         }
 
-        /* Tablet/Laptop Querformat (breiter) */
+        /* Desktop/Laptop Layout */
         @media (min-width: 1024px) {
-            .main-container { flex-direction: row; }
-            .bg-selector { width: 12rem; grid-template-columns: 1fr 1fr; }
-            .footer-area { width: 10rem; flex-direction: column; position: static; background: transparent; }
+            .main-stage { flex-direction: row !important; }
+            .bg-selector { width: 200px !important; grid-template-columns: 1fr 1fr !important; }
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -92,15 +95,14 @@
 </head>
 <body class="box-border">
 
-    <header class="header-area h-16 flex justify-between items-center px-4 shrink-0 z-50">
-        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 border-slate-600 px-4 py-2 rounded-full font-black text-sm active:scale-95">🏠 MENÜ</button>
-        <h1 class="text-purple-400 font-black uppercase tracking-widest">Magic Booth</h1>
+    <header class="flex justify-between items-center px-4 z-50">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 border-slate-600 px-4 py-2 rounded-full font-black text-xs active:scale-95">🏠 MENÜ</button>
+        <h1 class="text-purple-400 font-black uppercase tracking-widest hidden md:block">Magic Booth</h1>
         <button onclick="window.toggleInfo()" class="w-10 h-10 bg-slate-800 rounded-full font-bold border-2 border-slate-600">?</button>
     </header>
 
-    <div class="main-container">
-        
-        <div class="bg-selector grid grid-cols-4 gap-2 overflow-y-auto no-scrollbar shrink-0">
+    <main class="main-stage">
+        <div class="bg-selector grid grid-cols-4 md:grid-cols-2 gap-2 overflow-y-auto no-scrollbar shrink-0">
             <button onclick="window.setBg('space')" class="aspect-square rounded-xl bg-indigo-900 border-2 border-white text-2xl">🚀</button>
             <button onclick="window.setBg('jungle')" class="aspect-square rounded-xl bg-emerald-900 border-2 border-white text-2xl">🌴</button>
             <button onclick="window.setBg('underwater')" class="aspect-square rounded-xl bg-blue-900 border-2 border-white text-2xl">🐙</button>
@@ -112,21 +114,166 @@
         </div>
 
         <div class="stage-frame">
-            <video id="video" autoplay playsinline muted class="hidden"></video>
+            <video id="video" autoplay playsinline muted class="absolute w-[1px] h-[1px] opacity-0 pointer-events-none z-[-1]"></video>
             <canvas id="output_canvas" class="w-full h-full object-contain block"></canvas>
-            <div id="loading-ai" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center">
+            <div id="loading-ai" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center z-40">
                 <div class="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
         </div>
+    </main>
 
-        <footer class="footer-area flex justify-center items-center gap-4 py-2 shrink-0">
-            <button onclick="window.switchCamera()" class="w-16 h-16 bg-slate-800 text-white rounded-2xl border-b-4 border-slate-950 flex items-center justify-center text-3xl shadow-2xl active:translate-y-1 active:border-b-0">🔄</button>
-            <button onclick="window.startCountdown()" class="w-16 h-16 md:w-48 bg-purple-600 text-white font-black rounded-2xl border-b-4 border-purple-900 flex items-center justify-center text-3xl md:text-2xl shadow-2xl active:translate-y-1 active:border-b-0">✨</button>
-        </footer>
+    <footer class="footer-area fixed-controls-landscape flex justify-center items-center gap-6 py-2 px-4 shrink-0">
+        <button onclick="window.switchCamera()" class="w-14 h-14 md:w-20 md:h-20 bg-slate-800 text-white rounded-xl md:rounded-2xl shadow-xl border-b-4 border-slate-950 flex items-center justify-center text-2xl active:translate-y-1 active:border-b-0">🔄</button>
+        <button onclick="window.startCountdown()" class="w-14 h-14 md:w-48 md:h-20 bg-purple-600 text-white font-black rounded-xl md:rounded-2xl shadow-xl border-b-4 border-purple-950 flex items-center justify-center text-2xl active:translate-y-1 active:border-b-0">✨</button>
+    </footer>
+
+    <div id="preview-overlay" class="hidden fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div class="relative max-w-4xl w-full aspect-video border-4 border-white rounded-2xl overflow-hidden shadow-2xl">
+            <img id="preview-img-display" class="w-full h-full object-contain" src="">
+        </div>
+        <div class="flex flex-wrap justify-center gap-4 mt-6 w-full max-w-2xl">
+            <button onclick="window.closePreview()" class="flex-1 bg-slate-700 py-3 rounded-xl font-bold min-w-[100px]">ZURÜCK</button>
+            <button onclick="window.saveFromPreview()" class="flex-1 bg-purple-600 py-3 rounded-xl font-bold min-w-[100px]">SPEICHERN</button>
+            <button onclick="window.printFromPreview(this)" class="flex-1 bg-white text-black py-3 rounded-xl font-bold min-w-[100px]">DRUCKEN</button>
+        </div>
+    </div>
+
+    <div id="countdown-overlay" class="hidden fixed inset-0 z-[150] flex items-center justify-center bg-black/20 pointer-events-none">
+        <div id="countdown-text" class="text-[12rem] font-black text-white drop-shadow-2xl">3</div>
     </div>
 
     <script>
-        // ... (Der Script-Teil bleibt identisch zum vorherigen funktionierenden Code) ...
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('output_canvas');
+        const ctx = canvas.getContext('2d');
+        const loadingEl = document.getElementById('loading-ai');
+        let currentStream, currentFacingMode = 'user', activeBg = 'space', isRunning = false;
+
+        const bgs = {
+            space: new Image(), jungle: new Image(), underwater: new Image(),
+            paris: new Image(), wolken: new Image(), schloss: new Image(),
+            dino: new Image(), stadion: new Image()
+        };
+        bgs.space.src = '../assets/weltraum.jpg'; bgs.jungle.src = '../assets/dschungel.jpg';
+        bgs.underwater.src = '../assets/unterwasser.jpg'; bgs.paris.src = '../assets/paris.jpg';
+        bgs.wolken.src = '../assets/wolken.jpg'; bgs.schloss.src = '../assets/schloss.jpg';
+        bgs.dino.src = '../assets/dino.jpg'; bgs.stadion.src = '../assets/stadion.jpg';
+
+        const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`});
+        selfieSegmentation.setOptions({ modelSelection: 1 });
+        selfieSegmentation.onResults(onResults);
+
+        // --- ROBUSTE KAMERA ---
+        async function initCam() {
+            if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+            
+            const constraints = [
+                { video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
+                { video: true }
+            ];
+
+            for (let c of constraints) {
+                try {
+                    currentStream = await navigator.mediaDevices.getUserMedia(c);
+                    video.srcObject = currentStream;
+                    
+                    await new Promise((resolve) => {
+                        video.onloadedmetadata = () => resolve();
+                    });
+                    
+                    await video.play();
+                    isRunning = true;
+                    renderLoop();
+                    return;
+                } catch (e) { console.warn("Versuch fehlgeschlagen", e); }
+            }
+            alert("Kamera nicht gefunden!");
+        }
+
+        async function renderLoop() {
+            if (isRunning && video.readyState >= 2 && video.videoWidth > 0) {
+                try {
+                    await selfieSegmentation.send({image: video});
+                } catch (e) {
+                    console.error("MediaPipe Processing Fehler:", e);
+                }
+            }
+            if (isRunning) requestAnimationFrame(renderLoop);
+        }
+
+        function onResults(results) {
+            loadingEl.style.display = 'none';
+            canvas.width = results.image.width; canvas.height = results.image.height;
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+            ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'source-in';
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'destination-atop';
+            const img = bgs[activeBg];
+            if (img && img.complete) {
+                const cRatio = canvas.width / canvas.height, iRatio = img.width / img.height;
+                let dW = canvas.width, dH = canvas.height, dX = 0, dY = 0;
+                if (iRatio > cRatio) { dW = canvas.height * iRatio; dX = (canvas.width - dW) / 2; } else { dH = canvas.width / iRatio; dY = (canvas.height - dH) / 2; }
+                ctx.drawImage(img, dX, dY, dW, dH);
+            } else {
+                ctx.fillStyle = "#0f172a"; ctx.fillRect(0,0,canvas.width, canvas.height);
+            }
+            ctx.restore();
+        }
+
+        // --- AKTIONEN ---
+        window.startCountdown = () => {
+            if(window.playSound) window.playSound('click');
+            const overlay = document.getElementById('countdown-overlay');
+            const text = document.getElementById('countdown-text');
+            overlay.classList.remove('hidden');
+            let count = 3;
+            text.innerText = count;
+            const timer = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    text.innerText = count;
+                    if(window.playSound) window.playSound('click');
+                } else {
+                    clearInterval(timer);
+                    overlay.classList.add('hidden');
+                    window.capturePhoto();
+                }
+            }, 800);
+        };
+
+        window.capturePhoto = () => {
+            if(window.playSound) window.playSound('shutter');
+            isRunning = false;
+            document.getElementById('preview-img-display').src = canvas.toDataURL('image/png');
+            document.getElementById('preview-overlay').classList.remove('hidden');
+        };
+
+        window.closePreview = () => {
+            document.getElementById('preview-overlay').classList.add('hidden');
+            isRunning = true; renderLoop();
+        };
+
+        window.saveFromPreview = () => {
+            if(window.playSound) window.playSound('success');
+            const a = document.createElement('a');
+            a.href = document.getElementById('preview-img-display').src;
+            a.download = 'magic_selfie.png'; a.click();
+        };
+
+        window.printFromPreview = (btn) => {
+            if(window.playSound) window.playSound('click');
+            if(window.printImage) window.printImage(document.getElementById('preview-img-display').src, 'Selfie', btn);
+        };
+
+        window.setBg = (bg) => { activeBg = bg; if(window.playSound) window.playSound('click'); };
+        window.switchCamera = () => { currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user'; initCam(); };
+        window.goHome = () => window.location.href = '../index.html';
+        window.toggleInfo = () => alert("Hintergrund wählen und lila Button drücken!");
+
+        window.addEventListener('load', () => setTimeout(initCam, 800));
     </script>
 </body>
 </html>
