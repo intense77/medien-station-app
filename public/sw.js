@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v200';
+const CACHE_NAME = 'medien-station-v201';
 const ASSETS = [
     './',
     './index.html',
@@ -53,23 +53,25 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch: ERST Netzwerk, dann Cache (Network-First für perfekte Updates!)
+// Fetch: ERST Cache, dann Netzwerk (Cache-First für rasend schnellen Offline-Start!)
 self.addEventListener('fetch', (event) => {
     // Ignoriere POST requests oder chrome-extension schemes
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
     event.respondWith(
-        fetch(event.request)
-        .then((networkResponse) => {
-            // Erfolgreich aus dem Netz geladen -> In den Cache legen für Offline-Nutzung
-            return caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, networkResponse.clone());
-                return networkResponse;
+        caches.match(event.request, { ignoreSearch: true })
+        .then((cachedResponse) => {
+            // 1. Treffer im Cache? SOFORT zurückgeben (Rasend schnell, ohne Timeout Wartezeit!)
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            // 2. Nicht im Cache? Dann aus dem Netz laden und für die Zukunft cachen
+            return fetch(event.request).then((networkResponse) => {
+                return caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, networkResponse.clone());
+                    return networkResponse;
+                });
             });
-        })
-        .catch(() => {
-            // Offline? Dann aus dem Cache laden!
-            return caches.match(event.request, { ignoreSearch: true });
         })
     );
 });
