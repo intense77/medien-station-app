@@ -26,14 +26,32 @@
             grid-template-rows: repeat(16, 1fr); 
             gap: 1px; 
             background: #334155; 
-            border: 8px solid #10b981; 
+            border: 4px solid #10b981; 
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); 
             border-radius: 1rem;
             overflow: hidden;
             touch-action: none;
             width: 100%;
             height: 100%;
+            
+            /* Fallback für ältere Browser */
             aspect-ratio: 1 / 1;
+            width: 100vmin;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        @media (min-width: 768px) {
+            .pixel-grid { border-width: 8px; }
+        }
+
+        /* Moderne Quadrat-Anpassung über Container Queries (für perfektes Einpassen) */
+        .grid-wrapper { container-type: size; }
+        @supports (container-type: size) {
+            .pixel-grid {
+                width: 100cqmin;
+                height: 100cqmin;
+            }
         }
         
         .cell { background-color: white; cursor: pointer; transition: background-color 0.05s; }
@@ -75,8 +93,8 @@
     <div class="flex-1 flex flex-col md:flex-row landscape:flex-row items-center justify-center gap-2 md:gap-4 min-h-0 min-w-0 w-full max-w-[95rem] mx-auto pb-1">
         
         <!-- Das Gitter (Container) -->
-        <div class="relative flex-1 w-full max-w-full md:max-w-[650px] landscape:max-w-[650px] flex items-center justify-center p-1 md:p-2 min-h-0 min-w-0">
-            <div id="grid" class="pixel-grid w-full h-auto max-h-full aspect-square">
+        <div class="grid-wrapper relative flex-1 w-full h-full self-stretch max-w-full md:max-w-[650px] landscape:max-w-[650px] flex items-center justify-center p-1 md:p-2 min-h-0 min-w-0">
+            <div id="grid" class="pixel-grid">
                 <!-- Zellen per JS -->
             </div>
         </div>
