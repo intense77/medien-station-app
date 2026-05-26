@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v209';
+const CACHE_NAME = 'medien-station-v210';
 const ASSETS = [
     './',
     './index.html',
@@ -41,13 +41,13 @@ self.addEventListener('install', (event) => {
         caches.open(CACHE_NAME).then((cache) => {
             return Promise.all(
                 ASSETS.map((url) => {
-                    // 'no-cache' zwingt den Browser, die echte Datei vom Server zu holen!
-                    return fetch(new Request(url, { cache: 'no-cache' }))
+                    // 'reload' zwingt den Browser strikt ins Netzwerk. WICHTIG: KEIN .catch() hier!
+                    // Wenn das Tablet offline ist, MUSS der Download scheitern, damit der alte Offline-Cache überlebt!
+                    return fetch(new Request(url, { cache: 'reload' }))
                         .then((response) => {
                             if (!response.ok) throw new Error('Fetch failed: ' + url);
                             return cache.put(url, response);
-                        })
-                        .catch(err => console.warn('Konnte nicht gecached werden:', url, err));
+                        });
                 })
             );
         })
