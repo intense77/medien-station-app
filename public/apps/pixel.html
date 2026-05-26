@@ -182,7 +182,7 @@
 
         // Grid bauen (16x16 = 256)
         function initGrid() {
-            grid.innerHTML = ''; 
+            const frag = document.createDocumentFragment();
             for(let i=0; i<256; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
@@ -191,8 +191,10 @@
                 cell.addEventListener('mouseenter', () => { if(isDrawing) cell.style.backgroundColor = currentColor; });
                 cell.addEventListener('touchstart', (e) => { isDrawing = true; cell.style.backgroundColor = currentColor; }, {passive: false});
 
-                grid.appendChild(cell);
+                frag.appendChild(cell);
             }
+            grid.innerHTML = ''; 
+            grid.appendChild(frag);
         }
 
         // Globaler Touch Move Handler
@@ -251,7 +253,7 @@
             }
         }
 
-        window.onload = initGrid;
+        initGrid(); // SOFORT ausführen, nicht erst warten bis alle Bilder/Hintergründe geladen sind!
     </script>
 </body>
 </html>

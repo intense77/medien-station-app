@@ -305,7 +305,7 @@
         };
 
         // Start erst wenn alles bereit ist, um Cordova-Fehler zu puffern
-        window.addEventListener('load', () => setTimeout(initCam, 500));
+        setTimeout(initCam, 100); // Bremse entfernt, startet rasant
     </script>
 </body>
 </html>

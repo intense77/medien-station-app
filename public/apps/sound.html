@@ -108,7 +108,7 @@
 
         function init() {
             const container = document.getElementById('pad-container');
-            container.innerHTML = '';
+            const frag = document.createDocumentFragment();
             for(let i = 0; i < 12; i++) {
                 pads.push({ buffer: null, loop: false, sourceNode: null, isRecording: false, isCountingDown: false, chunks: [], stream: null, micSource: null });
                 const el = document.createElement('div');
@@ -122,8 +122,10 @@
                 `;
                 // Wichtig: Pointer-Events für Tablets
                 el.onpointerdown = (e) => { e.preventDefault(); handlePadTouch(i); };
-                container.appendChild(el);
+                frag.appendChild(el);
             }
+            container.innerHTML = '';
+            container.appendChild(frag);
         }
 
         function setMode(mode) {
@@ -330,7 +332,7 @@
             draw();
         }
 
-        window.onload = init;
+        init(); // SOFORT ausführen, ohne Verzögerung
     </script>
 </body>
 </html>
