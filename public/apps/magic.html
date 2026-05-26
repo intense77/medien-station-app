@@ -151,7 +151,8 @@
 
         function initMediaPipe() {
             loadingEl.style.display = 'flex';
-            selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `../models/${file}`});
+            // Absoluter Pfad per Browser-Standard (funktioniert zu 100% sicher auch in Web Workern)
+            selfieSegmentation = new SelfieSegmentation({locateFile: (file) => new URL('../models/' + file, window.location.href).href});
             selfieSegmentation.setOptions({ modelSelection: 0 }); // 0 = General Model (höhere Qualität), 1 = Landscape Model (schneller)
             selfieSegmentation.onResults(onResults);
         }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v213';
+const CACHE_NAME = 'medien-station-v214';
 const ASSETS = [
     './',
     './index.html',
@@ -12,6 +12,8 @@ const ASSETS = [
     './models/selfie_segmentation_solution_simd_wasm_bin.wasm',
     './models/selfie_segmentation_solution_wasm_bin.js',
     './models/selfie_segmentation_solution_wasm_bin.wasm',
+    './models/selfie_segmentation.binarypb',
+    './models/selfie_segmentation_landscape.binarypb',
     './assets/logo.png',
     './assets/qr.png',
     './assets/sounds/click.mp3',
