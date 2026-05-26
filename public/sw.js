@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v210';
+const CACHE_NAME = 'medien-station-v211';
 const ASSETS = [
     './',
     './index.html',
@@ -39,17 +39,27 @@ self.addEventListener('install', (event) => {
     self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return Promise.all(
-                ASSETS.map((url) => {
-                    // 'reload' zwingt den Browser strikt ins Netzwerk. WICHTIG: KEIN .catch() hier!
-                    // Wenn das Tablet offline ist, MUSS der Download scheitern, damit der alte Offline-Cache überlebt!
-                    return fetch(new Request(url, { cache: 'reload' }))
-                        .then((response) => {
-                            if (!response.ok) throw new Error('Fetch failed: ' + url);
-                            return cache.put(url, response);
-                        });
-                })
-            );
+            let successCount = 0;
+            let offlineCount = 0;
+            return Promise.all(ASSETS.map(async (url) => {
+                try {
+                    // 'reload' zwingt den Browser strikt ins Netzwerk, um HTTP-Caches zu umgehen
+                    const response = await fetch(new Request(url, { cache: 'reload' }));
+                    if (response.ok) {
+                        await cache.put(url, response);
+                        successCount++;
+                    } else {
+                        console.warn('Datei nicht gefunden (wird ignoriert):', url);
+                    }
+                } catch (err) {
+                    offlineCount++;
+                }
+            })).then(() => {
+                // Wenn keine Datei geladen wurde und Netzwerkfehler auftraten -> Abbruch!
+                if (offlineCount > 0 && successCount === 0) {
+                    throw new Error('Gerät ist offline. Update abgebrochen, alter Cache bleibt erhalten.');
+                }
+            });
         })
     );
 });
