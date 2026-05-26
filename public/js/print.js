@@ -67,53 +67,57 @@ function showPrintHint() {
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'print-hint-modal';
-            modal.className = 'hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm items-center justify-center p-4 transition-opacity duration-300 opacity-0';
+            // Inline-Styles erzwingen das Layout, auch wenn CSS-Klassen vom Compiler entfernt wurden!
+            modal.style.cssText = "display: none; position: fixed; inset: 0; z-index: 999999; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.3s;";
             modal.innerHTML = `
-                <div class="bg-slate-800 border-4 border-blue-500 rounded-[3rem] max-w-md w-full p-8 shadow-2xl text-center transform scale-90 transition-transform duration-300" id="print-hint-content">
-                    <div class="text-6xl md:text-8xl mb-4 animate-bounce">🖨️</div>
-                    <h2 class="text-2xl md:text-4xl font-black text-white mb-4">Gleich geht's los!</h2>
-                    <p class="text-lg md:text-xl text-slate-300 mb-8 font-bold">Wähle im nächsten Menü die <br><span class="text-blue-400">Canon Print App</span> aus.</p>
-                    <button id="print-hint-ok" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-blue-800 active:border-b-0 active:translate-y-2 pointer-events-auto flex items-center justify-center gap-2">
-                        <span class="text-2xl">👍</span> ALLES KLAR
+                <div style="background-color: #1e293b; border: 4px solid #3b82f6; border-radius: 2rem; max-width: 28rem; width: 100%; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; transform: scale(0.9); transition: transform 0.3s;" id="print-hint-content">
+                    <div style="font-size: 5rem; margin-bottom: 1rem;">🖨️</div>
+                    <h2 style="font-size: 2rem; font-weight: 900; color: white; margin-bottom: 1rem; font-family: sans-serif;">Gleich geht's los!</h2>
+                    <p style="font-size: 1.25rem; color: #cbd5e1; margin-bottom: 2rem; font-weight: bold; font-family: sans-serif;">Wähle im nächsten Menü die <br><span style="color: #60a5fa;">Canon Print App</span> aus.</p>
+                    <button id="print-hint-ok" style="width: 100%; background-color: #2563eb; color: white; font-weight: 900; padding: 1rem; border-radius: 0.75rem; font-size: 1.25rem; border: none; border-bottom: 6px solid #1e40af; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-family: sans-serif; transition: all 0.1s;">
+                        <span style="font-size: 1.5rem;">👍</span> ALLES KLAR
                     </button>
                 </div>
             `;
             document.body.appendChild(modal);
+
+            // Touch-Feedback für den Inline-Button
+            const btn = document.getElementById('print-hint-ok');
+            btn.onmousedown = () => { btn.style.transform = 'translateY(4px)'; btn.style.borderBottomWidth = '2px'; };
+            btn.onmouseup = () => { btn.style.transform = 'none'; btn.style.borderBottomWidth = '6px'; };
+            btn.ontouchstart = () => { btn.style.transform = 'translateY(4px)'; btn.style.borderBottomWidth = '2px'; };
+            btn.ontouchend = () => { btn.style.transform = 'none'; btn.style.borderBottomWidth = '6px'; };
         }
         
         const okBtn = document.getElementById('print-hint-ok');
         const handler = () => {
             if(window.playSound) window.playSound('click');
-            modal.classList.add('opacity-0');
+            
+            // SPRACHAUSGABE ABBRECHEN
+            if('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+            modal.style.opacity = '0';
             const content = document.getElementById('print-hint-content');
-            if(content) {
-                content.classList.remove('scale-100');
-                content.classList.add('scale-90');
-            }
+            if(content) content.style.transform = 'scale(0.9)';
             
             // WICHTIG: Sofort auflösen, damit Android die Aktion als "Nutzer-Klick" anerkennt!
             resolve();
             
             setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
+                modal.style.display = 'none';
             }, 300);
             okBtn.removeEventListener('click', handler);
         };
         okBtn.addEventListener('click', handler);
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        modal.style.display = 'flex';
         
         if (window.speakText) window.speakText("Gleich geht es los. Wähle im nächsten Menü die Canon Print App aus.");
 
         setTimeout(() => {
-            modal.classList.remove('opacity-0');
+            modal.style.opacity = '1';
             const content = document.getElementById('print-hint-content');
-            if (content) {
-                content.classList.remove('scale-90');
-                content.classList.add('scale-100');
-            }
+            if (content) content.style.transform = 'scale(1)';
         }, 10);
     });
 }

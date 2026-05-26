@@ -227,15 +227,62 @@
         window.clearText = (el, def) => { if(window.playSound) window.playSound('click'); if(el.innerText.trim() === def) el.innerText = ""; }
         window.resetText = (el, def) => { if(el.innerText.trim() === "") el.innerText = def; }
 
+        window.generateComicImage = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1800; canvas.height = 1200;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#facc15'; ctx.fillRect(0, 0, 1800, 1200);
+
+            ctx.fillStyle = 'black';
+            ctx.font = '900 60px "Comic Sans MS", "Chalkboard SE", sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+            ctx.fillText("COMIC STUDIO", 900, 40);
+
+            const panels = [
+                {x: 100, y: 150, w: 750, h: 422},
+                {x: 950, y: 150, w: 750, h: 422},
+                {x: 525, y: 650, w: 750, h: 422}
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                const p = panels[i];
+                const pBox = document.getElementById('panel-' + i);
+                const pCanvas = pBox.querySelector('canvas');
+                const textEl = pBox.querySelector('.bubble-text');
+
+                ctx.fillStyle = 'black'; ctx.fillRect(p.x + 15, p.y + 15, p.w, p.h);
+                ctx.fillStyle = 'white'; ctx.fillRect(p.x, p.y, p.w, p.h);
+                ctx.drawImage(pCanvas, p.x, p.y, p.w, p.h);
+                
+                ctx.lineWidth = 8; ctx.strokeStyle = 'black'; ctx.strokeRect(p.x, p.y, p.w, p.h);
+
+                ctx.fillStyle = 'black'; ctx.fillRect(p.x, p.y, 60, 60);
+                ctx.fillStyle = 'white'; ctx.font = '900 40px "Comic Sans MS", sans-serif';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText((i+1).toString(), p.x + 30, p.y + 30);
+
+                const txt = textEl.innerText.trim();
+                if (txt && !txt.startsWith("Start") && !txt.startsWith("Dann") && !txt.startsWith("Ende")) {
+                    ctx.font = 'bold 30px "Comic Sans MS", sans-serif';
+                    const metrics = ctx.measureText(txt);
+                    const bW = Math.max(160, metrics.width + 40); const bH = 60;
+                    const bX = p.x + p.w / 2 - bW / 2; const bY = p.y + p.h - bH - 20;
+
+                    ctx.fillStyle = 'white'; ctx.strokeStyle = 'black'; ctx.lineWidth = 4;
+                    if(ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bX, bY, bW, bH, 20); ctx.fill(); ctx.stroke(); } 
+                    else { ctx.fillRect(bX, bY, bW, bH); ctx.strokeRect(bX, bY, bW, bH); }
+
+                    ctx.fillStyle = 'black'; ctx.fillText(txt, bX + bW / 2, bY + bH / 2 + 5);
+                }
+            }
+            return canvas.toDataURL('image/jpeg', 0.9);
+        };
+
         window.printComic = async function(btn) {
             if (window.playSound) window.playSound('click');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "🖨️ ...";
-            btn.disabled = true;
-            
-            if (window.showPrintHint) await window.showPrintHint();
-            
-            setTimeout(() => { window.print(); btn.innerHTML = originalText; btn.disabled = false; }, 500);
+            const dataUrl = window.generateComicImage();
+            if (window.printImage) window.printImage(dataUrl, 'Comic', btn);
         };
 
         window.initCam();
