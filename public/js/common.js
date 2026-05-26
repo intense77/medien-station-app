@@ -7,8 +7,8 @@
 (function() {
     // Sicherer Zugriff auf Plugins (verhindert Absturz, wenn cordova.js fehlt)
     const SplashScreen = (window.Capacitor && window.Capacitor.Plugins) ? window.Capacitor.Plugins.SplashScreen : null;
-    const IDLE_WARNING_TIME = 9 * 60 * 1000; // 9 Minuten
-    const IDLE_RESET_TIME = 60 * 1000; // 1 Minute Vorwarnung
+    const IDLE_WARNING_TIME = 5 * 60 * 1000; // 5 Minuten Inaktivität bis Warnung
+    const IDLE_RESET_TIME = 15 * 1000; // 15 Sekunden Zeit zum Reagieren (dann wird aufgeräumt)
     let idleWarningTimer, idleResetTimer;
 
     // Hilfsfunktion: Sind wir in einer App oder auf dem Hub?
@@ -179,17 +179,7 @@
 
             idleResetTimer = setTimeout(() => {
                 window.hideIdleWarning();
-                if (isSubApp) {
-                    window.goHome();
-                } else {
-                    const modals = document.querySelectorAll('#admin-modal, #info-modal, #qr-modal');
-                    modals.forEach(m => {
-                        m.classList.add('hidden');
-                        m.classList.remove('flex', 'modal-visible');
-                    });
-                    const missionText = document.getElementById('mission-text');
-                    if(missionText) missionText.innerText = "Wähle eine App! 👉";
-                }
+            if (isSubApp) window.goHome();
             }, IDLE_RESET_TIME);
         }, IDLE_WARNING_TIME);
     };
