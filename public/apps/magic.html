@@ -147,11 +147,18 @@
         bgs.wolken.src = '../assets/wolken.jpg'; bgs.schloss.src = '../assets/schloss.jpg';
         bgs.dino.src = '../assets/dino.jpg'; bgs.stadion.src = '../assets/stadion.jpg';
 
-        // Fix für MediaPipe: Web Worker benötigen absolute Pfade, da relative Pfade (../) in Blobs lautlos abstürzen!
-        const basePath = window.location.origin + window.location.pathname.replace(/\/apps\/magic\.html$/, '/');
-        const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `${basePath}models/${file}`});
-        selfieSegmentation.setOptions({ modelSelection: 0 }); // 0 = General Model (höhere Qualität), 1 = Landscape Model (schneller)
-        selfieSegmentation.onResults(onResults);
+        let selfieSegmentation;
+
+        function initMediaPipe() {
+            loadingEl.style.display = 'flex';
+            // Fix für MediaPipe: Web Worker benötigen absolute Pfade, da relative Pfade (../) in Blobs lautlos abstürzen!
+            const basePath = window.location.origin + window.location.pathname.replace(/\/apps\/magic\.html$/, '/');
+            selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `${basePath}models/${file}`});
+            selfieSegmentation.setOptions({ modelSelection: 0 }); // 0 = General Model (höhere Qualität), 1 = Landscape Model (schneller)
+            selfieSegmentation.onResults(onResults);
+        }
+
+        initMediaPipe();
 
         // --- ROBUSTE KAMERA ---
         async function initCam() {
@@ -260,12 +267,35 @@
             const overlay = document.getElementById('preview-overlay');
             overlay.classList.add('hidden');
             overlay.style.display = 'none';
-            isRunning = true; renderLoop();
+
+            // Re-initialize if resources were released for printing
+            if (!selfieSegmentation) {
+                initMediaPipe();
+            }
+            if (!currentStream) {
+                initCam(); // This will start the camera and the render loop
+            } else {
+                isRunning = true; 
+                renderLoop();
+            }
         };
 
         window.printFromPreview = (btn) => {
             if(window.playSound) window.playSound('click');
             if(window.printImage) window.printImage(document.getElementById('preview-img-display').src, 'Selfie', btn);
+
+            // Release resources AFTER calling print to prevent Android from killing the app due to memory pressure.
+            console.log("Releasing Magic Selfie resources for printing...");
+            isRunning = false;
+            if (currentStream) {
+                currentStream.getTracks().forEach(t => t.stop());
+                currentStream = null;
+                video.srcObject = null;
+            }
+            if (selfieSegmentation) {
+                selfieSegmentation.close();
+                selfieSegmentation = null;
+            }
         };
 
         window.setBg = (bg, btn) => { 
