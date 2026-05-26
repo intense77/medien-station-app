@@ -106,12 +106,12 @@
     <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-4 row-span-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden">
         <div class="text-6xl mb-2 drop-shadow-md transform -rotate-6 transition-transform group-hover:rotate-0">📸</div>
         <h3 class="text-2xl font-bold text-slate-900">Comic</h3>
-        </div>
+    </div>
     </div>
 
     <div class="fixed bottom-6 w-full flex flex-col items-center justify-center pointer-events-none z-40">
         <button onclick="toggleQR()" class="pointer-events-auto bg-slate-800/90 backdrop-blur border border-slate-600 px-8 py-3 rounded-full shadow-2xl flex items-center gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all">
-            <img src="assets/logo.png" class="h-12 w-auto object-contain" alt="Logo" onerror="this.style.display='none'">
+            <img src="public/assets/logo.png" class="h-12 w-auto object-contain" alt="Logo" onerror="this.style.display='none'">
             <div class="flex flex-col text-left">
                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Ein Projekt der</span>
                 <span class="text-lg font-black text-white leading-none tracking-wide">AV-MEDIENZENTRALE</span>
@@ -139,7 +139,7 @@
             <h3 style="color: #0f172a; font-size: 24px; font-weight: 900; text-transform: uppercase; margin: 0 0 20px 0;">Besuche uns!</h3>
             
             <div style="width: 250px; height: 250px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
-                <img src="assets/qr.png" alt="QR Code" style="width: 230px; height: 230px; object-fit: contain;" 
+                <img src="public/assets/qr.png" alt="QR Code" style="width: 230px; height: 230px; object-fit: contain;" 
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UVIgQ29kZTwvdGV4dD48L3N2Zz4='">
             </div>
             
@@ -168,7 +168,7 @@
         const missions = ["Erstelle ein Geräusch: Kälte ❄️", "Comic: Streit ums Brot 🥪", "Magic: Auf dem Mond 🚀", "Werbung: Unsichtbare Socken 🧦", "Loop: Hallo ohne Worte 👋", "Witz in 3 Bildern 🤡", "Selfie: Fliegen ✨", "Elefant mit Schluckauf 🐘", "Pixel-Monster Haustier 👾", "News: Ufo gelandet 👽"];
         
 		const playSound = (id) => {
-            const a = new Audio(`assets/sounds/${id}.mp3`);
+            const a = new Audio(`public/assets/sounds/${id}.mp3`);
             a.volume = 1.0;
             a.play().catch(() => {});
         };
