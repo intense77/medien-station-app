@@ -147,7 +147,9 @@
         bgs.wolken.src = '../assets/wolken.jpg'; bgs.schloss.src = '../assets/schloss.jpg';
         bgs.dino.src = '../assets/dino.jpg'; bgs.stadion.src = '../assets/stadion.jpg';
 
-        const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `../models/${file}`});
+        // Fix für MediaPipe: Web Worker benötigen absolute Pfade, da relative Pfade (../) in Blobs lautlos abstürzen!
+        const basePath = window.location.origin + window.location.pathname.replace(/\/apps\/magic\.html$/, '/');
+        const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `${basePath}models/${file}`});
         selfieSegmentation.setOptions({ modelSelection: 0 }); // 0 = General Model (höhere Qualität), 1 = Landscape Model (schneller)
         selfieSegmentation.onResults(onResults);
 
