@@ -90,10 +90,13 @@ function showPrintHint() {
                 content.classList.remove('scale-100');
                 content.classList.add('scale-90');
             }
+            
+            // WICHTIG: Sofort auflösen, damit Android die Aktion als "Nutzer-Klick" anerkennt!
+            resolve();
+            
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
-                resolve();
             }, 300);
             okBtn.removeEventListener('click', handler);
         };

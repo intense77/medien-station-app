@@ -227,6 +227,17 @@
         window.clearText = (el, def) => { if(window.playSound) window.playSound('click'); if(el.innerText.trim() === def) el.innerText = ""; }
         window.resetText = (el, def) => { if(el.innerText.trim() === "") el.innerText = def; }
 
+        window.printComic = async function(btn) {
+            if (window.playSound) window.playSound('click');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "🖨️ ...";
+            btn.disabled = true;
+            
+            if (window.showPrintHint) await window.showPrintHint();
+            
+            setTimeout(() => { window.print(); btn.innerHTML = originalText; btn.disabled = false; }, 500);
+        };
+
         window.initCam();
     </script>
 </body>

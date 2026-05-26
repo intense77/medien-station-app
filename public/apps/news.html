@@ -176,6 +176,11 @@
             document.getElementById('preview-overlay').style.display = 'none';
         }
 
+        window.printFromPreview = function(btn) {
+            if(window.playSound) window.playSound('click');
+            if(window.printImage) window.printImage(document.getElementById('preview-img-display').src, 'News', btn);
+        };
+
         // ... (Restliche Hilfsfunktionen wie generateImage, save, print etc. von deiner Vorlage übernehmen) ...
         // Hier folgt die generateImage Funktion wie in deinem Original...
         
