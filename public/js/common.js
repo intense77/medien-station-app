@@ -257,6 +257,21 @@
             }, false);
         });
 
+        // --- 11. TTS WARM-UP (Android "Cold Start" Bugfix) ---
+        if ('speechSynthesis' in window) {
+            // Lädt die Stimmen-Liste im Hintergrund vorab in den Speicher
+            window.speechSynthesis.getVoices();
+            
+            // Beim allerersten Antippen des Bildschirms einen stummen Text vorlesen, 
+            // um die Android Sprach-Engine unsichtbar aufzuwecken!
+            const warmUpTTS = () => {
+                const u = new SpeechSynthesisUtterance('');
+                u.volume = 0;
+                window.speechSynthesis.speak(u);
+            };
+            document.addEventListener('pointerdown', warmUpTTS, { once: true });
+        }
+
         // --- 6. Service Worker Registration (PWA) ---
         if ('serviceWorker' in navigator) {
             const swPath = isSubApp ? '../sw.js' : 'sw.js';
