@@ -83,7 +83,7 @@
         }
     </style>
 </head>
-<body class="p-6 box-border relative">
+<body class="p-3 md:p-4 lg:p-6 box-border relative">
 
     <!-- Web Splash Screen (Muss GANZ OBEN stehen für Rendering-Priorität) -->
     <div id="web-splash" class="fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center transition-opacity duration-700" style="display: flex; transform: translateZ(0);">
@@ -96,10 +96,10 @@
         </div>
     </div>
 
-    <div id="main-grid" class="grid-cols-2 sm:grid-cols-4 md:grid-cols-12 md:grid-rows-11 gap-3 max-w-7xl mx-auto min-h-full w-full pb-8 md:pb-0" style="display: none;">
+    <div id="main-grid" class="grid-cols-2 sm:grid-cols-4 md:grid-cols-12 md:grid-rows-11 gap-2 md:gap-3 max-w-7xl mx-auto h-full w-full pb-8 md:pb-0" style="display: none;">
         
         <!-- Mission Header (3 Rows) -->
-        <div class="col-span-2 sm:col-span-4 md:col-span-12 md:row-span-3 bg-slate-800 rounded-3xl p-4 md:p-6 flex flex-col md:flex-row justify-between items-center shadow-lg border border-slate-700 relative overflow-hidden group min-h-[160px] gap-6 text-center md:text-left">
+        <div class="col-span-2 sm:col-span-4 md:col-span-12 md:row-span-3 bg-slate-800 rounded-3xl p-4 md:p-6 flex flex-col md:flex-row justify-between items-center shadow-lg border border-slate-700 relative overflow-hidden group min-h-[120px] lg:min-h-[160px] gap-4 md:gap-6 text-center md:text-left">
             <div class="absolute -right-10 -top-10 w-32 h-32 md:w-64 md:h-64 bg-yellow-400 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
             
             <!-- Linker Bereich: Mission & Würfel (zweizeilig) -->
@@ -132,44 +132,44 @@
 
         <!-- Row 1 of Apps (4 Rows) -->
         <div onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-rose-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎹</div>
-            <h3 class="text-xl md:text-2xl font-bold">Musik</h3>
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎹</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Musik</h3>
         </div>
         
         <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-red-600/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎙️</div>
-            <h3 class="text-xl md:text-2xl font-bold">Mikro</h3>
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎙️</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Mikro</h3>
         </div>
 
         <div onclick="openApp('apps/gif.html', 'Video Loop')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-sky-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">📹</div>
-            <h3 class="text-xl md:text-2xl font-bold">Video</h3>
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">📹</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Video</h3>
         </div>
         
         <div onclick="openApp('apps/magic.html', 'Zauber Selfie')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-6 transition-all duration-300">✨</div>
-            <h3 class="text-xl md:text-2xl font-bold">Zauber Selfie</h3>
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-6 transition-all duration-300">✨</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Zauber Selfie</h3>
         </div>
 
         <!-- Row 2 of Apps (4 Rows) -->
         <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md font-mono group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">👾</div>
-            <h3 class="text-xl md:text-2xl font-bold">Pixel</h3>
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md font-mono group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">👾</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Pixel</h3>
         </div>
 
         <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-4xl md:text-5xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">📰</div>
-            <h3 class="text-xl md:text-2xl font-bold">Nachrichten</h3>
+            <div class="text-4xl md:text-5xl lg:text-6xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">📰</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Nachrichten</h3>
         </div>
 
         <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:-rotate-6 transition-all duration-300">📸</div>
-            <h3 class="text-xl md:text-2xl font-bold text-white">Comic</h3>
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-rotate-6 transition-all duration-300">📸</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-white">Comic</h3>
         </div>
 
         <div onclick="window.toggleInfo()" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
-            <div class="text-5xl md:text-7xl mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">💡</div>
-            <h3 class="text-xl md:text-2xl font-bold text-slate-200">Infos</h3>
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">💡</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-200">Infos</h3>
         </div>
     </div>
 
@@ -247,6 +247,7 @@
                 <button onclick="location.reload()" class="bg-blue-600 text-white font-bold py-4 rounded-xl">🔄 Neu laden</button>
                 <button onclick="closeAdmin()" class="bg-slate-600 text-white font-bold py-4 rounded-xl">Zurück</button>
             </div>
+            <div class="mt-6 text-center text-slate-500 font-mono text-sm">App Version: 7.2.5</div>
         </div>
     </div>
 

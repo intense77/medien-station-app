@@ -136,6 +136,8 @@
                 if (p.isCountingDown) {
                     p.isCountingDown = false;
                     document.getElementById('countdown-overlay').classList.add('hidden');
+                    document.getElementById(`icon-rec-${i}`).classList.add('hidden');
+                    document.getElementById(`pad-${i}`).classList.remove('pulse-rec');
                 }
             });
 
@@ -184,6 +186,11 @@
             overlay.classList.remove('hidden');
             let count = 3;
             
+            // Direkt visuelles Feedback geben, dass dieses Pad ausgewählt wurde
+            const el = document.getElementById(`pad-${i}`);
+            el.classList.add('pulse-rec');
+            document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
+
             if(window.playSound) window.playSound('click');
             const timer = setInterval(() => {
                 // Falls der Countdown durch STOP oder einen Modus-Wechsel abgebrochen wurde
@@ -246,6 +253,9 @@
                 el.classList.add('pulse-rec');
                 document.getElementById(`icon-rec-${i}`).classList.remove('hidden');
             } catch (err) {
+                pad.isRecording = false;
+                el.classList.remove('pulse-rec');
+                document.getElementById(`icon-rec-${i}`).classList.add('hidden');
                 if(window.showError) window.showError("Dein Mikrofon klemmt! Bitte sag einem Erwachsenen Bescheid.", "🎤");
             }
         }
@@ -287,6 +297,8 @@
                 if (p.isCountingDown) {
                     p.isCountingDown = false;
                     document.getElementById('countdown-overlay').classList.add('hidden');
+                    document.getElementById(`icon-rec-${i}`).classList.add('hidden');
+                    document.getElementById(`pad-${i}`).classList.remove('pulse-rec');
                 }
                 if (p.sourceNode) p.sourceNode.stop();
                 document.getElementById(`pad-${i}`).style.backgroundColor = "#1e293b";
