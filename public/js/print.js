@@ -60,6 +60,61 @@ function getOptimizedPrintData(dataUrl, useContain = false) {
     });
 }
 
+// Helper: Zeigt einen kindgerechten Hinweis vor dem Druck-Dialog
+function showPrintHint() {
+    return new Promise(resolve => {
+        let modal = document.getElementById('print-hint-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'print-hint-modal';
+            modal.className = 'hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm items-center justify-center p-4 transition-opacity duration-300 opacity-0';
+            modal.innerHTML = `
+                <div class="bg-slate-800 border-4 border-blue-500 rounded-[3rem] max-w-md w-full p-8 shadow-2xl text-center transform scale-90 transition-transform duration-300" id="print-hint-content">
+                    <div class="text-6xl md:text-8xl mb-4 animate-bounce">🖨️</div>
+                    <h2 class="text-2xl md:text-4xl font-black text-white mb-4">Gleich geht's los!</h2>
+                    <p class="text-lg md:text-xl text-slate-300 mb-8 font-bold">Wähle im nächsten Menü die <br><span class="text-blue-400">Canon Print App</span> aus.</p>
+                    <button id="print-hint-ok" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-blue-800 active:border-b-0 active:translate-y-2 pointer-events-auto flex items-center justify-center gap-2">
+                        <span class="text-2xl">👍</span> ALLES KLAR
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        const okBtn = document.getElementById('print-hint-ok');
+        const handler = () => {
+            if(window.playSound) window.playSound('click');
+            modal.classList.add('opacity-0');
+            const content = document.getElementById('print-hint-content');
+            if(content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                resolve();
+            }, 300);
+            okBtn.removeEventListener('click', handler);
+        };
+        okBtn.addEventListener('click', handler);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        if (window.speakText) window.speakText("Gleich geht es los. Wähle im nächsten Menü die Canon Print App aus.");
+
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            const content = document.getElementById('print-hint-content');
+            if (content) {
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            }
+        }, 10);
+    });
+}
+
 /**
  * Zentrale Druckfunktion: "Smart Share Loop"
  * Strategie: Wir nutzen das Plugin (kann große Dateien) und probieren Canon-Apps durch.
@@ -74,6 +129,9 @@ window.printImage = async function(dataUrl, jobName, btn) {
     }
 
     try {
+        // Zeige den kindgerechten Hinweis VOR dem System-Dialog
+        await showPrintHint();
+
         // Prüfen, ob wir "Contain" nutzen sollen (für Pixel Art und Comic)
         // Damit wird nichts abgeschnitten, auch wenn das Format nicht 3:2 ist.
         const useContain = jobName && (jobName.includes('Pixel') || jobName.includes('Comic'));
