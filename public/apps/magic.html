@@ -149,7 +149,7 @@
         bgs.dino.src = '../assets/dino.jpg'; bgs.stadion.src = '../assets/stadion.jpg';
 
         const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`});
-        selfieSegmentation.setOptions({ modelSelection: 1 });
+        selfieSegmentation.setOptions({ modelSelection: 0 }); // 0 = General Model (höhere Qualität), 1 = Landscape Model (schneller)
         selfieSegmentation.onResults(onResults);
 
         // --- ROBUSTE KAMERA ---
@@ -196,7 +196,12 @@
             ctx.save();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (currentFacingMode === 'user') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+            
+            // Feathering-Effekt: Maske leicht weichzeichnen, um harte Pixelränder und Artefakte zu glätten
+            ctx.filter = 'blur(4px)';
             ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height);
+            ctx.filter = 'none';
+            
             ctx.globalCompositeOperation = 'source-in';
             ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
             ctx.globalCompositeOperation = 'destination-atop';
