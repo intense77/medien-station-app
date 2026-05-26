@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v208';
+const CACHE_NAME = 'medien-station-v209';
 const ASSETS = [
     './',
     './index.html',
@@ -34,11 +34,23 @@ const ASSETS = [
 ];
 
 // Installation: Dateien cachen
+// Installation: Dateien cachen (Mit Cache-Busting, um Coolify/Nginx HTTP Caches zu durchbrechen!)
 self.addEventListener('install', (event) => {
     self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
     event.waitUntil(
-        caches.open(CACHE_NAME)
-        .then((cache) => cache.addAll(ASSETS))
+        caches.open(CACHE_NAME).then((cache) => {
+            return Promise.all(
+                ASSETS.map((url) => {
+                    // 'no-cache' zwingt den Browser, die echte Datei vom Server zu holen!
+                    return fetch(new Request(url, { cache: 'no-cache' }))
+                        .then((response) => {
+                            if (!response.ok) throw new Error('Fetch failed: ' + url);
+                            return cache.put(url, response);
+                        })
+                        .catch(err => console.warn('Konnte nicht gecached werden:', url, err));
+                })
+            );
+        })
     );
 });
 

@@ -269,9 +269,12 @@
                 }
             });
 
-            // Normale Registrierung (Der "Network-First" Service Worker kümmert sich ab jetzt sicher um Updates)
+            // Normale Registrierung (Der Service Worker kümmert sich ab jetzt sicher um Updates)
             navigator.serviceWorker.register(swPath)
-                .then(() => console.log('✅ Service Worker registriert'))
+                .then((registration) => {
+                    console.log('✅ Service Worker registriert');
+                    registration.update(); // Zwingt den Browser im Hintergrund nach Updates zu suchen!
+                })
                 .catch(err => console.warn('❌ Service Worker Fehler:', err));
         }
 
