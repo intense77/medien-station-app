@@ -445,8 +445,8 @@
             icon.classList.replace('bg-white', 'bg-red-500'); 
             timer.classList.replace('text-white', 'text-slate-600');
             
-            playBtn.classList.remove('invisible'); 
-            delBtn.classList.remove('invisible'); 
+            document.getElementById(`action-box-${id}`).classList.remove('hidden');
+            document.getElementById(`action-box-${id}`).classList.add('flex');
             window.playSound('success');
             
             // Text wieder normal anzeigen
@@ -541,8 +541,8 @@
             if(t.mediaObj) { t.mediaObj.stop(); t.mediaObj.release(); t.mediaObj = null; }
             t.blob = null;
             t.hasData = false; 
-            document.getElementById(`btn-play-${id}`).classList.add('invisible'); 
-            document.getElementById(`btn-del-${id}`).classList.add('invisible'); 
+            document.getElementById(`action-box-${id}`).classList.add('hidden');
+            document.getElementById(`action-box-${id}`).classList.remove('flex');
             document.getElementById(`timer-${id}`).innerText = "00:00"; 
         }
         
