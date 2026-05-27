@@ -250,7 +250,7 @@
             }
 
             // WebRTC Mikrofon BEREITS JETZT anfragen, vor dem Countdown!
-            if (!window.cordova && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 try {
                     t.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     if (webAudioCtx && webAudioCtx.state === 'suspended') await webAudioCtx.resume(); // FIREFOX FIX

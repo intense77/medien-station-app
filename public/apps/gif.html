@@ -113,8 +113,7 @@
                 </div>
                 
                 <div id="action-buttons" class="hidden gap-4 w-full justify-center">
-                    <button onclick="window.resetApp()" class="flex-1 max-w-[200px] bg-yellow-500 text-black font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-yellow-700 active:translate-y-1 active:border-b-0">🔄 NOCHMAL</button>
-                    <button onclick="window.saveLoopVideo()" class="flex-1 max-w-[200px] bg-green-600 text-white font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-green-800 active:translate-y-1 active:border-b-0">💾 SPEICHERN</button>
+                    <button onclick="window.resetApp()" class="flex-1 max-w-sm bg-yellow-500 text-black font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-yellow-700 active:translate-y-1 active:border-b-0">🔄 NOCHMAL</button>
                 </div>
             </div>
         </div>
@@ -285,12 +284,6 @@
             });
             document.getElementById('sp-' + ms).classList.add('bg-sky-600', 'border-2', 'border-white');
             play();
-        };
-
-        window.saveLoopVideo = function() {
-            if(window.playSound) window.playSound('success');
-            // Hier kommt deine Speicherlogik (Blob/MediaRecorder) rein
-            alert("Video wird vorbereitet...");
         };
 
         window.resetApp = () => {
