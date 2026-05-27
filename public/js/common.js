@@ -9,7 +9,6 @@
     const SplashScreen = (window.Capacitor && window.Capacitor.Plugins) ? window.Capacitor.Plugins.SplashScreen : null;
     const IDLE_WARNING_TIME = 5 * 60 * 1000; // 5 Minuten Inaktivität bis Warnung
     const IDLE_RESET_TIME = 15 * 1000; // 15 Sekunden Zeit zum Reagieren (dann wird aufgeräumt)
-    let ttsVoices = [];
     let idleWarningTimer, idleResetTimer;
 
     // Hilfsfunktion: Sind wir in einer App oder auf dem Hub?
@@ -249,21 +248,10 @@
             }, false);
         });
 
-        // --- 11. TTS WARM-UP (Android "Cold Start" Bugfix) ---
+        // --- 11. TTS WARM-UP ---
         if ('speechSynthesis' in window) {
-            // Lädt die Stimmen-Liste und lauscht auf Änderungen (asynchron!)
-            const loadVoices = () => {
-                ttsVoices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('de'));
-                if (ttsVoices.length > 0) {
-                    console.log('Deutsche Stimmen geladen:', ttsVoices.map(v => v.name));
-                    // Event-Listener kann entfernt werden, wenn Stimmen da sind
-                    window.speechSynthesis.onvoiceschanged = null;
-                }
-            };
-            loadVoices();
-            if (window.speechSynthesis.onvoiceschanged !== undefined) {
-                window.speechSynthesis.onvoiceschanged = loadVoices;
-            }
+            // Einmaliger Aufruf weckt die Engine im Hintergrund auf
+            window.speechSynthesis.getVoices();
         }
 
         // --- 6. Service Worker Registration (PWA) ---
@@ -331,31 +319,19 @@
         window.resetIdleTimer();
         
         if ('speechSynthesis' in window) {
-            // Stoppt laufende und anstehende Ansagen
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-            }
+            window.speechSynthesis.cancel();
             
             // Emojis filtern, damit sie nicht laut vorgelesen werden ("Lächelndes Gesicht mit Schweißperle...")
             const cleanText = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
             
-            // Kurze Pause, um "cancel" Zeit zu geben und die Engine zu stabilisieren
             setTimeout(() => {
                 try {
+                    // Globale Referenz, damit der Garbage Collector die Sprachausgabe nicht abbricht
                     window.currentUtterance = new SpeechSynthesisUtterance(cleanText);
-                    
-                    // Versuche, eine explizite deutsche Stimme zu finden (Google ist oft gut)
-                    const germanVoice = ttsVoices.find(v => v.lang === 'de-DE' && v.name.includes('Google')) || ttsVoices.find(v => v.lang === 'de-DE');
-                    if (germanVoice) {
-                        window.currentUtterance.voice = germanVoice;
-                    }
                     
                     window.currentUtterance.lang = 'de-DE';
                     window.currentUtterance.rate = 0.9;
                     window.currentUtterance.pitch = 1.2;
-                    
-                    window.currentUtterance.onend = () => { console.log("TTS Beendet"); };
-                    window.currentUtterance.onerror = (e) => { console.warn("TTS Fehler:", e); };
                     
                     window.speechSynthesis.speak(window.currentUtterance);
                 } catch (err) {
