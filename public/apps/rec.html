@@ -335,19 +335,8 @@
                 }
 
                 // --- AUFNAHME START ---
-                if (window.cordova && typeof Media !== 'undefined') {
-                    // 1. NATIVE APP (Cordova)
-                    try {
-                        if (t.mediaObj) { t.mediaObj.release(); }
-                        const fileName = `track${id}.aac`;
-                        const path = (cordova.file && cordova.file.dataDirectory) ? cordova.file.dataDirectory + fileName : fileName;
-                        t.src = path;
-                        t.mediaObj = new Media(path, () => console.log("Rec Success"), (e) => console.error("Rec Error", e));
-                        t.mediaObj.startRecord();
-                        mediaRec = t.mediaObj; 
-                    } catch (e) { if(window.showError) window.showError("Aufnahme klappt gerade nicht!", "🎤"); return; }
-                } else if (t.stream && webAudioCtx) {
-                    // 2. WEB BROWSER (Mit dem vorab angefragten Stream)
+                if (t.stream && webAudioCtx && typeof MediaRecorder !== 'undefined') {
+                    // 1. WEB BROWSER / MODERN WEBVIEW (Mit dem vorab angefragten Stream)
                     try {
                         t.mediaRecorder = new MediaRecorder(t.stream);
                         t.chunks = [];
@@ -374,6 +363,17 @@
                         stopRecordingActual(id); // Abbruch
                         return; // WICHTIG: Verhindert, dass der Zähler als Zombie weiterläuft!
                     }
+                } else if (window.cordova && typeof Media !== 'undefined') {
+                    // 2. NATIVE APP FALLBACK (Cordova)
+                    try {
+                        if (t.mediaObj) { t.mediaObj.release(); }
+                        const fileName = `track${id}.aac`;
+                        const path = (cordova.file && cordova.file.dataDirectory) ? cordova.file.dataDirectory + fileName : fileName;
+                        t.src = path;
+                        t.mediaObj = new Media(path, () => console.log("Rec Success"), (e) => console.error("Rec Error", e));
+                        t.mediaObj.startRecord();
+                        mediaRec = t.mediaObj; 
+                    } catch (e) { if(window.showError) window.showError("Aufnahme klappt gerade nicht!", "🎤"); return; }
                 } else {
                     if(window.showError) window.showError("Ich finde kein Mikrofon! Bitte hilf mir suchen.", "🕵️");
                     stopRecordingActual(id);
@@ -412,11 +412,7 @@
                 return; // WICHTIG: Hier beenden, damit keine Buttons erscheinen!
             }
 
-            if (window.cordova && t.mediaObj) {
-                // Native Stop
-                try { t.mediaObj.stopRecord(); t.mediaObj.release(); t.mediaObj = null; } catch(e){}
-                releaseMic(t);
-            } else if (t.mediaRecorder) {
+            if (t.mediaRecorder) {
                 // Web Stop
                 t.mediaRecorder.onstop = () => {
                     releaseMic(t); // WICHTIG: Erst nach der Datei das Mikro freigeben!
@@ -432,6 +428,10 @@
                 } else {
                     releaseMic(t);
                 }
+            } else if (window.cordova && t.mediaObj) {
+                // Native Stop
+                try { t.mediaObj.stopRecord(); t.mediaObj.release(); t.mediaObj = null; } catch(e){}
+                releaseMic(t);
             } else {
                 releaseMic(t);
             }
@@ -515,8 +515,15 @@
                 }, (e) => { console.error("Decode Error", e); if(window.showError) window.showError("Da hat etwas mit dem Ton nicht geklappt!", "🎶"); });
             };
 
-            if (window.cordova && typeof Media !== 'undefined') {
-                // 1. NATIVE APP: Datei lesen -> ArrayBuffer -> Web Audio
+            if (t.blob) {
+                // 1. WEB BROWSER / MODERN WEBVIEW: Blob -> ArrayBuffer -> Web Audio
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    playBuffer(reader.result);
+                };
+                reader.readAsArrayBuffer(t.blob);
+            } else if (window.cordova && typeof Media !== 'undefined' && t.src) {
+                // 2. NATIVE APP FALLBACK: Datei lesen -> ArrayBuffer -> Web Audio
                 window.resolveLocalFileSystemURL(t.src, function(fileEntry) {
                     fileEntry.file(function(file) {
                         var reader = new FileReader();
@@ -526,21 +533,13 @@
                         reader.readAsArrayBuffer(file);
                     });
                 }, function(e) { console.error("File Error", e); if(window.showError) window.showError("Die Aufnahme ist leider verschwunden!", "🕵️"); });
-            } else {
-                // 2. WEB BROWSER: Blob -> ArrayBuffer -> Web Audio
-                if (t.blob) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        playBuffer(reader.result);
-                    };
-                    reader.readAsArrayBuffer(t.blob);
-                }
             }
         }
         function deleteTrack(id) { 
             window.playSound('click'); 
             const t = tracks[id]; 
             if(t.mediaObj) { t.mediaObj.stop(); t.mediaObj.release(); t.mediaObj = null; }
+            t.blob = null;
             t.hasData = false; 
             document.getElementById(`btn-play-${id}`).classList.add('invisible'); 
             document.getElementById(`btn-del-${id}`).classList.add('invisible'); 
