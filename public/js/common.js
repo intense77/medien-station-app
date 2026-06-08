@@ -266,13 +266,8 @@
                 }
             });
 
-            // --- NEU: Listener für Ladebalken (Service Worker Nachrichten) ---
-            navigator.serviceWorker.addEventListener('message', (event) => {
-                const data = event.data;
-                
-                if (!['CACHE_START', 'CACHE_PROGRESS', 'CACHE_DONE', 'CACHE_ERROR'].includes(data.type)) return;
-
-                // Dynamisch das Overlay erzeugen, falls es noch nicht da ist
+            // --- NEU: Helper-Funktion für Ladebalken ---
+            function getUpdateOverlay() {
                 let overlay = document.getElementById('update-progress-overlay');
                 if (!overlay) {
                     overlay = document.createElement('div');
@@ -281,7 +276,7 @@
                     overlay.innerHTML = `
                         <div class="flex justify-between items-center mb-2">
                             <span id="update-progress-title" class="text-white font-bold text-sm md:text-base">🚀 Update wird geladen...</span>
-                            <span id="update-progress-text" class="text-blue-400 font-mono text-sm font-bold">0 / 0</span>
+                            <span id="update-progress-text" class="text-blue-400 font-mono text-sm font-bold">Start...</span>
                         </div>
                         <div class="w-full bg-slate-900 rounded-full h-4 md:h-6 overflow-hidden border border-slate-700">
                             <div id="update-progress-bar" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -289,50 +284,67 @@
                     `;
                     document.body.appendChild(overlay);
                 }
+                return {
+                    overlay: overlay,
+                    bar: document.getElementById('update-progress-bar'),
+                    txt: document.getElementById('update-progress-text'),
+                    title: document.getElementById('update-progress-title')
+                };
+            }
 
-                const bar = document.getElementById('update-progress-bar');
-                const txt = document.getElementById('update-progress-text');
-                const title = document.getElementById('update-progress-title');
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                const data = event.data;
+                if (!['CACHE_START', 'CACHE_PROGRESS', 'CACHE_DONE', 'CACHE_ERROR'].includes(data.type)) return;
+
+                const ui = getUpdateOverlay();
 
                 if (data.type === 'CACHE_START' || data.type === 'CACHE_PROGRESS') {
-                    overlay.classList.remove('hidden');
-                    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                    ui.overlay.classList.remove('hidden');
+                    setTimeout(() => ui.overlay.classList.remove('opacity-0'), 10);
                     
                     if (data.type === 'CACHE_PROGRESS') {
                         const percent = Math.round((data.count / data.total) * 100);
-                        bar.style.width = percent + '%';
-                        txt.innerText = `${data.count} / ${data.total}`;
+                        ui.bar.style.width = percent + '%';
+                        ui.txt.innerText = `${data.count} / ${data.total}`;
                     }
                 } else if (data.type === 'CACHE_DONE') {
-                    title.innerText = "✅ Update erfolgreich!";
-                    txt.innerText = "100%";
-                    bar.style.width = '100%';
-                    bar.classList.replace('bg-blue-500', 'bg-green-500');
-                    overlay.classList.replace('border-blue-500', 'border-green-500');
-                    txt.classList.replace('text-blue-400', 'text-green-400');
+                    ui.title.innerText = "✅ Update erfolgreich!";
+                    ui.txt.innerText = "100%";
+                    ui.bar.style.width = '100%';
+                    ui.bar.classList.replace('bg-blue-500', 'bg-green-500');
+                    ui.overlay.classList.replace('border-blue-500', 'border-green-500');
+                    ui.txt.classList.replace('text-blue-400', 'text-green-400');
                     
                     // Normalerweise greift hier ohnehin kurz danach "window.location.reload()" aus dem controllerchange
                     setTimeout(() => {
-                        overlay.classList.add('opacity-0');
-                        setTimeout(() => overlay.classList.add('hidden'), 300);
+                        ui.overlay.classList.add('opacity-0');
+                        setTimeout(() => ui.overlay.classList.add('hidden'), 300);
                     }, 4000);
                 } else if (data.type === 'CACHE_ERROR') {
-                    title.innerText = "❌ Update fehlgeschlagen (Offline?)";
-                    bar.classList.replace('bg-blue-500', 'bg-red-500');
-                    overlay.classList.replace('border-blue-500', 'border-red-500');
-                    txt.classList.replace('text-blue-400', 'text-red-400');
+                    ui.title.innerText = "❌ Fehler (Offline?)";
+                    ui.bar.classList.replace('bg-blue-500', 'bg-red-500');
+                    ui.overlay.classList.replace('border-blue-500', 'border-red-500');
+                    ui.txt.classList.replace('text-blue-400', 'text-red-400');
                     
                     setTimeout(() => {
-                        overlay.classList.add('opacity-0');
-                        setTimeout(() => overlay.classList.add('hidden'), 300);
+                        ui.overlay.classList.add('opacity-0');
+                        setTimeout(() => ui.overlay.classList.add('hidden'), 300);
                     }, 5000);
                 }
             });
 
-            // Normale Registrierung (Der Service Worker kümmert sich ab jetzt sicher um Updates)
-            navigator.serviceWorker.register(swPath)
+            // updateViaCache: 'none' MUSS gesetzt sein, sonst cacht Nginx den Service Worker selbst ewig!
+            navigator.serviceWorker.register(swPath, { scope: isSubApp ? '../' : './', updateViaCache: 'none' })
                 .then((registration) => {
                     console.log('✅ Service Worker registriert');
+                    
+                    // Fallback: Zeige Overlay SOFORT, sobald der Browser eine neue Version entdeckt hat
+                    registration.addEventListener('updatefound', () => {
+                        const ui = getUpdateOverlay();
+                        ui.overlay.classList.remove('hidden');
+                        setTimeout(() => ui.overlay.classList.remove('opacity-0'), 10);
+                    });
+                    
                     registration.update(); // Zwingt den Browser im Hintergrund nach Updates zu suchen!
                 })
                 .catch(err => console.warn('❌ Service Worker Fehler:', err));

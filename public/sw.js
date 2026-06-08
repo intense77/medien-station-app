@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v228';
+const CACHE_NAME = 'medien-station-v229';
 const ASSETS = [
     './',
     './index.html',
@@ -91,13 +91,17 @@ self.addEventListener('install', (event) => {
             
             for (const url of ASSETS) {
                 try {
-                    const req = new Request(url, { cache: 'reload' });
-                    const response = await fetch(req);
+                    // SICHERES CACHE-BUSTING: Verhindert TypeError-Abstürze in Android WebViews
+                    // im Gegensatz zu "{ cache: 'reload' }" und umgeht Nginx-Caches komplett!
+                    const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+                    const response = await fetch(fetchUrl);
                     if (response.ok) {
-                        await cache.put(req, response.clone());
+                        // Wichtig: Unter der *Original-URL* im Cache ablegen, nicht mit ?cb=
+                        await cache.put(new Request(url), response.clone());
                         // Falls Coolify/Nginx eine URL weiterleitet (z.B. Dateiendung ändert)
                         if (response.redirected) {
-                            await cache.put(new Request(response.url), response.clone());
+                            const cleanRedirectUrl = response.url.split('?cb=')[0].split('&cb=')[0];
+                            await cache.put(new Request(cleanRedirectUrl), response.clone());
                         }
                     } else {
                         console.warn('HTTP Fehler beim Cachen (wird ignoriert):', url, response.status);
