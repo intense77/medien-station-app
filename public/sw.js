@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v226';
+const CACHE_NAME = 'medien-station-v227';
 const ASSETS = [
     './',
     './index.html',
@@ -82,23 +82,32 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
     self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return Promise.all(ASSETS.map(async (url) => {
+        caches.open(CACHE_NAME).then(async (cache) => {
+            // WICHTIG: Sequentieller Download!
+            // Verhindert, dass der Webserver (Nginx/Coolify) durch 60+ gleichzeitige Anfragen
+            // überlastet wird und Dateien kommentarlos mit 429 oder 503 abweist.
+            for (const url of ASSETS) {
                 try {
-                    // 'reload' zwingt den Browser strikt ins Netzwerk, um HTTP-Caches zu umgehen
-                    const response = await fetch(new Request(url, { cache: 'reload' }));
+                    const req = new Request(url, { cache: 'reload' });
+                    const response = await fetch(req);
                     if (response.ok) {
-                        await cache.put(url, response);
+                        await cache.put(req, response.clone());
+                        // Falls Coolify/Nginx eine URL weiterleitet (z.B. Dateiendung ändert)
+                        if (response.redirected) {
+                            await cache.put(new Request(response.url), response.clone());
+                        }
                     } else {
-                        console.warn('Datei nicht gefunden (wird ignoriert):', url);
+                        console.warn('HTTP Fehler beim Cachen (wird ignoriert):', url, response.status);
+                        // Bei Server-Überlastung brechen wir hart ab, damit kein "Schweizer Käse"-Cache entsteht
+                        if (response.status === 429 || response.status >= 500) {
+                            throw new Error('Server überlastet bei ' + url);
+                        }
                     }
                 } catch (err) {
                     console.error('Netzwerkfehler beim Cachen von:', url, err);
-                    // WICHTIG: Installation abbrechen, wenn eine Datei wg. Netzwerkfehler fehlt!
-                    // So wird verhindert, dass ein unvollständiger Cache den alten überschreibt.
                     throw err; 
                 }
-            }));
+            }
         })
     );
 });
