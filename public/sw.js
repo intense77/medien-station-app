@@ -1,9 +1,10 @@
-const CACHE_NAME = 'medien-station-v222';
+const CACHE_NAME = 'medien-station-v223';
 const ASSETS = [
     './',
     './index.html',
     './css/style.css',
     './js/common.js',
+    './js/tailwind.js',
     './js/audio.js',
     './js/print.js',
     './js/selfie_segmentation.js',
@@ -45,25 +46,20 @@ self.addEventListener('install', (event) => {
     self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            let successCount = 0;
-            let offlineCount = 0;
             return Promise.all(ASSETS.map(async (url) => {
                 try {
                     // 'reload' zwingt den Browser strikt ins Netzwerk, um HTTP-Caches zu umgehen
                     const response = await fetch(new Request(url, { cache: 'reload' }));
                     if (response.ok) {
                         await cache.put(url, response);
-                        successCount++;
                     } else {
                         console.warn('Datei nicht gefunden (wird ignoriert):', url);
                     }
                 } catch (err) {
-                    offlineCount++;
-                }
-            })).then(() => {
-                // Wenn keine Datei geladen wurde und Netzwerkfehler auftraten -> Abbruch!
-                if (offlineCount > 0 && successCount === 0) {
-                    throw new Error('Gerät ist offline. Update abgebrochen, alter Cache bleibt erhalten.');
+                    console.error('Netzwerkfehler beim Cachen von:', url, err);
+                    // WICHTIG: Installation abbrechen, wenn eine Datei wg. Netzwerkfehler fehlt!
+                    // So wird verhindert, dass ein unvollständiger Cache den alten überschreibt.
+                    throw err; 
                 }
             });
         })
@@ -102,6 +98,8 @@ self.addEventListener('fetch', (event) => {
                     cache.put(event.request, networkResponse.clone());
                     return networkResponse;
                 });
+            }).catch(() => {
+                console.warn('Offline: Konnte nicht geladen werden', event.request.url);
             });
         })
     );
