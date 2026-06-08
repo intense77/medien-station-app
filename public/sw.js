@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v227';
+const CACHE_NAME = 'medien-station-v228';
 const ASSETS = [
     './',
     './index.html',
@@ -84,8 +84,11 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(async (cache) => {
             // WICHTIG: Sequentieller Download!
-            // Verhindert, dass der Webserver (Nginx/Coolify) durch 60+ gleichzeitige Anfragen
-            // überlastet wird und Dateien kommentarlos mit 429 oder 503 abweist.
+            const total = ASSETS.length;
+            let count = 0;
+            
+            await broadcastProgress({ type: 'CACHE_START', total });
+            
             for (const url of ASSETS) {
                 try {
                     const req = new Request(url, { cache: 'reload' });
@@ -105,9 +108,14 @@ self.addEventListener('install', (event) => {
                     }
                 } catch (err) {
                     console.error('Netzwerkfehler beim Cachen von:', url, err);
+                    await broadcastProgress({ type: 'CACHE_ERROR', message: err.message });
                     throw err; 
                 }
+                count++;
+                await broadcastProgress({ type: 'CACHE_PROGRESS', count, total, url });
             }
+            
+            await broadcastProgress({ type: 'CACHE_DONE' });
         })
     );
 });

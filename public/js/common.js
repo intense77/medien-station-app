@@ -266,6 +266,69 @@
                 }
             });
 
+            // --- NEU: Listener für Ladebalken (Service Worker Nachrichten) ---
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                const data = event.data;
+                
+                if (!['CACHE_START', 'CACHE_PROGRESS', 'CACHE_DONE', 'CACHE_ERROR'].includes(data.type)) return;
+
+                // Dynamisch das Overlay erzeugen, falls es noch nicht da ist
+                let overlay = document.getElementById('update-progress-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'update-progress-overlay';
+                    overlay.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-800 border-2 border-blue-500 rounded-2xl p-4 shadow-2xl z-[999999] w-[90%] max-w-md transition-opacity duration-300 opacity-0 hidden';
+                    overlay.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <span id="update-progress-title" class="text-white font-bold text-sm md:text-base">🚀 Update wird geladen...</span>
+                            <span id="update-progress-text" class="text-blue-400 font-mono text-sm font-bold">0 / 0</span>
+                        </div>
+                        <div class="w-full bg-slate-900 rounded-full h-4 md:h-6 overflow-hidden border border-slate-700">
+                            <div id="update-progress-bar" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                }
+
+                const bar = document.getElementById('update-progress-bar');
+                const txt = document.getElementById('update-progress-text');
+                const title = document.getElementById('update-progress-title');
+
+                if (data.type === 'CACHE_START' || data.type === 'CACHE_PROGRESS') {
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                    
+                    if (data.type === 'CACHE_PROGRESS') {
+                        const percent = Math.round((data.count / data.total) * 100);
+                        bar.style.width = percent + '%';
+                        txt.innerText = `${data.count} / ${data.total}`;
+                    }
+                } else if (data.type === 'CACHE_DONE') {
+                    title.innerText = "✅ Update erfolgreich!";
+                    txt.innerText = "100%";
+                    bar.style.width = '100%';
+                    bar.classList.replace('bg-blue-500', 'bg-green-500');
+                    overlay.classList.replace('border-blue-500', 'border-green-500');
+                    txt.classList.replace('text-blue-400', 'text-green-400');
+                    
+                    // Normalerweise greift hier ohnehin kurz danach "window.location.reload()" aus dem controllerchange
+                    setTimeout(() => {
+                        overlay.classList.add('opacity-0');
+                        setTimeout(() => overlay.classList.add('hidden'), 300);
+                    }, 4000);
+                } else if (data.type === 'CACHE_ERROR') {
+                    title.innerText = "❌ Update fehlgeschlagen (Offline?)";
+                    bar.classList.replace('bg-blue-500', 'bg-red-500');
+                    overlay.classList.replace('border-blue-500', 'border-red-500');
+                    txt.classList.replace('text-blue-400', 'text-red-400');
+                    
+                    setTimeout(() => {
+                        overlay.classList.add('opacity-0');
+                        setTimeout(() => overlay.classList.add('hidden'), 300);
+                    }, 5000);
+                }
+            });
+
             // Normale Registrierung (Der Service Worker kümmert sich ab jetzt sicher um Updates)
             navigator.serviceWorker.register(swPath)
                 .then((registration) => {
