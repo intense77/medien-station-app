@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v225';
+const CACHE_NAME = 'medien-station-v226';
 const ASSETS = [
     './',
     './index.html',
@@ -37,7 +37,44 @@ const ASSETS = [
     './apps/gif.html',
     './apps/magic.html',
     './apps/pixel.html',
-    './apps/news.html'
+    './apps/news.html',
+    './js/comic.js',
+    './js/sound.js',
+    './js/rec.js',
+    './js/gif.js',
+    './js/magic.js',
+    './js/pixel.js',
+    './js/news.js',
+    './cordova.js',
+    './cordova_plugins.js',
+    './plugins/cordova-plugin-printer/www/printer.js',
+    './plugins/cordova-plugin-x-socialsharing/www/SocialSharing.js',
+    './plugins/es6-promise-plugin/www/promise.js',
+    './plugins/cordova-plugin-file/www/DirectoryEntry.js',
+    './plugins/cordova-plugin-file/www/DirectoryReader.js',
+    './plugins/cordova-plugin-file/www/Entry.js',
+    './plugins/cordova-plugin-file/www/File.js',
+    './plugins/cordova-plugin-file/www/FileEntry.js',
+    './plugins/cordova-plugin-file/www/FileError.js',
+    './plugins/cordova-plugin-file/www/FileReader.js',
+    './plugins/cordova-plugin-file/www/FileSystem.js',
+    './plugins/cordova-plugin-file/www/FileUploadOptions.js',
+    './plugins/cordova-plugin-file/www/FileUploadResult.js',
+    './plugins/cordova-plugin-file/www/FileWriter.js',
+    './plugins/cordova-plugin-file/www/Flags.js',
+    './plugins/cordova-plugin-file/www/LocalFileSystem.js',
+    './plugins/cordova-plugin-media/www/Media.js',
+    './plugins/cordova-plugin-media/www/MediaError.js',
+    './plugins/cordova-plugin-file/www/Metadata.js',
+    './plugins/cordova-plugin-file/www/ProgressEvent.js',
+    './plugins/cordova-plugin-file/www/requestFileSystem.js',
+    './plugins/cordova-plugin-file/www/fileSystems.js',
+    './plugins/cordova-plugin-file/www/browser/isChrome.js',
+    './plugins/cordova-plugin-file/www/fileSystems-roots.js',
+    './plugins/cordova-plugin-file/www/fileSystemPaths.js',
+    './plugins/cordova-plugin-file/www/android/Entry.js',
+    './plugins/cordova-plugin-file/www/android/FileSystem.js',
+    './plugins/cordova-plugin-file/www/resolveLocalFileSystemURI.js'
 ];
 
 // Installation: Dateien cachen
@@ -100,6 +137,7 @@ self.addEventListener('fetch', (event) => {
                 });
             }).catch(() => {
                 console.warn('Offline: Konnte nicht geladen werden', event.request.url);
+                return new Response('Offline, resource missing', { status: 503, statusText: 'Service Unavailable' });
             });
         })
     );
