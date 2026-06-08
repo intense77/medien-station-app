@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v223';
+const CACHE_NAME = 'medien-station-v224';
 const ASSETS = [
     './',
     './index.html',
@@ -61,7 +61,7 @@ self.addEventListener('install', (event) => {
                     // So wird verhindert, dass ein unvollständiger Cache den alten überschreibt.
                     throw err; 
                 }
-            });
+            }));
         })
     );
 });
