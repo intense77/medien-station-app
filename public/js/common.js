@@ -272,15 +272,17 @@
                 if (!overlay) {
                     overlay = document.createElement('div');
                     overlay.id = 'update-progress-overlay';
-                    overlay.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-800 border-2 border-blue-500 rounded-2xl p-4 shadow-2xl z-[999999] w-[90%] max-w-md transition-opacity duration-300 opacity-0 hidden';
+                    // ZENTRIERT statt unten am Rand, damit er nicht abgeschnitten wird!
+                    overlay.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-800 border-4 border-blue-500 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] z-[999999] w-[90%] max-w-md transition-opacity duration-300 opacity-0 hidden flex-col';
                     overlay.innerHTML = `
-                        <div class="flex justify-between items-center mb-2">
-                            <span id="update-progress-title" class="text-white font-bold text-sm md:text-base">🚀 Update wird geladen...</span>
-                            <span id="update-progress-text" class="text-blue-400 font-mono text-sm font-bold">Start...</span>
+                        <div class="flex justify-between items-center mb-4">
+                            <span id="update-progress-title" class="text-white font-black text-lg md:text-2xl">🚀 Update lädt...</span>
+                            <span id="update-progress-text" class="text-blue-400 font-mono text-sm md:text-base font-bold bg-slate-900 px-3 py-1 rounded-lg border border-slate-700">Start...</span>
                         </div>
-                        <div class="w-full bg-slate-900 rounded-full h-4 md:h-6 overflow-hidden border border-slate-700">
+                        <div class="w-full bg-slate-900 rounded-full h-6 md:h-8 overflow-hidden border-2 border-slate-700 shadow-inner">
                             <div id="update-progress-bar" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
                         </div>
+                        <p class="text-slate-400 text-sm mt-5 text-center font-bold leading-tight">Bitte die App geöffnet lassen und kurz warten.</p>
                     `;
                     document.body.appendChild(overlay);
                 }

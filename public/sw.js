@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v229';
+const CACHE_NAME = 'medien-station-v230';
 const ASSETS = [
     './',
     './index.html',
@@ -91,10 +91,22 @@ self.addEventListener('install', (event) => {
             
             for (const url of ASSETS) {
                 try {
-                    // SICHERES CACHE-BUSTING: Verhindert TypeError-Abstürze in Android WebViews
-                    // im Gegensatz zu "{ cache: 'reload' }" und umgeht Nginx-Caches komplett!
-                    const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
-                    const response = await fetch(fetchUrl);
+                    let response;
+                    // Retry-Schleife mit 15-Sekunden-Timeout, falls eine Datei hängt
+                    for (let attempt = 1; attempt <= 2; attempt++) {
+                        try {
+                            const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+                            response = await new Promise((resolve, reject) => {
+                                const timer = setTimeout(() => reject(new Error('Timeout')), 15000);
+                                fetch(fetchUrl).then(res => { clearTimeout(timer); resolve(res); }).catch(e => { clearTimeout(timer); reject(e); });
+                            });
+                            break; // Erfolgreich, Schleife abbrechen
+                        } catch (e) {
+                            if (attempt === 2) throw new Error('Download hängt bei: ' + url);
+                            console.warn('Hänger erkannt, Retry für:', url);
+                        }
+                    }
+                    
                     if (response.ok) {
                         // Wichtig: Unter der *Original-URL* im Cache ablegen, nicht mit ?cb=
                         await cache.put(new Request(url), response.clone());
