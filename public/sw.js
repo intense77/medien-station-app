@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v230';
+const CACHE_NAME = 'medien-station-v231';
 const ASSETS = [
     './',
     './index.html',
@@ -77,8 +77,18 @@ const ASSETS = [
     './plugins/cordova-plugin-file/www/resolveLocalFileSystemURI.js'
 ];
 
-// Installation: Dateien cachen
-// Installation: Dateien cachen (Mit Cache-Busting, um Coolify/Nginx HTTP Caches zu durchbrechen!)
+// --- NEU: Sende Nachrichten an die offene App (für den Ladebalken) ---
+async function broadcastProgress(msg) {
+    try {
+        const clients = await self.clients.matchAll({ includeUncontrolled: true });
+        for (const client of clients) {
+            client.postMessage(msg);
+        }
+    } catch (e) {
+        console.warn('Broadcast failed', e);
+    }
+}
+
 self.addEventListener('install', (event) => {
     self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
     event.waitUntil(
