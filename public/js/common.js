@@ -280,7 +280,7 @@
                             <span id="update-progress-text" class="text-blue-400 font-mono text-sm md:text-base font-bold bg-slate-900 px-3 py-1 rounded-lg border border-slate-700">Start...</span>
                         </div>
                         <div class="w-full bg-slate-900 rounded-full h-6 md:h-8 overflow-hidden border-2 border-slate-700 shadow-inner">
-                            <div id="update-progress-bar" class="bg-blue-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                            <div id="update-progress-bar" class="bg-blue-500 h-full rounded-full" style="width: 0%; transition: width 0.1s linear;"></div>
                         </div>
                         <p class="text-slate-400 text-sm mt-5 text-center font-bold leading-tight">Bitte die App geöffnet lassen und kurz warten.</p>
                     `;
@@ -305,7 +305,8 @@
                     setTimeout(() => ui.overlay.classList.remove('opacity-0'), 10);
                     
                     if (data.type === 'CACHE_PROGRESS') {
-                        const percent = Math.round((data.count / data.total) * 100);
+                        // Nummer sicher auf 0-100% begrenzen
+                        const percent = Math.max(0, Math.min(100, Math.round((data.count / data.total) * 100)));
                         ui.bar.style.width = percent + '%';
                         ui.txt.innerText = `${data.count} / ${data.total}`;
                     }
