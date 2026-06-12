@@ -251,6 +251,26 @@
         </div>
     </div>
 
+    <!-- iOS Install Modal -->
+    <div id="ios-install-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm items-center justify-center p-4 transition-opacity duration-300 opacity-0" onclick="hideIosInstall()">
+        <div class="bg-slate-800 border-4 border-blue-500 rounded-[2rem] max-w-md w-full p-8 shadow-2xl text-center transform scale-90 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="text-6xl mb-4">🍎</div>
+            <h2 class="text-2xl font-black text-white mb-4">Auf iPhone/iPad installieren</h2>
+            <p class="text-lg text-slate-300 mb-6 font-bold leading-relaxed">
+                1. Tippe unten im Browser auf das <br><strong class="text-blue-400">Teilen-Symbol</strong> (Viereck mit Pfeil nach oben).<br><br>
+                2. Wähle im Menü <br><strong class="text-white">"Zum Home-Bildschirm"</strong> ➕
+            </p>
+            <button onclick="hideIosInstall()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-blue-800 active:border-b-0 active:translate-y-2 pointer-events-auto">
+                VERSTANDEN
+            </button>
+        </div>
+    </div>
+
+    <!-- PWA Install Button -->
+    <button id="pwa-install-btn" class="hidden fixed top-4 right-4 md:top-6 md:right-6 z-[250] bg-blue-600/90 backdrop-blur-md hover:bg-blue-500 text-white font-bold py-2 px-4 md:py-3 md:px-5 rounded-full shadow-2xl items-center gap-2 md:gap-3 border-2 border-white/30 transition-all active:scale-95">
+        <span class="text-xl md:text-2xl">📱</span> <span class="text-sm md:text-base">App installieren</span>
+    </button>
+
     <script>
         const missions = [
             "Erstelle ein Geräusch: Kälte ❄️", "Comic: Streit ums Brot 🥪", "Zauber Selfie: Auf dem Mond 🚀", 
@@ -341,6 +361,76 @@
                 }
                 // Neustart erst, wenn Löschung GANZ sicher abgeschlossen ist!
                 window.location.reload(true);
+            }
+        }
+
+        // --- PWA INSTALL LOGIK ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        // Prüfen, ob die App bereits installiert ist (Standalone)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+
+        if (!isStandalone && installBtn) {
+            // 1. Android / Chrome
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('flex');
+            });
+
+            window.addEventListener('appinstalled', () => {
+                installBtn.classList.add('hidden');
+                installBtn.classList.remove('flex');
+            });
+
+            // 2. iOS Safari (hat kein beforeinstallprompt, muss manuell getriggert werden)
+            const isIos = (/ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase()) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
+            const isSafari = /safari/.test(navigator.userAgent.toLowerCase()) && !/chrome|crios|crmo/.test(navigator.userAgent.toLowerCase());
+
+            if (isIos && isSafari) {
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('flex');
+            }
+
+            installBtn.addEventListener('click', async () => {
+                if (window.playSound) window.playSound('click');
+                
+                if (isIos && isSafari) {
+                    // Zeige iOS Anleitung
+                    const modal = document.getElementById('ios-install-modal');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    setTimeout(() => {
+                        modal.classList.remove('opacity-0');
+                        modal.children[0].classList.remove('scale-90');
+                        modal.children[0].classList.add('scale-100');
+                    }, 10);
+                } else if (deferredPrompt) {
+                    // Triggere Android/Chrome Install Prompt
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.classList.add('hidden');
+                        installBtn.classList.remove('flex');
+                    }
+                    deferredPrompt = null;
+                }
+            });
+        }
+
+        function hideIosInstall() {
+            if (window.playSound) window.playSound('click');
+            const modal = document.getElementById('ios-install-modal');
+            if (modal) {
+                modal.classList.add('opacity-0');
+                modal.children[0].classList.remove('scale-100');
+                modal.children[0].classList.add('scale-90');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
             }
         }
     </script>
