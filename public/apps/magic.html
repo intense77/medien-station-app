@@ -64,7 +64,8 @@
     <div class="flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
         
         <div class="side-bar flex-none w-full md:w-32 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar items-center justify-start h-auto md:h-full">
-            <button onclick="window.setBg('space', this)" class="bg-btn side-btn ring-4 ring-yellow-400 flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-indigo-900 border-2 border-white text-2xl md:text-4xl shadow-md active:scale-95 transition flex items-center justify-center">🚀</button>
+            <button onclick="window.setBg('real', this)" class="bg-btn side-btn ring-4 ring-yellow-400 flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-slate-700 border-2 border-white text-2xl md:text-4xl shadow-md active:scale-95 transition flex items-center justify-center" title="Realer Hintergrund">📷</button>
+            <button onclick="window.setBg('space', this)" class="bg-btn side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-indigo-900 border-2 border-white text-2xl md:text-4xl shadow-md active:scale-95 transition flex items-center justify-center">🚀</button>
             <button onclick="window.setBg('jungle', this)" class="bg-btn side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-emerald-900 border-2 border-white text-2xl md:text-4xl shadow-md active:scale-95 transition flex items-center justify-center">🌴</button>
             <button onclick="window.setBg('underwater', this)" class="bg-btn side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-blue-900 border-2 border-white text-2xl md:text-4xl shadow-md active:scale-95 transition flex items-center justify-center">🐙</button>
             <button onclick="window.setBg('paris', this)" class="bg-btn side-btn flex-none w-16 h-16 md:w-full md:h-20 rounded-xl bg-pink-900 border-2 border-white text-2xl md:text-4xl shadow-md active:scale-95 transition flex items-center justify-center">🗼</button>
@@ -135,7 +136,7 @@
         const canvas = document.getElementById('output_canvas');
         const ctx = canvas.getContext('2d');
         const loadingEl = document.getElementById('loading-ai');
-        let currentStream, currentFacingMode = 'user', activeBg = 'space', isRunning = false;
+        let currentStream, currentFacingMode = 'user', activeBg = 'real', isRunning = false;
 
         const bgs = {
             space: new Image(), jungle: new Image(), underwater: new Image(),
@@ -155,8 +156,6 @@
             selfieSegmentation.setOptions({ modelSelection: 0 }); // 0 = General Model (höhere Qualität), 1 = Landscape Model (schneller)
             selfieSegmentation.onResults(onResults);
         }
-
-        initMediaPipe();
 
         // --- ROBUSTE KAMERA ---
         async function initCam() {
@@ -187,10 +186,27 @@
 
         async function renderLoop() {
             if (isRunning && video.readyState >= 2 && video.videoWidth > 0) {
-                try {
-                    await selfieSegmentation.send({image: video});
-                } catch (e) {
-                    console.error("MediaPipe Processing Fehler:", e);
+                if (activeBg === 'real') {
+                    loadingEl.style.display = 'none';
+                    canvas.width = video.videoWidth; 
+                    canvas.height = video.videoHeight;
+                    ctx.save();
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    if (currentFacingMode === 'user') { 
+                        ctx.translate(canvas.width, 0); 
+                        ctx.scale(-1, 1); 
+                    }
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    ctx.restore();
+                } else {
+                    try {
+                        if (!selfieSegmentation) {
+                            initMediaPipe();
+                        }
+                        await selfieSegmentation.send({image: video});
+                    } catch (e) {
+                        console.error("MediaPipe Processing Fehler:", e);
+                    }
                 }
             }
             if (isRunning) requestAnimationFrame(renderLoop);
@@ -267,7 +283,7 @@
             overlay.style.display = 'none';
 
             // Re-initialize if resources were released for printing
-            if (!selfieSegmentation) {
+            if (activeBg !== 'real' && !selfieSegmentation) {
                 initMediaPipe();
             }
             if (!currentStream) {
@@ -302,6 +318,9 @@
             if (btn) {
                 document.querySelectorAll('.bg-btn').forEach(b => b.classList.remove('ring-4', 'ring-yellow-400'));
                 btn.classList.add('ring-4', 'ring-yellow-400');
+            }
+            if (bg !== 'real' && !selfieSegmentation) {
+                initMediaPipe();
             }
         };
         
