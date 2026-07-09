@@ -36,7 +36,7 @@
             .header-area { height: 3.5rem !important; margin-bottom: 0 !important; }
             .side-bar { width: 4.5rem !important; padding: 0.25rem !important; gap: 0.5rem !important; }
             .side-btn { height: 3.5rem !important; width: 3.5rem !important; font-size: 1.5rem !important; }
-            .action-area { height: 4rem !important; }
+            .action-area { height: 4.5rem !important; flex-direction: row !important; gap: 1rem !important; }
             .video-main { border-width: 4px !important; }
         }
         
@@ -90,13 +90,25 @@
                 </div>
             </div>
 
-            <div class="action-area h-16 md:h-24 flex-none shrink-0 w-full flex items-center justify-center gap-4 px-2">
-                <button onclick="window.switchCamera()" class="w-12 h-12 md:w-20 md:h-20 bg-slate-700 hover:bg-slate-600 text-white rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-slate-900 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center shrink-0 shadow-xl" title="Kamera wechseln">
-                    <span class="text-2xl md:text-4xl">🔄</span>
-                </button>
-                <button onclick="window.startCountdown()" class="flex-1 max-w-sm h-12 md:h-20 bg-purple-600 hover:bg-purple-500 text-white text-xl md:text-4xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[8px] border-purple-800 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-[0_0_15px_rgba(147,51,234,0.4)] hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] group">
-                    <span class="group-hover:scale-110 transition-transform duration-300">✨</span> ZAUBERN!
-                </button>
+            <div class="action-area h-20 md:h-28 flex-none shrink-0 w-full flex flex-col items-center justify-center gap-2 px-2">
+                <!-- Modus-Auswahl -->
+                <div class="flex bg-slate-800 p-1 rounded-full border border-slate-700 shadow-md">
+                    <button id="mode-single-btn" onclick="window.setMode('single')" class="px-3 py-1 md:px-5 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all bg-purple-600 text-white focus:outline-none">
+                        👤 EINZELBILD
+                    </button>
+                    <button id="mode-collage-btn" onclick="window.setMode('collage')" class="px-3 py-1 md:px-5 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all text-slate-400 hover:text-white focus:outline-none">
+                        📖 3ER-COLLAGE
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-center gap-3 w-full">
+                    <button onclick="window.switchCamera()" class="w-10 h-10 md:w-16 md:h-16 bg-slate-700 hover:bg-slate-600 text-white rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-slate-900 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center shrink-0 shadow-xl" title="Kamera wechseln">
+                        <span class="text-xl md:text-3xl">🔄</span>
+                    </button>
+                    <button id="shutter-btn" onclick="window.startCountdown()" class="flex-1 max-w-xs md:max-w-sm h-10 md:h-16 bg-purple-600 hover:bg-purple-500 text-white text-sm md:text-2xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-purple-800 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-[0_0_15px_rgba(147,51,234,0.4)] hover:shadow-[0_0_30px_rgba(147,51,234,0.6)] group">
+                        <span class="group-hover:scale-110 transition-transform duration-300">✨</span> ZAUBERN!
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -137,6 +149,21 @@
         const ctx = canvas.getContext('2d');
         const loadingEl = document.getElementById('loading-ai');
         let currentStream, currentFacingMode = 'user', activeBg = 'real', isRunning = false;
+        let mode = 'single';
+        let isCapturingCollage = false;
+        let collagePhotos = [];
+
+        const themes = {
+            space: { title: "WELTRAUM NEWS", subtitle: "DIE EXPEDITION INS UNBEKANNTE", color: "#c084fc", text: "KIDS IN SPACE" },
+            jungle: { title: "DSCHUNGEL REPORT", subtitle: "EXPEDITION DURCH DEN URWALD", color: "#34d399", text: "WILDLIFE LIVE" },
+            underwater: { title: "TIEFSEE MAGISCH", subtitle: "GEHEIMNISSE DER UNTERWASSERWELT", color: "#38bdf8", text: "REISE ZUM MEERESBODEN" },
+            paris: { title: "BONJOUR PARIS", subtitle: "DIE STADT DER LIEBE & KUNST", color: "#f472b6", text: "VIVE LA FRANCE" },
+            wolken: { title: "WOLKEN REISE", subtitle: "SCHWEBEN ÜBER DEN DÄCHERN", color: "#7dd3fc", text: "ABENTEUER IN DER LUFT" },
+            schloss: { title: "SCHLOSS ZEIT", subtitle: "MÄRCHENHAFTE MOMENTE IM PALAST", color: "#c084fc", text: "EIN KÖNIGREICH FÜR EIN SELFIE" },
+            dino: { title: "DINO REPORT", subtitle: "ZURÜCK IN DER WELT DER RIESEN", color: "#fb923c", text: "VORSICHT VOR DEM T-REX!" },
+            stadion: { title: "STADION KULT", subtitle: "DAS SUPERSPIEL DES JAHRES", color: "#4ade80", text: "ANPFIFF IN DER ARENA" },
+            real: { title: "STYLE SELFIE", subtitle: "EXKLUSIVES LIFESTYLE-MAGAZIN", color: "#ffffff", text: "MEINE WELT, MEIN LOOK" }
+        };
 
         const bgs = {
             space: new Image(), jungle: new Image(), underwater: new Image(),
@@ -241,6 +268,17 @@
 
         // --- AKTIONEN ---
         window.startCountdown = () => {
+            if (mode === 'collage') {
+                isCapturingCollage = true;
+                collagePhotos = [];
+                captureNextCollagePhoto(1);
+            } else {
+                isCapturingCollage = false;
+                runSingleCountdown();
+            }
+        };
+
+        function runSingleCountdown() {
             if(window.playSound) window.playSound('click');
             const overlay = document.getElementById('countdown');
             const textEl = document.getElementById('countdown-text');
@@ -265,7 +303,210 @@
                 }
             };
             tick();
-        };
+        }
+
+        function captureNextCollagePhoto(num) {
+            if(window.playSound) window.playSound('click');
+            const overlay = document.getElementById('countdown');
+            const textEl = document.getElementById('countdown-text');
+            overlay.classList.remove('hidden');
+            overlay.style.display = 'flex';
+            
+            let count = 3;
+            const tick = () => {
+                textEl.innerHTML = `<div class="text-xl md:text-3xl uppercase font-black text-purple-400 mb-2">Bild ${num} von 3</div><div class="text-[5rem] md:text-[8rem] font-black">${count}</div>`;
+                textEl.classList.remove('animate-pop');
+                void textEl.offsetWidth; 
+                textEl.classList.add('animate-pop');
+                
+                if (count === 0) {
+                    if(window.playSound) window.playSound('shutter');
+                    
+                    // Blitzlicht-Effekt
+                    const flash = document.createElement('div');
+                    flash.className = 'absolute inset-0 bg-white z-50 transition-opacity duration-300';
+                    document.getElementById('video').parentElement.appendChild(flash);
+                    setTimeout(() => { flash.style.opacity = 0; setTimeout(() => flash.remove(), 300); }, 50);
+
+                    collagePhotos.push(canvas.toDataURL('image/png'));
+                    
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+
+                    if (num < 3) {
+                        setTimeout(() => {
+                            captureNextCollagePhoto(num + 1);
+                        }, 1200);
+                    } else {
+                        isCapturingCollage = false;
+                        isRunning = false;
+                        generateCollageImage();
+                    }
+                } else {
+                    count--;
+                    if(window.playSound && count > 0) window.playSound('click');
+                    setTimeout(tick, 1000);
+                }
+            };
+            tick();
+        }
+
+        function loadImages(sources) {
+            return Promise.all(sources.map(src => new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            })));
+        }
+
+        function drawCroppedImage(ctx, img, dx, dy, dw, dh) {
+            const imgRatio = img.width / img.height;
+            const targetRatio = dw / dh;
+            let sx = 0, sy = 0, sw = img.width, sh = img.height;
+            
+            if (imgRatio > targetRatio) {
+                sw = img.height * targetRatio;
+                sx = (img.width - sw) / 2;
+            } else {
+                sh = img.width / imgRatio;
+                sy = (img.height - sh) / 2;
+            }
+            ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+        }
+
+        async function generateCollageImage() {
+            const collageCanvas = document.createElement('canvas');
+            collageCanvas.width = 1800;
+            collageCanvas.height = 1200;
+            const cCtx = collageCanvas.getContext('2d');
+
+            try {
+                const imgs = await loadImages(collagePhotos);
+
+                const grad = cCtx.createLinearGradient(0, 0, 1800, 1200);
+                let theme = themes[activeBg] || themes['real'];
+                
+                if (activeBg === 'space') { grad.addColorStop(0, '#0f172a'); grad.addColorStop(1, '#1e1b4b'); }
+                else if (activeBg === 'jungle') { grad.addColorStop(0, '#064e3b'); grad.addColorStop(1, '#022c22'); }
+                else if (activeBg === 'underwater') { grad.addColorStop(0, '#0c4a6e'); grad.addColorStop(1, '#082f49'); }
+                else if (activeBg === 'dino') { grad.addColorStop(0, '#7c2d12'); grad.addColorStop(1, '#431407'); }
+                else if (activeBg === 'stadion') { grad.addColorStop(0, '#065f46'); grad.addColorStop(1, '#064e3b'); }
+                else if (activeBg === 'schloss') { grad.addColorStop(0, '#581c87'); grad.addColorStop(1, '#3b0764'); }
+                else if (activeBg === 'paris') { grad.addColorStop(0, '#701a75'); grad.addColorStop(1, '#4a044e'); }
+                else if (activeBg === 'wolken') { grad.addColorStop(0, '#0369a1'); grad.addColorStop(1, '#0c4a6e'); }
+                else { grad.addColorStop(0, '#1e293b'); grad.addColorStop(1, '#0f172a'); }
+                
+                cCtx.fillStyle = grad;
+                cCtx.fillRect(0, 0, 1800, 1200);
+
+                const drawFrame = (x, y, w, h) => {
+                    cCtx.lineWidth = 12;
+                    cCtx.strokeStyle = 'white';
+                    cCtx.strokeRect(x, y, w, h);
+                };
+
+                // Bild 1 (Hauptbild links)
+                drawCroppedImage(cCtx, imgs[0], 50, 180, 820, 970);
+                drawFrame(50, 180, 820, 970);
+
+                // Bild 2 (Rechts oben)
+                drawCroppedImage(cCtx, imgs[1], 910, 180, 840, 465);
+                drawFrame(910, 180, 840, 465);
+
+                // Bild 3 (Rechts unten)
+                drawCroppedImage(cCtx, imgs[2], 910, 685, 840, 465);
+                drawFrame(910, 685, 840, 465);
+
+                // Titel & Text
+                cCtx.shadowColor = 'rgba(0,0,0,0.5)';
+                cCtx.shadowBlur = 10;
+                cCtx.shadowOffsetX = 4;
+                cCtx.shadowOffsetY = 4;
+
+                cCtx.fillStyle = theme.color;
+                cCtx.font = 'italic 900 80px "Impact", sans-serif';
+                cCtx.textAlign = 'center';
+                cCtx.textBaseline = 'top';
+                cCtx.fillText(theme.title, 900, 30);
+
+                cCtx.shadowBlur = 0;
+                cCtx.shadowOffsetX = 0;
+                cCtx.shadowOffsetY = 0;
+                cCtx.fillStyle = 'rgba(255,255,255,0.7)';
+                cCtx.font = 'bold 20px sans-serif';
+                cCtx.fillText(theme.subtitle, 900, 125);
+
+                cCtx.fillStyle = 'rgba(255,255,255,0.5)';
+                cCtx.font = 'bold 16px monospace';
+                cCtx.textAlign = 'right';
+                const today = new Date().toLocaleDateString('de-DE');
+                cCtx.fillText(`NR. 1 | ${today} | EXKLUSIV`, 1750, 20);
+
+                // Sticker auf Hauptbild
+                cCtx.save();
+                cCtx.translate(130, 260);
+                cCtx.rotate(-0.15);
+                cCtx.fillStyle = '#facc15';
+                cCtx.beginPath();
+                cCtx.arc(0, 0, 55, 0, Math.PI * 2);
+                cCtx.fill();
+                cCtx.strokeStyle = 'black';
+                cCtx.lineWidth = 4;
+                cCtx.stroke();
+                
+                cCtx.fillStyle = 'black';
+                cCtx.font = '900 24px sans-serif';
+                cCtx.textAlign = 'center';
+                cCtx.textBaseline = 'middle';
+                cCtx.fillText('MEGA', 0, -12);
+                cCtx.font = '900 28px sans-serif';
+                cCtx.fillText('COOL!', 0, 15);
+                cCtx.restore();
+
+                // Überschrift am Hauptbild unten
+                cCtx.fillStyle = 'rgba(147, 51, 234, 0.9)';
+                cCtx.fillRect(70, 1020, 780, 100);
+                cCtx.lineWidth = 4;
+                cCtx.strokeStyle = 'white';
+                cCtx.strokeRect(70, 1020, 780, 100);
+
+                cCtx.fillStyle = 'white';
+                cCtx.font = '900 36px "Impact", sans-serif';
+                cCtx.textAlign = 'center';
+                cCtx.fillText(theme.text, 460, 1045);
+                cCtx.font = 'bold 18px sans-serif';
+                cCtx.fillStyle = '#facc15';
+                cCtx.fillText('EXKLUSIV IM NACHRICHTEN-STUDIO', 460, 1092);
+
+                // Barcode rechts unten
+                cCtx.fillStyle = 'white';
+                cCtx.fillRect(1610, 1050, 120, 80);
+                cCtx.lineWidth = 2;
+                cCtx.strokeStyle = 'black';
+                cCtx.strokeRect(1610, 1050, 120, 80);
+                
+                cCtx.fillStyle = 'black';
+                let bx = 1620;
+                while (bx < 1720) {
+                    const bw = Math.floor(Math.random() * 3) + 2;
+                    cCtx.fillRect(bx, 1055, bw, 60);
+                    bx += bw + Math.floor(Math.random() * 4) + 2;
+                }
+                cCtx.font = '9px monospace';
+                cCtx.textAlign = 'center';
+                cCtx.fillText('4 012345 678901', 1670, 1125);
+
+                document.getElementById('preview-img-display').src = collageCanvas.toDataURL('image/png');
+                const overlay = document.getElementById('preview-overlay');
+                overlay.classList.remove('hidden');
+                overlay.style.display = 'flex';
+
+            } catch (err) {
+                console.error("Collage-Fehler:", err);
+                alert("Fehler beim Erstellen der Collage!");
+            }
+        }
 
         window.capturePhoto = () => {
             if(window.playSound) window.playSound('shutter');
@@ -281,6 +522,10 @@
             const overlay = document.getElementById('preview-overlay');
             overlay.classList.add('hidden');
             overlay.style.display = 'none';
+
+            // Reset collage capturing flags
+            isCapturingCollage = false;
+            collagePhotos = [];
 
             // Re-initialize if resources were released for printing
             if (activeBg !== 'real' && !selfieSegmentation) {
@@ -321,6 +566,26 @@
             }
             if (bg !== 'real' && !selfieSegmentation) {
                 initMediaPipe();
+            }
+        };
+
+        window.setMode = (m) => {
+            mode = m;
+            if (window.playSound) window.playSound('click');
+            
+            const singleBtn = document.getElementById('mode-single-btn');
+            const collageBtn = document.getElementById('mode-collage-btn');
+            
+            if (m === 'single') {
+                singleBtn.classList.add('bg-purple-600', 'text-white');
+                singleBtn.classList.remove('text-slate-400');
+                collageBtn.classList.add('text-slate-400');
+                collageBtn.classList.remove('bg-purple-600', 'text-white');
+            } else {
+                collageBtn.classList.add('bg-purple-600', 'text-white');
+                collageBtn.classList.remove('text-slate-400');
+                singleBtn.classList.add('text-slate-400');
+                singleBtn.classList.remove('bg-purple-600', 'text-white');
             }
         };
         
