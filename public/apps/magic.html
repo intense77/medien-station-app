@@ -114,10 +114,13 @@
 
                 <!-- Modus-Auswahl -->
                 <div class="flex bg-slate-800 p-1 rounded-full border border-slate-700 shadow-md">
-                    <button id="mode-single-btn" onclick="window.setMode('single')" class="px-3 py-1 md:px-5 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all bg-purple-600 text-white focus:outline-none">
+                    <button id="mode-single-btn" onclick="window.setMode('single')" class="px-2 py-1 md:px-4 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all bg-purple-600 text-white focus:outline-none">
                         👤 EINZELBILD
                     </button>
-                    <button id="mode-collage-btn" onclick="window.setMode('collage')" class="px-3 py-1 md:px-5 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all text-slate-400 hover:text-white focus:outline-none">
+                    <button id="mode-polaroid-btn" onclick="window.setMode('polaroid')" class="px-2 py-1 md:px-4 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all text-slate-400 hover:text-white focus:outline-none">
+                        🖼️ POLAROID
+                    </button>
+                    <button id="mode-collage-btn" onclick="window.setMode('collage')" class="px-2 py-1 md:px-4 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all text-slate-400 hover:text-white focus:outline-none">
                         📖 3ER-COLLAGE
                     </button>
                 </div>
@@ -442,6 +445,12 @@
         window.capturePhoto = () => {
             if(window.playSound) window.playSound('shutter');
             isRunning = false;
+            
+            if (mode === 'polaroid') {
+                generatePolaroidImage();
+                return;
+            }
+            
             document.getElementById('preview-img-display').src = getFilteredCanvasData();
             const overlay = document.getElementById('preview-overlay');
             overlay.classList.remove('hidden');
@@ -506,18 +515,25 @@
             if (window.playSound) window.playSound('click');
             
             const singleBtn = document.getElementById('mode-single-btn');
+            const polaroidBtn = document.getElementById('mode-polaroid-btn');
             const collageBtn = document.getElementById('mode-collage-btn');
+            
+            singleBtn.classList.remove('bg-purple-600', 'text-white');
+            singleBtn.classList.add('text-slate-400');
+            polaroidBtn.classList.remove('bg-purple-600', 'text-white');
+            polaroidBtn.classList.add('text-slate-400');
+            collageBtn.classList.remove('bg-purple-600', 'text-white');
+            collageBtn.classList.add('text-slate-400');
             
             if (m === 'single') {
                 singleBtn.classList.add('bg-purple-600', 'text-white');
                 singleBtn.classList.remove('text-slate-400');
-                collageBtn.classList.add('text-slate-400');
-                collageBtn.classList.remove('bg-purple-600', 'text-white');
+            } else if (m === 'polaroid') {
+                polaroidBtn.classList.add('bg-purple-600', 'text-white');
+                polaroidBtn.classList.remove('text-slate-400');
             } else {
                 collageBtn.classList.add('bg-purple-600', 'text-white');
                 collageBtn.classList.remove('text-slate-400');
-                singleBtn.classList.add('text-slate-400');
-                singleBtn.classList.remove('bg-purple-600', 'text-white');
             }
         };
 
@@ -546,6 +562,43 @@
             tempCtx.filter = getFilterCSS(activeFilter);
             tempCtx.drawImage(canvas, 0, 0);
             return tempCanvas.toDataURL('image/png');
+        }
+
+        async function generatePolaroidImage() {
+            const pCanvas = document.createElement('canvas');
+            pCanvas.width = 1200;
+            pCanvas.height = 1400;
+            const pCtx = pCanvas.getContext('2d');
+
+            try {
+                // 1. Draw Polaroid Card Background (Pure white card)
+                pCtx.fillStyle = '#ffffff';
+                pCtx.fillRect(0, 0, 1200, 1400);
+
+                // 2. Load and draw the captured photo (filtered)
+                const photoSrc = getFilteredCanvasData();
+                const imgs = await loadImages([photoSrc]);
+                const img = imgs[0];
+
+                // Draw cropped square image
+                // Image box is: x: 80, y: 80, w: 1040, h: 1040
+                drawCroppedImage(pCtx, img, 80, 80, 1040, 1040);
+
+                // 3. Draw a thin border around the image area to separate it from the white frame
+                pCtx.lineWidth = 2;
+                pCtx.strokeStyle = '#e2e8f0'; // very light gray
+                pCtx.strokeRect(80, 80, 1040, 1040);
+
+                // 4. Set preview and open overlay
+                document.getElementById('preview-img-display').src = pCanvas.toDataURL('image/png');
+                const overlay = document.getElementById('preview-overlay');
+                overlay.classList.remove('hidden');
+                overlay.style.display = 'flex';
+
+            } catch (err) {
+                console.error("Polaroid-Fehler:", err);
+                alert("Fehler beim Erstellen des Polaroids!");
+            }
         }
 
         window.setFilter = (f, btn) => {
