@@ -43,6 +43,18 @@
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
+        
+        /* Filter-Buttons */
+        .filter-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .filter-btn.active {
+            border-color: #a855f7 !important; /* purple-500 */
+            background-color: #a855f7 !important;
+            color: white !important;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body class="flex flex-col p-2 md:p-4 box-border bg-slate-900">
@@ -90,7 +102,16 @@
                 </div>
             </div>
 
-            <div class="action-area h-20 md:h-28 flex-none shrink-0 w-full flex flex-col items-center justify-center gap-2 px-2">
+            <div class="action-area h-24 md:h-36 flex-none shrink-0 w-full flex flex-col items-center justify-center gap-2 px-2">
+                <!-- Filter-Auswahl -->
+                <div class="flex items-center gap-1.5 max-w-full overflow-x-auto no-scrollbar py-0.5">
+                    <button onclick="window.setFilter('none', this)" class="filter-btn active px-3 py-1 rounded-full text-xs md:text-sm font-black border border-slate-700 bg-slate-800 text-slate-300 hover:text-white focus:outline-none">🌈 Normal</button>
+                    <button onclick="window.setFilter('grayscale', this)" class="filter-btn px-3 py-1 rounded-full text-xs md:text-sm font-black border border-slate-700 bg-slate-800 text-slate-300 hover:text-white focus:outline-none">⚫ S/W</button>
+                    <button onclick="window.setFilter('sepia', this)" class="filter-btn px-3 py-1 rounded-full text-xs md:text-sm font-black border border-slate-700 bg-slate-800 text-slate-300 hover:text-white focus:outline-none">🟤 Sepia</button>
+                    <button onclick="window.setFilter('warm', this)" class="filter-btn px-3 py-1 rounded-full text-xs md:text-sm font-black border border-slate-700 bg-slate-800 text-slate-300 hover:text-white focus:outline-none">🌅 Warm</button>
+                    <button onclick="window.setFilter('cold', this)" class="filter-btn px-3 py-1 rounded-full text-xs md:text-sm font-black border border-slate-700 bg-slate-800 text-slate-300 hover:text-white focus:outline-none">❄️ Kalt</button>
+                </div>
+
                 <!-- Modus-Auswahl -->
                 <div class="flex bg-slate-800 p-1 rounded-full border border-slate-700 shadow-md">
                     <button id="mode-single-btn" onclick="window.setMode('single')" class="px-3 py-1 md:px-5 md:py-1.5 rounded-full text-xs md:text-sm font-black transition-all bg-purple-600 text-white focus:outline-none">
@@ -152,6 +173,7 @@
         let mode = 'single';
         let isCapturingCollage = false;
         let collagePhotos = [];
+        let activeFilter = 'none';
 
 
         const bgs = {
@@ -317,7 +339,7 @@
                     document.getElementById('video').parentElement.appendChild(flash);
                     setTimeout(() => { flash.style.opacity = 0; setTimeout(() => flash.remove(), 300); }, 50);
 
-                    collagePhotos.push(canvas.toDataURL('image/png'));
+                    collagePhotos.push(getFilteredCanvasData());
                     
                     overlay.classList.add('hidden');
                     overlay.style.display = 'none';
@@ -420,7 +442,7 @@
         window.capturePhoto = () => {
             if(window.playSound) window.playSound('shutter');
             isRunning = false;
-            document.getElementById('preview-img-display').src = canvas.toDataURL('image/png');
+            document.getElementById('preview-img-display').src = getFilteredCanvasData();
             const overlay = document.getElementById('preview-overlay');
             overlay.classList.remove('hidden');
             overlay.style.display = 'flex';
@@ -435,6 +457,7 @@
             // Reset collage capturing flags
             isCapturingCollage = false;
             collagePhotos = [];
+            updateLiveFilter();
 
             // Re-initialize if resources were released for printing
             if (activeBg !== 'real' && !selfieSegmentation) {
@@ -496,6 +519,43 @@
                 singleBtn.classList.add('text-slate-400');
                 singleBtn.classList.remove('bg-purple-600', 'text-white');
             }
+        };
+
+        function getFilterCSS(filterName) {
+            switch (filterName) {
+                case 'grayscale': return 'grayscale(100%)';
+                case 'sepia': return 'sepia(100%)';
+                case 'warm': return 'sepia(40%) contrast(110%) saturate(130%)';
+                case 'cold': return 'hue-rotate(190deg) saturate(110%)';
+                default: return 'none';
+            }
+        }
+
+        function updateLiveFilter() {
+            canvas.style.filter = getFilterCSS(activeFilter);
+        }
+
+        function getFilteredCanvasData() {
+            if (activeFilter === 'none') {
+                return canvas.toDataURL('image/png');
+            }
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.filter = getFilterCSS(activeFilter);
+            tempCtx.drawImage(canvas, 0, 0);
+            return tempCanvas.toDataURL('image/png');
+        }
+
+        window.setFilter = (f, btn) => {
+            activeFilter = f;
+            if (window.playSound) window.playSound('click');
+            
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            
+            updateLiveFilter();
         };
         
         window.switchCamera = () => { 
