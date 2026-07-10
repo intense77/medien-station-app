@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v232';
+const CACHE_NAME = 'medien-station-v233';
 const ASSETS = [
     './',
     './index.html',
@@ -18,6 +18,7 @@ const ASSETS = [
     './models/selfie_segmentation.tflite',
     './models/selfie_segmentation_landscape.tflite',
     './assets/logo.png',
+    './assets/apple-touch-icon.png',
     './assets/qr.png',
     './assets/sounds/click.mp3',
     './assets/sounds/shutter.mp3',
