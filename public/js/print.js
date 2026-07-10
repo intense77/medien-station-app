@@ -136,8 +136,11 @@ window.printImage = async function(dataUrl, jobName, btn) {
     }
 
     try {
-        // Zeige den kindgerechten Hinweis VOR dem System-Dialog
-        await showPrintHint();
+        // Zeige den kindgerechten Hinweis VOR dem System-Dialog (nur einmal pro Session)
+        if (!sessionStorage.getItem('print_hint_shown')) {
+            await showPrintHint();
+            sessionStorage.setItem('print_hint_shown', 'true');
+        }
 
         // Prüfen, ob wir "Contain" nutzen sollen (für Pixel Art und Comic)
         // Damit wird nichts abgeschnitten, auch wenn das Format nicht 3:2 ist.
