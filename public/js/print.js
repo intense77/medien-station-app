@@ -3,9 +3,10 @@ function getOptimizedPrintData(dataUrl, useContain = false) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
-            // Zielgröße: 1800x1200 (3:2 Format des Selphy)
-            const targetW = 1800;
-            const targetH = 1200;
+            // Wenn das Bild höher als breit ist, drucken wir im Hochformat (1200x1800)
+            const isPortrait = img.height > img.width;
+            const targetW = isPortrait ? 1200 : 1800;
+            const targetH = isPortrait ? 1800 : 1200;
 
             const canvas = document.createElement('canvas');
             canvas.width = targetW;

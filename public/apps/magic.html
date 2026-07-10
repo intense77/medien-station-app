@@ -641,7 +641,12 @@
                 pCtx.strokeStyle = '#e2e8f0'; // very light gray
                 pCtx.strokeRect(80, 80, 1040, 1040);
 
-                // 4. Set preview and open overlay
+                // 4. Draw outer border around the Polaroid card to prevent blending with white paper
+                pCtx.lineWidth = 6;
+                pCtx.strokeStyle = '#d1d5db'; // light-medium gray
+                pCtx.strokeRect(3, 3, 1194, 1394);
+
+                // 5. Set preview and open overlay
                 document.getElementById('preview-img-display').src = pCanvas.toDataURL('image/png');
                 const overlay = document.getElementById('preview-overlay');
                 overlay.classList.remove('hidden');
