@@ -479,10 +479,10 @@
                 renderLoop();
             }
         };
-
         window.printFromPreview = (btn) => {
             if(window.playSound) window.playSound('click');
-            if(window.printImage) window.printImage(document.getElementById('preview-img-display').src, 'Selfie', btn);
+            const jobName = mode === 'polaroid' ? 'Selfie-Polaroid' : 'Selfie';
+            if(window.printImage) window.printImage(document.getElementById('preview-img-display').src, jobName, btn);
 
             // Release resources AFTER calling print to prevent Android from killing the app due to memory pressure.
             console.log("Releasing Magic Selfie resources for printing...");

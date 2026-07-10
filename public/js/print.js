@@ -141,7 +141,7 @@ window.printImage = async function(dataUrl, jobName, btn) {
 
         // Prüfen, ob wir "Contain" nutzen sollen (für Pixel Art und Comic)
         // Damit wird nichts abgeschnitten, auch wenn das Format nicht 3:2 ist.
-        const useContain = jobName && (jobName.includes('Pixel') || jobName.includes('Comic'));
+        const useContain = jobName && (jobName.includes('Pixel') || jobName.includes('Comic') || jobName.includes('Polaroid'));
 
         // 1. Bild vorbereiten (Resize auf 1800x1200, ggf. mit weißen Rändern statt Crop)
         const base64Data = await getOptimizedPrintData(dataUrl, useContain);
