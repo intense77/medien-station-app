@@ -558,13 +558,22 @@
         }
 
         function getFilteredCanvasData() {
-            if (activeFilter === 'none') {
+            // Wenn kein Filter aktiv ist und wir nicht spiegeln müssen, können wir direkt das Original nehmen
+            if (activeFilter === 'none' && currentFacingMode !== 'user') {
                 return canvas.toDataURL('image/png');
             }
+            
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = canvas.width;
             tempCanvas.height = canvas.height;
             const tempCtx = tempCanvas.getContext('2d');
+            
+            // Spiegelung für das gespeicherte Foto aufheben (Spiegelverkehrte Schrift korrigieren)
+            if (currentFacingMode === 'user') {
+                tempCtx.translate(tempCanvas.width, 0);
+                tempCtx.scale(-1, 1);
+            }
+            
             tempCtx.drawImage(canvas, 0, 0);
             
             // Pixel-genaue Filteranwendung für maximale Tablet-Kompatibilität
