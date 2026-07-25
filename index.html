@@ -212,15 +212,77 @@
             playSound('click');
         }
 
+        function showPinPrompt(onSuccess) {
+            let modal = document.getElementById('pin-prompt-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'pin-prompt-modal';
+                modal.style.cssText = "position: fixed; inset: 0; z-index: 999999; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; pointer-events: none;";
+                modal.innerHTML = `
+                    <div style="background: #1e293b; border: 4px solid #3b82f6; border-radius: 2rem; padding: 2rem; text-align: center; max-width: 20rem; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s;" id="pin-prompt-content">
+                        <h3 style="color: white; font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; font-family: sans-serif;">PIN eingeben</h3>
+                        <input type="password" id="pin-prompt-input" pattern="[0-9]*" inputmode="numeric" style="width: 100%; padding: 0.75rem; border-radius: 0.75rem; border: 2px solid #3b82f6; background: #0f172a; color: white; font-size: 1.5rem; text-align: center; font-weight: bold; margin-bottom: 1.5rem; focus: outline-none;" placeholder="••••" maxlength="8">
+                        <div style="display: flex; gap: 1rem;">
+                            <button id="pin-prompt-cancel" style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; background: #475569; color: white; font-weight: bold; border: none; cursor: pointer;">Abbrechen</button>
+                            <button id="pin-prompt-ok" style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; background: #2563eb; color: white; font-weight: bold; border: none; cursor: pointer;">OK</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                document.getElementById('pin-prompt-cancel').onclick = () => {
+                    playSound('click');
+                    modal.style.opacity = '0';
+                    modal.style.pointerEvents = 'none';
+                    document.getElementById('pin-prompt-content').style.transform = 'scale(0.9)';
+                    document.getElementById('pin-prompt-input').value = '';
+                };
+            }
+
+            const input = document.getElementById('pin-prompt-input');
+            const okBtn = document.getElementById('pin-prompt-ok');
+            const content = document.getElementById('pin-prompt-content');
+
+            const handleOk = () => {
+                playSound('click');
+                if (input.value === '1234') {
+                    modal.style.opacity = '0';
+                    modal.style.pointerEvents = 'none';
+                    content.style.transform = 'scale(0.9)';
+                    input.value = '';
+                    if (onSuccess) onSuccess();
+                } else {
+                    input.style.borderColor = '#ef4444';
+                    input.value = '';
+                    setTimeout(() => {
+                        input.style.borderColor = '#3b82f6';
+                    }, 1000);
+                    input.focus();
+                }
+            };
+
+            okBtn.onclick = handleOk;
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') handleOk();
+            };
+
+            modal.style.pointerEvents = 'auto';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                content.style.transform = 'scale(1)';
+                input.focus();
+            }, 10);
+        }
+
         let tapCount = 0; let tapTimer;
         function triggerAdmin() {
             resetHubTimer(); tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { tapCount = 0; }, 1000);
             if (tapCount >= 5) {
                 tapCount = 0;
-                if (prompt("PIN:") === "1234") { 
+                showPinPrompt(() => {
                     document.getElementById('admin-modal').classList.remove('hidden');
                     document.getElementById('admin-modal').classList.add('flex');
-                }
+                });
             }
         }
         function closeAdmin() { 
@@ -229,7 +291,7 @@
         }
 
         function hardReset() {
-            if(confirm("ACHTUNG: Dadurch wird der Offline-Speicher geleert und ein Update erzwungen. Fortfahren?")) {
+            const runReset = () => {
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
                         for(let registration of registrations) { registration.unregister(); }
@@ -241,7 +303,10 @@
                     });
                 }
                 setTimeout(() => window.location.reload(true), 500);
-            }
+            };
+
+            // Ohne native confirm box direkt ausführen
+            runReset();
         }
     </script>
 </body>
