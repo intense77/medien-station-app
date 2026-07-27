@@ -265,30 +265,40 @@ function proceedWithPrint(base64Data, jobName, btn, isIOS, isAndroid, isCordova,
     }
 
     // --- STRATEGIE 3: Web Share API als Option vor iFrame-Druck (Bevorzugt auf iOS / Nicht-Kiosk auf anderen Systemen) ---
+    // WICHTIG: Blob-Erstellung MUSS synchron erfolgen (kein fetch().then()!),
+    // da Safari/iPadOS navigator.share() nur im direkten User-Gesture-Scope erlaubt.
     const isKioskMode = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
     if (navigator.share && (isIOS || !isKioskMode)) {
-        fetch(base64Data)
-            .then(res => res.blob())
-            .then(blob => {
-                const file = new File([blob], "photo.jpg", { type: "image/jpeg" });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    return navigator.share({
-                        files: [file],
-                        title: 'Drucken'
-                    });
-                } else {
-                    throw new Error("Cannot share files");
-                }
-            })
-            .then(() => {
-                if (btn) btn.innerText = "✅ OK";
-                if (window.triggerConfetti) window.triggerConfetti();
-                restoreButton();
-            })
-            .catch(shareErr => {
-                console.warn("Share abgebrochen oder fehlgeschlagen, nutze iFrame-Druck:", shareErr);
-                printViaIframeSync(base64Data, btn, restoreButton);
-            });
+        try {
+            // Synchrone Base64-zu-Blob-Konvertierung (kein fetch, kein async!)
+            const parts = base64Data.split(',');
+            const mime = parts[0].match(/:(.*?);/)[1];
+            const raw = atob(parts[1]);
+            const arr = new Uint8Array(raw.length);
+            for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+            const blob = new Blob([arr], { type: mime });
+            const file = new File([blob], "photo.jpg", { type: "image/jpeg" });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                // navigator.share() wird SYNCHRON im User-Gesture-Scope aufgerufen!
+                navigator.share({
+                    files: [file],
+                    title: 'Drucken'
+                }).then(() => {
+                    if (btn) btn.innerText = "✅ OK";
+                    if (window.triggerConfetti) window.triggerConfetti();
+                    restoreButton();
+                }).catch(shareErr => {
+                    console.warn("Share abgebrochen:", shareErr);
+                    restoreButton();
+                });
+                return;
+            }
+        } catch (e) {
+            console.warn("Share-Vorbereitung fehlgeschlagen, nutze iFrame-Druck:", e);
+        }
+        // Fallback wenn canShare fehlschlägt
+        printViaIframeSync(base64Data, btn, restoreButton);
         return;
     }
 
