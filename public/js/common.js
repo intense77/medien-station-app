@@ -346,6 +346,16 @@
                         const ui = getUpdateOverlay();
                         ui.overlay.classList.remove('hidden');
                         setTimeout(() => ui.overlay.classList.remove('opacity-0'), 10);
+                        
+                        // SICHERHEITSNETZ: Overlay nach 30 Sekunden automatisch ausblenden,
+                        // falls die SW-Installation hängt oder scheitert
+                        setTimeout(() => {
+                            if (ui.overlay && !ui.overlay.classList.contains('hidden')) {
+                                console.warn('⚠️ Update-Overlay Timeout – blende aus.');
+                                ui.overlay.classList.add('opacity-0');
+                                setTimeout(() => ui.overlay.classList.add('hidden'), 300);
+                            }
+                        }, 30000);
                     });
                     
                     registration.update(); // Zwingt den Browser im Hintergrund nach Updates zu suchen!
