@@ -512,6 +512,80 @@
         }
     };
 
+    // --- 9b. Kinderfreundlicher Bestätigungs-Dialog (Ersatz für natives confirm()) ---
+    window.showConfirm = function(message, onConfirm, icon = "🤔") {
+        let modal = document.getElementById('confirm-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'confirm-modal';
+            modal.className = 'hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm items-center justify-center p-4 transition-opacity duration-300 opacity-0';
+            modal.innerHTML = `
+                <div class="bg-slate-800 border-4 border-yellow-500 rounded-[3rem] max-w-md w-full p-8 shadow-2xl text-center transform scale-90 transition-transform duration-300" id="confirm-modal-content">
+                    <div class="text-6xl md:text-8xl mb-4" id="confirm-modal-icon">🤔</div>
+                    <h2 class="text-2xl md:text-4xl font-black text-white mb-4">Moment!</h2>
+                    <p class="text-lg md:text-xl text-slate-300 mb-8 font-bold" id="confirm-modal-text"></p>
+                    <div class="flex gap-4">
+                        <button id="confirm-modal-cancel" class="flex-1 bg-slate-600 hover:bg-slate-500 text-white font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-slate-800 active:border-b-0 active:translate-y-2 pointer-events-auto flex items-center justify-center gap-2">
+                            <span class="text-2xl">✋</span> NEIN
+                        </button>
+                        <button id="confirm-modal-ok" class="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-yellow-700 active:border-b-0 active:translate-y-2 pointer-events-auto flex items-center justify-center gap-2">
+                            <span class="text-2xl">👍</span> JA
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        document.getElementById('confirm-modal-icon').innerText = icon;
+        document.getElementById('confirm-modal-text').innerText = message;
+
+        const hideConfirm = () => {
+            if (window.playSound) window.playSound('click');
+            modal.classList.add('opacity-0');
+            const content = document.getElementById('confirm-modal-content');
+            if (content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-90');
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        };
+
+        const okBtn = document.getElementById('confirm-modal-ok');
+        const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+        // Alte Listener entfernen (via Klonen)
+        const newOk = okBtn.cloneNode(true);
+        const newCancel = cancelBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOk, okBtn);
+        cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+
+        newOk.addEventListener('click', () => { hideConfirm(); if (onConfirm) onConfirm(); });
+        newCancel.addEventListener('click', () => { hideConfirm(); });
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            const content = document.getElementById('confirm-modal-content');
+            if (content) {
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
+            }
+        }, 10);
+    };
+
+    // --- 9c. Kinderfreundlicher Hinweis-Dialog (Ersatz für natives alert()) ---
+    window.showAlert = function(message, icon = "💡") {
+        if (window.showError) {
+            window.showError(message, icon);
+        }
+    };
+
     // --- 10. Magic Sparkles (Visuelles Touch-Feedback) ---
     document.addEventListener('pointerdown', (e) => {
         // Nicht auslösen bei Textfeldern, um beim Tippen nicht zu stören

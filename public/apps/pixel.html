@@ -224,7 +224,11 @@
 
         function clearGrid() {
             if(window.playSound) window.playSound('click');
-            if(confirm("Wirklich alles löschen?")) {
+            if (window.showConfirm) {
+                window.showConfirm("Wirklich alles löschen?", () => {
+                    document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = 'white');
+                }, "🗑️");
+            } else {
                 document.querySelectorAll('.cell').forEach(c => c.style.backgroundColor = 'white');
             }
         }

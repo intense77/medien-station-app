@@ -228,7 +228,7 @@
                     return;
                 } catch (e) { console.warn("Versuch fehlgeschlagen", e); }
             }
-            alert("Kamera nicht gefunden!");
+            if(window.showError) window.showError("Kamera nicht gefunden! Bitte erlaube den Zugriff.", "📷");
         }
 
         async function renderLoop() {
@@ -444,7 +444,7 @@
 
             } catch (err) {
                 console.error("Collage-Fehler:", err);
-                alert("Fehler beim Erstellen der Collage!");
+                if(window.showError) window.showError("Huch, die Collage hat nicht geklappt!", "📖");
             }
         }
 
@@ -669,7 +669,7 @@
 
             } catch (err) {
                 console.error("Polaroid-Fehler:", err);
-                alert("Fehler beim Erstellen des Polaroids!");
+                if(window.showError) window.showError("Huch, das Polaroid hat nicht geklappt!", "🖼️");
             }
         }
 
