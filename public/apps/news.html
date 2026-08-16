@@ -87,13 +87,18 @@
                 <div class="bauchbinde absolute bottom-2 md:bottom-8 left-0 w-full z-20 px-2 md:px-8">
                     <div class="bg-blue-800/95 text-white p-1.5 md:p-4 border-l-4 md:border-l-[12px] border-yellow-400 shadow-lg">
                         <div class="text-[6px] md:text-xs font-bold text-yellow-400 uppercase tracking-widest mb-0.5">Top-Thema des Tages</div>
-                        <div contenteditable="true" id="headline-input" class="headline-text text-sm md:text-4xl lg:text-5xl font-black uppercase leading-tight outline-none focus:bg-blue-900/50 min-h-[1.2em] cursor-text whitespace-nowrap overflow-hidden">HIER SCHLAGZEILE EINTIPPEN</div>
+                        <div contenteditable="true" id="headline-input" 
+                             onfocus="window.clearText(this, 'HIER SCHLAGZEILE EINTIPPEN')" 
+                             onblur="window.resetText(this, 'HIER SCHLAGZEILE EINTIPPEN')"
+                             class="headline-text text-sm md:text-4xl lg:text-5xl font-black uppercase leading-tight outline-none focus:bg-blue-900/50 min-h-[1.2em] cursor-text whitespace-nowrap overflow-hidden">HIER SCHLAGZEILE EINTIPPEN</div>
                     </div>
                     
                     <div class="ticker-area bg-yellow-400 text-black font-bold py-0.5 md:py-2 px-2 text-[8px] md:text-xl uppercase tracking-wide whitespace-nowrap overflow-hidden flex items-center mt-1 rounded-b-md md:rounded-b-lg">
                         <span class="bg-red-600 text-white px-1 mr-2 text-[6px] md:text-sm rounded flex-shrink-0">NEWS</span>
                         <div class="ticker-wrap flex-1">
-                            <div class="ticker outline-none" contenteditable="true" id="ticker-input">+++ EILMELDUNG +++ Tickertext hier eingeben +++</div>
+                            <div class="ticker outline-none" contenteditable="true" id="ticker-input"
+                                 onfocus="window.clearText(this, '+++ EILMELDUNG +++ Tickertext hier eingeben +++')" 
+                                 onblur="window.resetText(this, '+++ EILMELDUNG +++ Tickertext hier eingeben +++')">+++ EILMELDUNG +++ Tickertext hier eingeben +++</div>
                         </div>
                     </div>
                 </div>
@@ -184,6 +189,14 @@
         window.printFromPreview = function(btn) {
             if(window.playSound) window.playSound('click');
             if(window.printImage) window.printImage(document.getElementById('preview-img-display').src, 'News', btn);
+        };
+
+        window.clearText = (el, def) => { 
+            if(window.playSound) window.playSound('click'); 
+            if(el.innerText.trim() === def) el.innerText = ""; 
+        };
+        window.resetText = (el, def) => { 
+            if(el.innerText.trim() === "") el.innerText = def; 
         };
 
         // ... (Restliche Hilfsfunktionen wie generateImage, save, print etc. von deiner Vorlage übernehmen) ...

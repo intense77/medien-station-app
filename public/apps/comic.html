@@ -44,6 +44,8 @@
             left: 50%;
             bottom: 10%;
             transform: translateX(-50%);
+            width: max-content;
+            height: auto;
         }
         
         .bubble-handle {
@@ -177,6 +179,7 @@
                     currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 }
                 video.srcObject = currentStream;
+                video.style.transform = currentFacingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
             } catch (err) { console.error(err); }
         }
 
@@ -185,44 +188,83 @@
             const panel = document.getElementById('panel-' + index);
             const canvas = panel.querySelector('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 1280; canvas.height = 720;
+            const targetW = 1280;
+            const targetH = 720;
+            canvas.width = targetW; canvas.height = targetH;
+
+            const vW = video.videoWidth || targetW;
+            const vH = video.videoHeight || targetH;
+            const vRatio = vW / vH;
+            const cRatio = targetW / targetH;
+
+            let sx, sy, sWidth, sHeight;
+            if (vRatio > cRatio) {
+                sHeight = vH;
+                sWidth = sHeight * cRatio;
+                sx = (vW - sWidth) / 2;
+                sy = 0;
+            } else {
+                sWidth = vW;
+                sHeight = sWidth / cRatio;
+                sx = 0;
+                sy = (vH - sHeight) / 2;
+            }
 
             ctx.save();
             if(currentFacingMode === 'user') {
                 ctx.scale(-1, 1);
-                ctx.drawImage(video, 0, 0, 1280, 720, -1280, 0, 1280, 720);
+                ctx.drawImage(video, sx, sy, sWidth, sHeight, -targetW, 0, targetW, targetH);
             } else {
-                ctx.drawImage(video, 0, 0, 1280, 720, 0, 0, 1280, 720);
+                ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
             }
             ctx.restore();
             panel.classList.add('ring-4', 'ring-yellow-400');
             setTimeout(() => panel.classList.remove('ring-4', 'ring-yellow-400'), 300);
         }
 
-        // Drag & Drop Logik (für Touch optimiert)
+        // Drag & Drop Logik (für Touch und Maus optimiert)
         let activeDrag = null;
-        document.addEventListener('touchstart', (e) => {
-            if(e.target.classList.contains('bubble-handle')) {
-                activeDrag = e.target.parentElement;
-                e.preventDefault();
-            }
-        }, {passive: false});
 
-        document.addEventListener('touchmove', (e) => {
-            if(!activeDrag) return;
-            const touch = e.touches[0];
+        function startDrag(e) {
+            const handle = e.target.closest ? e.target.closest('.bubble-handle') : null;
+            if (handle || (e.target && e.target.classList && e.target.classList.contains('bubble-handle'))) {
+                activeDrag = (handle || e.target).parentElement;
+                if (e.cancelable) e.preventDefault();
+            }
+        }
+
+        function moveDrag(e) {
+            if (!activeDrag) return;
+            if (e.cancelable) e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             const panel = activeDrag.parentElement;
             const rect = panel.getBoundingClientRect();
             
-            let x = touch.clientX - rect.left;
-            let y = touch.clientY - rect.top;
+            let x = clientX - rect.left;
+            let y = clientY - rect.top;
+
+            x = Math.max(15, Math.min(rect.width - 15, x));
+            y = Math.max(15, Math.min(rect.height - 15, y));
             
             activeDrag.style.left = x + 'px';
             activeDrag.style.top = y + 'px';
+            activeDrag.style.bottom = 'auto'; // Entfernt bottom-Constraint aus CSS
             activeDrag.style.transform = 'translate(-50%, -50%)';
-        }, {passive: false});
+        }
 
-        document.addEventListener('touchend', () => activeDrag = null);
+        function endDrag() {
+            activeDrag = null;
+        }
+
+        document.addEventListener('pointerdown', startDrag);
+        document.addEventListener('pointermove', moveDrag);
+        document.addEventListener('pointerup', endDrag);
+        document.addEventListener('pointercancel', endDrag);
+
+        document.addEventListener('touchstart', startDrag, {passive: false});
+        document.addEventListener('touchmove', moveDrag, {passive: false});
+        document.addEventListener('touchend', endDrag);
 
         window.switchCamera = () => {
             currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
@@ -273,7 +315,23 @@
                     ctx.font = 'bold 30px "Comic Sans MS", sans-serif';
                     const metrics = ctx.measureText(txt);
                     const bW = Math.max(160, metrics.width + 40); const bH = 60;
-                    const bX = p.x + p.w / 2 - bW / 2; const bY = p.y + p.h - bH - 20;
+
+                    let bX = p.x + p.w / 2 - bW / 2;
+                    let bY = p.y + p.h - bH - 20;
+
+                    const containerEl = document.getElementById('container-' + i);
+                    if (containerEl && pBox) {
+                        const pRect = pBox.getBoundingClientRect();
+                        const cRect = containerEl.getBoundingClientRect();
+                        if (pRect.width > 0 && pRect.height > 0) {
+                            const relCenterX = (cRect.left + cRect.width / 2 - pRect.left) / pRect.width;
+                            const relCenterY = (cRect.top + cRect.height / 2 - pRect.top) / pRect.height;
+                            bX = p.x + relCenterX * p.w - bW / 2;
+                            bY = p.y + relCenterY * p.h - bH / 2;
+                            bX = Math.max(p.x + 10, Math.min(p.x + p.w - bW - 10, bX));
+                            bY = Math.max(p.y + 10, Math.min(p.y + p.h - bH - 10, bY));
+                        }
+                    }
 
                     ctx.fillStyle = 'white'; ctx.strokeStyle = 'black'; ctx.lineWidth = 4;
                     if(ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bX, bY, bW, bH, 20); ctx.fill(); ctx.stroke(); } 
