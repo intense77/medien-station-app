@@ -6,29 +6,24 @@ Sicherheitsüberprüfung und Handlungsempfehlungen für das Deployment über Coo
 
 ## 🔴 1. KRITISCH: SSH-Schlüssel austauschen & sperren
 
-Die Datei `coolify_deploy` (privater SSH-Schlüssel) war in Git getrackt und auf GitHub gepusht.
+Die Datei `coolify_deploy` (privater SSH-Schlüssel) war früher in Git getrackt. Sie wurde aus dem Git-Tracking entfernt und wird von `.gitignore` ignoriert.
 
 - [ ] **Schlüssel auf Server / Coolify sperren**:
   - Alten öffentlichen Schlüssel aus `~/.ssh/authorized_keys` auf dem Server entfernen.
   - Alten Schlüssel im Coolify Dashboard unter *Keys / Deployment Keys* löschen.
 - [ ] **Neuen SSH-Schlüssel generieren**:
   - Einen neuen SSH-Schlüssel für Coolify anlegen.
-- [ ] **Schlüssel aus Git-Tracking entfernen**:
-  - [x] `.gitignore` wurde bereits aktualisiert, um `coolify_deploy*`, `*.pem`, `*.key` und `.env*` zu ignorieren.
-  - Befehl zum Entfernen aus dem Git Index ausführen:
-    ```bash
-    git rm --cached coolify_deploy coolify_deploy.pub
-    git commit -m "security: remove tracked ssh key files"
-    git push origin main
-    ```
+- [x] **Schlüssel aus Git-Tracking entfernt**:
+  - `.gitignore` ignoriert `coolify_deploy*`, `*.pem`, `*.key` und `.env*`.
+  - Dateieinträge wurden aus dem Git-Index entfernt.
 
 ---
 
-## 🟠 2. HOCH: HTTP Security Headers in Coolify eintragen
+## 🟠 2. HOCH: HTTP Security Headers in Webserver/Nginx integriert
 
-In Coolify unter der Anwendungs-Konfiguration (*Custom Nginx Configuration* oder Proxy-Headers) folgende Sicherheits-Header hinzufügen:
+Die empfohlenen HTTP-Sicherheits-Header wurden direkt in die `nginx.conf` des Dockerfiles integriert:
 
-- [ ] **Nginx / Proxy Header Konfiguration hinzufügen**:
+- [x] **Nginx Security Header Konfiguration integriert**:
   ```nginx
   # Schutz vor Clickjacking
   add_header X-Frame-Options "SAMEORIGIN" always;
@@ -50,10 +45,8 @@ In Coolify unter der Anwendungs-Konfiguration (*Custom Nginx Configuration* oder
 
 ## 🟠 3. HOCH: NPM-Abhängigkeiten aktualisieren (`npm audit`)
 
-Veraltete Build-Dependencies in Node-Modulen aktualisieren.
-
-- [ ] `npm audit fix` ausführen
-- [ ] `npm run build` testen, ob die Anwendung weiterhin fehlerfrei baut.
+- [x] `npm audit fix` ausgeführt (18 Abhängigkeiten automatisch aktualisiert).
+- [x] `npm run build` & `docker build` erfolgreich verifiziert.
 
 ---
 
@@ -61,4 +54,4 @@ Veraltete Build-Dependencies in Node-Modulen aktualisieren.
 
 - [x] **Keine Secrets im Frontend**: Keine Datenbank-Passwörter oder API-Schlüssel im Quellcode vorhanden.
 - [x] **DOM-XSS Schutz**: In `comic.html` und `news.html` wird `innerText` verwendet.
-- [ ] **Webserver-Schutz**: Sicherstellen, dass versteckte Ordner wie `.git` oder Konfigurationsdateien nicht direkt über den Webserver öffentlich erreichbar sind.
+- [x] **Webserver-Schutz**: Nginx liefert nur statische Dateien aus dem `dist/`-Ordner aus; versteckte Ordner wie `.git` befinden sich nicht im Container. `server_tokens off;` ist aktiv.

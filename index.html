@@ -5,17 +5,37 @@
     <title>MedienStation Hub</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="public/manifest.json">
-    <link rel="icon" href="public/assets/apple-touch-icon.png?v=2">
-    <link rel="apple-touch-icon" href="public/assets/apple-touch-icon.png?v=2">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/assets/apple-touch-icon.png?v=2">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=2">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Anti-Flicker Script: Muss im HEAD stehen, bevor der Body lädt -->
+    <script>
+        try {
+            if (sessionStorage.getItem('app_started') || new URLSearchParams(window.location.search).has('skip_splash')) {
+                document.documentElement.classList.add('skip-splash');
+            }
+        } catch(e) {}
+    </script>
+    <style>
+        /* Wenn Splash übersprungen wird ODER fertig ist: Inhalt als Grid anzeigen und einfaden */
+        html.skip-splash #main-grid, body.splash-done #main-grid { 
+            display: grid !important; 
+            animation: fadeIn 0.5s ease-out forwards; 
+        }
+        html.skip-splash #web-splash { display: none !important; }
+    </style>
     
-    <link rel="stylesheet" href="public/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="cordova.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/common.js"></script>
 
     <style>
         /* Globaler Reset */
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
         
         body { 
             background-color: #0f172a; 
@@ -24,16 +44,18 @@
             user-select: none; 
             -webkit-user-select: none; 
             touch-action: manipulation;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: none;
         }
         
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
-        .app-card { cursor: pointer; transition: transform 0.1s; }
-        .app-card:active { transform: scale(0.95); filter: brightness(1.2); }
+        .app-card { cursor: pointer; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        /* --- FINALER FIX v7.1: GRID + GHOST MODE --- */
+        /* --- FINALER FIX v7.2: GRID + GHOST MODE + RESPONSIVE --- */
         #qr-modal {
             /* GRID zwingt den Inhalt mathematisch in die Mitte */
             display: grid !important; 
@@ -60,84 +82,142 @@
         }
     </style>
 </head>
-<body class="p-4 box-border fade-in relative" onpointerdown="resetHubTimer()" ontouchstart="resetHubTimer()">
+<body class="p-3 md:p-4 lg:p-6 box-border relative">
 
-    <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 left-6 z-50 w-12 h-12 bg-white/10 text-white rounded-full font-bold border-2 border-white/30 backdrop-blur-md flex items-center justify-center shadow-lg active:scale-95">
-        <span class="text-2xl">?</span>
-    </button>
+    <!-- Web Splash Screen (Muss GANZ OBEN stehen für Rendering-Priorität) -->
+    <div id="web-splash" class="fixed inset-0 z-[10000] bg-slate-900 flex flex-col items-center justify-center transition-opacity duration-700" style="display: flex; transform: translateZ(0);">
+        <img src="assets/logo.png" class="object-contain mb-8 animate-bounce" style="width: 40rem; height: 40rem; max-width: 90vw; max-height: 55vh;">
+        <h1 class="text-white text-4xl md:text-6xl font-black tracking-[0.2em] uppercase drop-shadow-2xl">MedienStation</h1>
+        <div class="mt-12 flex gap-3">
+            <div class="w-4 h-4 bg-white rounded-full animate-bounce" style="animation-delay: 0s"></div>
+            <div class="w-4 h-4 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+            <div class="w-4 h-4 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+        </div>
+    </div>
 
-    <div class="grid grid-cols-12 grid-rows-12 gap-3 h-full w-full pb-28">
+    <div id="main-grid" class="grid-cols-2 sm:grid-cols-4 md:grid-cols-12 md:grid-rows-11 gap-2 md:gap-3 max-w-7xl mx-auto h-full w-full pb-8 md:pb-0" style="display: none;">
         
-        <div class="col-span-12 row-span-3 bg-slate-800 rounded-3xl p-6 flex justify-between items-center shadow-lg border border-slate-700 relative overflow-hidden group pl-24">
-            <div class="absolute -right-10 -top-10 w-64 h-64 bg-yellow-400 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
-            <div class="z-10 w-2/3 select-none" onclick="triggerAdmin()">
-                <h3 class="text-slate-400 text-sm font-bold tracking-widest uppercase mb-1 cursor-pointer">Deine Mission</h3>
-                <div id="mission-text" class="text-2xl md:text-4xl lg:text-5xl font-black text-white leading-tight transition-all duration-300">Wähle eine App! 👉</div>
+        <!-- Mission Header (3 Rows) -->
+        <div class="col-span-2 sm:col-span-4 md:col-span-12 md:row-span-3 bg-slate-800 rounded-3xl p-4 md:p-6 flex flex-col md:flex-row justify-between items-center shadow-lg border border-slate-700 relative overflow-hidden group min-h-[120px] lg:min-h-[160px] gap-4 md:gap-6 text-center md:text-left">
+            <div class="absolute -right-10 -top-10 w-32 h-32 md:w-64 md:h-64 bg-yellow-400 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-500"></div>
+            
+            <!-- Linker Bereich: Mission & Würfel (zweizeilig) -->
+            <div class="flex flex-col items-center md:items-start justify-center gap-4 z-10 flex-1 w-full">
+                <div class="w-full max-w-2xl flex items-center justify-center md:justify-start gap-4">
+                    <div class="select-none flex-1" onclick="triggerAdmin()">
+                        <h3 class="text-slate-400 text-sm font-bold tracking-widest uppercase mb-1 cursor-pointer">Deine Mission</h3>
+                        <div id="mission-text" class="text-lg md:text-2xl lg:text-3xl font-black text-white leading-snug transition-all duration-300">Wähle eine App! 👉</div>
+                    </div>
+                    <button onclick="readMission(event)" class="bg-slate-700 hover:bg-slate-600 text-white rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-600 active:scale-95 transition-all shrink-0 text-2xl md:text-3xl" title="Vorlesen">
+                        🔊
+                    </button>
+                </div>
+                <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-black font-black text-lg md:text-xl py-3 px-8 rounded-full shadow-lg active:translate-y-2 transition-all transform hover:scale-105 shrink-0">
+                    🎲 WÜRFELN
+                </button>
             </div>
-            <button onclick="playSound('click'); newMission()" class="z-10 bg-yellow-400 hover:bg-yellow-300 text-black font-black text-xl py-4 px-10 rounded-full shadow-lg active:translate-y-2 transition-all transform hover:scale-105">
-                🎲 WÜRFELN
-            </button>
-        </div>
-
-        <div onclick="openApp('apps/sound.html', 'Sound')" class="app-card col-span-4 row-span-5 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group">
-            <div class="text-6xl mb-2 drop-shadow-md group-hover:-translate-y-2 transition-transform">🎹</div>
-            <h3 class="text-2xl font-bold">Sound</h3>
-        </div>
-        
-        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-2 row-span-5 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0">
-            <div class="text-5xl mb-2 drop-shadow-md">🎙️</div>
-            <h3 class="text-xl font-bold">Mikro</h3>
-        </div>
-
-        <div onclick="openApp('apps/gif.html', 'Loop')" class="app-card col-span-3 row-span-5 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group">
-            <div class="text-6xl mb-2 drop-shadow-md group-hover:rotate-12 transition-transform">📹</div>
-            <h3 class="text-2xl font-bold">Loop</h3>
-        </div>
-        
-        <div onclick="openApp('apps/magic.html', 'Magic')" class="app-card col-span-3 row-span-5 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0">
-            <div class="text-6xl mb-2 drop-shadow-md">✨</div>
-            <h3 class="text-2xl font-bold">Magic</h3>
-        </div>
-
-        <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-4 row-span-4 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0">
-            <div class="text-6xl mb-2 drop-shadow-md font-mono">👾</div>
-            <h3 class="text-2xl font-bold">Pixel</h3>
-        </div>
-
-        <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-4 row-span-4 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 relative overflow-hidden">
-            <div class="text-5xl mb-2 drop-shadow-md relative z-10">📰</div>
-            <h3 class="text-xl font-bold relative z-10">News</h3>
-        </div>
-
-    <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-4 row-span-4 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden">
-        <div class="text-6xl mb-2 drop-shadow-md transform -rotate-6 transition-transform group-hover:rotate-0">📸</div>
-        <h3 class="text-2xl font-bold text-slate-900">Comic</h3>
-    </div>
-    </div>
-
-    <div class="fixed bottom-6 w-full flex flex-col items-center justify-center pointer-events-none z-40">
-        <button onclick="toggleQR()" class="pointer-events-auto bg-slate-800/90 backdrop-blur border border-slate-600 px-8 py-3 rounded-full shadow-2xl flex items-center gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all">
-            <img src="public/assets/logo.png" class="h-12 w-auto object-contain" alt="Logo" onerror="this.style.display='none'">
-            <div class="flex flex-col text-left">
-                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">Ein Projekt der</span>
-                <span class="text-lg font-black text-white leading-none tracking-wide">AV-MEDIENZENTRALE</span>
-            </div>
-        </button>
-    </div>
-
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-800 border-2 border-slate-600 rounded-[2rem] max-w-4xl w-full p-8 shadow-2xl relative">
-            <button onclick="toggleInfo(); playSound('click')" class="absolute top-6 right-6 text-white text-4xl font-bold">✖</button>
-            <h2 class="text-4xl font-black text-white mb-8 border-b border-slate-600 pb-4">GUIDE</h2>
-            <div class="grid grid-cols-2 gap-4 text-base">
-                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">🎹</div><div><h3 class="text-rose-400 font-bold">Sound</h3><p class="text-slate-300 text-sm">Beats & Loops.</p></div></div>
-                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">📹</div><div><h3 class="text-sky-400 font-bold">Loop</h3><p class="text-slate-300 text-sm">Video-Loops.</p></div></div>
-                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">✨</div><div><h3 class="text-violet-400 font-bold">Magic</h3><p class="text-slate-300 text-sm">Green Screen.</p></div></div>
-                <div class="p-4 bg-slate-700/50 rounded-2xl flex items-center gap-4"><div class="text-3xl">📸</div><div><h3 class="text-orange-400 font-bold">Comic</h3><p class="text-slate-300 text-sm">Foto Storys.</p></div></div>
+            
+            <!-- Rechter Bereich: QR Button -->
+            <div class="flex items-center justify-center z-10 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+                <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-3 py-2 sm:px-5 sm:py-3 md:px-6 md:py-4 rounded-full shadow-2xl flex items-center justify-center gap-2 sm:gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all w-auto max-w-full">
+                    <img src="assets/logo.png" class="h-8 sm:h-10 md:h-12 w-auto object-contain shrink-0" alt="Logo" onerror="this.style.display='none'">
+                    <div class="flex flex-col text-left shrink min-w-0">
+                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">Ein Projekt der</span>
+                        <span class="text-[11px] sm:text-sm md:text-base lg:text-lg font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
+                    </div>
+                </button>
             </div>
         </div>
+
+        <!-- Row 1 of Apps (4 Rows) -->
+        <div onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-rose-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎹</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Musik</h3>
+        </div>
+        
+        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-red-600/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎙️</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Mikro</h3>
+        </div>
+
+        <div onclick="openApp('apps/gif.html', 'Video Loop')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-sky-500 to-sky-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-sky-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-sky-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">📹</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Video</h3>
+        </div>
+        
+        <div onclick="openApp('apps/magic.html', 'Zauber Selfie')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-violet-500 to-violet-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-violet-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-violet-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-6 transition-all duration-300">✨</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Zauber Selfie</h3>
+        </div>
+
+        <!-- Row 2 of Apps (4 Rows) -->
+        <div onclick="openApp('apps/pixel.html', 'Pixel')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-emerald-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-emerald-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md font-mono group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">👾</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Pixel</h3>
+        </div>
+
+        <div onclick="openApp('apps/news.html', 'News')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-blue-700 to-blue-900 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-blue-950 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-4xl md:text-5xl lg:text-6xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">📰</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Nachrichten</h3>
+        </div>
+
+        <div onclick="openApp('apps/comic.html', 'Comic')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-orange-600 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-rotate-6 transition-all duration-300">📸</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-white">Comic</h3>
+        </div>
+
+        <div onclick="window.toggleInfo()" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-slate-700 hover:bg-slate-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-slate-900 active:border-b-0 border-2 border-slate-600 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-slate-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+            <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:rotate-12 transition-all duration-300">💡</div>
+            <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-200">Infos</h3>
+        </div>
     </div>
 
+    <!-- Info Modal -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
+        <div class="bg-slate-800 border-2 border-slate-600 rounded-[2rem] max-w-6xl w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-slate-400 transition">✖</button>
+            
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-2 flex justify-between items-center">
+                <span>INFO</span>
+                <button onclick="window.speakText('Info. Medienpädagogische Station für Kitas und Grundschulen. Die Apps: Musik Labor, Mikro Check, Video Loop, Zauber Selfie, Pixel Art, Nachrichten Studio und Comic Story. Pädagogik: Kinder lernen spielerisch Medienkompetenz, Sprachförderung, Kreativität und soziales Lernen.', event)" class="mr-14 md:mr-16 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Info vorlesen">🔊</button>
+            </h2>
+            <p class="text-slate-400 text-xl mb-8 font-bold">Medienpädagogische Station für Kitas & Grundschulen</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Apps Section -->
+                <div>
+                    <h3 class="text-2xl font-black text-white mb-4 border-b border-slate-600 pb-2">🚀 DIE APPS</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-4 p-3 bg-slate-700/30 rounded-xl"><span class="text-4xl">🎹</span> <div><strong class="text-rose-400 text-lg">Musik Labor</strong><br><span class="text-slate-300">Experimentieren mit Tönen & Beats.</span></div></div>
+                        <div class="flex items-center gap-4 p-3 bg-slate-700/30 rounded-xl"><span class="text-4xl">🎙️</span> <div><strong class="text-red-400 text-lg">Mikro Check</strong><br><span class="text-slate-300">Stimme aufnehmen & verfremden.</span></div></div>
+                        <div class="flex items-center gap-4 p-3 bg-slate-700/30 rounded-xl"><span class="text-4xl">📹</span> <div><strong class="text-sky-400 text-lg">Video Loop</strong><br><span class="text-slate-300">Bewegungen als Zeitschleife.</span></div></div>
+                        <div class="flex items-center gap-4 p-3 bg-slate-700/30 rounded-xl"><span class="text-4xl">✨</span> <div><strong class="text-violet-400 text-lg">Zauber Selfie</strong><br><span class="text-slate-300">KI-Green-Screen ohne grüne Wand.</span></div></div>
+                        <div class="flex items-center gap-4 p-3 bg-slate-700/30 rounded-xl"><span class="text-4xl">👾</span> <div><strong class="text-emerald-400 text-lg">Pixel Art</strong><br><span class="text-slate-300">Malen mit digitalen Bausteinen.</span></div></div>
+                        <div class="flex items-center gap-4 p-3 bg-slate-700/30 rounded-xl"><span class="text-4xl">📰</span> <div><strong class="text-blue-400 text-lg">Nachrichten Studio</strong><br><span class="text-slate-300">Nachrichten präsentieren.</span></div></div>
+                        <div class="flex items-center gap-4 p-3 bg-slate-700/30 rounded-xl"><span class="text-4xl">📸</span> <div><strong class="text-orange-400 text-lg">Comic Story</strong><br><span class="text-slate-300">Geschichten in Bildern erzählen.</span></div></div>
+                    </div>
+                </div>
+
+                <!-- Pedagogical Section -->
+                <div>
+                    <h3 class="text-2xl font-black text-white mb-4 border-b border-slate-600 pb-2">🎓 PÄDAGOGIK</h3>
+                    <div class="space-y-6 text-slate-300 text-lg leading-relaxed">
+                        <div><strong class="text-white block mb-1">💡 Medienkompetenz</strong>Kinder lernen spielerisch, wie Medien produziert werden (statt nur zu konsumieren). Sie verstehen, dass Bilder und Töne manipulierbar sind.</div>
+                        <div><strong class="text-white block mb-1">🗣️ Sprachförderung</strong>Apps wie <i>Nachrichten</i> und <i>Comic</i> regen zum Erzählen, Sprechen und Präsentieren an. Ideal für Partnerarbeit.</div>
+                        <div><strong class="text-white block mb-1">🎨 Kreativität & Selbstwirksamkeit</strong>"Ich habe das gemacht!" – Schnelle Ergebnisse stärken das Selbstvertrauen. Fehler gibt es nicht, nur den "Rückgängig"-Button.</div>
+                        <div><strong class="text-white block mb-1">🤝 Soziales Lernen</strong>Das Tablet ist als "Station" konzipiert: Mehrere Kinder arbeiten gleichzeitig davor, beraten sich und gestalten gemeinsam.</div>
+                    </div>
+                    <div class="mt-8 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                        <strong class="text-yellow-400">Tipp für Fachkräfte:</strong>
+                        <p class="text-sm mt-1 text-yellow-100">Nutzen Sie die "Missionen" (Würfel oben), um Impulse zu geben, wenn Kindern die Ideen ausgehen.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Modal -->
     <div id="qr-modal" onclick="toggleQR()">
         <div onclick="event.stopPropagation()" 
              style="width: 90%; max-width: 400px; background: white; padding: 40px; border-radius: 30px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
@@ -145,7 +225,7 @@
             <h3 style="color: #0f172a; font-size: 24px; font-weight: 900; text-transform: uppercase; margin: 0 0 20px 0;">Besuche uns!</h3>
             
             <div style="width: 250px; height: 250px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
-                <img src="public/assets/qr.png" alt="QR Code" style="width: 230px; height: 230px; object-fit: contain;" 
+                <img src="assets/qr.png" alt="QR Code" style="width: 230px; height: 230px; object-fit: contain;" 
                      onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2ZmZiIvPjx0ZXh0IHg9IjUwIiB5PSI1MCIgZm9udC1zaXplPSIxMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UVIgQ29kZTwvdGV4dD48L3N2Zz4='">
             </div>
             
@@ -158,11 +238,12 @@
         </div>
     </div>
 
+    <!-- Admin Modal -->
     <div id="admin-modal" class="hidden fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4">
         <div class="bg-slate-800 p-8 rounded-3xl border-2 border-slate-600 w-full max-w-lg">
-            <h2 class="text-3xl font-black text-white mb-6">⚙️ ADMIN MENU</h2>
+            <h2 class="text-3xl font-black text-white mb-6">⚙️ ADMIN MENÜ</h2>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="location.reload()" class="bg-blue-600 text-white font-bold py-4 rounded-xl">🔄 Reload</button>
+                <button onclick="location.reload()" class="bg-blue-600 text-white font-bold py-4 rounded-xl">🔄 Neu laden</button>
                 <button onclick="hardReset()" class="bg-red-900 hover:bg-red-800 text-white font-bold py-4 rounded-xl">🧹 Update erzwingen</button>
                 <button onclick="closeAdmin()" class="bg-slate-600 text-white font-bold py-4 rounded-xl col-span-2">Zurück</button>
             </div>
@@ -170,52 +251,85 @@
         </div>
     </div>
 
-    <script>
-        const missions = ["Erstelle ein Geräusch: Kälte ❄️", "Comic: Streit ums Brot 🥪", "Magic: Auf dem Mond 🚀", "Werbung: Unsichtbare Socken 🧦", "Loop: Hallo ohne Worte 👋", "Witz in 3 Bildern 🤡", "Selfie: Fliegen ✨", "Elefant mit Schluckauf 🐘", "Pixel-Monster Haustier 👾", "News: Ufo gelandet 👽"];
-        
-		const playSound = (id) => {
-            const a = new Audio(`public/assets/sounds/${id}.mp3`);
-            a.volume = 1.0;
-            a.play().catch(() => {});
-        };
+    <!-- iOS Install Modal -->
+    <div id="ios-install-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm items-center justify-center p-4 transition-opacity duration-300 opacity-0" onclick="hideIosInstall()">
+        <div class="bg-slate-800 border-4 border-blue-500 rounded-[2rem] max-w-md w-full p-8 shadow-2xl text-center transform scale-90 transition-transform duration-300" onclick="event.stopPropagation()">
+            <div class="text-6xl mb-4">🍎</div>
+            <h2 class="text-2xl font-black text-white mb-4">Auf iPhone/iPad installieren</h2>
+            <p class="text-lg text-slate-300 mb-6 font-bold leading-relaxed">
+                1. Tippe unten im Browser auf das <br><strong class="text-blue-400">Teilen-Symbol</strong> (Viereck mit Pfeil nach oben).<br><br>
+                2. Wähle im Menü <br><strong class="text-white">"Zum Home-Bildschirm"</strong> ➕
+            </p>
+            <button onclick="hideIosInstall()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-blue-800 active:border-b-0 active:translate-y-2 pointer-events-auto">
+                VERSTANDEN
+            </button>
+        </div>
+    </div>
 
+    <!-- PWA Install Button -->
+    <button id="pwa-install-btn" class="hidden fixed top-4 right-4 md:top-6 md:right-6 z-[250] bg-blue-600/90 backdrop-blur-md hover:bg-blue-500 text-white font-bold py-2 px-4 md:py-3 md:px-5 rounded-full shadow-2xl items-center gap-2 md:gap-3 border-2 border-white/30 transition-all active:scale-95">
+        <span class="text-xl md:text-2xl">📱</span> <span class="text-sm md:text-base">App installieren</span>
+    </button>
+
+    <script>
+        const missions = [
+            "Erstelle ein Geräusch: Kälte ❄️", "Comic: Streit ums Brot 🥪", "Zauber Selfie: Auf dem Mond 🚀", 
+            "Werbung: Unsichtbare Socken 🧦", "Video Loop: Hallo ohne Worte 👋", "Witz in 3 Bildern 🤡", 
+            "Zauber Selfie: Fliegen ✨", "Elefant mit Schluckauf 🐘", "Pixel-Monster Haustier 👾", 
+            "Nachrichten: Ufo gelandet 👽", "Such etwas Rotes & mach ein Foto 🔴", "Erzähle einen Witz ins Mikro 🎤",
+            "Zeichne dein Lieblingstier 🎨", "Mache ein gruseliges Gesicht 🧟", "Interviewe jemanden 🎤",
+            "Erfinde einen Robotertanz 🤖", "Mach ein Geräusch wie ein Auto 🚗", "Pixel-Bild: Ein Traumhaus 🏠",
+            "Comic: Ein Tag am Strand 🏖️", "Nachrichten: Es regnet Süßigkeiten 🍬"
+        ];
+        
+        let lastMissionIndex = -1;
+        let isNavigating = false;
         function openApp(url, appName) {
-            playSound('click'); 
+            if (isNavigating) return; // Verhindert Doppelklicks
+            isNavigating = true;
+            window.playSound('click'); 
+            document.body.classList.add('fade-out');
             setTimeout(() => { window.location.href = url; }, 300); 
+            setTimeout(() => { isNavigating = false; document.body.classList.remove('fade-out'); }, 2000); // Reset falls Navigation abbricht
         }
 		
         function newMission() {
             const txt = document.getElementById('mission-text');
-            txt.innerText = missions[Math.floor(Math.random() * missions.length)];
+            let newIndex;
+            // Solange würfeln, bis wir eine neue Aufgabe haben
+            do {
+                newIndex = Math.floor(Math.random() * missions.length);
+            } while (newIndex === lastMissionIndex && missions.length > 1);
+            
+            lastMissionIndex = newIndex;
+            txt.innerText = missions[newIndex];
         }
 
-        let hubIdleTimer;
-        function resetHubTimer() {
-            clearTimeout(hubIdleTimer);
-            hubIdleTimer = setTimeout(() => {
-                document.getElementById('admin-modal').classList.add('hidden');
-                document.getElementById('info-modal').classList.add('hidden');
-                // Modal verstecken (Klasse entfernen)
-                document.getElementById('qr-modal').classList.remove('modal-visible');
-                document.getElementById('mission-text').innerText = "Wähle eine App! 👉";
-                tapCount = 0;
-            }, 60000);
+        function readMission(event) {
+            if (event) event.stopPropagation(); // Verhindert, dass der Admin-Zähler hochgeht
+            window.resetIdleTimer();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Laufende Sprache abbrechen
+                let text = document.getElementById('mission-text').innerText;
+                // Emojis filtern, damit sie nicht laut vorgelesen werden ("Rakete", "Lachendes Gesicht" etc.)
+                text = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+                // Fix: Kurze Pause nach cancel() und Zuweisung an window, damit es nicht abbricht
+                setTimeout(() => {
+                    window.currentUtterance = new SpeechSynthesisUtterance(text);
+                    window.currentUtterance.lang = 'de-DE';
+                    window.currentUtterance.rate = 0.9; // Etwas langsamer für Kinder
+                    window.currentUtterance.pitch = 1.2; // Etwas hellere, freundlichere Stimme
+                    window.speechSynthesis.speak(window.currentUtterance);
+                }, 50);
+            }
         }
-        resetHubTimer();
 
-        function toggleInfo() { 
-            resetHubTimer(); 
-            const m = document.getElementById('info-modal');
-            m.classList.toggle('hidden'); 
-            m.classList.toggle('flex');
-        }
-        
         function toggleQR() { 
-            resetHubTimer(); 
+            window.resetIdleTimer(); 
             const modal = document.getElementById('qr-modal');
             // GHOST TOGGLE: Sichtbarkeit umschalten
             modal.classList.toggle('modal-visible');
-            playSound('click');
+            window.playSound('click');
         }
 
         function showPinPrompt(onSuccess) {
@@ -223,24 +337,25 @@
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'pin-prompt-modal';
-                modal.style.cssText = "position: fixed; inset: 0; z-index: 999999; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; pointer-events: none;";
+                modal.className = 'fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none';
                 modal.innerHTML = `
-                    <div style="background: #1e293b; border: 4px solid #3b82f6; border-radius: 2rem; padding: 2rem; text-align: center; max-width: 20rem; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s;" id="pin-prompt-content">
-                        <h3 style="color: white; font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; font-family: sans-serif;">PIN eingeben</h3>
-                        <input type="password" id="pin-prompt-input" pattern="[0-9]*" inputmode="numeric" style="width: 100%; padding: 0.75rem; border-radius: 0.75rem; border: 2px solid #3b82f6; background: #0f172a; color: white; font-size: 1.5rem; text-align: center; font-weight: bold; margin-bottom: 1.5rem; focus: outline-none;" placeholder="••••" maxlength="8">
-                        <div style="display: flex; gap: 1rem;">
-                            <button id="pin-prompt-cancel" style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; background: #475569; color: white; font-weight: bold; border: none; cursor: pointer;">Abbrechen</button>
-                            <button id="pin-prompt-ok" style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; background: #2563eb; color: white; font-weight: bold; border: none; cursor: pointer;">OK</button>
+                    <div class="bg-slate-800 border-4 border-blue-500 rounded-[2rem] p-8 text-center max-w-sm w-full shadow-2xl transform scale-90 transition-transform duration-300" id="pin-prompt-content">
+                        <h3 class="text-white text-2xl font-black mb-4 font-sans">PIN eingeben</h3>
+                        <input type="password" id="pin-prompt-input" pattern="[0-9]*" inputmode="numeric" class="w-full padding-3 p-3 rounded-xl border-2 border-blue-500 bg-slate-900 text-white text-3xl text-center font-bold mb-6 focus:outline-none" placeholder="••••" maxlength="8">
+                        <div class="flex gap-4">
+                            <button id="pin-prompt-cancel" class="flex-1 bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 rounded-xl transition">Abbrechen</button>
+                            <button id="pin-prompt-ok" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition">OK</button>
                         </div>
                     </div>
                 `;
                 document.body.appendChild(modal);
 
                 document.getElementById('pin-prompt-cancel').onclick = () => {
-                    playSound('click');
-                    modal.style.opacity = '0';
-                    modal.style.pointerEvents = 'none';
-                    document.getElementById('pin-prompt-content').style.transform = 'scale(0.9)';
+                    if (window.playSound) window.playSound('click');
+                    modal.classList.add('opacity-0');
+                    modal.classList.add('pointer-events-none');
+                    document.getElementById('pin-prompt-content').classList.remove('scale-100');
+                    document.getElementById('pin-prompt-content').classList.add('scale-90');
                     document.getElementById('pin-prompt-input').value = '';
                 };
             }
@@ -250,18 +365,21 @@
             const content = document.getElementById('pin-prompt-content');
 
             const handleOk = () => {
-                playSound('click');
+                if (window.playSound) window.playSound('click');
                 if (input.value === '1234') {
-                    modal.style.opacity = '0';
-                    modal.style.pointerEvents = 'none';
-                    content.style.transform = 'scale(0.9)';
+                    modal.classList.add('opacity-0');
+                    modal.classList.add('pointer-events-none');
+                    content.classList.remove('scale-100');
+                    content.classList.add('scale-90');
                     input.value = '';
                     if (onSuccess) onSuccess();
                 } else {
-                    input.style.borderColor = '#ef4444';
+                    input.classList.remove('border-blue-500');
+                    input.classList.add('border-red-500');
                     input.value = '';
                     setTimeout(() => {
-                        input.style.borderColor = '#3b82f6';
+                        input.classList.remove('border-red-500');
+                        input.classList.add('border-blue-500');
                     }, 1000);
                     input.focus();
                 }
@@ -272,17 +390,20 @@
                 if (e.key === 'Enter') handleOk();
             };
 
-            modal.style.pointerEvents = 'auto';
+            modal.classList.remove('hidden');
+            modal.classList.remove('pointer-events-none');
             setTimeout(() => {
-                modal.style.opacity = '1';
-                content.style.transform = 'scale(1)';
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-90');
+                content.classList.add('scale-100');
                 input.focus();
             }, 10);
         }
 
         let tapCount = 0; let tapTimer;
         function triggerAdmin() {
-            resetHubTimer(); tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { tapCount = 0; }, 1000);
+            window.resetIdleTimer(); 
+            tapCount++; clearTimeout(tapTimer); tapTimer = setTimeout(() => { tapCount = 0; }, 1000);
             if (tapCount >= 5) {
                 tapCount = 0;
                 showPinPrompt(() => {
@@ -296,24 +417,98 @@
             document.getElementById('admin-modal').classList.remove('flex'); 
         }
 
-        function hardReset() {
-            const runReset = () => {
+        async function hardReset() {
+            const runReset = async () => {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                        for(let registration of registrations) { registration.unregister(); }
-                    });
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for(let reg of registrations) { await reg.unregister(); }
                 }
                 if ('caches' in window) {
-                    caches.keys().then(function(names) {
-                        for (let name of names) caches.delete(name);
-                    });
+                    const names = await caches.keys();
+                    for (let name of names) await caches.delete(name);
                 }
-                setTimeout(() => window.location.reload(true), 500);
+                window.location.reload(true);
             };
 
-            // Ohne native confirm box direkt ausführen
-            runReset();
+            if (window.showConfirm) {
+                window.showConfirm("ACHTUNG: Dadurch wird der Offline-Speicher geleert und das Update erzwungen. Fortfahren?", () => {
+                    runReset();
+                }, "🧹");
+            } else {
+                runReset();
+            }
+        }
+
+        // --- PWA INSTALL LOGIK ---
+        let deferredPrompt;
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        // Prüfen, ob die App bereits installiert ist (Standalone)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+
+        if (!isStandalone && installBtn) {
+            // 1. Android / Chrome
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('flex');
+            });
+
+            window.addEventListener('appinstalled', () => {
+                installBtn.classList.add('hidden');
+                installBtn.classList.remove('flex');
+            });
+
+            // 2. iOS Safari (hat kein beforeinstallprompt, muss manuell getriggert werden)
+            const isIos = (/ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase()) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
+            const isSafari = /safari/.test(navigator.userAgent.toLowerCase()) && !/chrome|crios|crmo/.test(navigator.userAgent.toLowerCase());
+
+            if (isIos && isSafari) {
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('flex');
+            }
+
+            installBtn.addEventListener('click', async () => {
+                if (window.playSound) window.playSound('click');
+                
+                if (isIos && isSafari) {
+                    // Zeige iOS Anleitung
+                    const modal = document.getElementById('ios-install-modal');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    setTimeout(() => {
+                        modal.classList.remove('opacity-0');
+                        modal.children[0].classList.remove('scale-90');
+                        modal.children[0].classList.add('scale-100');
+                    }, 10);
+                } else if (deferredPrompt) {
+                    // Triggere Android/Chrome Install Prompt
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.classList.add('hidden');
+                        installBtn.classList.remove('flex');
+                    }
+                    deferredPrompt = null;
+                }
+            });
+        }
+
+        function hideIosInstall() {
+            if (window.playSound) window.playSound('click');
+            const modal = document.getElementById('ios-install-modal');
+            if (modal) {
+                modal.classList.add('opacity-0');
+                modal.children[0].classList.remove('scale-100');
+                modal.children[0].classList.add('scale-90');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
         }
     </script>
+    <!-- Splashscreen wird nun automatisch von common.js ausgeblendet -->
 </body>
 </html>
