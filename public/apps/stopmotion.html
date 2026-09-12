@@ -37,7 +37,7 @@
         /* Optimierung für Smartphone Querformat */
         @media (max-height: 500px) and (orientation: landscape) {
             .header-area { height: 3.5rem !important; margin-bottom: 0 !important; }
-            .action-area { height: 4rem !important; gap: 0.5rem !important; }
+            .action-area { height: 4.5rem !important; gap: 0.5rem !important; }
             .filmstrip-area { height: 4.5rem !important; }
             .video-main { border-width: 4px !important; }
         }
@@ -46,20 +46,19 @@
         .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
 
-        .frame-thumb {
-            transition: all 0.2s ease-in-out;
-        }
-        .frame-thumb.active {
-            border-color: #f59e0b !important;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
-        }
-
         .btn-speed.active {
             background-color: #f59e0b !important;
             color: black !important;
             border-color: #d97706 !important;
         }
+
+        .rec-active { 
+            animation: hardPulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite; 
+            background-color: #ef4444 !important; 
+            border-color: white !important; 
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.8) !important; 
+        }
+        @keyframes hardPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } }
     </style>
 </head>
 <body class="flex flex-col p-2 md:p-4 box-border bg-slate-900">
@@ -82,22 +81,39 @@
     <!-- MAIN AREA -->
     <div class="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
         
-        <!-- SIDE PANEL: Steuerung & Werkzeuge -->
-        <div class="side-bar flex-none w-full md:w-48 bg-slate-800 p-2 md:p-4 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 justify-between items-center h-auto md:h-full overflow-x-auto no-scrollbar">
+        <!-- SIDE PANEL: Steuerung, Tempo & Tonaufnahme -->
+        <div class="side-bar flex-none w-full md:w-56 bg-slate-800 p-2 md:p-4 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 justify-between items-center h-auto md:h-full overflow-x-auto no-scrollbar">
             
             <!-- Onion Skin Toggle -->
-            <button id="onion-btn" onclick="toggleOnionSkin()" class="flex-1 md:w-full py-2 md:py-4 px-3 rounded-xl md:rounded-2xl bg-slate-700 border-2 border-amber-400 text-white font-black text-xs md:text-base flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 shadow-lg active:scale-95 transition">
-                <span class="text-lg md:text-2xl">👻</span>
+            <button id="onion-btn" onclick="toggleOnionSkin()" class="flex-1 md:w-full py-2 md:py-3 px-3 rounded-xl md:rounded-2xl bg-slate-700 border-2 border-amber-400 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                <span class="text-base md:text-xl">👻</span>
                 <span id="onion-status">GEISTERBILD: AN</span>
             </button>
 
             <!-- Geschwindigkeits-Regler -->
             <div class="flex flex-col gap-1 w-full text-center">
-                <span class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider hidden md:block">TEMPO</span>
+                <span class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider hidden md:block">TEMPO (FPS)</span>
                 <div class="flex gap-1 justify-center w-full">
                     <button onclick="setSpeed(3, this)" class="btn-speed flex-1 py-1 md:py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs md:text-sm font-black text-slate-300">🐌 3</button>
                     <button onclick="setSpeed(6, this)" class="btn-speed active flex-1 py-1 md:py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs md:text-sm font-black text-slate-300">🏃 6</button>
                     <button onclick="setSpeed(12, this)" class="btn-speed flex-1 py-1 md:py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs md:text-sm font-black text-slate-300">🚀 12</button>
+                </div>
+            </div>
+
+            <!-- TONAUFNAHME BEREICH -->
+            <div class="flex flex-col gap-2 w-full bg-slate-900/60 p-2 md:p-3 rounded-xl border border-slate-700">
+                <span class="text-[10px] md:text-xs font-bold text-amber-400 uppercase tracking-wider text-center block">🎙️ TONSPUR</span>
+                <button id="btn-audio-rec" onclick="toggleAudioRecording()" class="w-full py-2 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition border-b-2 border-red-800">
+                    <span id="audio-rec-icon">🔴</span> <span id="audio-rec-text">TON AUFNEHMEN</span>
+                </button>
+                
+                <div id="audio-controls" class="hidden flex gap-1 w-full">
+                    <button id="btn-audio-play" onclick="playAudioTrack()" class="flex-1 py-1.5 bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-lg flex items-center justify-center gap-1 shadow">
+                        ▶️ ANHÖREN
+                    </button>
+                    <button id="btn-audio-del" onclick="deleteAudioTrack()" class="py-1.5 px-3 bg-slate-700 hover:bg-red-600 text-slate-300 hover:text-white font-bold text-xs rounded-lg flex items-center justify-center shadow" title="Ton löschen">
+                        🗑️
+                    </button>
                 </div>
             </div>
 
@@ -112,39 +128,48 @@
             </button>
         </div>
 
-        <!-- CENTER AREA: Kamera/Vorschau Canvas & Filmleiste -->
+        <!-- CENTER AREA: Kamera Viewport & Filmleiste -->
         <div class="flex-1 flex flex-col min-h-0 w-full gap-2 md:gap-4">
             
             <!-- VIDEO / PLAYBACK VIEWPORT -->
-            <div class="video-main relative flex-1 min-h-0 w-full bg-slate-950 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center">
-                <video id="video" autoplay playsinline muted class="absolute w-full h-full object-contain pointer-events-none opacity-0"></video>
-                <canvas id="view-canvas" class="absolute inset-0 w-full h-full object-contain block"></canvas>
+            <div class="video-main relative flex-1 min-h-0 w-full bg-black rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center">
+                <!-- Direkte Live Video Vorschau (Garantiert 100% Sichtbarkeit) -->
+                <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain block"></video>
+                
+                <!-- Overlay Canvas für Geisterbild (Onion Skin) und Film-Abspielen -->
+                <canvas id="view-canvas" class="absolute inset-0 w-full h-full object-contain pointer-events-none block"></canvas>
                 
                 <!-- On-Screen Frame Counter Badge -->
                 <div class="absolute top-3 left-3 bg-slate-900/90 text-amber-400 px-3 py-1 md:px-5 md:py-2 rounded-full font-black text-xs md:text-xl border border-amber-500/50 shadow-xl backdrop-blur z-20 flex items-center gap-2">
-                    <span id="frame-counter">0 / 12 BILDER</span>
+                    <span id="frame-counter">0 / 16 BILDER</span>
                 </div>
 
                 <!-- Live / Playback State Indicator -->
                 <div id="state-badge" class="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20">
-                    <div class="w-2 h-2 bg-white rounded-full animate-ping"></div> LIVE
+                    <div class="w-2.5 h-2.5 bg-white rounded-full animate-ping"></div> LIVE KAMERA
                 </div>
+
+                <!-- Großer Touch Auslöser Direkt auf dem Videobild (für Kinder leicht erreichbar) -->
+                <button onclick="captureFrame()" class="absolute bottom-4 right-4 bg-amber-500 hover:bg-amber-400 active:scale-90 text-black w-14 h-14 md:w-20 md:h-20 rounded-full border-4 border-amber-300 shadow-[0_0_30px_rgba(245,158,11,0.7)] flex items-center justify-center text-2xl md:text-4xl font-black z-30 transition-transform">
+                    📸
+                </button>
             </div>
 
-            <!-- FILMSTRIP TIMELINE -->
-            <div class="filmstrip-area h-20 md:h-28 flex-none w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-2 overflow-x-auto no-scrollbar" id="filmstrip-container">
+            <!-- FILMSTRIP TIMELINE MIT LÖSCH-OPTION -->
+            <div class="filmstrip-area h-24 md:h-32 flex-none w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-3 overflow-x-auto no-scrollbar" id="filmstrip-container">
                 <div class="text-slate-500 font-bold text-xs md:text-sm px-4 text-center w-full" id="empty-strip-hint">
-                    Klicke unten auf 📸 FOTO, um dein erstes Bild aufzunehmen!
+                    Klicke auf 📸 FOTO KNIPSEN, um dein erstes Bild aufzunehmen!
                 </div>
             </div>
 
-            <!-- ACTION BUTTONS -->
-            <div class="action-area h-16 md:h-24 flex-none shrink-0 w-full flex items-center justify-center gap-3 px-2">
+            <!-- ACTION BUTTONS BAR -->
+            <div class="action-area h-16 md:h-24 flex-none shrink-0 w-full flex items-center justify-center gap-2 md:gap-4 px-1">
                 <button id="play-btn" onclick="togglePlay()" class="h-12 md:h-18 px-4 md:px-8 bg-green-600 hover:bg-green-500 text-white text-xs md:text-xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-green-800 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 shadow-lg shrink-0">
                     <span class="text-lg md:text-2xl" id="play-icon">▶️</span> <span id="play-text">FILM ABSPIELEN</span>
                 </button>
 
-                <button id="snap-btn" onclick="captureFrame()" class="flex-1 max-w-xs md:max-w-md h-12 md:h-18 bg-amber-500 hover:bg-amber-400 text-black text-sm md:text-2xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-amber-700 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-[0_0_20px_rgba(245,158,11,0.4)] active:scale-95 group">
+                <!-- HAUPT AUSLÖSER BUTTON -->
+                <button id="snap-btn" onclick="captureFrame()" class="flex-1 max-w-xs md:max-w-md h-12 md:h-18 bg-amber-500 hover:bg-amber-400 text-black text-sm md:text-2xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-amber-700 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-[0_0_20px_rgba(245,158,11,0.5)] active:scale-95 group">
                     <span class="group-hover:scale-125 transition-transform duration-300 text-xl md:text-3xl">📸</span> FOTO KNIPSEN!
                 </button>
 
@@ -156,20 +181,34 @@
         </div>
     </div>
 
+    <!-- BILD VORSCHAU / EINZELBILD BEREINIGEN MODAL -->
+    <div id="frame-detail-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-[150] flex flex-col items-center justify-center p-4">
+        <h3 id="frame-detail-title" class="text-xl md:text-3xl font-black text-amber-400 mb-4">Bild 1</h3>
+        <div class="relative max-w-2xl max-h-[60vh] border-4 border-white rounded-2xl overflow-hidden bg-black mb-6 shadow-2xl">
+            <img id="frame-detail-img" class="w-full h-full object-contain" src="">
+        </div>
+        <div class="flex gap-4">
+            <button onclick="closeFrameDetail()" class="px-6 py-3 bg-slate-700 text-white font-bold rounded-xl text-lg shadow">ZURÜCK</button>
+            <button id="btn-delete-single" onclick="deleteSelectedFrame()" class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-lg shadow border-b-4 border-red-800 flex items-center gap-2">
+                🗑️ BILD LÖSCHEN
+            </button>
+        </div>
+    </div>
+
     <!-- HILFE MODAL -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
             <h2 class="text-3xl md:text-4xl font-black text-white mb-6 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-5xl">🎬</span> ANLEITUNG TRICKFILM
-                <button onclick="window.speakText('Anleitung für das Trickfilm Studio. 1. Baue deine Figuren auf. 2. Tippe auf Foto knipsen. 3. Bewege deine Figuren ein kleines Stück. Das transparente Geisterbild hilft dir dabei! 4. Knipse das nächste Foto. 5. Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+                <button onclick="window.speakText('Anleitung für das Trickfilm Studio. 1. Baue deine Figuren auf. 2. Tippe auf Foto knipsen. 3. Bewege deine Figuren ein kleines Stück. Das Geisterbild hilft dir dabei! 4. Nimm eine Tonspur mit dem Mikrofon auf. 5. Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
             </h2>
             <div class="text-base md:text-lg text-slate-300 space-y-4">
                 <p>1. <b>🧱 Motiv aufbauen</b>: Stelle deine Gegenstände oder Figuren vor die Kamera.</p>
-                <p>2. <b>📸 Foto knipsen</b>: Tippe auf den gelben Button, um das erste Bild aufzunehmen.</p>
-                <p>3. <b>👻 Geisterbild nutzen</b>: Bewege deine Figur ein winziges Stück. Das leicht durchsichtige Geisterbild zeigt dir genau die alte Position!</p>
-                <p>4. <b>▶️ Film ansehen</b>: Tippe auf Abspielen, um deinen fertigen Trickfilm in Schleife zu sehen.</p>
-                <p>5. <b>🖨️ Daumenkino drucken</b>: Drucke deine Bilder als Ausschneide-Bogen aus und erstelle dein eigenes gedrucktes Daumenkino!</p>
+                <p>2. <b>📸 Foto knipsen</b>: Tippe auf den gelben Button oder auf das Kamera-Icon im Bild.</p>
+                <p>3. <b>👻 Geisterbild nutzen</b>: Bewege deine Figur ein winziges Stück. Das leicht durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
+                <p>4. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf TON AUFNEHMEN, um Geräusche oder Stimmen für deinen Film einzusprechen.</p>
+                <p>5. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film mit Ton ab oder drucke ihn als Daumenkino-Bogen aus!</p>
             </div>
         </div>
     </div>
@@ -179,7 +218,8 @@
         const canvas = document.getElementById('view-canvas');
         const ctx = canvas.getContext('2d');
 
-        let frames = []; // Speichert Data-URLs der aufgenommenen Bilder
+        let frames = []; // Speichert Data-URLs aller aufgenommenen Bilder
+        let selectedFrameIdx = -1;
         let currentStream = null;
         let currentFacingMode = 'user';
         let isPlaying = false;
@@ -187,8 +227,16 @@
         let currentPlayIndex = 0;
         let fps = 6;
         let onionSkinEnabled = true;
-        const MAX_FRAMES = 12;
+        const MAX_FRAMES = 16;
 
+        // Tonaufnahme Variablen
+        let audioRecorder = null;
+        let audioChunks = [];
+        let audioBlob = null;
+        let audioPlayer = null;
+        let isAudioRecording = false;
+
+        // --- KAMERA INITIALISIERUNG ---
         async function initCam() {
             if (currentStream) currentStream.getTracks().forEach(t => t.stop());
 
@@ -203,61 +251,57 @@
                     video.srcObject = currentStream;
                     await new Promise(r => video.onloadedmetadata = r);
                     await video.play();
+                    
+                    // Canvas-Auflösung exakt EINMAL an die Videoauflösung anpassen!
+                    canvas.width = video.videoWidth || 1280;
+                    canvas.height = video.videoHeight || 720;
+
                     renderLiveLoop();
                     return;
                 } catch (e) { console.warn("Kamera-Versuch fehlgeschlagen", e); }
             }
-            if(window.showError) window.showError("Kamera konnte nicht gestartet werden!", "📷");
+            if(window.showError) window.showError("Kamera konnte nicht gestartet werden! Erlaube den Kamerazugriff.", "📷");
         }
 
+        // Live Render Loop für Geisterbild (Onion Skinning)
         function renderLiveLoop() {
-            if (!isPlaying && video.readyState >= 2) {
-                canvas.width = video.videoWidth || 1280;
-                canvas.height = video.videoHeight || 720;
-                
-                ctx.save();
+            if (!isPlaying && canvas.width > 0) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                if (currentFacingMode === 'user') {
-                    ctx.translate(canvas.width, 0);
-                    ctx.scale(-1, 1);
-                }
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                ctx.restore();
 
-                // Onion Skin Overlay (Transparenter Geisterbild-Effekt des letzten aufgenommenen Frames)
+                // Wenn Onion Skinning aktiv ist und mindestens 1 Bild existiert:
                 if (onionSkinEnabled && frames.length > 0) {
                     const lastImg = new Image();
-                    lastImg.src = frames[frames.length - 1];
-                    if (lastImg.complete) {
+                    lastImg.onload = () => {
                         ctx.save();
-                        ctx.globalAlpha = 0.35;
+                        ctx.globalAlpha = 0.35; // 35% Transparenz für das Geisterbild
                         ctx.drawImage(lastImg, 0, 0, canvas.width, canvas.height);
                         ctx.restore();
-                    }
+                    };
+                    lastImg.src = frames[frames.length - 1];
                 }
             }
             requestAnimationFrame(renderLiveLoop);
         }
 
+        // --- FOTO AUFNEHMEN ---
         window.captureFrame = () => {
             if (frames.length >= MAX_FRAMES) {
-                if(window.showError) window.showError(`Du hast bereits ${MAX_FRAMES} Bilder! Klicke auf Abspielen oder Drucken.`, "🎬");
+                if(window.showError) window.showError(`Du hast bereits ${MAX_FRAMES} Bilder aufgenommen!`, "🎬");
                 return;
             }
 
             if (window.playSound) window.playSound('shutter');
 
-            // Blitzlicht-Effekt
+            // Visueller Blitzlicht-Effekt
             const flash = document.createElement('div');
             flash.className = 'absolute inset-0 bg-white z-50 transition-opacity duration-300 pointer-events-none';
-            canvas.parentElement.appendChild(flash);
+            video.parentElement.appendChild(flash);
             setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 300); }, 50);
 
-            // Frame vom Live Video sichern (ohne Spiegelung)
+            // Frame vom Live Video capturen (ohne Spiegelung für das gespeicherte Bild)
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
+            tempCanvas.width = canvas.width || 1280;
+            tempCanvas.height = canvas.height || 720;
             const tempCtx = tempCanvas.getContext('2d');
             
             if (currentFacingMode === 'user') {
@@ -270,6 +314,7 @@
             updateFilmstripUI();
         };
 
+        // --- TIMELINE FILMLEISTE AKTUALISIEREN ---
         function updateFilmstripUI() {
             const container = document.getElementById('filmstrip-container');
             const hint = document.getElementById('empty-strip-hint');
@@ -288,21 +333,45 @@
 
             frames.forEach((src, idx) => {
                 const item = document.createElement('div');
-                item.className = 'relative flex-none w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 border-slate-600 bg-black cursor-pointer group shadow-md';
+                item.className = 'relative flex-none w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden border-2 border-slate-600 bg-black cursor-pointer group shadow-md hover:border-amber-400 transition-all';
+                item.onclick = () => openFrameDetail(idx);
                 item.innerHTML = `
                     <img src="${src}" class="w-full h-full object-cover">
-                    <span class="absolute top-1 left-1 bg-amber-500 text-black font-black text-[10px] md:text-xs px-1.5 py-0.5 rounded-md shadow">${idx + 1}</span>
-                    <button onclick="event.stopPropagation(); deleteFrame(${idx})" class="absolute bottom-1 right-1 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 md:w-6 md:h-6 text-[10px] md:text-xs flex items-center justify-center font-bold shadow transition opacity-90 group-hover:scale-110" title="Bild löschen">✕</button>
+                    <span class="absolute top-1 left-1 bg-amber-500 text-black font-black text-xs px-2 py-0.5 rounded-md shadow">${idx + 1}</span>
+                    <button onclick="event.stopPropagation(); deleteFrame(${idx})" class="absolute top-1 right-1 bg-red-600 hover:bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center font-black shadow transition active:scale-90 z-10" title="Dieses Bild löschen">
+                        ✕
+                    </button>
                 `;
                 container.appendChild(item);
             });
         }
 
+        // --- EINZELBILD LÖSCHEN ---
         window.deleteFrame = (idx) => {
             if (window.playSound) window.playSound('click');
             frames.splice(idx, 1);
             if (isPlaying && frames.length === 0) stopPlay();
             updateFilmstripUI();
+        };
+
+        // Einzelbild Vorschau Modal
+        function openFrameDetail(idx) {
+            if (window.playSound) window.playSound('click');
+            selectedFrameIdx = idx;
+            document.getElementById('frame-detail-title').innerText = `Bild ${idx + 1} von ${frames.length}`;
+            document.getElementById('frame-detail-img').src = frames[idx];
+            document.getElementById('frame-detail-modal').classList.remove('hidden');
+        }
+
+        window.closeFrameDetail = () => {
+            document.getElementById('frame-detail-modal').classList.add('hidden');
+        };
+
+        window.deleteSelectedFrame = () => {
+            if (selectedFrameIdx >= 0 && selectedFrameIdx < frames.length) {
+                deleteFrame(selectedFrameIdx);
+                closeFrameDetail();
+            }
         };
 
         window.clearAllFrames = () => {
@@ -313,6 +382,7 @@
             updateFilmstripUI();
         };
 
+        // --- GEISTERBILD (ONION SKIN) TOGGLE ---
         window.toggleOnionSkin = () => {
             if (window.playSound) window.playSound('click');
             onionSkinEnabled = !onionSkinEnabled;
@@ -327,6 +397,7 @@
             }
         };
 
+        // --- TEMPO (FPS) REGELN ---
         window.setSpeed = (s, btn) => {
             if (window.playSound) window.playSound('click');
             fps = s;
@@ -339,6 +410,7 @@
             }
         };
 
+        // --- WIEDERGABE (PLAY / PAUSE) ---
         window.togglePlay = () => {
             if (frames.length === 0) {
                 if(window.showError) window.showError("Knipse zuerst ein paar Fotos!", "📸");
@@ -354,10 +426,18 @@
         function startPlay() {
             if (frames.length === 0) return;
             isPlaying = true;
+            video.style.opacity = '0'; // Live Kamera ausblenden während der Wiedergabe
+            canvas.style.pointerEvents = 'auto';
+
             document.getElementById('play-icon').innerText = "⏸️";
             document.getElementById('play-text').innerText = "STOPP";
             document.getElementById('state-badge').className = "absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20";
-            document.getElementById('state-badge').innerHTML = "▶️ ABSPIELEN";
+            document.getElementById('state-badge').innerHTML = "▶️ TRICKFILM LÄUFT";
+
+            // Falls Audio-Tonspur existiert: Synchron abspielen!
+            if (audioBlob) {
+                playAudioTrack();
+            }
 
             currentPlayIndex = 0;
             const renderFrame = () => {
@@ -377,11 +457,100 @@
         function stopPlay() {
             isPlaying = false;
             if (playInterval) clearInterval(playInterval);
+            video.style.opacity = '1'; // Live Kamera wieder einblenden
+            canvas.style.pointerEvents = 'none';
+
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+
             document.getElementById('play-icon').innerText = "▶️";
             document.getElementById('play-text').innerText = "FILM ABSPIELEN";
             document.getElementById('state-badge').className = "absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20";
-            document.getElementById('state-badge').innerHTML = '<div class="w-2 h-2 bg-white rounded-full animate-ping"></div> LIVE';
+            document.getElementById('state-badge').innerHTML = '<div class="w-2.5 h-2.5 bg-white rounded-full animate-ping"></div> LIVE KAMERA';
         }
+
+        // --- MIKROFON TONAUFNAHME ---
+        window.toggleAudioRecording = async () => {
+            if (isAudioRecording) {
+                stopAudioRecording();
+            } else {
+                startAudioRecording();
+            }
+        };
+
+        async function startAudioRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                if(window.showError) window.showError("Mikrofon wird vom Browser nicht unterstützt!", "🎙️");
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioChunks = [];
+                audioRecorder = new MediaRecorder(stream);
+
+                audioRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                audioRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    audioPlayer = new Audio(URL.createObjectURL(audioBlob));
+                    document.getElementById('audio-controls').classList.remove('hidden');
+                    document.getElementById('audio-controls').classList.add('flex');
+                    if(window.playSound) window.playSound('success');
+                };
+
+                audioRecorder.start();
+                isAudioRecording = true;
+
+                const btn = document.getElementById('btn-audio-rec');
+                btn.classList.add('rec-active');
+                document.getElementById('audio-rec-icon').innerText = "⏹️";
+                document.getElementById('audio-rec-text').innerText = "AUFNAHME STOPPEN";
+
+                // Starte auch die Animation während der Tonaufnahme!
+                if (!isPlaying && frames.length > 0) startPlay();
+
+            } catch (err) {
+                console.error("Audioaufnahmefehler:", err);
+                if(window.showError) window.showError("Zugriff auf das Mikrofon verweigert!", "🎙️");
+            }
+        }
+
+        function stopAudioRecording() {
+            if (audioRecorder && audioRecorder.state !== 'inactive') {
+                audioRecorder.stop();
+                if (audioRecorder.stream) audioRecorder.stream.getTracks().forEach(t => t.stop());
+            }
+            isAudioRecording = false;
+
+            const btn = document.getElementById('btn-audio-rec');
+            btn.classList.remove('rec-active');
+            document.getElementById('audio-rec-icon').innerText = "🔴";
+            document.getElementById('audio-rec-text').innerText = "TON AUFNEHMEN";
+        }
+
+        window.playAudioTrack = () => {
+            if (audioPlayer) {
+                audioPlayer.currentTime = 0;
+                audioPlayer.play().catch(e => console.warn(e));
+            }
+        };
+
+        window.deleteAudioTrack = () => {
+            if (window.playSound) window.playSound('click');
+            if (audioPlayer) {
+                audioPlayer.pause();
+                if (audioPlayer.src) URL.revokeObjectURL(audioPlayer.src);
+                audioPlayer = null;
+            }
+            audioBlob = null;
+            document.getElementById('audio-controls').classList.add('hidden');
+            document.getElementById('audio-controls').classList.remove('flex');
+        };
 
         window.switchCamera = () => {
             if (window.playSound) window.playSound('click');
@@ -389,6 +558,7 @@
             initCam();
         };
 
+        // --- DAUMENKINO AUSDRUCKEN ---
         window.printFlipbook = async (btn) => {
             if (frames.length === 0) {
                 if(window.showError) window.showError("Knipse zuerst Fotos für dein Daumenkino!", "🖨️");
@@ -438,7 +608,6 @@
 
                     const img = await loadImg(frames[i]);
 
-                    // Bild einzeichnen (cropped / fitted)
                     pCtx.save();
                     pCtx.beginPath();
                     pCtx.rect(x, y, cellW, cellH);
@@ -459,7 +628,7 @@
                     pCtx.drawImage(img, dx, dy, dw, dh);
                     pCtx.restore();
 
-                    // gestrichelte Schneidelinien & Bildnummer
+                    // Gestrichelte Schneidelinien & Bildnummer
                     pCtx.strokeStyle = '#94a3b8';
                     pCtx.lineWidth = 3;
                     pCtx.setLineDash([8, 8]);
