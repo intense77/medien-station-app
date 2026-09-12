@@ -131,7 +131,7 @@
     <!-- MAIN AREA -->
     <div class="main-wrapper flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
         
-        <!-- SIDE PANEL: Steuerung, Tempo & Tonaufnahme -->
+        <!-- SIDE PANEL: Steuerung, Tempo, Bildfilter & Tonaufnahme -->
         <div class="side-bar flex-none w-full md:w-56 landscape:w-52 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2 justify-between items-center h-auto md:h-full landscape:h-full overflow-x-auto landscape:overflow-y-auto no-scrollbar">
             
             <!-- GEISTERBILD (Onion Skin) TOGGLE BUTTON MIT HOHEM KONTRAST -->
@@ -139,6 +139,15 @@
                 <span class="flex items-center gap-1.5">👻 GEISTERBILD</span>
                 <span id="onion-status" class="bg-slate-950 text-amber-400 px-2 py-0.5 rounded text-[10px] font-black">AN</span>
             </button>
+
+            <!-- BILDFILTER EFFEKT SELECTOR -->
+            <div class="flex flex-col gap-1 w-full text-center shrink-0">
+                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider hidden md:block">🎨 BILDFILTER</span>
+                <button id="filter-btn" onclick="cycleFilter()" class="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-400 text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition shrink-0" title="Bildfilter wechseln">
+                    <span id="filter-name" class="flex items-center gap-1">📷 NORMAL</span>
+                    <span class="bg-black/30 px-1.5 py-0.5 rounded text-[10px] font-bold">WECHSELN 🔄</span>
+                </button>
+            </div>
 
             <!-- Geschwindigkeits-Regler -->
             <div class="flex flex-col gap-1 w-full text-center shrink-0">
@@ -266,14 +275,15 @@
             <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
             <h2 class="text-3xl md:text-4xl font-black text-white mb-6 border-b border-slate-600 pb-4 flex items-center gap-4">
                 <span class="text-5xl">🎬</span> ANLEITUNG TRICKFILM
-                <button onclick="window.speakText('Anleitung für das Trickfilm Studio. 1. Baue deine Figuren auf. 2. Tippe auf Foto knipsen. 3. Bewege deine Figuren ein kleines Stück. Das Geisterbild hilft dir dabei! 4. Nimm eine Tonspur mit dem Mikrofon auf. 5. Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+                <button onclick="window.speakText('Anleitung für das Trickfilm Studio. 1. Baue deine Figuren auf. 2. Wähle optional einen coolen Bildfilter aus. 3. Tippe auf Foto knipsen. 4. Bewege deine Figuren ein kleines Stück. Das Geisterbild hilft dir dabei! 5. Nimm eine Tonspur mit dem Mikrofon auf. 6. Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
             </h2>
             <div class="text-base md:text-lg text-slate-300 space-y-4">
                 <p>1. <b>🧱 Motiv aufbauen</b>: Stelle deine Gegenstände oder Figuren vor die Kamera.</p>
-                <p>2. <b>📸 Foto knipsen</b>: Tippe auf den leuchtenden gelben Auslöser.</p>
-                <p>3. <b>👻 Geisterbild nutzen</b>: Bewege deine Figur ein Stück. Das leicht durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
-                <p>4. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf TON AUFNEHMEN, um Geräusche oder Stimmen einzusprechen.</p>
-                <p>5. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film mit Ton ab oder drucke ihn als Daumenkino-Bogen aus!</p>
+                <p>2. <b>🎨 Bildfilter wählen</b>: Probiere Schwarz-Weiß (Krimi), Sepia (Retro) oder Neon aus!</p>
+                <p>3. <b>📸 Foto knipsen</b>: Tippe auf den leuchtenden gelben Auslöser.</p>
+                <p>4. <b>👻 Geisterbild nutzen</b>: Bewege deine Figur ein Stück. Das leicht durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
+                <p>5. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf TON AUFNEHMEN, um Geräusche oder Stimmen einzusprechen.</p>
+                <p>6. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film mit Ton ab oder drucke ihn als Daumenkino-Bogen aus!</p>
             </div>
         </div>
     </div>
@@ -295,12 +305,40 @@
         let onionImage = new Image();
         const MAX_FRAMES = 16;
 
+        // Bildfilter Variablen
+        let currentFilterIdx = 0;
+        const FILTERS = [
+            { name: '📷 NORMAL', css: 'none', bg: 'bg-indigo-600 border-indigo-400 text-white' },
+            { name: '🕵️ SW KRIMI', css: 'grayscale(100%) contrast(125%)', bg: 'bg-slate-200 border-slate-400 text-slate-950 font-black' },
+            { name: '📜 RETRO SEPIA', css: 'sepia(100%) contrast(110%) saturate(140%)', bg: 'bg-amber-700 border-amber-500 text-amber-100 font-black' },
+            { name: '🎨 POP-ART', css: 'saturate(250%) contrast(140%)', bg: 'bg-fuchsia-500 border-fuchsia-300 text-white font-black' },
+            { name: '🔮 NEON SCI-FI', css: 'invert(100%) hue-rotate(180deg)', bg: 'bg-cyan-400 border-cyan-200 text-slate-950 font-black' }
+        ];
+
         // Tonaufnahme Variablen
         let audioRecorder = null;
         let audioChunks = [];
         let audioBlob = null;
         let audioPlayer = null;
         let isAudioRecording = false;
+
+        // --- BILDFILTER SCHALTEN ---
+        window.cycleFilter = () => {
+            if (window.playSound) window.playSound('click');
+            currentFilterIdx = (currentFilterIdx + 1) % FILTERS.length;
+            applyFilter();
+        };
+
+        function applyFilter() {
+            const f = FILTERS[currentFilterIdx];
+            video.style.filter = f.css;
+            const btn = document.getElementById('filter-btn');
+            const text = document.getElementById('filter-name');
+            if (btn && text) {
+                text.innerText = f.name;
+                btn.className = `w-full py-2 px-3 rounded-xl border-2 text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition shrink-0 ${f.bg}`;
+            }
+        }
 
         // --- KAMERA INITIALISIERUNG ---
         async function initCam() {
@@ -327,6 +365,7 @@
                     canvas.width = video.videoWidth || 1280;
                     canvas.height = video.videoHeight || 720;
 
+                    applyFilter();
                     renderLiveLoop();
                     return;
                 } catch (e) { 
@@ -379,7 +418,7 @@
             video.parentElement.appendChild(flash);
             setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 300); }, 50);
 
-            // Frame vom Live Video capturen
+            // Frame vom Live Video capturen inkl. aktivem Bildfilter
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = canvas.width || 1280;
             tempCanvas.height = canvas.height || 720;
@@ -389,6 +428,13 @@
                 tempCtx.translate(tempCanvas.width, 0);
                 tempCtx.scale(-1, 1);
             }
+
+            // Aktiven Bildfilter direkt in das Canvas zeichnen
+            const currentFilter = FILTERS[currentFilterIdx];
+            if (currentFilter.css !== 'none') {
+                tempCtx.filter = currentFilter.css;
+            }
+
             tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
             
             const frameUrl = tempCanvas.toDataURL('image/jpeg', 0.85);
