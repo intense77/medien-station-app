@@ -34,12 +34,15 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* Optimierung für Smartphone Querformat */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .header-area { height: 3.5rem !important; margin-bottom: 0 !important; }
-            .action-area { height: 4.5rem !important; gap: 0.5rem !important; }
+        /* Optimierung für Querformat (Landscape) auf Tablets & Mobilgeräten */
+        @media (orientation: landscape) {
+            .header-area { height: 3.5rem !important; margin-bottom: 0.25rem !important; }
+            .main-wrapper { flex-direction: row !important; }
+            .side-bar { width: 13.5rem !important; height: 100% !important; flex-direction: column !important; justify-content: flex-start !important; overflow-y: auto !important; }
+            .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
+            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 4px !important; }
+            .action-area { height: 4rem !important; gap: 0.5rem !important; }
             .filmstrip-area { height: 4.5rem !important; }
-            .video-main { border-width: 4px !important; }
         }
         
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -61,7 +64,7 @@
         @keyframes hardPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.9; } }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900">
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 h-full w-full">
 
     <!-- HEADER -->
     <div class="header-area h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
@@ -79,10 +82,10 @@
     </div>
 
     <!-- MAIN AREA -->
-    <div class="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
+    <div class="main-wrapper flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
         
         <!-- SIDE PANEL: Steuerung, Tempo & Tonaufnahme -->
-        <div class="side-bar flex-none w-full md:w-56 bg-slate-800 p-2 md:p-4 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 justify-between items-center h-auto md:h-full overflow-x-auto no-scrollbar">
+        <div class="side-bar flex-none w-full md:w-56 landscape:w-56 bg-slate-800 p-2 md:p-4 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2 justify-between items-center h-auto md:h-full landscape:h-full overflow-x-auto landscape:overflow-y-auto no-scrollbar">
             
             <!-- Onion Skin Toggle -->
             <button id="onion-btn" onclick="toggleOnionSkin()" class="flex-1 md:w-full py-2 md:py-3 px-3 rounded-xl md:rounded-2xl bg-slate-700 border-2 border-amber-400 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
