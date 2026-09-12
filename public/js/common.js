@@ -180,7 +180,8 @@
 
             idleResetTimer = setTimeout(() => {
                 window.hideIdleWarning();
-            if (isSubApp) window.goHome();
+                try { window.cleanupSessionFiles(); } catch(e) {}
+                if (isSubApp) window.goHome();
             }, IDLE_RESET_TIME);
         }, IDLE_WARNING_TIME);
     };
@@ -201,6 +202,25 @@
 
     // --- 4. Initialisierung ---
     function initCommon() {
+        // Automatische Bereinigung temporärer Dateien bei jedem Anwendungsstart
+        try { window.cleanupSessionFiles(); } catch(e) {}
+
+        // Globaler Hardware- & MediaStream Cleanup bei Anwendungsverlassen
+        const stopHardwareStreams = () => {
+            try {
+                document.querySelectorAll('video, audio').forEach(el => {
+                    if (el.srcObject && typeof el.srcObject.getTracks === 'function') {
+                        el.srcObject.getTracks().forEach(t => t.stop());
+                    }
+                });
+            } catch(e) {}
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch(e) {}
+            }
+        };
+        window.addEventListener('pagehide', stopHardwareStreams);
+        window.addEventListener('beforeunload', stopHardwareStreams);
+
         // --- Globaler Sound-Debouncer (Entprellung für Klicks) ---
         if (window.playSound) {
             const originalPlay = window.playSound;
