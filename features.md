@@ -41,7 +41,16 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
   - Ausgeben als ausdruckbares Nachrichten-Foto.
 * **Pädagogischer Mehrwert**: Medienkompetenz (Verstehen von Nachrichtenformaten), Journalismus, Freies Formulieren.
 
-### 5. 👾 Pixel Labor (Retro Digitalkunst)
+### 5. 🎬 Trickfilm Studio (Stop-Motion Werkstatt)
+* **Funktion**: Erstellen von eigenen Stop-Motion Animationen und Daumenkinos.
+* **Möglichkeiten**:
+  - Live-Kameraaufnahmen (bis zu 12 Einzelbilder pro Film).
+  - Geisterbild-Funktion (Onion Skinning: Transparente Überlagerung des vorherigen Frames für präzise Bewegungsabläufe).
+  - Geschwindigkeitssteuerung (3 FPS, 6 FPS, 12 FPS) mit sofortiger Schleifen-Wiedergabe.
+  - Ausdruck der Bilderfolge als gestalteter Daumenkino-Ausschneidebogen (3:2 Format für Photo-Drucker).
+* **Pädagogischer Mehrwert**: Verständnis von Filmaufbau und Bildfrequenz, Feinmotorik, Raum-Bewegungskonzepte, Haptisches Lernerlebnis.
+
+### 6. 👾 Pixel Labor (Retro Digitalkunst)
 * **Funktion**: Digitaler Zeichenbereich in 16x16 Raster-Optik.
 * **Möglichkeiten**:
   - Malen mit Farbpaletten, Radiergummi und Füllwerkzeug.

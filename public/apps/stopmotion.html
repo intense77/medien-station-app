@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Trickfilm Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/assets/apple-touch-icon.png?v=2">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../cordova.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/print.js"></script>
+
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        body { 
+            background-color: #0f172a; 
+            color: white; 
+            user-select: none; 
+            touch-action: manipulation; 
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Optimierung für Smartphone Querformat */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header-area { height: 3.5rem !important; margin-bottom: 0 !important; }
+            .action-area { height: 4rem !important; gap: 0.5rem !important; }
+            .filmstrip-area { height: 4.5rem !important; }
+            .video-main { border-width: 4px !important; }
+        }
+        
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
+
+        .frame-thumb {
+            transition: all 0.2s ease-in-out;
+        }
+        .frame-thumb.active {
+            border-color: #f59e0b !important;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+        }
+
+        .btn-speed.active {
+            background-color: #f59e0b !important;
+            color: black !important;
+            border-color: #d97706 !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900">
+
+    <!-- HEADER -->
+    <div class="header-area h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+            🏠 <span class="hidden md:inline">MENÜ</span>
+        </button>
+
+        <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl lg:text-5xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none z-10 uppercase">
+            🎬 TRICKFILM STUDIO
+        </h1>
+
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">
+            ?
+        </button>
+    </div>
+
+    <!-- MAIN AREA -->
+    <div class="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
+        
+        <!-- SIDE PANEL: Steuerung & Werkzeuge -->
+        <div class="side-bar flex-none w-full md:w-48 bg-slate-800 p-2 md:p-4 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col gap-2 justify-between items-center h-auto md:h-full overflow-x-auto no-scrollbar">
+            
+            <!-- Onion Skin Toggle -->
+            <button id="onion-btn" onclick="toggleOnionSkin()" class="flex-1 md:w-full py-2 md:py-4 px-3 rounded-xl md:rounded-2xl bg-slate-700 border-2 border-amber-400 text-white font-black text-xs md:text-base flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2 shadow-lg active:scale-95 transition">
+                <span class="text-lg md:text-2xl">👻</span>
+                <span id="onion-status">GEISTERBILD: AN</span>
+            </button>
+
+            <!-- Geschwindigkeits-Regler -->
+            <div class="flex flex-col gap-1 w-full text-center">
+                <span class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider hidden md:block">TEMPO</span>
+                <div class="flex gap-1 justify-center w-full">
+                    <button onclick="setSpeed(3, this)" class="btn-speed flex-1 py-1 md:py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs md:text-sm font-black text-slate-300">🐌 3</button>
+                    <button onclick="setSpeed(6, this)" class="btn-speed active flex-1 py-1 md:py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs md:text-sm font-black text-slate-300">🏃 6</button>
+                    <button onclick="setSpeed(12, this)" class="btn-speed flex-1 py-1 md:py-2 rounded-lg bg-slate-700 border border-slate-600 text-xs md:text-sm font-black text-slate-300">🚀 12</button>
+                </div>
+            </div>
+
+            <!-- Kamera Wechseln -->
+            <button onclick="switchCamera()" class="py-2 md:py-3 px-3 rounded-xl md:rounded-2xl bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition w-auto md:w-full" title="Kamera wechseln">
+                <span class="text-base md:text-xl">🔄</span> <span class="hidden md:inline">KAMERA</span>
+            </button>
+
+            <!-- Alles Löschen -->
+            <button onclick="clearAllFrames()" class="py-2 md:py-3 px-3 rounded-xl md:rounded-2xl bg-red-900/60 hover:bg-red-800 border-2 border-red-700 text-red-200 font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition w-auto md:w-full">
+                <span>🧹</span> <span class="hidden md:inline">NEU STARTEN</span>
+            </button>
+        </div>
+
+        <!-- CENTER AREA: Kamera/Vorschau Canvas & Filmleiste -->
+        <div class="flex-1 flex flex-col min-h-0 w-full gap-2 md:gap-4">
+            
+            <!-- VIDEO / PLAYBACK VIEWPORT -->
+            <div class="video-main relative flex-1 min-h-0 w-full bg-slate-950 rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center">
+                <video id="video" autoplay playsinline muted class="absolute w-full h-full object-contain pointer-events-none opacity-0"></video>
+                <canvas id="view-canvas" class="absolute inset-0 w-full h-full object-contain block"></canvas>
+                
+                <!-- On-Screen Frame Counter Badge -->
+                <div class="absolute top-3 left-3 bg-slate-900/90 text-amber-400 px-3 py-1 md:px-5 md:py-2 rounded-full font-black text-xs md:text-xl border border-amber-500/50 shadow-xl backdrop-blur z-20 flex items-center gap-2">
+                    <span id="frame-counter">0 / 12 BILDER</span>
+                </div>
+
+                <!-- Live / Playback State Indicator -->
+                <div id="state-badge" class="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20">
+                    <div class="w-2 h-2 bg-white rounded-full animate-ping"></div> LIVE
+                </div>
+            </div>
+
+            <!-- FILMSTRIP TIMELINE -->
+            <div class="filmstrip-area h-20 md:h-28 flex-none w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-2 overflow-x-auto no-scrollbar" id="filmstrip-container">
+                <div class="text-slate-500 font-bold text-xs md:text-sm px-4 text-center w-full" id="empty-strip-hint">
+                    Klicke unten auf 📸 FOTO, um dein erstes Bild aufzunehmen!
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="action-area h-16 md:h-24 flex-none shrink-0 w-full flex items-center justify-center gap-3 px-2">
+                <button id="play-btn" onclick="togglePlay()" class="h-12 md:h-18 px-4 md:px-8 bg-green-600 hover:bg-green-500 text-white text-xs md:text-xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-green-800 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 shadow-lg shrink-0">
+                    <span class="text-lg md:text-2xl" id="play-icon">▶️</span> <span id="play-text">FILM ABSPIELEN</span>
+                </button>
+
+                <button id="snap-btn" onclick="captureFrame()" class="flex-1 max-w-xs md:max-w-md h-12 md:h-18 bg-amber-500 hover:bg-amber-400 text-black text-sm md:text-2xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-amber-700 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 md:gap-4 shadow-[0_0_20px_rgba(245,158,11,0.4)] active:scale-95 group">
+                    <span class="group-hover:scale-125 transition-transform duration-300 text-xl md:text-3xl">📸</span> FOTO KNIPSEN!
+                </button>
+
+                <button id="print-btn" onclick="printFlipbook(this)" class="h-12 md:h-18 px-4 md:px-8 bg-blue-600 hover:bg-blue-500 text-white text-xs md:text-xl font-black rounded-xl md:rounded-2xl border-b-4 md:border-b-[6px] border-blue-800 active:translate-y-1 active:border-b-0 transition-all flex items-center justify-center gap-2 shadow-lg shrink-0">
+                    <span class="text-lg md:text-2xl">🖨️</span> DAUMENKINO
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- HILFE MODAL -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
+        <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
+            <h2 class="text-3xl md:text-4xl font-black text-white mb-6 border-b border-slate-600 pb-4 flex items-center gap-4">
+                <span class="text-5xl">🎬</span> ANLEITUNG TRICKFILM
+                <button onclick="window.speakText('Anleitung für das Trickfilm Studio. 1. Baue deine Figuren auf. 2. Tippe auf Foto knipsen. 3. Bewege deine Figuren ein kleines Stück. Das transparente Geisterbild hilft dir dabei! 4. Knipse das nächste Foto. 5. Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+            </h2>
+            <div class="text-base md:text-lg text-slate-300 space-y-4">
+                <p>1. <b>🧱 Motiv aufbauen</b>: Stelle deine Gegenstände oder Figuren vor die Kamera.</p>
+                <p>2. <b>📸 Foto knipsen</b>: Tippe auf den gelben Button, um das erste Bild aufzunehmen.</p>
+                <p>3. <b>👻 Geisterbild nutzen</b>: Bewege deine Figur ein winziges Stück. Das leicht durchsichtige Geisterbild zeigt dir genau die alte Position!</p>
+                <p>4. <b>▶️ Film ansehen</b>: Tippe auf Abspielen, um deinen fertigen Trickfilm in Schleife zu sehen.</p>
+                <p>5. <b>🖨️ Daumenkino drucken</b>: Drucke deine Bilder als Ausschneide-Bogen aus und erstelle dein eigenes gedrucktes Daumenkino!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('view-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let frames = []; // Speichert Data-URLs der aufgenommenen Bilder
+        let currentStream = null;
+        let currentFacingMode = 'user';
+        let isPlaying = false;
+        let playInterval = null;
+        let currentPlayIndex = 0;
+        let fps = 6;
+        let onionSkinEnabled = true;
+        const MAX_FRAMES = 12;
+
+        async function initCam() {
+            if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+
+            const constraints = [
+                { video: { facingMode: currentFacingMode, width: { ideal: 1280 }, height: { ideal: 720 } } },
+                { video: true }
+            ];
+
+            for (let c of constraints) {
+                try {
+                    currentStream = await navigator.mediaDevices.getUserMedia(c);
+                    video.srcObject = currentStream;
+                    await new Promise(r => video.onloadedmetadata = r);
+                    await video.play();
+                    renderLiveLoop();
+                    return;
+                } catch (e) { console.warn("Kamera-Versuch fehlgeschlagen", e); }
+            }
+            if(window.showError) window.showError("Kamera konnte nicht gestartet werden!", "📷");
+        }
+
+        function renderLiveLoop() {
+            if (!isPlaying && video.readyState >= 2) {
+                canvas.width = video.videoWidth || 1280;
+                canvas.height = video.videoHeight || 720;
+                
+                ctx.save();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (currentFacingMode === 'user') {
+                    ctx.translate(canvas.width, 0);
+                    ctx.scale(-1, 1);
+                }
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.restore();
+
+                // Onion Skin Overlay (Transparenter Geisterbild-Effekt des letzten aufgenommenen Frames)
+                if (onionSkinEnabled && frames.length > 0) {
+                    const lastImg = new Image();
+                    lastImg.src = frames[frames.length - 1];
+                    if (lastImg.complete) {
+                        ctx.save();
+                        ctx.globalAlpha = 0.35;
+                        ctx.drawImage(lastImg, 0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                    }
+                }
+            }
+            requestAnimationFrame(renderLiveLoop);
+        }
+
+        window.captureFrame = () => {
+            if (frames.length >= MAX_FRAMES) {
+                if(window.showError) window.showError(`Du hast bereits ${MAX_FRAMES} Bilder! Klicke auf Abspielen oder Drucken.`, "🎬");
+                return;
+            }
+
+            if (window.playSound) window.playSound('shutter');
+
+            // Blitzlicht-Effekt
+            const flash = document.createElement('div');
+            flash.className = 'absolute inset-0 bg-white z-50 transition-opacity duration-300 pointer-events-none';
+            canvas.parentElement.appendChild(flash);
+            setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 300); }, 50);
+
+            // Frame vom Live Video sichern (ohne Spiegelung)
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            if (currentFacingMode === 'user') {
+                tempCtx.translate(tempCanvas.width, 0);
+                tempCtx.scale(-1, 1);
+            }
+            tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+            
+            frames.push(tempCanvas.toDataURL('image/jpeg', 0.85));
+            updateFilmstripUI();
+        };
+
+        function updateFilmstripUI() {
+            const container = document.getElementById('filmstrip-container');
+            const hint = document.getElementById('empty-strip-hint');
+            const counter = document.getElementById('frame-counter');
+
+            counter.innerText = `${frames.length} / ${MAX_FRAMES} BILDER`;
+
+            if (frames.length === 0) {
+                container.innerHTML = '';
+                container.appendChild(hint);
+                hint.style.display = 'block';
+                return;
+            }
+            hint.style.display = 'none';
+            container.innerHTML = '';
+
+            frames.forEach((src, idx) => {
+                const item = document.createElement('div');
+                item.className = 'relative flex-none w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 border-slate-600 bg-black cursor-pointer group shadow-md';
+                item.innerHTML = `
+                    <img src="${src}" class="w-full h-full object-cover">
+                    <span class="absolute top-1 left-1 bg-amber-500 text-black font-black text-[10px] md:text-xs px-1.5 py-0.5 rounded-md shadow">${idx + 1}</span>
+                    <button onclick="event.stopPropagation(); deleteFrame(${idx})" class="absolute bottom-1 right-1 bg-red-600 hover:bg-red-500 text-white rounded-full w-5 h-5 md:w-6 md:h-6 text-[10px] md:text-xs flex items-center justify-center font-bold shadow transition opacity-90 group-hover:scale-110" title="Bild löschen">✕</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        window.deleteFrame = (idx) => {
+            if (window.playSound) window.playSound('click');
+            frames.splice(idx, 1);
+            if (isPlaying && frames.length === 0) stopPlay();
+            updateFilmstripUI();
+        };
+
+        window.clearAllFrames = () => {
+            if (frames.length === 0) return;
+            if (window.playSound) window.playSound('click');
+            frames = [];
+            stopPlay();
+            updateFilmstripUI();
+        };
+
+        window.toggleOnionSkin = () => {
+            if (window.playSound) window.playSound('click');
+            onionSkinEnabled = !onionSkinEnabled;
+            const btn = document.getElementById('onion-btn');
+            const status = document.getElementById('onion-status');
+            if (onionSkinEnabled) {
+                btn.classList.replace('border-slate-600', 'border-amber-400');
+                status.innerText = "GEISTERBILD: AN";
+            } else {
+                btn.classList.replace('border-amber-400', 'border-slate-600');
+                status.innerText = "GEISTERBILD: AUS";
+            }
+        };
+
+        window.setSpeed = (s, btn) => {
+            if (window.playSound) window.playSound('click');
+            fps = s;
+            document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            if (isPlaying) {
+                stopPlay();
+                startPlay();
+            }
+        };
+
+        window.togglePlay = () => {
+            if (frames.length === 0) {
+                if(window.showError) window.showError("Knipse zuerst ein paar Fotos!", "📸");
+                return;
+            }
+            if (isPlaying) {
+                stopPlay();
+            } else {
+                startPlay();
+            }
+        };
+
+        function startPlay() {
+            if (frames.length === 0) return;
+            isPlaying = true;
+            document.getElementById('play-icon').innerText = "⏸️";
+            document.getElementById('play-text').innerText = "STOPP";
+            document.getElementById('state-badge').className = "absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20";
+            document.getElementById('state-badge').innerHTML = "▶️ ABSPIELEN";
+
+            currentPlayIndex = 0;
+            const renderFrame = () => {
+                if (!isPlaying || frames.length === 0) return;
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = frames[currentPlayIndex];
+                currentPlayIndex = (currentPlayIndex + 1) % frames.length;
+            };
+            renderFrame();
+            playInterval = setInterval(renderFrame, 1000 / fps);
+        }
+
+        function stopPlay() {
+            isPlaying = false;
+            if (playInterval) clearInterval(playInterval);
+            document.getElementById('play-icon').innerText = "▶️";
+            document.getElementById('play-text').innerText = "FILM ABSPIELEN";
+            document.getElementById('state-badge').className = "absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20";
+            document.getElementById('state-badge').innerHTML = '<div class="w-2 h-2 bg-white rounded-full animate-ping"></div> LIVE';
+        }
+
+        window.switchCamera = () => {
+            if (window.playSound) window.playSound('click');
+            currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+            initCam();
+        };
+
+        window.printFlipbook = async (btn) => {
+            if (frames.length === 0) {
+                if(window.showError) window.showError("Knipse zuerst Fotos für dein Daumenkino!", "🖨️");
+                return;
+            }
+
+            if (window.playSound) window.playSound('click');
+
+            // Erstelle ein 3:2 Canon-Selphy Format Canvas (1800x1200)
+            const printCanvas = document.createElement('canvas');
+            printCanvas.width = 1800;
+            printCanvas.height = 1200;
+            const pCtx = printCanvas.getContext('2d');
+
+            // Hintergrund (Weißes Papier)
+            pCtx.fillStyle = '#ffffff';
+            pCtx.fillRect(0, 0, 1800, 1200);
+
+            // Titelzeile oben
+            pCtx.fillStyle = '#0f172a';
+            pCtx.font = 'bold 36px sans-serif';
+            pCtx.fillText('🎬 MEIN DAUMENKINO - MEDIENSTATION', 60, 60);
+
+            // Grid Layout: 3 Spalten x 3 Zeilen (max 9 Bilder pro Seite)
+            const cols = 3;
+            const rows = 3;
+            const marginX = 60;
+            const marginY = 90;
+            const gap = 30;
+            const cellW = (1800 - (2 * marginX) - ((cols - 1) * gap)) / cols; // ~520px
+            const cellH = (1200 - marginY - 60 - ((rows - 1) * gap)) / rows; // ~310px
+
+            const loadImg = (src) => new Promise((res, rej) => {
+                const img = new Image();
+                img.onload = () => res(img);
+                img.onerror = rej;
+                img.src = src;
+            });
+
+            try {
+                const totalToShow = Math.min(frames.length, 9);
+                for (let i = 0; i < totalToShow; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const x = marginX + col * (cellW + gap);
+                    const y = marginY + row * (cellH + gap);
+
+                    const img = await loadImg(frames[i]);
+
+                    // Bild einzeichnen (cropped / fitted)
+                    pCtx.save();
+                    pCtx.beginPath();
+                    pCtx.rect(x, y, cellW, cellH);
+                    pCtx.clip();
+
+                    const iRatio = img.width / img.height;
+                    const cRatio = cellW / cellH;
+                    let dw = cellW, dh = cellH, dx = x, dy = y;
+
+                    if (iRatio > cRatio) {
+                        dw = cellH * iRatio;
+                        dx = x - (dw - cellW) / 2;
+                    } else {
+                        dh = cellW / iRatio;
+                        dy = y - (dh - cellH) / 2;
+                    }
+
+                    pCtx.drawImage(img, dx, dy, dw, dh);
+                    pCtx.restore();
+
+                    // gestrichelte Schneidelinien & Bildnummer
+                    pCtx.strokeStyle = '#94a3b8';
+                    pCtx.lineWidth = 3;
+                    pCtx.setLineDash([8, 8]);
+                    pCtx.strokeRect(x, y, cellW, cellH);
+                    pCtx.setLineDash([]);
+
+                    // Nummern-Badge zum Stapeln
+                    pCtx.fillStyle = '#f59e0b';
+                    pCtx.fillRect(x + 10, y + 10, 45, 45);
+                    pCtx.fillStyle = '#000000';
+                    pCtx.font = 'bold 26px sans-serif';
+                    pCtx.textAlign = 'center';
+                    pCtx.fillText(`${i + 1}`, x + 32, y + 42);
+                    pCtx.textAlign = 'left';
+                }
+
+                if (window.printImage) {
+                    window.printImage(printCanvas.toDataURL('image/jpeg', 0.9), 'Daumenkino', btn);
+                }
+            } catch (e) {
+                console.error("Daumenkino-Druckfehler:", e);
+                if (window.showError) window.showError("Fehler beim Erstellen des Daumenkinos!", "🖨️");
+            }
+        };
+
+        setTimeout(initCam, 100);
+    </script>
+</body>
+</html>
