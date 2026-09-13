@@ -269,6 +269,26 @@
         </div>
     </div>
 
+    <!-- SICHERHEITSABFRAGE NEU STARTEN MODAL -->
+    <div id="confirm-reset-modal" class="hidden fixed inset-0 z-[220] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-slate-800 border-4 border-rose-500 rounded-[2rem] p-6 md:p-8 max-w-lg w-full text-center shadow-2xl animate-pop relative">
+            <h3 class="text-2xl md:text-3xl font-black text-rose-400 mb-3 flex items-center justify-center gap-2">
+                <span>⚠️</span> ALLES LÖSCHEN?
+            </h3>
+            <p id="confirm-reset-text" class="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
+                Möchtest du wirklich alle aufgenommenen Bilder und die Tonspur löschen und neu starten?
+            </p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="confirmResetAction()" class="px-6 py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-base md:text-lg border-2 border-rose-300 shadow-lg active:scale-95 transition flex items-center gap-2">
+                    <span>🧹</span> JA, NEU STARTEN
+                </button>
+                <button onclick="closeResetModal()" class="px-6 py-3.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-base md:text-lg border-2 border-slate-500 shadow-lg active:scale-95 transition flex items-center gap-2">
+                    <span>✖</span> ABBRECHEN
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- HILFE MODAL -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
         <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
@@ -563,12 +583,33 @@
         };
 
         window.clearAllFrames = () => {
-            if (frames.length === 0) return;
+            if (frames.length === 0 && !audioBlob) return;
+            if (window.playSound) window.playSound('click');
+            const countText = frames.length === 1 ? '1 aufgenommenes Bild' : `${frames.length} aufgenommene Bilder`;
+            const audioText = audioBlob ? ' und die Tonspur' : '';
+            document.getElementById('confirm-reset-text').innerText = `Möchtest du wirklich ${countText}${audioText} löschen und ganz neu starten?`;
+            document.getElementById('confirm-reset-modal').classList.remove('hidden');
+        };
+
+        window.confirmResetAction = () => {
             if (window.playSound) window.playSound('click');
             frames = [];
+            if (audioPlayer) {
+                audioPlayer.pause();
+                if (audioPlayer.src) URL.revokeObjectURL(audioPlayer.src);
+                audioPlayer = null;
+            }
+            audioBlob = null;
+            document.getElementById('audio-controls').classList.add('hidden');
+            document.getElementById('audio-controls').classList.remove('flex');
             updateOnionImage();
             stopPlay();
             updateFilmstripUI();
+            closeResetModal();
+        };
+
+        window.closeResetModal = () => {
+            document.getElementById('confirm-reset-modal').classList.add('hidden');
         };
 
         // --- GEISTERBILD TOGGLE ---
