@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v247';
+const CACHE_NAME = 'medien-station-v7.4.0-v248';
 const ASSETS = [
     './',
     './index.html',
@@ -59,7 +59,7 @@ const ASSETS = [
     './plugins/es6-promise-plugin/www/promise.js'
 ];
 
-// --- NEU: Sende Nachrichten an die offene App (für den Ladebalken) ---
+// --- Broadcast Nachrichten an offene App ---
 async function broadcastProgress(msg) {
     try {
         const clients = await self.clients.matchAll({ includeUncontrolled: true });
@@ -71,11 +71,16 @@ async function broadcastProgress(msg) {
     }
 }
 
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
 self.addEventListener('install', (event) => {
     self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
     event.waitUntil(
         caches.open(CACHE_NAME).then(async (cache) => {
-            // WICHTIG: Sequentieller Download!
             const total = ASSETS.length;
             let count = 0;
             
@@ -84,7 +89,6 @@ self.addEventListener('install', (event) => {
             for (const url of ASSETS) {
                 try {
                     let response;
-                    // Retry-Schleife mit 15-Sekunden-Timeout, falls eine Datei hängt
                     for (let attempt = 1; attempt <= 2; attempt++) {
                         try {
                             const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
@@ -92,7 +96,7 @@ self.addEventListener('install', (event) => {
                                 const timer = setTimeout(() => reject(new Error('Timeout')), 15000);
                                 fetch(fetchUrl).then(res => { clearTimeout(timer); resolve(res); }).catch(e => { clearTimeout(timer); reject(e); });
                             });
-                            break; // Erfolgreich, Schleife abbrechen
+                            break;
                         } catch (e) {
                             if (attempt === 2) throw new Error('Download hängt bei: ' + url);
                             console.warn('Hänger erkannt, Retry für:', url);
@@ -100,16 +104,13 @@ self.addEventListener('install', (event) => {
                     }
                     
                     if (response.ok) {
-                        // Wichtig: Unter der *Original-URL* im Cache ablegen, nicht mit ?cb=
                         await cache.put(new Request(url), response.clone());
-                        // Falls Coolify/Nginx eine URL weiterleitet (z.B. Dateiendung ändert)
                         if (response.redirected) {
                             const cleanRedirectUrl = response.url.split('?cb=')[0].split('&cb=')[0];
                             await cache.put(new Request(cleanRedirectUrl), response.clone());
                         }
                     } else {
                         console.warn('HTTP Fehler beim Cachen (wird ignoriert):', url, response.status);
-                        // Bei Server-Überlastung brechen wir hart ab, damit kein "Schweizer Käse"-Cache entsteht
                         if (response.status === 429 || response.status >= 500) {
                             throw new Error('Server überlastet bei ' + url);
                         }
@@ -128,42 +129,64 @@ self.addEventListener('install', (event) => {
     );
 });
 
-// Activate: Alte Caches löschen und Kontrolle übernehmen
+// Activate: Alte Caches löschen und Kontrolle sofort übernehmen
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         Promise.all([
-            self.clients.claim(), // Sofortige Kontrolle über offene Seiten
+            self.clients.claim(), // Sofortige Kontrolle über alle offenen Fenster
             caches.keys().then((keys) => Promise.all(
                 keys.map((key) => {
-                    if (key !== CACHE_NAME) return caches.delete(key);
+                    if (key !== CACHE_NAME) {
+                        console.log('🧹 Lösche alten Cache:', key);
+                        return caches.delete(key);
+                    }
                 })
             ))
         ])
     );
 });
 
-// Fetch: ERST Cache, dann Netzwerk (Cache-First für rasend schnellen Offline-Start!)
+// Fetch Listener: Network-First für HTML-Seiten, Cache-First für statische Assets
 self.addEventListener('fetch', (event) => {
-    // Ignoriere POST requests oder chrome-extension schemes
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
-    event.respondWith(
-        caches.match(event.request, { ignoreSearch: true })
-        .then((cachedResponse) => {
-            // 1. Treffer im Cache? SOFORT zurückgeben (Rasend schnell, ohne Timeout Wartezeit!)
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            // 2. Nicht im Cache? Dann aus dem Netz laden und für die Zukunft cachen
-            return fetch(event.request).then((networkResponse) => {
-                return caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, networkResponse.clone());
+    const acceptHeader = event.request.headers.get('accept') || '';
+    const isNavigation = event.request.mode === 'navigate' || acceptHeader.includes('text/html');
+
+    if (isNavigation) {
+        // Network-First für HTML-Seiten: Immer den neuesten Stand laden wenn online! Fallback auf Cache (offline)
+        event.respondWith(
+            fetch(event.request)
+                .then((networkResponse) => {
+                    if (networkResponse && networkResponse.ok) {
+                        const clone = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                    }
                     return networkResponse;
-                });
-            }).catch(() => {
-                console.warn('Offline: Konnte nicht geladen werden', event.request.url);
-                return new Response('Offline, resource missing', { status: 503, statusText: 'Service Unavailable' });
-            });
-        })
-    );
+                })
+                .catch(() => {
+                    return caches.match(event.request, { ignoreSearch: true });
+                })
+        );
+    } else {
+        // Cache-First für statische Assets (Bilder, MP3s, WASM, CSS)
+        event.respondWith(
+            caches.match(event.request, { ignoreSearch: true })
+                .then((cachedResponse) => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    return fetch(event.request).then((networkResponse) => {
+                        if (networkResponse && networkResponse.ok) {
+                            const clone = networkResponse.clone();
+                            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                        }
+                        return networkResponse;
+                    }).catch(() => {
+                        console.warn('Offline: Ressource fehlen:', event.request.url);
+                        return new Response('Offline', { status: 503 });
+                    });
+                })
+        );
+    }
 });

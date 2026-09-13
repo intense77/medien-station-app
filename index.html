@@ -177,7 +177,6 @@
             <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-white">Comic</h3>
         </div>
     </div>
-    </div>
 
     <!-- Info Modal -->
     <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
@@ -259,15 +258,15 @@
         </div>
     </div>
 
-    <!-- iOS Install Modal -->
+    <!-- iOS / General PWA Install Modal -->
     <div id="ios-install-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm items-center justify-center p-4 transition-opacity duration-300 opacity-0" onclick="hideIosInstall()">
         <div class="bg-slate-800 border-4 border-blue-500 rounded-[2rem] max-w-md w-full p-8 shadow-2xl text-center transform scale-90 transition-transform duration-300" onclick="event.stopPropagation()">
-            <div class="text-6xl mb-4">🍎</div>
-            <h2 class="text-2xl font-black text-white mb-4">Auf iPhone/iPad installieren</h2>
-            <p class="text-lg text-slate-300 mb-6 font-bold leading-relaxed">
-                1. Tippe unten im Browser auf das <br><strong class="text-blue-400">Teilen-Symbol</strong> (Viereck mit Pfeil nach oben).<br><br>
-                2. Wähle im Menü <br><strong class="text-white">"Zum Home-Bildschirm"</strong> ➕
-            </p>
+            <div id="pwa-modal-icon" class="text-6xl mb-4">📱</div>
+            <h2 id="pwa-modal-title" class="text-2xl font-black text-white mb-4">App installieren</h2>
+            <div id="pwa-modal-text" class="text-lg text-slate-300 mb-6 font-bold leading-relaxed">
+                1. Tippe oben rechts auf das <br><strong class="text-blue-400">Browser-Menü (⋮ oder ⇡)</strong>.<br><br>
+                2. Wähle <br><strong class="text-white">"App installieren"</strong> oder <strong class="text-white">"Zum Startbildschirm"</strong> ➕
+            </div>
             <button onclick="hideIosInstall()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-xl text-xl shadow-xl active:scale-95 transition border-b-8 border-blue-800 active:border-b-0 active:translate-y-2 pointer-events-auto">
                 VERSTANDEN
             </button>
@@ -455,7 +454,11 @@
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
 
         if (!isStandalone && installBtn) {
-            // 1. Android / Chrome
+            // Im Web-Browser (nicht-standalone) den Button immer anzeigen!
+            installBtn.classList.remove('hidden');
+            installBtn.classList.add('flex');
+
+            // 1. Browser Event fangen (Chrome / Android / Edge)
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
@@ -466,32 +469,14 @@
             window.addEventListener('appinstalled', () => {
                 installBtn.classList.add('hidden');
                 installBtn.classList.remove('flex');
+                deferredPrompt = null;
             });
-
-            // 2. iOS Safari (hat kein beforeinstallprompt, muss manuell getriggert werden)
-            const isIos = (/ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase()) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
-            const isSafari = /safari/.test(navigator.userAgent.toLowerCase()) && !/chrome|crios|crmo/.test(navigator.userAgent.toLowerCase());
-
-            if (isIos && isSafari) {
-                installBtn.classList.remove('hidden');
-                installBtn.classList.add('flex');
-            }
 
             installBtn.addEventListener('click', async () => {
                 if (window.playSound) window.playSound('click');
                 
-                if (isIos && isSafari) {
-                    // Zeige iOS Anleitung
-                    const modal = document.getElementById('ios-install-modal');
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                    setTimeout(() => {
-                        modal.classList.remove('opacity-0');
-                        modal.children[0].classList.remove('scale-90');
-                        modal.children[0].classList.add('scale-100');
-                    }, 10);
-                } else if (deferredPrompt) {
-                    // Triggere Android/Chrome Install Prompt
+                if (deferredPrompt) {
+                    // Nativen Browser Install-Dialog aufrufen
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
                     if (outcome === 'accepted') {
@@ -499,6 +484,42 @@
                         installBtn.classList.remove('flex');
                     }
                     deferredPrompt = null;
+                } else {
+                    // Geführte Anleitung für iOS, Android Tablets & Browser wo kein Event gefeuert wurde
+                    const modal = document.getElementById('ios-install-modal');
+                    const iconEl = document.getElementById('pwa-modal-icon');
+                    const titleEl = document.getElementById('pwa-modal-title');
+                    const textEl = document.getElementById('pwa-modal-text');
+
+                    const isIos = (/ipad|iphone|ipod/.test(navigator.userAgent.toLowerCase()) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
+
+                    if (isIos) {
+                        if (iconEl) iconEl.innerText = "🍎";
+                        if (titleEl) titleEl.innerText = "Auf iPhone/iPad installieren";
+                        if (textEl) textEl.innerHTML = `
+                            1. Tippe unten im Browser auf das <br><strong class="text-blue-400">Teilen-Symbol</strong> (Viereck mit Pfeil nach oben).<br><br>
+                            2. Wähle im Menü <br><strong class="text-white">"Zum Home-Bildschirm"</strong> ➕
+                        `;
+                    } else {
+                        if (iconEl) iconEl.innerText = "📱";
+                        if (titleEl) titleEl.innerText = "App installieren";
+                        if (textEl) textEl.innerHTML = `
+                            1. Tippe oben rechts auf das <br><strong class="text-blue-400">Browser-Menü (⋮ oder ⇡)</strong>.<br><br>
+                            2. Wähle <br><strong class="text-white font-black text-xl">"App installieren"</strong> oder <strong class="text-white font-black text-xl">"Zum Startbildschirm"</strong> ➕
+                        `;
+                    }
+
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                        setTimeout(() => {
+                            modal.classList.remove('opacity-0');
+                            if (modal.children[0]) {
+                                modal.children[0].classList.remove('scale-90');
+                                modal.children[0].classList.add('scale-100');
+                            }
+                        }, 10);
+                    }
                 }
             });
         }
@@ -508,8 +529,10 @@
             const modal = document.getElementById('ios-install-modal');
             if (modal) {
                 modal.classList.add('opacity-0');
-                modal.children[0].classList.remove('scale-100');
-                modal.children[0].classList.add('scale-90');
+                if (modal.children[0]) {
+                    modal.children[0].classList.remove('scale-100');
+                    modal.children[0].classList.add('scale-90');
+                }
                 setTimeout(() => {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
