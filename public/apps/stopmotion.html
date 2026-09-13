@@ -878,8 +878,12 @@
                     pCtx.textAlign = 'left';
                 }
 
+                const dataUrl = printCanvas.toDataURL('image/jpeg', 0.9);
+                if (window.saveToMeisterwerke) {
+                    window.saveToMeisterwerke({ type: 'image', appName: 'Trickfilm Studio', title: 'Daumenkino', dataUrl: dataUrl });
+                }
                 if (window.printImage) {
-                    window.printImage(printCanvas.toDataURL('image/jpeg', 0.9), 'Daumenkino', btn);
+                    window.printImage(dataUrl, 'Daumenkino', btn);
                 }
             } catch (e) {
                 console.error("Daumenkino-Druckfehler:", e);

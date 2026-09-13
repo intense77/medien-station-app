@@ -457,7 +457,11 @@
                 return;
             }
             
-            document.getElementById('preview-img-display').src = getFilteredCanvasData();
+            const dataUrl = getFilteredCanvasData();
+            document.getElementById('preview-img-display').src = dataUrl;
+            if (window.saveToMeisterwerke) {
+                window.saveToMeisterwerke({ type: 'image', appName: 'Zauber Selfie', title: 'Zauber Selfie', dataUrl: dataUrl });
+            }
             const overlay = document.getElementById('preview-overlay');
             overlay.classList.remove('hidden');
             overlay.style.display = 'flex';

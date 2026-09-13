@@ -645,4 +645,188 @@
             anim.onfinish = () => sparkle.remove();
         }
     }, {passive: true});
+
+    // --- 11. Belohnungseffekt (Konfetti Explosion) ---
+    window.triggerCelebration = function() {
+        if (window.playSound) window.playSound('success');
+
+        let canvas = document.getElementById('celebration-canvas');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.id = 'celebration-canvas';
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100vw';
+            canvas.style.height = '100vh';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '999999';
+            document.body.appendChild(canvas);
+        }
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = ['#facc15', '#ef4444', '#3b82f6', '#22c55e', '#a855f7', '#ec4899', '#f97316'];
+        const particles = [];
+        const count = 80;
+
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+                y: canvas.height * 0.4 + (Math.random() - 0.5) * 100,
+                vx: (Math.random() - 0.5) * 18,
+                vy: Math.random() * -18 - 4,
+                size: Math.random() * 12 + 8,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                rotation: Math.random() * Math.PI * 2,
+                vRot: (Math.random() - 0.5) * 0.2,
+                gravity: 0.45
+            });
+        }
+
+        const startTime = performance.now();
+        function animate(now) {
+            const elapsed = now - startTime;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let active = false;
+            const alpha = Math.max(0, 1 - elapsed / 2600);
+
+            for (const p of particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.rotation += p.vRot;
+
+                if (alpha > 0) {
+                    active = true;
+                    ctx.save();
+                    ctx.globalAlpha = alpha;
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                }
+            }
+
+            if (active && elapsed < 2700) {
+                requestAnimationFrame(animate);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        requestAnimationFrame(animate);
+    };
+
+    // --- 12. Lokale Sitzungs-Galerie ("Meisterwerke") ---
+    const MEISTER_KEY = 'medienstation_meisterwerke';
+
+    window.saveToMeisterwerke = function(item) {
+        try {
+            let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
+            item.id = Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+            item.timestamp = Date.now();
+            list.unshift(item);
+            if (list.length > 30) list = list.slice(0, 30);
+            localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+            window.triggerCelebration();
+        } catch(e) {
+            console.warn('Meisterwerke Speicherfehler:', e);
+        }
+    };
+
+    window.getMeisterwerke = function() {
+        try { return JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]'); } catch(e) { return []; }
+    };
+
+    window.clearMeisterwerke = function(onComplete) {
+        try {
+            localStorage.removeItem(MEISTER_KEY);
+            if (onComplete) onComplete();
+        } catch(e) {}
+    };
+
+    window.toggleMeisterwerke = function() {
+        window.resetIdleTimer();
+        if (window.playSound) window.playSound('click');
+
+        let modal = document.getElementById('meisterwerke-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'meisterwerke-modal';
+            modal.className = 'hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4';
+            modal.onclick = function() { window.toggleMeisterwerke(); };
+            document.body.appendChild(modal);
+        }
+
+        if (!modal.classList.contains('hidden')) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            return;
+        }
+
+        const items = window.getMeisterwerke();
+
+        let gridHtml = '';
+        if (items.length === 0) {
+            gridHtml = `
+                <div class="col-span-full text-center py-16 text-slate-400">
+                    <div class="text-7xl mb-4">🎨</div>
+                    <h3 class="text-2xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
+                    <p class="text-lg font-bold">Nutze die Apps, um Bilder, Videos oder Sounds zu erstellen. Sie erscheinen dann hier!</p>
+                </div>
+            `;
+        } else {
+            gridHtml = items.map((it) => `
+                <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all">
+                    <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2">
+                        ${it.type === 'image' ? `<img src="${it.dataUrl}" class="w-full h-full object-contain">` : ''}
+                        ${it.type === 'video' ? `<video src="${it.dataUrl}" controls class="w-full h-full object-contain"></video>` : ''}
+                        ${it.type === 'audio' ? `
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <span class="text-5xl">🎙️</span>
+                                <audio src="${it.dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="w-full flex items-center justify-between gap-2">
+                        <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${it.appName || 'KUNSTWERK'}</span>
+                        ${it.type === 'image' && window.printImage ? `
+                            <button onclick="event.stopPropagation(); window.printImage('${it.dataUrl}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0">
+                                🖨️ Drucken
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        modal.innerHTML = `
+            <div class="bg-slate-800 border-4 border-amber-500 rounded-[2.5rem] max-w-5xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                <button onclick="window.toggleMeisterwerke()" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition">✖</button>
+                <div class="flex items-center gap-4 mb-6 border-b border-slate-700 pb-4">
+                    <span class="text-4xl md:text-5xl">🎨</span>
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-black text-white">UNSERE MEISTERWERKE</h2>
+                        <p class="text-slate-400 font-bold text-sm md:text-base">Alle erstellten Bilder & Tonaufnahmen der aktuellen Sitzung (100% lokal im Browser)</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                    ${gridHtml}
+                </div>
+                ${items.length > 0 ? `
+                    <div class="flex justify-end pt-4 border-t border-slate-700">
+                        <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => window.toggleMeisterwerke()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-5 rounded-xl border border-red-700 text-sm active:scale-95 transition flex items-center gap-2">
+                            <span>🧹</span> Galerie leeren
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
 })();

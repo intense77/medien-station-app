@@ -130,11 +130,14 @@
 
             <!-- Aktionen -->
             <div class="flex flex-row md:flex-col landscape:flex-col gap-2 md:gap-3 w-full shrink-0 justify-between md:justify-center">
-                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-200 py-2 md:py-4 landscape:py-2 md:landscape:py-4 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
-                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🖨️</span> <span class="inline landscape:hidden md:landscape:inline">DRUCK</span>
+                <button onclick="saveArt()" class="flex-1 bg-amber-400 text-slate-950 hover:bg-amber-300 py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-base shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-amber-600 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl">💾</span> <span>SPEICHERN</span>
                 </button>
-                <button onclick="clearGrid()" class="flex-1 bg-slate-700 hover:bg-red-500/80 text-white py-2 md:py-4 landscape:py-2 md:landscape:py-4 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-lg landscape:text-[10px] md:landscape:text-lg shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-slate-900 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
-                    <span class="text-sm md:text-xl landscape:text-sm md:landscape:text-xl">🗑️</span> <span class="hidden sm:inline landscape:hidden md:landscape:inline">LÖSCHEN</span><span class="inline sm:hidden landscape:inline md:landscape:hidden">DEL</span>
+                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-200 py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-base shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-gray-300 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl">🖨️</span> <span>DRUCK</span>
+                </button>
+                <button onclick="clearGrid()" class="flex-1 bg-slate-700 hover:bg-red-500/80 text-white py-2 md:py-3 px-2 rounded-lg md:rounded-2xl font-black text-[10px] md:text-base shadow-lg active:translate-y-1 transition border-b-4 md:border-b-8 border-slate-900 active:border-b-0 flex items-center justify-center gap-1 md:gap-2">
+                    <span class="text-sm md:text-xl">🗑️</span> <span>LÖSCHEN</span>
                 </button>
             </div>
         </div>
@@ -250,10 +253,29 @@
             return canvas;
         }
 
+        function saveArt() {
+            if(window.playSound) window.playSound('click');
+            const canvas = generateCanvas();
+            const dataUrl = canvas.toDataURL('image/png');
+            if (window.saveToMeisterwerke) {
+                window.saveToMeisterwerke({
+                    type: 'image',
+                    appName: 'Pixel Art',
+                    title: 'Pixel Bild',
+                    dataUrl: dataUrl
+                });
+            } else if (window.triggerCelebration) {
+                window.triggerCelebration();
+            }
+        }
+
         function printArt(btn) {
             if(window.playSound) window.playSound('click');
             const canvas = generateCanvas();
             const dataUrl = canvas.toDataURL();
+            if (window.saveToMeisterwerke) {
+                window.saveToMeisterwerke({ type: 'image', appName: 'Pixel Art', title: 'Pixel Bild', dataUrl: dataUrl });
+            }
             if (window.printImage) {
                 window.printImage(dataUrl, 'Pixel', btn);
             } else {

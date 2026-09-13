@@ -346,6 +346,9 @@
         window.printComic = async function(btn) {
             if (window.playSound) window.playSound('click');
             const dataUrl = window.generateComicImage();
+            if (window.saveToMeisterwerke) {
+                window.saveToMeisterwerke({ type: 'image', appName: 'Comic Story', title: 'Comic Story', dataUrl: dataUrl });
+            }
             if (window.printImage) window.printImage(dataUrl, 'Comic', btn);
         };
 
