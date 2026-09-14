@@ -770,14 +770,16 @@
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'meisterwerke-modal';
-            modal.className = 'hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm items-center justify-center p-4';
+            modal.style.zIndex = '999999';
+            modal.className = 'hidden fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4';
             modal.onclick = function() { window.toggleMeisterwerke(); };
             document.body.appendChild(modal);
         }
 
-        if (!modal.classList.contains('hidden')) {
+        if (!modal.classList.contains('hidden') && modal.style.display !== 'none') {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            modal.style.display = 'none';
             return;
         }
 
@@ -840,6 +842,7 @@
             </div>
         `;
 
+        modal.style.display = 'flex';
         modal.classList.remove('hidden');
         modal.classList.add('flex');
     };

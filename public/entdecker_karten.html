@@ -30,17 +30,27 @@
             .a4-page {
                 width: 210mm;
                 height: 297mm;
-                padding: 10mm;
+                padding: 8mm;
                 margin: 0 auto;
                 box-shadow: none !important;
                 border: none !important;
                 background: white !important;
             }
             .card {
-                border: 2px dashed #94a3b8 !important;
+                border: 2px dashed #64748b !important;
                 background: white !important;
                 color: black !important;
                 box-shadow: none !important;
+            }
+            .card-box {
+                background-color: #f8fafc !important;
+                border-color: #cbd5e1 !important;
+                color: #0f172a !important;
+            }
+            .draw-area {
+                background-color: #ffffff !important;
+                border: 2px dashed #94a3b8 !important;
+                color: #64748b !important;
             }
             .card-header-detektive { background-color: #fef08a !important; color: #854d0e !important; }
             .card-header-jaeger { background-color: #bae6fd !important; color: #075985 !important; }
@@ -53,22 +63,28 @@
             min-height: 297mm;
             background: #1e293b;
             margin: 20px auto;
-            padding: 12mm;
+            padding: 10mm;
             border-radius: 20px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             border: 1px solid #334155;
         }
 
         .card {
-            height: 128mm;
+            height: 132mm;
             border: 2px dashed #475569;
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 14px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
             background: #0f172a;
+        }
+
+        .draw-area {
+            border: 2px dashed #334155;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
         }
     </style>
 </head>
@@ -97,108 +113,158 @@
     <div class="no-print max-w-5xl mx-auto mb-8 bg-slate-900/80 p-5 rounded-2xl border border-slate-700 text-slate-300 text-sm flex items-start gap-3">
         <span class="text-2xl shrink-0">💡</span>
         <div>
-            <strong class="text-amber-400 block mb-1">Empfehlung für die Praxis:</strong>
-            Drucken Sie diese Seite auf festerem Papier (mind. 160 g/m² oder A4-Fotopapier) aus und laminieren Sie die Karten vor dem Ausschneiden. So entstehen 12 langlebige, abwischbare Entdecker-Karten für den Kita- & Grundschulalltag!
+            <strong class="text-amber-400 block mb-1">Praxis-Empfehlung:</strong>
+            Drucken Sie diese Seite auf festem Papier (ab 160 g/m²) oder Fotopapier aus und laminieren Sie die 12 Entdecker-Karten vor dem Ausschneiden. Jede Karte enthält eine verständliche Kinderaufgabe, ein Notiz- & Malfeld sowie pädagogische Tipps für Fachkräfte.
         </div>
     </div>
 
     <!-- PAGE 1: Medien-Detektive -->
     <div class="a4-page page-break">
-        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-3 no-print flex justify-between border-b border-slate-700 pb-2">
-            <span>Bogen 1 von 3: 🕵️‍♀️ Medien-Detektive</span>
+        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2 no-print flex justify-between border-b border-slate-700 pb-2">
+            <span>Bogen 1 von 3: 🕵️‍♀️ Medien-Detektive (Karten 1 - 4)</span>
             <span>4 Karten (DIN A6 Format)</span>
         </div>
-        <div class="grid grid-cols-2 gap-4 h-[265mm]">
+        <div class="grid grid-cols-2 gap-3 h-[272mm]">
 
             <!-- Karte 1 -->
             <div class="card border-amber-400/50">
-                <div>
-                    <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-amber-400/30">
-                        <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
-                        <span>KARTE #1</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-amber-400/30">
+                            <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
+                            <span>KARTE #1</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🟡</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Die Farben-Jagd</h2>
+                                <span class="inline-block bg-purple-900/60 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-purple-500/30">App: ✨ Zauber Selfie</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Suche in der Kita 3 Dinge, die <span class="text-amber-400">GELB</span> sind. Fotografiere sie und erstelle ein Sonnen-Bild!"
+                            </p>
+                        </div>
+                        <!-- Checkliste / Schritte -->
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Gelbe Dinge in der Kita suchen 🔍</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Im Zauber Selfie fotografieren 📸</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Anderen zeigen oder ausdrucken 🖨️</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🟡</span>
-                        <h2 class="text-xl font-black text-white mt-2">Die Farben-Jagd</h2>
-                        <span class="inline-block bg-purple-900/60 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-purple-500/30">App: ✨ Zauber Selfie</span>
+                    <!-- Notiz / Malfeld -->
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Suche in der Kita 3 Dinge, die <span class="text-amber-400">GELB</span> sind. Fotografiere sie und erstelle ein Sonnen-Bild!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Schult visuelle Wahrnehmung & Farberkennung.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Schult visuelle Wahrnehmung, Farberkennung & Selbstwirksamkeit.
                 </div>
             </div>
 
             <!-- Karte 2 -->
             <div class="card border-amber-400/50">
-                <div>
-                    <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-amber-400/30">
-                        <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
-                        <span>KARTE #2</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-amber-400/30">
+                            <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
+                            <span>KARTE #2</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">😃</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Das Gesichter-Rätsel</h2>
+                                <span class="inline-block bg-purple-900/60 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-purple-500/30">App: ✨ Zauber Selfie</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Fotografiere 3 Gesichter: Ein fröhliches 😃, ein überraschtes 😲 und ein quatschiges 🤪 Gesicht!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Mimik im Spiegel üben 🪞</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>3 Fotos vor der Kamera machen 📸</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Raten lassen, was gefühlt wird 💭</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">😃</span>
-                        <h2 class="text-xl font-black text-white mt-2">Das Gesichter-Rätsel</h2>
-                        <span class="inline-block bg-purple-900/60 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-purple-500/30">App: ✨ Zauber Selfie</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Fotografiere 3 Gesichter: Ein fröhliches 😃, ein überraschtes 😲 und ein quatschiges 🤪 Gesicht!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Fördert Erkennen & Ausdrücken von Emotionen.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Fördert das Erkennen & Ausdrücken von Emotionen, Gestik & Mimik.
                 </div>
             </div>
 
             <!-- Karte 3 -->
             <div class="card border-amber-400/50">
-                <div>
-                    <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-amber-400/30">
-                        <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
-                        <span>KARTE #3</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-amber-400/30">
+                            <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
+                            <span>KARTE #3</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">👾</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Pixel-Muster</h2>
+                                <span class="inline-block bg-emerald-900/60 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-emerald-500/30">App: 👾 Pixel Art</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Gehe ins Pixel Labor und zeichne ein Haus 🏠, ein Herz ❤️ oder eine Blume 🌸 aus bunten Pixeln."
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Lieblingsform aussuchen 🎨</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Farben wählen & Punkte tippen 👆</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Speichern oder ausdrucken 🖨️</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">👾</span>
-                        <h2 class="text-xl font-black text-white mt-2">Pixel-Muster</h2>
-                        <span class="inline-block bg-emerald-900/60 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-emerald-500/30">App: 👾 Pixel Art</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Skizzenfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Gehe ins Pixel Labor und zeichne ein Haus 🏠, ein Herz ❤️ oder eine Blume 🌸 aus bunten Pixeln."
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Schulung der Feinmotorik & Raster-Orientierung.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Schulung der Feinmotorik, Konzentration & Raster-Orientierung.
                 </div>
             </div>
 
             <!-- Karte 4 -->
             <div class="card border-amber-400/50">
-                <div>
-                    <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-amber-400/30">
-                        <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
-                        <span>KARTE #4</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-detektive bg-amber-400/20 text-amber-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-amber-400/30">
+                            <span>🕵️‍♀️ MEDIEN-DETEKTIV</span>
+                            <span>KARTE #4</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🔍</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Formen-Entdecker</h2>
+                                <span class="inline-block bg-emerald-900/60 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-emerald-500/30">App: 👾 Pixel Art</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Finde etwas <span class="text-amber-400">RUNDES</span> 🔵 im Raum und versuche, es mit Pixeln nachzumalen!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Runden Gegenstand finden 🔵</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Kreis im Pixel Labor malen 🖌️</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>In der Galerie speichern 🎨</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🔍</span>
-                        <h2 class="text-xl font-black text-white mt-2">Formen-Entdecker</h2>
-                        <span class="inline-block bg-emerald-900/60 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-emerald-500/30">App: 👾 Pixel Art</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Skizzenfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Finde etwas <span class="text-amber-400">RUNDES</span> 🔵 im Raum und versuche, es mit Pixeln nachzumalen!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Geometrisches Verständnis & Raumvorstellung.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Verbindet Gegenstände der Umwelt mit Geometrie & Abstraktion.
                 </div>
             </div>
 
@@ -207,204 +273,300 @@
 
     <!-- PAGE 2: Geräusche-Jäger -->
     <div class="a4-page page-break">
-        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-3 no-print flex justify-between border-b border-slate-700 pb-2">
-            <span>Bogen 2 von 3: 🎧 Geräusche-Jäger</span>
+        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2 no-print flex justify-between border-b border-slate-700 pb-2">
+            <span>Bogen 2 von 3: 🎧 Geräusche-Jäger (Karten 5 - 8)</span>
             <span>4 Karten (DIN A6 Format)</span>
         </div>
-        <div class="grid grid-cols-2 gap-4 h-[265mm]">
+        <div class="grid grid-cols-2 gap-3 h-[272mm]">
 
             <!-- Karte 5 -->
             <div class="card border-sky-400/50">
-                <div>
-                    <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-sky-400/30">
-                        <span>🎧 GERÄUSCHE-JÄGER</span>
-                        <span>KARTE #5</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-sky-400/30">
+                            <span>🎧 GERÄUSCHE-JÄGER</span>
+                            <span>KARTE #5</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🤫</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Geheim-Sound</h2>
+                                <span class="inline-block bg-red-900/60 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-red-500/30">App: 🎙️ Mikro Check</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Nimm ein geheimes Geräusch auf (z. B. Papierknistern, Klatschen). Lass andere Kinder raten!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Geräusch leise erzeugen 🤫</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Im Mikro Check aufnehmen 🎙️</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Vorspielen & Raten lassen 👂</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🤫</span>
-                        <h2 class="text-xl font-black text-white mt-2">Geheim-Sound</h2>
-                        <span class="inline-block bg-red-900/60 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-red-500/30">App: 🎙️ Mikro Check</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Nimm ein geheimes Geräusch auf (z. B. Papierknistern, Klatschen). Lass andere Kinder raten!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Höramplitudenschulung & Rätsel-Interaktion.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Höramplitudenschulung, akustisches Rätseln & Interaktion.
                 </div>
             </div>
 
             <!-- Karte 6 -->
             <div class="card border-sky-400/50">
-                <div>
-                    <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-sky-400/30">
-                        <span>🎧 GERÄUSCHE-JÄGER</span>
-                        <span>KARTE #6</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-sky-400/30">
+                            <span>🎧 GERÄUSCHE-JÄGER</span>
+                            <span>KARTE #6</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🤖</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Stimmen-Verwandler</h2>
+                                <span class="inline-block bg-red-900/60 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-red-500/30">App: 🎙️ Mikro Check</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Sprich deinen Namen ein. Verändere deine Stimme mit den Knöpfen in ein Roboter-Geräusch!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Namen laut einsprechen 🗣️</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Effekt-Knöpfe ausprobieren 🎛️</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Roboter-Stimme anhören 🤖</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🤖</span>
-                        <h2 class="text-xl font-black text-white mt-2">Stimmen-Verwandler</h2>
-                        <span class="inline-block bg-red-900/60 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-red-500/30">App: 🎙️ Mikro Check</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Sprich deinen Namen ein. Verändere deine Stimme mit den Knöpfen in ein Roboter-Geräusch!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Stimmerfahrung & Bewusstsein für Stimmmanipulation.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Eigene Stimmerfahrung & Medienwissen (Stimmmanipulation).
                 </div>
             </div>
 
             <!-- Karte 7 -->
             <div class="card border-sky-400/50">
-                <div>
-                    <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-sky-400/30">
-                        <span>🎧 GERÄUSCHE-JÄGER</span>
-                        <span>KARTE #7</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-sky-400/30">
+                            <span>🎧 GERÄUSCHE-JÄGER</span>
+                            <span>KARTE #7</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🥁</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Der Kita-Beat</h2>
+                                <span class="inline-block bg-rose-900/60 text-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-rose-500/30">App: 🎹 Musik Labor</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Baut im Musik Labor gemeinsam einen Rhythmus für das Begrüßungslied im Morgenkreis!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Töne & Drums antippen 🎹</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Gleichmäßigen Beat finden 🥁</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Dazu singen oder klatschen 👏</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🥁</span>
-                        <h2 class="text-xl font-black text-white mt-2">Der Kita-Beat</h2>
-                        <span class="inline-block bg-rose-900/60 text-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-rose-500/30">App: 🎹 Musik Labor</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Baut im Musik Labor gemeinsam einen Rhythmus für das Begrüßungslied im Morgenkreis!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Takt- & Rhythmusgefühl, musikalische Gruppenarbeit.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Takt- & Rhythmusgefühl, musikalische Gruppenarbeit.
                 </div>
             </div>
 
             <!-- Karte 8 -->
             <div class="card border-sky-400/50">
-                <div>
-                    <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-sky-400/30">
-                        <span>🎧 GERÄUSCHE-JÄGER</span>
-                        <span>KARTE #8</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-jaeger bg-sky-400/20 text-sky-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-sky-400/30">
+                            <span>🎧 GERÄUSCHE-JÄGER</span>
+                            <span>KARTE #8</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🔔</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Geräusche-Sammler</h2>
+                                <span class="inline-block bg-red-900/60 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-red-500/30">App: 🎙️ Mikro Check</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Gehe durch die Kita und nimm 3 laute Geräusche auf. Wie klingen sie rückwärts?"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Durch die Räume lauschen 👂</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>3 Töne im Mikro Check aufnehmen 🎙️</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Rückwärts-Taste testen 🔄</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🔔</span>
-                        <h2 class="text-xl font-black text-white mt-2">Geräusche-Sammler</h2>
-                        <span class="inline-block bg-red-900/60 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-red-500/30">App: 🎙️ Mikro Check</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Gehe durch die Kita und nimm 3 laute Geräusche auf. Wie klingen sie, wenn du sie rückwärts abspielst?"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Erforschen von Schall, Raumakustik & Audioschnitt.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Erforschen von Schall, Raumakustik & Audio-Effekten.
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- PAGE 3: Kleine Regisseure & Reporter -->
+    <!-- PAGE 3: Regisseure & Reporter -->
     <div class="a4-page">
-        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-3 no-print flex justify-between border-b border-slate-700 pb-2">
-            <span>Bogen 3 von 3: 🎬 Regisseure & Reporter</span>
+        <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2 no-print flex justify-between border-b border-slate-700 pb-2">
+            <span>Bogen 3 von 3: 🎬 Regisseure & Reporter (Karten 9 - 12)</span>
             <span>4 Karten (DIN A6 Format)</span>
         </div>
-        <div class="grid grid-cols-2 gap-4 h-[265mm]">
+        <div class="grid grid-cols-2 gap-3 h-[272mm]">
 
             <!-- Karte 9 -->
             <div class="card border-rose-400/50">
-                <div>
-                    <div class="card-header-regisseure bg-pink-400/20 text-pink-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-pink-400/30">
-                        <span>🎬 KLEINER REGISSEUR</span>
-                        <span>KARTE #9</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-regisseure bg-pink-400/20 text-pink-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-pink-400/30">
+                            <span>🎬 KLEINER REGISSEUR</span>
+                            <span>KARTE #9</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🚗</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Spielzeug erwacht</h2>
+                                <span class="inline-block bg-amber-900/60 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-amber-500/30">App: 🎬 Trickfilm Studio</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Bewege ein Spielzeugauto Stück für Stück über den Tisch und mache jeweils ein Foto. Schau deinen Film an!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Auto ein Stück schieben 🚗</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Foto-Knopf drücken 📸</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Play-Taste für Film drücken ▶️</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🚗</span>
-                        <h2 class="text-xl font-black text-white mt-2">Spielzeug erwacht</h2>
-                        <span class="inline-block bg-amber-900/60 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-amber-500/30">App: 🎬 Trickfilm Studio</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Bewege ein Spielzeugauto Stück für Stück über den Tisch und mache jeweils ein Foto. Schau deinen Film an!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Prinzip von Animation, Bewegung & Ursache-Wirkung.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Verständnis für Animation, Bewegungsabläufe & Stop-Motion.
                 </div>
             </div>
 
             <!-- Karte 10 -->
             <div class="card border-rose-400/50">
-                <div>
-                    <div class="card-header-regisseure bg-pink-400/20 text-pink-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-pink-400/30">
-                        <span>🎬 KLEINER REGISSEUR</span>
-                        <span>KARTE #10</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-regisseure bg-pink-400/20 text-pink-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-pink-400/30">
+                            <span>🎬 KLEINER REGISSEUR</span>
+                            <span>KARTE #10</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">🟢</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Das Knet-Monster</h2>
+                                <span class="inline-block bg-amber-900/60 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-amber-500/30">App: 🎬 Trickfilm Studio</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Forme eine Knetkugel. Mache Schritt für Schritt ein Monster daraus und drucke dir dein Daumenkino aus!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Knetkugel formen 🟢</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Stück für Schritt verändern & fotografieren 📸</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Als Daumenkino ausdrucken 🖨️</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">🟢</span>
-                        <h2 class="text-xl font-black text-white mt-2">Das Knet-Monster</h2>
-                        <span class="inline-block bg-amber-900/60 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-amber-500/30">App: 🎬 Trickfilm Studio</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Forme eine Knetkugel. Mache Schritt für Schritt ein Monster daraus und drucke dir dein Daumenkino aus!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Haptisches Kneten verknüpft mit digitalem Daumenkino.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Haptisches Kneten verknüpft mit digitalem Daumenkino-Druck.
                 </div>
             </div>
 
             <!-- Karte 11 -->
             <div class="card border-emerald-400/50">
-                <div>
-                    <div class="card-header-reporter bg-emerald-400/20 text-emerald-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-emerald-400/30">
-                        <span>🎤 KITA-REPORTER</span>
-                        <span>KARTE #11</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-reporter bg-emerald-400/20 text-emerald-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-emerald-400/30">
+                            <span>🎤 KITA-REPORTER</span>
+                            <span>KARTE #11</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">☀️</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Der Wetter-Bericht</h2>
+                                <span class="inline-block bg-blue-900/60 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-blue-500/30">App: 📰 Nachrichten Studio</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Stelle dich vor das Nachrichten Studio. Berichte wie ein TV-Reporter, wie das Wetter heute draußen ist!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Aus dem Fenster schauen 🌤️</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Vor die Kamera stellen 📹</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Wetterbericht sprechen 🎤</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">☀️</span>
-                        <h2 class="text-xl font-black text-white mt-2">Der Wetter-Bericht</h2>
-                        <span class="inline-block bg-blue-900/60 text-blue-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-blue-500/30">App: 📰 Nachrichten Studio</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Stelle dich vor das Nachrichten Studio. Berichte wie ein TV-Reporter, wie das Wetter heute draußen ist!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Freies Sprechen, Rollenspiel & Selbstbewusstsein.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Freies Sprechen, Rollenspiel & Stärkung des Selbstbewusstseins.
                 </div>
             </div>
 
             <!-- Karte 12 -->
             <div class="card border-emerald-400/50">
-                <div>
-                    <div class="card-header-reporter bg-emerald-400/20 text-emerald-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-3 border border-emerald-400/30">
-                        <span>🎤 KITA-REPORTER</span>
-                        <span>KARTE #12</span>
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <div class="card-header-reporter bg-emerald-400/20 text-emerald-300 px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-between mb-2 border border-emerald-400/30">
+                            <span>🎤 KITA-REPORTER</span>
+                            <span>KARTE #12</span>
+                        </div>
+                        <div class="flex items-center gap-3 my-1">
+                            <span class="text-4xl shrink-0">📸</span>
+                            <div>
+                                <h2 class="text-lg font-black text-white leading-tight">Meine Foto-Story</h2>
+                                <span class="inline-block bg-orange-900/60 text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-0.5 border border-orange-500/30">App: 📸 Comic Story</span>
+                            </div>
+                        </div>
+                        <div class="card-box bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-2">
+                            <p class="text-slate-200 text-xs font-bold leading-snug">
+                                "Fotografiere dein Lieblingsspielzeug bei 3 Abenteuern und mache einen 3-Teile Comic daraus!"
+                            </p>
+                        </div>
+                        <div class="space-y-1 text-[11px] text-slate-300 font-bold my-2">
+                            <div class="flex items-center gap-1.5"><span>▫️ 1.</span> <span>Spielzeug in 3 Szenen fotografieren 📸</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 2.</span> <span>Sprechblasen im Comic hinzufügen 💬</span></div>
+                            <div class="flex items-center gap-1.5"><span>▫️ 3.</span> <span>Comic ausdrucken & vorlesen 📖</span></div>
+                        </div>
                     </div>
-                    <div class="text-center py-2">
-                        <span class="text-5xl">📸</span>
-                        <h2 class="text-xl font-black text-white mt-2">Meine Foto-Story</h2>
-                        <span class="inline-block bg-orange-900/60 text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 border border-orange-500/30">App: 📸 Comic Story</span>
+                    <div class="draw-area p-2 my-1 flex-1 flex flex-col justify-center items-center text-center min-h-[45px]">
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">✏️ Mein Notiz- / Stempelfeld</span>
                     </div>
-                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 my-3">
-                        <p class="text-slate-200 text-sm font-bold leading-snug">
-                            "Fotografiere dein Lieblingsspielzeug bei 3 Abenteuern und mache einen 3-Teile Comic daraus!"
-                        </p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-slate-400 font-medium">
+                        🎓 <strong class="text-slate-300">Pädagogik:</strong> Sequenzielles Erzählen & Bildkomposition.
                     </div>
-                </div>
-                <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 font-medium">
-                    🎓 <strong class="text-slate-300">Pädagogen-Tipp:</strong> Sequenzielles Erzählen, Geschichtsaufbau & Bildkomposition.
                 </div>
             </div>
 
