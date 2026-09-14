@@ -1,7 +1,8 @@
-const CACHE_NAME = 'medien-station-v7.4.0-v252';
+const CACHE_NAME = 'medien-station-v7.4.0-v253';
 const ASSETS = [
     './',
     './index.html',
+    './entdecker_karten.html',
     './css/style.css',
     './js/common.js',
     './js/audio.js',
