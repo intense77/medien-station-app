@@ -361,8 +361,22 @@
                 .then((registration) => {
                     console.log('✅ Service Worker registriert');
                     
+                    // Falls bereits ein wartender SW bereitsteht (z.B. vom vorherigen Hintergrund-Download)
+                    if (registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+
                     // Fallback: Zeige Overlay SOFORT, sobald der Browser eine neue Version entdeckt hat
                     registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        if (newWorker) {
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                }
+                            });
+                        }
+
                         const ui = getUpdateOverlay();
                         ui.overlay.classList.remove('hidden');
                         setTimeout(() => ui.overlay.classList.remove('opacity-0'), 10);

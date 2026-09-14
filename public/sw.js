@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.4.0-v248';
+const CACHE_NAME = 'medien-station-v7.4.0-v250';
 const ASSETS = [
     './',
     './index.html',
@@ -146,15 +146,17 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch Listener: Network-First für HTML-Seiten, Cache-First für statische Assets
+// Fetch Listener: Network-First für HTML, JS & CSS, Cache-First für schwere Medien (Bilder, MP3s, WASM)
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
+    const url = new URL(event.request.url);
     const acceptHeader = event.request.headers.get('accept') || '';
     const isNavigation = event.request.mode === 'navigate' || acceptHeader.includes('text/html');
+    const isCodeFile = url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
 
-    if (isNavigation) {
-        // Network-First für HTML-Seiten: Immer den neuesten Stand laden wenn online! Fallback auf Cache (offline)
+    if (isNavigation || isCodeFile) {
+        // Network-First für HTML, JS und CSS: Immer den neuesten Stand laden wenn online! Fallback auf Cache (offline)
         event.respondWith(
             fetch(event.request)
                 .then((networkResponse) => {
@@ -169,7 +171,7 @@ self.addEventListener('fetch', (event) => {
                 })
         );
     } else {
-        // Cache-First für statische Assets (Bilder, MP3s, WASM, CSS)
+        // Cache-First für statische Medien (Bilder, MP3s, WASM-Modelle)
         event.respondWith(
             caches.match(event.request, { ignoreSearch: true })
                 .then((cachedResponse) => {
