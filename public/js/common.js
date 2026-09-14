@@ -843,4 +843,33 @@
         modal.classList.remove('hidden');
         modal.classList.add('flex');
     };
+
+    // --- 13. Automatischer täglicher Galerie-Reset (Datenschutz / DSGVO Speicherbegrenzung) ---
+    const DATE_KEY = 'medienstation_last_active_date';
+
+    window.checkDailyGalleryCleanup = function() {
+        try {
+            const today = new Date().toISOString().slice(0, 10);
+            const lastDate = localStorage.getItem(DATE_KEY);
+
+            if (lastDate && lastDate !== today) {
+                window.clearMeisterwerke();
+                console.log(`[MedienStation] Automatischer täglicher Galerie-Reset durchgeführt (${lastDate} -> ${today}).`);
+            }
+            localStorage.setItem(DATE_KEY, today);
+        } catch(e) {
+            console.warn('[MedienStation] Fehler beim täglichen Galerie-Reset:', e);
+        }
+    };
+
+    // Sofort beim Start ausführen
+    window.checkDailyGalleryCleanup();
+
+    // Bei Sichtbarkeitswechsel (z. B. Tablet aufgeweckt) erneut prüfen
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            window.checkDailyGalleryCleanup();
+        }
+    });
 })();
+

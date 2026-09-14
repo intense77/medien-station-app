@@ -44,8 +44,9 @@ Die MedienStation erfüllt höchste Datenschutzstandards für den Einsatz in Bil
 ### ℹ️ Speicher- & Löschkonzept der Galerie ("Meisterwerke")
 
 * **Speicherort**: Erstellte Medien (Bilder, Sounds, Videos) werden im lokalen Speicher des Browsers (`localStorage` / `IndexedDB`) des jeweiligen Geräts abgelegt.
-* **Kapazität**: Das System speichert automatisch die jeweils neuesten 30 Kunstwerke einer Sitzung ab.
+* **Kapazität**: Das System speichert automatisch die jeweils neuesten 30 Kunstwerke des aktuellen Tages ab.
 * **Löschung**:
+  * **Automatischer Tages-Reset (DSGVO-Speicherbegrenzung)**: Zu Beginn eines neuen Tages (beim ersten Start oder Aufwachen des Tablets an einem neuen Datum) wird die Galerie automatisch und vollständig zurückgesetzt. Dies schützt die Kindermedien zuverlässig über Nacht und erfüllt das Gebot der Speicherbegrenzung (Art. 5 Abs. 1 lit. e DSGVO), ohne den Tagesbetrieb (z. B. Präsentieren der Werke beim Abholen) zu stören.
   * **Manuell**: Benutzer oder Fachkräfte können die Galerie jederzeit mit einem Klick auf *"🧹 Galerie leeren"* (mit Bestätigungsabfrage) leeren.
   * **System-Reset**: Beim Ausführen des Admin-Resets (*"Update erzwingen"*) oder beim Zurücksetzen der Browserdaten wird der Speicher geleert.
 

@@ -75,6 +75,10 @@ Das MedienStation Hub erfüllt höchste Anforderungen an den Datenschutz und die
 3. **Hardware-Schutz & Privatsphäre**:
    - Kamera und Mikrofon sind nur während der aktiven Nutzung freigeschaltet und werden beim Verlassen einer App hardwareseitig sofort deaktiviert.
 
+4. **Automatischer täglicher Galerie-Reset (DSGVO-Speicherbegrenzung)**:
+   - Die lokale meisterwerke-Galerie speichert erstellte Fotos und Sounds für die Dauer des Kita-Tages.
+   - Bei jedem neuen Tag (beim Ersterfassen eines neuen Datums beim Start oder Aufwachen des Tablets) werden alle gespeicherten Kunstwerke automatisch und rückstandslos aus dem Browserspeicher gelöscht.
+
 ---
 
 ## 🖨️ Druckfunktion & Kiosk-Betrieb
