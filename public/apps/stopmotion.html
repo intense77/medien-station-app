@@ -119,9 +119,14 @@
             🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
 
-        <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl lg:text-5xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none z-10 uppercase">
-            🎬 TRICKFILM STUDIO
-        </h1>
+        <div class="flex items-center gap-2 md:gap-4 z-10">
+            <h1 class="hidden md:block text-xl lg:text-4xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none uppercase">
+                🎬 TRICKFILM STUDIO
+            </h1>
+            <div class="bg-slate-800 text-amber-400 px-3 py-1.5 md:px-5 md:py-2 rounded-full font-black text-xs md:text-lg border-2 border-amber-400/80 shadow-xl flex items-center gap-2 shrink-0">
+                <span id="frame-counter">0 / 16 BILDER</span>
+            </div>
+        </div>
 
         <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-amber-400 hover:text-amber-300 rounded-full font-black border-2 md:border-4 border-amber-400 hover:border-amber-300 shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50" title="Hilfe">
             ?
@@ -198,11 +203,6 @@
                 <!-- Overlay Canvas für Geisterbild (Onion Skin) und Film-Abspielen -->
                 <canvas id="view-canvas" class="absolute inset-0 w-full h-full object-contain pointer-events-none block"></canvas>
                 
-                <!-- On-Screen Frame Counter Badge -->
-                <div class="absolute top-3 left-3 bg-slate-950/90 text-amber-400 px-3 py-1 md:px-5 md:py-2 rounded-full font-black text-xs md:text-xl border-2 border-amber-400/80 shadow-2xl backdrop-blur z-20 flex items-center gap-2">
-                    <span id="frame-counter">0 / 16 BILDER</span>
-                </div>
-
                 <!-- Touch Auslöser Direkt auf dem Videobild -->
                 <button id="viewport-snap-btn" onclick="captureFrame()" class="absolute bottom-4 right-4 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 hover:from-amber-200 hover:to-amber-300 active:scale-90 text-slate-950 w-16 h-16 md:w-22 md:h-22 rounded-full border-4 border-amber-100 shadow-[0_0_35px_rgba(245,158,11,0.9)] flex items-center justify-center text-3xl md:text-5xl font-black z-30 transition-transform">
                     📸
