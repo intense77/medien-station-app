@@ -2893,13 +2893,6 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-}
-
 canvas, video, .pixel-grid, .touch-none {
   touch-action: none !important;
   -webkit-user-drag: none;
@@ -3275,6 +3268,10 @@ canvas, video, .pixel-grid, .touch-none {
     display: inline;
   }
 
+  .sm\:flex {
+    display: flex;
+  }
+
   .sm\:hidden {
     display: none;
   }
@@ -3317,6 +3314,10 @@ canvas, video, .pixel-grid, .touch-none {
 
   .sm\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .sm\:flex-wrap {
+    flex-wrap: wrap;
   }
 
   .sm\:gap-2 {
