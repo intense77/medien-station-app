@@ -752,7 +752,14 @@
     };
 
     window.getMeisterwerke = function() {
-        try { return JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]'); } catch(e) { return []; }
+        try {
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (!raw) return [];
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch(e) {
+            return [];
+        }
     };
 
     window.clearMeisterwerke = function(onComplete) {
@@ -776,14 +783,16 @@
             document.body.appendChild(modal);
         }
 
-        if (!modal.classList.contains('hidden') && modal.style.display !== 'none') {
+        const isVisible = modal.style.display === 'flex' || (!modal.classList.contains('hidden') && modal.style.display !== 'none');
+        if (isVisible) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             modal.style.display = 'none';
             return;
         }
 
-        const items = window.getMeisterwerke();
+        const rawItems = window.getMeisterwerke();
+        const items = rawItems.filter(it => it && typeof it === 'object' && it.dataUrl);
 
         let gridHtml = '';
         if (items.length === 0) {
