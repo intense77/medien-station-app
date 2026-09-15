@@ -770,36 +770,39 @@
     };
 
     window.toggleMeisterwerke = function() {
-        window.resetIdleTimer();
-        if (window.playSound) window.playSound('click');
+        try { window.resetIdleTimer(); } catch(e) {}
+        try { if (window.playSound) window.playSound('click'); } catch(e) {}
 
         let modal = document.getElementById('meisterwerke-modal');
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'meisterwerke-modal';
-            modal.style.zIndex = '999999';
             modal.className = 'hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4';
             modal.onclick = function() { window.toggleMeisterwerke(); };
             document.body.appendChild(modal);
         }
+
         modal.style.zIndex = '999999';
 
-        if (!modal.classList.contains('hidden')) {
+        const isHidden = modal.classList.contains('hidden') || modal.style.display === 'none';
+
+        if (!isHidden) {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            modal.style.display = 'none';
             return;
         }
 
         const rawItems = window.getMeisterwerke();
-        const items = rawItems.filter(it => it && typeof it === 'object' && it.dataUrl);
+        const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && it.dataUrl) : [];
 
         let gridHtml = '';
         if (items.length === 0) {
             gridHtml = `
-                <div class="col-span-full text-center py-16 text-slate-400">
+                <div class="col-span-full text-center py-16 text-slate-400 select-none">
                     <div class="text-7xl mb-4">🎨</div>
-                    <h3 class="text-2xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
-                    <p class="text-lg font-bold">Nutze die Apps, um Bilder, Videos oder Sounds zu erstellen. Sie erscheinen dann hier!</p>
+                    <h3 class="text-2xl md:text-3xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
+                    <p class="text-base md:text-lg font-bold max-w-md mx-auto">Nutze die Apps, um Bilder, Videos oder Sounds zu erstellen. Sie erscheinen dann hier!</p>
                 </div>
             `;
         } else {
@@ -852,6 +855,7 @@
 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        modal.style.display = 'flex';
     };
 
     // --- 13. Automatischer täglicher Galerie-Reset (Datenschutz / DSGVO Speicherbegrenzung) ---
