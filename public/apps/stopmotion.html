@@ -203,11 +203,6 @@
                 <!-- Overlay Canvas für Geisterbild (Onion Skin) und Film-Abspielen -->
                 <canvas id="view-canvas" class="absolute inset-0 w-full h-full object-contain pointer-events-none block"></canvas>
                 
-                <!-- Status Badge (Live Kamera / Trickfilm läuft) -->
-                <div id="state-badge" class="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20 pointer-events-none">
-                    <div class="w-2.5 h-2.5 bg-white rounded-full animate-ping"></div> LIVE KAMERA
-                </div>
-
                 <!-- Touch Auslöser Direkt auf dem Videobild -->
                 <button id="viewport-snap-btn" onclick="captureFrame()" class="absolute bottom-4 right-4 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 hover:from-amber-200 hover:to-amber-300 active:scale-90 text-slate-950 w-16 h-16 md:w-22 md:h-22 rounded-full border-4 border-amber-100 shadow-[0_0_35px_rgba(245,158,11,0.9)] flex items-center justify-center text-3xl md:text-5xl font-black z-30 transition-transform">
                     📸
@@ -659,27 +654,27 @@
 
             document.getElementById('play-icon').innerText = "⏸️";
             document.getElementById('play-text').innerText = "STOPP";
-            
-            const badge = document.getElementById('state-badge');
-            if (badge) {
-                badge.className = "absolute top-3 right-3 bg-emerald-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20 animate-pulse pointer-events-none";
-                badge.innerHTML = "▶️ TRICKFILM LÄUFT";
-            }
 
             if (audioBlob) {
                 playAudioTrack();
             }
 
             currentPlayIndex = 0;
+            const container = document.getElementById('filmstrip-container');
             const renderFrame = () => {
                 if (!isPlaying || frames.length === 0) return;
                 
-                // Timeline Thumbnail Hervorhebung mitfahren lassen!
+                // Timeline Thumbnail Hervorhebung mitfahren lassen ohne ganze UI zu verschieben!
                 document.querySelectorAll('.film-item').forEach(el => el.classList.remove('active-playing'));
                 const activeThumb = document.getElementById(`thumb-item-${currentPlayIndex}`);
                 if (activeThumb) {
                     activeThumb.classList.add('active-playing');
-                    activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                    if (container) {
+                        const containerWidth = container.clientWidth;
+                        const thumbLeft = activeThumb.offsetLeft;
+                        const thumbWidth = activeThumb.clientWidth;
+                        container.scrollLeft = thumbLeft - (containerWidth / 2) + (thumbWidth / 2);
+                    }
                 }
 
                 const img = new Image();
@@ -710,12 +705,6 @@
 
             document.getElementById('play-icon').innerText = "▶️";
             document.getElementById('play-text').innerText = "FILM ABSPIELEN";
-            
-            const badge = document.getElementById('state-badge');
-            if (badge) {
-                badge.className = "absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full font-bold text-xs md:text-sm shadow-lg flex items-center gap-1 z-20 pointer-events-none";
-                badge.innerHTML = '<div class="w-2.5 h-2.5 bg-white rounded-full animate-ping"></div> LIVE KAMERA';
-            }
         }
 
         // --- MIKROFON TONAUFNAHME ---
