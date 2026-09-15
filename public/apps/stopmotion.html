@@ -372,6 +372,7 @@
                     await new Promise(r => video.onloadedmetadata = r);
                     await video.play();
                     
+                    // Exaktes Seitenverhältnis der Kamera übernehmen, um Verschiebung zu verhindern
                     canvas.width = video.videoWidth || 1280;
                     canvas.height = video.videoHeight || 720;
 
@@ -425,10 +426,10 @@
             video.parentElement.appendChild(flash);
             setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 300); }, 50);
 
-            // Frame vom Live Video capturen inkl. aktivem Bildfilter
+            // Frame vom Live Video capturen inkl. aktivem Bildfilter (in exakter Video-Auflösung)
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = canvas.width || 1280;
-            tempCanvas.height = canvas.height || 720;
+            tempCanvas.width = video.videoWidth || canvas.width || 1280;
+            tempCanvas.height = video.videoHeight || canvas.height || 720;
             const tempCtx = tempCanvas.getContext('2d');
             
             if (currentFacingMode === 'user') {
@@ -636,7 +637,7 @@
             }
         };
 
-        // --- WIEDERGABE (PLAY / PAUSE) MIT TIMELINE MITFAHRER ---
+        // --- WIEDERGABE (PLAY / PAUSE) ---
         window.togglePlay = () => {
             if (frames.length === 0) return;
             if (isPlaying) {
@@ -648,9 +649,10 @@
 
         function startPlay() {
             if (frames.length === 0) return;
+            if (isPlaying) return;
+
             isPlaying = true;
             video.style.opacity = '0';
-            canvas.style.pointerEvents = 'auto';
 
             document.getElementById('play-icon').innerText = "⏸️";
             document.getElementById('play-text').innerText = "STOPP";
@@ -664,7 +666,7 @@
             const renderFrame = () => {
                 if (!isPlaying || frames.length === 0) return;
                 
-                // Timeline Thumbnail Hervorhebung mitfahren lassen ohne ganze UI zu verschieben!
+                // Timeline Thumbnail Hervorhebung mitfahren lassen
                 document.querySelectorAll('.film-item').forEach(el => el.classList.remove('active-playing'));
                 const activeThumb = document.getElementById(`thumb-item-${currentPlayIndex}`);
                 if (activeThumb) {
@@ -692,9 +694,11 @@
 
         function stopPlay() {
             isPlaying = false;
-            if (playInterval) clearInterval(playInterval);
+            if (playInterval) {
+                clearInterval(playInterval);
+                playInterval = null;
+            }
             video.style.opacity = '1';
-            canvas.style.pointerEvents = 'none';
 
             document.querySelectorAll('.film-item').forEach(el => el.classList.remove('active-playing'));
 
@@ -705,6 +709,9 @@
 
             document.getElementById('play-icon').innerText = "▶️";
             document.getElementById('play-text').innerText = "FILM ABSPIELEN";
+
+            // Canvas vollständig leeren
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
         // --- MIKROFON TONAUFNAHME ---

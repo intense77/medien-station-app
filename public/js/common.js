@@ -777,10 +777,12 @@
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'meisterwerke-modal';
-            modal.className = 'hidden fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4';
+            modal.style.zIndex = '999999';
+            modal.className = 'hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4';
             modal.onclick = function() { window.toggleMeisterwerke(); };
             document.body.appendChild(modal);
         }
+        modal.style.zIndex = '999999';
 
         if (!modal.classList.contains('hidden')) {
             modal.classList.add('hidden');
