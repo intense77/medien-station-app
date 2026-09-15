@@ -333,7 +333,7 @@
                     overlay = document.createElement('div');
                     overlay.id = 'update-progress-overlay';
                     // ZENTRIERT statt unten am Rand, damit er nicht abgeschnitten wird!
-                    overlay.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-800 border-4 border-blue-500 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] z-[999999] w-[90%] max-w-md transition-opacity duration-300 opacity-0 hidden flex-col';
+                    overlay.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-800 border-4 border-blue-500 rounded-3xl p-6 md:p-8 shadow-[0_0_50px_rgba(0,0,0,0.8)] z-[999999] w-[90%] max-w-md transition-opacity duration-300 opacity-0 hidden flex flex-col';
                     overlay.innerHTML = `
                         <div class="flex justify-between items-center mb-4">
                             <span id="update-progress-title" class="text-white font-black text-lg md:text-2xl">🚀 Update lädt...</span>
@@ -909,8 +909,8 @@
             try { event.stopPropagation(); } catch(e) {}
         }
         const now = Date.now();
-        // 600ms Debounce: absorbiert Ghost-Clicks & doppelte pointerup/click Aufrufe zuverlässig
-        if (now - lastMeisterwerkeToggle < 600) return;
+        // 300ms Debounce: absorbiert Ghost-Clicks & doppelte pointerup/click Aufrufe zuverlässig
+        if (now - lastMeisterwerkeToggle < 300) return;
         lastMeisterwerkeToggle = now;
 
         try { window.resetIdleTimer(); } catch(e) {}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.4.3-v264';
+const CACHE_NAME = 'medien-station-v7.4.4-v265';
 const ASSETS = [
     './',
     './index.html',
@@ -79,7 +79,6 @@ self.addEventListener('message', (event) => {
 });
 
 self.addEventListener('install', (event) => {
-    self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
     event.waitUntil(
         caches.open(CACHE_NAME).then(async (cache) => {
             const total = ASSETS.length;
@@ -126,6 +125,7 @@ self.addEventListener('install', (event) => {
             }
             
             await broadcastProgress({ type: 'CACHE_DONE' });
+            self.skipWaiting();
         })
     );
 });

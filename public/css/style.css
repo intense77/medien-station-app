@@ -823,10 +823,6 @@ video {
   margin-top: 3rem;
 }
 
-.mt-2 {
-  margin-top: 0.5rem;
-}
-
 .mt-3 {
   margin-top: 0.75rem;
 }
@@ -893,10 +889,6 @@ video {
 
 .h-10 {
   height: 2.5rem;
-}
-
-.h-11 {
-  height: 2.75rem;
 }
 
 .h-12 {
@@ -1001,10 +993,6 @@ video {
 
 .w-10 {
   width: 2.5rem;
-}
-
-.w-11 {
-  width: 2.75rem;
 }
 
 .w-12 {
@@ -1320,10 +1308,6 @@ video {
 
 .gap-2 {
   gap: 0.5rem;
-}
-
-.gap-2\.5 {
-  gap: 0.625rem;
 }
 
 .gap-3 {
@@ -3280,10 +3264,6 @@ canvas, video, .pixel-grid, .touch-none {
     display: inline;
   }
 
-  .sm\:flex {
-    display: flex;
-  }
-
   .sm\:hidden {
     display: none;
   }
@@ -3308,16 +3288,12 @@ canvas, video, .pixel-grid, .touch-none {
     min-height: 120px;
   }
 
+  .sm\:w-10 {
+    width: 2.5rem;
+  }
+
   .sm\:w-11 {
     width: 2.75rem;
-  }
-
-  .sm\:w-12 {
-    width: 3rem;
-  }
-
-  .sm\:w-auto {
-    width: auto;
   }
 
   .sm\:max-w-xs {
@@ -3332,16 +3308,12 @@ canvas, video, .pixel-grid, .touch-none {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .sm\:flex-wrap {
-    flex-wrap: wrap;
-  }
-
   .sm\:gap-2 {
     gap: 0.5rem;
   }
 
-  .sm\:gap-3 {
-    gap: 0.75rem;
+  .sm\:gap-2\.5 {
+    gap: 0.625rem;
   }
 
   .sm\:gap-4 {
@@ -3366,19 +3338,14 @@ canvas, video, .pixel-grid, .touch-none {
     padding-right: 1.25rem;
   }
 
-  .sm\:px-6 {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
-  .sm\:px-8 {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-
   .sm\:py-2 {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
+  }
+
+  .sm\:py-2\.5 {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
   }
 
   .sm\:py-3 {
@@ -3408,11 +3375,6 @@ canvas, video, .pixel-grid, .touch-none {
   .sm\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
-  }
-
-  .sm\:text-xl {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
   }
 }
 
@@ -3481,10 +3443,6 @@ canvas, video, .pixel-grid, .touch-none {
     margin-right: 4rem;
   }
 
-  .md\:mt-0 {
-    margin-top: 0px;
-  }
-
   .md\:mt-6 {
     margin-top: 1.5rem;
   }
@@ -3499,6 +3457,10 @@ canvas, video, .pixel-grid, .touch-none {
 
   .md\:inline {
     display: inline;
+  }
+
+  .md\:h-11 {
+    height: 2.75rem;
   }
 
   .md\:h-12 {
@@ -3547,6 +3509,10 @@ canvas, video, .pixel-grid, .touch-none {
 
   .md\:min-h-0 {
     min-height: 0px;
+  }
+
+  .md\:w-11 {
+    width: 2.75rem;
   }
 
   .md\:w-12 {
@@ -3933,6 +3899,11 @@ canvas, video, .pixel-grid, .touch-none {
 
   .lg\:p-6 {
     padding: 1.5rem;
+  }
+
+  .lg\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   .lg\:text-2xl {
