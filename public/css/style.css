@@ -895,6 +895,10 @@ video {
   height: 2.5rem;
 }
 
+.h-11 {
+  height: 2.75rem;
+}
+
 .h-12 {
   height: 3rem;
 }
@@ -997,6 +1001,10 @@ video {
 
 .w-10 {
   width: 2.5rem;
+}
+
+.w-11 {
+  width: 2.75rem;
 }
 
 .w-12 {
@@ -1358,6 +1366,10 @@ video {
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.overflow-visible {
+  overflow: visible;
 }
 
 .overflow-x-auto {
@@ -3300,6 +3312,10 @@ canvas, video, .pixel-grid, .touch-none {
     width: 2.75rem;
   }
 
+  .sm\:w-12 {
+    width: 3rem;
+  }
+
   .sm\:w-auto {
     width: auto;
   }
@@ -3324,6 +3340,10 @@ canvas, video, .pixel-grid, .touch-none {
     gap: 0.5rem;
   }
 
+  .sm\:gap-3 {
+    gap: 0.75rem;
+  }
+
   .sm\:gap-4 {
     gap: 1rem;
   }
@@ -3344,6 +3364,11 @@ canvas, video, .pixel-grid, .touch-none {
   .sm\:px-5 {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
+  }
+
+  .sm\:px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 
   .sm\:px-8 {
@@ -3383,6 +3408,11 @@ canvas, video, .pixel-grid, .touch-none {
   .sm\:text-sm {
     font-size: 0.875rem;
     line-height: 1.25rem;
+  }
+
+  .sm\:text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
   }
 }
 
