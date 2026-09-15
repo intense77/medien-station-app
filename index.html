@@ -117,10 +117,10 @@
                     <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-yellow-300">
                         <span class="text-xl md:text-2xl">🎲</span> <span>WÜRFELN</span>
                     </button>
-                    <button onclick="window.toggleMeisterwerke()" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-purple-400" title="Galerie der Kunstwerke">
+                    <button onclick="window.toggleMeisterwerke(event)" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-purple-400" title="Galerie der Kunstwerke">
                         <span class="text-xl md:text-2xl">🎨</span> <span>GALERIE</span>
                     </button>
-                    <button onclick="window.toggleInfo()" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-blue-400" title="Info & Handreichung">
+                    <button onclick="window.toggleInfo(event)" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-blue-400" title="Info & Handreichung">
                         <span class="text-xl md:text-2xl">💡</span> <span>INFO</span>
                     </button>
                 </div>
@@ -182,9 +182,9 @@
     </div>
 
     <!-- Info Modal -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo()">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo(event)">
         <div class="bg-slate-800 border-2 border-slate-600 rounded-[2rem] max-w-6xl w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="window.toggleInfo()" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-slate-400 transition">✖</button>
+            <button onclick="window.toggleInfo(event)" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-slate-400 transition">✖</button>
             
             <h2 class="text-4xl md:text-5xl font-black text-white mb-2 flex justify-between items-center">
                 <span>INFO</span>
@@ -233,9 +233,9 @@
     </div>
 
     <!-- Meisterwerke Galerie Modal -->
-    <div id="meisterwerke-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleMeisterwerke()">
+    <div id="meisterwerke-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleMeisterwerke(event)">
         <div class="bg-slate-800 border-4 border-amber-500 rounded-[2.5rem] max-w-5xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="window.toggleMeisterwerke()" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition">✖</button>
+            <button onclick="window.toggleMeisterwerke(event)" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition">✖</button>
             <div class="flex items-center gap-4 mb-6 border-b border-slate-700 pb-4">
                 <span class="text-4xl md:text-5xl">🎨</span>
                 <div>

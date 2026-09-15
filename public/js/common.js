@@ -84,18 +84,28 @@
     };
 
     // --- 2. Info Modal ---
-    window.toggleInfo = function() {
+    let lastInfoToggle = 0;
+    window.toggleInfo = function(event) {
+        if (event) {
+            try { event.stopPropagation(); } catch(e) {}
+        }
+        const now = Date.now();
+        if (now - lastInfoToggle < 400) return;
+        lastInfoToggle = now;
+
         window.resetIdleTimer();
         if (window.playSound) window.playSound('click');
         
         const modal = document.getElementById('info-modal');
         if (modal) {
-            if (modal.classList.contains('hidden')) {
+            if (modal.classList.contains('hidden') || modal.style.display === 'none') {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
+                modal.style.display = 'flex';
             } else {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+                modal.style.display = 'none';
                 if ('speechSynthesis' in window) {
                     // Nur abbrechen, wenn auch etwas gesprochen wird
                     window.speechSynthesis.cancel();
@@ -813,15 +823,27 @@
         }
     };
 
-    window.toggleMeisterwerke = function() {
+    let lastMeisterwerkeToggle = 0;
+    window.toggleMeisterwerke = function(event) {
+        if (event) {
+            try { event.stopPropagation(); } catch(e) {}
+        }
+        const now = Date.now();
+        if (now - lastMeisterwerkeToggle < 400) return;
+        lastMeisterwerkeToggle = now;
+
         try { window.resetIdleTimer(); } catch(e) {}
         try { if (window.playSound) window.playSound('click'); } catch(e) {}
 
         const modal = document.getElementById('meisterwerke-modal');
         if (!modal) return;
 
-        if (modal.classList.contains('hidden')) {
-            window.renderMeisterwerkeGrid();
+        if (modal.classList.contains('hidden') || modal.style.display === 'none' || getComputedStyle(modal).display === 'none') {
+            try {
+                window.renderMeisterwerkeGrid();
+            } catch(e) {
+                console.warn('renderMeisterwerkeGrid error:', e);
+            }
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             modal.style.display = 'flex';
