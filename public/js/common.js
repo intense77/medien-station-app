@@ -90,7 +90,7 @@
             try { event.stopPropagation(); } catch(e) {}
         }
         const now = Date.now();
-        if (now - lastInfoToggle < 400) return;
+        if (now - lastInfoToggle < 600) return;
         lastInfoToggle = now;
 
         window.resetIdleTimer();
@@ -98,16 +98,17 @@
         
         const modal = document.getElementById('info-modal');
         if (modal) {
-            if (modal.classList.contains('hidden') || modal.style.display === 'none') {
+            const isHidden = modal.classList.contains('hidden') || modal.style.display === 'none';
+            if (isHidden) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
-                modal.style.display = 'flex';
+                modal.style.removeProperty('display');
+                requestAnimationFrame(() => { modal.style.display = 'flex'; });
             } else {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
                 modal.style.display = 'none';
                 if ('speechSynthesis' in window) {
-                    // Nur abbrechen, wenn auch etwas gesprochen wird
                     window.speechSynthesis.cancel();
                 }
             }
@@ -252,32 +253,24 @@
         // Global Hardening: Kontextmenü überall deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
 
-        // Explicit Touch & Click Binding für Galerie & Info Modals (strikter Tablet/PWA Support)
+        // Galerie & Info Modal Binding – EINZIG zuverlässiges Muster für Tablet-PWAs:
+        // pointerup feuert genau EINMAL pro Tap (Touch & Maus), ohne Ghost-Clicks.
+        // Die onclick-Attribute der Buttons feuern danach einen click, der vom Debounce absorbiert wird.
         setTimeout(() => {
             const galBtn = document.querySelector('button[title="Galerie der Kunstwerke"]') || document.querySelector('button[onclick*="toggleMeisterwerke"]');
             if (galBtn) {
-                const handleGal = (e) => {
-                    if (e && e.type === 'touchend') {
-                        try { e.preventDefault(); } catch(err) {}
-                    }
-                    try { if (e) e.stopPropagation(); } catch(err) {}
+                galBtn.addEventListener('pointerup', (e) => {
+                    e.stopPropagation();
                     window.toggleMeisterwerke(e);
-                };
-                galBtn.addEventListener('touchend', handleGal, {passive: false});
-                galBtn.addEventListener('click', handleGal);
+                });
             }
 
             const infoBtn = document.querySelector('button[title="Info & Handreichung"]') || document.querySelector('button[onclick*="toggleInfo"]');
             if (infoBtn) {
-                const handleInfo = (e) => {
-                    if (e && e.type === 'touchend') {
-                        try { e.preventDefault(); } catch(err) {}
-                    }
-                    try { if (e) e.stopPropagation(); } catch(err) {}
+                infoBtn.addEventListener('pointerup', (e) => {
+                    e.stopPropagation();
                     window.toggleInfo(e);
-                };
-                infoBtn.addEventListener('touchend', handleInfo, {passive: false});
-                infoBtn.addEventListener('click', handleInfo);
+                });
             }
         }, 50);
         
@@ -908,16 +901,21 @@
             try { event.stopPropagation(); } catch(e) {}
         }
         const now = Date.now();
-        if (now - lastMeisterwerkeToggle < 400) return;
+        // 600ms Debounce: absorbiert Ghost-Clicks & doppelte onClick/pointerup Aufrufe zuverlässig
+        if (now - lastMeisterwerkeToggle < 600) return;
         lastMeisterwerkeToggle = now;
 
         try { window.resetIdleTimer(); } catch(e) {}
         try { if (window.playSound) window.playSound('click'); } catch(e) {}
 
         const modal = document.getElementById('meisterwerke-modal');
-        if (!modal) return;
+        if (!modal) {
+            console.warn('[Galerie] meisterwerke-modal nicht gefunden!');
+            return;
+        }
 
-        if (modal.classList.contains('hidden') || modal.style.display === 'none' || getComputedStyle(modal).display === 'none') {
+        const isHidden = modal.classList.contains('hidden') || modal.style.display === 'none' || getComputedStyle(modal).display === 'none';
+        if (isHidden) {
             try {
                 window.renderMeisterwerkeGrid();
             } catch(e) {
@@ -925,7 +923,11 @@
             }
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            modal.style.display = 'flex';
+            modal.style.removeProperty('display');
+            // Explizit als Block-Element setzen NACH dem Entfernen des inline-styles
+            requestAnimationFrame(() => {
+                modal.style.display = 'flex';
+            });
         } else {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
