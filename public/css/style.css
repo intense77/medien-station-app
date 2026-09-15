@@ -2884,6 +2884,42 @@ video {
   transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 }
 
+/* Global Kiosk & iOS Safe Area / Gesture Protection */
+
+html, body {
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+canvas, video, .pixel-grid, .touch-none {
+  touch-action: none !important;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+/* iOS Safari Backdrop Filter Fallbacks */
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px) !important;
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(12px) !important;
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(8px) !important;
+}
+
 .hover\:-translate-y-2:hover {
   --tw-translate-y: -0.5rem;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
