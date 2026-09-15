@@ -769,44 +769,25 @@
         } catch(e) {}
     };
 
-    window.toggleMeisterwerke = function() {
-        try { window.resetIdleTimer(); } catch(e) {}
-        try { if (window.playSound) window.playSound('click'); } catch(e) {}
-
-        let modal = document.getElementById('meisterwerke-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'meisterwerke-modal';
-            modal.className = 'hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4';
-            modal.onclick = function() { window.toggleMeisterwerke(); };
-            document.body.appendChild(modal);
-        }
-
-        modal.style.zIndex = '999999';
-
-        const isHidden = modal.classList.contains('hidden') || modal.style.display === 'none';
-
-        if (!isHidden) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            modal.style.display = 'none';
-            return;
-        }
+    window.renderMeisterwerkeGrid = function() {
+        const grid = document.getElementById('meisterwerke-grid');
+        const footer = document.getElementById('meisterwerke-footer');
+        if (!grid) return;
 
         const rawItems = window.getMeisterwerke();
         const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && it.dataUrl) : [];
 
-        let gridHtml = '';
         if (items.length === 0) {
-            gridHtml = `
+            grid.innerHTML = `
                 <div class="col-span-full text-center py-16 text-slate-400 select-none">
                     <div class="text-7xl mb-4">🎨</div>
                     <h3 class="text-2xl md:text-3xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
-                    <p class="text-base md:text-lg font-bold max-w-md mx-auto">Nutze die Apps, um Bilder, Videos oder Sounds zu erstellen. Sie erscheinen dann hier!</p>
+                    <p class="text-base md:text-lg font-bold max-w-md mx-auto">Nutze die Apps (z.B. Pixel, Comic oder Mikro), um Bilder oder Sounds zu erstellen. Sie erscheinen automatisch hier!</p>
                 </div>
             `;
+            if (footer) footer.style.display = 'none';
         } else {
-            gridHtml = items.map((it) => `
+            grid.innerHTML = items.map((it) => `
                 <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all">
                     <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2">
                         ${it.type === 'image' ? `<img src="${it.dataUrl}" class="w-full h-full object-contain">` : ''}
@@ -828,34 +809,27 @@
                     </div>
                 </div>
             `).join('');
+            if (footer) footer.style.display = 'flex';
         }
+    };
 
-        modal.innerHTML = `
-            <div class="bg-slate-800 border-4 border-amber-500 rounded-[2.5rem] max-w-5xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-                <button onclick="window.toggleMeisterwerke()" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition">✖</button>
-                <div class="flex items-center gap-4 mb-6 border-b border-slate-700 pb-4">
-                    <span class="text-4xl md:text-5xl">🎨</span>
-                    <div>
-                        <h2 class="text-3xl md:text-4xl font-black text-white">UNSERE MEISTERWERKE</h2>
-                        <p class="text-slate-400 font-bold text-sm md:text-base">Alle erstellten Bilder & Tonaufnahmen der aktuellen Sitzung (100% lokal im Browser)</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                    ${gridHtml}
-                </div>
-                ${items.length > 0 ? `
-                    <div class="flex justify-end pt-4 border-t border-slate-700">
-                        <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => window.toggleMeisterwerke()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-5 rounded-xl border border-red-700 text-sm active:scale-95 transition flex items-center gap-2">
-                            <span>🧹</span> Galerie leeren
-                        </button>
-                    </div>
-                ` : ''}
-            </div>
-        `;
+    window.toggleMeisterwerke = function() {
+        try { window.resetIdleTimer(); } catch(e) {}
+        try { if (window.playSound) window.playSound('click'); } catch(e) {}
 
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        modal.style.display = 'flex';
+        const modal = document.getElementById('meisterwerke-modal');
+        if (!modal) return;
+
+        if (modal.classList.contains('hidden')) {
+            window.renderMeisterwerkeGrid();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            modal.style.display = 'flex';
+        } else {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            modal.style.display = 'none';
+        }
     };
 
     // --- 13. Automatischer täglicher Galerie-Reset (Datenschutz / DSGVO Speicherbegrenzung) ---
