@@ -257,7 +257,10 @@
             const galBtn = document.querySelector('button[title="Galerie der Kunstwerke"]') || document.querySelector('button[onclick*="toggleMeisterwerke"]');
             if (galBtn) {
                 const handleGal = (e) => {
-                    try { e.stopPropagation(); } catch(err) {}
+                    if (e && e.type === 'touchend') {
+                        try { e.preventDefault(); } catch(err) {}
+                    }
+                    try { if (e) e.stopPropagation(); } catch(err) {}
                     window.toggleMeisterwerke(e);
                 };
                 galBtn.addEventListener('touchend', handleGal, {passive: false});
@@ -267,7 +270,10 @@
             const infoBtn = document.querySelector('button[title="Info & Handreichung"]') || document.querySelector('button[onclick*="toggleInfo"]');
             if (infoBtn) {
                 const handleInfo = (e) => {
-                    try { e.stopPropagation(); } catch(err) {}
+                    if (e && e.type === 'touchend') {
+                        try { e.preventDefault(); } catch(err) {}
+                    }
+                    try { if (e) e.stopPropagation(); } catch(err) {}
                     window.toggleInfo(e);
                 };
                 infoBtn.addEventListener('touchend', handleInfo, {passive: false});
@@ -775,14 +781,59 @@
     // --- 12. Lokale Sitzungs-Galerie ("Meisterwerke") ---
     const MEISTER_KEY = 'medienstation_meisterwerke';
 
-    window.saveToMeisterwerke = function(item) {
+    // Hilfsfunktion: Bilder auf max 800px JPEG komprimieren (verhindert 5MB localStorage QuotaExceededError auf Tablets)
+    function compressImageDataUrl(dataUrl, maxDim = 800, quality = 0.75) {
+        return new Promise((resolve) => {
+            if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
+                return resolve(dataUrl);
+            }
+            const img = new Image();
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = () => resolve(dataUrl);
+            img.src = dataUrl;
+        });
+    }
+
+    window.saveToMeisterwerke = async function(item) {
         try {
+            if (item && item.type === 'image' && item.dataUrl && item.dataUrl.length > 50000) {
+                item.dataUrl = await compressImageDataUrl(item.dataUrl, 800, 0.75);
+            }
             let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
             item.id = Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             item.timestamp = Date.now();
             list.unshift(item);
             if (list.length > 30) list = list.slice(0, 30);
-            localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+
+            try {
+                localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+            } catch(quotaErr) {
+                console.warn('⚠️ localStorage Quota überschritten, reduziere Galerieliste:', quotaErr);
+                list = list.slice(0, 10);
+                try {
+                    localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+                } catch(e2) {
+                    console.error('Kritischer localStorage Fehler:', e2);
+                }
+            }
             window.triggerCelebration();
         } catch(e) {
             console.warn('Meisterwerke Speicherfehler:', e);

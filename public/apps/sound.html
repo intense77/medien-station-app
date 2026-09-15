@@ -234,20 +234,36 @@
                 pad.micSource = audioCtx.createMediaStreamSource(stream);
                 pad.micSource.connect(globalAnalyser);
 
-                // MIME-Type Auswahl für Firefox/Chrome/Android
-                const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
-                const recorder = new MediaRecorder(stream, { mimeType });
+                // MIME-Type Auswahl für iOS Safari / Chrome / Firefox / Android
+                let recorderOptions = {};
+                let chosenMime = '';
+                if (typeof MediaRecorder.isTypeSupported === 'function') {
+                    if (MediaRecorder.isTypeSupported('audio/webm')) chosenMime = 'audio/webm';
+                    else if (MediaRecorder.isTypeSupported('audio/mp4')) chosenMime = 'audio/mp4';
+                    else if (MediaRecorder.isTypeSupported('audio/aac')) chosenMime = 'audio/aac';
+                }
+                if (chosenMime) recorderOptions.mimeType = chosenMime;
+
+                const recorder = new MediaRecorder(stream, recorderOptions);
                 
                 recorder.ondataavailable = (e) => { if (e.data.size > 0) pad.chunks.push(e.data); };
                 recorder.onstop = async () => {
-                    const blob = new Blob(pad.chunks, { type: mimeType });
+                    const blob = new Blob(pad.chunks, chosenMime ? { type: chosenMime } : {});
                     const arrayBuffer = await blob.arrayBuffer();
-                    audioCtx.decodeAudioData(arrayBuffer, (decoded) => {
+                    const processDecoded = (decoded) => {
                         pad.buffer = decoded;
                         pad.playbackRate = currentRecRate;
                         document.getElementById(`status-${i}`).classList.remove('hidden');
                         el.style.borderColor = "#10b981";
-                    });
+                    };
+                    try {
+                        const promiseRes = audioCtx.decodeAudioData(arrayBuffer, processDecoded);
+                        if (promiseRes && typeof promiseRes.then === 'function') {
+                            promiseRes.then(processDecoded).catch(e => console.warn('Decode error:', e));
+                        }
+                    } catch(e) {
+                        console.warn('decodeAudioData error:', e);
+                    }
                     if (pad.micSource) {
                         pad.micSource.disconnect();
                         pad.micSource = null;
