@@ -437,7 +437,11 @@
                 drawCroppedImage(cCtx, imgs[2], 910, 620, 840, 530);
                 drawFrame(910, 620, 840, 530);
 
-                document.getElementById('preview-img-display').src = collageCanvas.toDataURL('image/png');
+                const collageDataUrl = collageCanvas.toDataURL('image/png');
+                document.getElementById('preview-img-display').src = collageDataUrl;
+                if (window.saveToMeisterwerke) {
+                    window.saveToMeisterwerke({ type: 'image', appName: 'Zauber Selfie', title: 'Collage', dataUrl: collageDataUrl });
+                }
                 const overlay = document.getElementById('preview-overlay');
                 overlay.classList.remove('hidden');
                 overlay.style.display = 'flex';

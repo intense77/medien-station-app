@@ -176,6 +176,9 @@
             if(window.playSound) window.playSound('shutter');
             const dataUrl = generateImage();
             document.getElementById('preview-img-display').src = dataUrl;
+            if (window.saveToMeisterwerke) {
+                window.saveToMeisterwerke({ type: 'image', appName: 'News Studio', title: 'Nachrichten Bild', dataUrl: dataUrl });
+            }
             document.getElementById('preview-overlay').classList.remove('hidden');
             document.getElementById('preview-overlay').style.display = 'flex';
         }

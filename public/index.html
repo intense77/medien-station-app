@@ -114,13 +114,13 @@
                     <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-yellow-300">
                         <span class="text-base sm:text-lg md:text-xl">🎲</span> <span>WÜRFELN</span>
                     </button>
-                    <button id="galerie-btn" onclick="window.toggleMeisterwerke(event)" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-purple-400" title="Galerie der Kunstwerke">
+                    <button id="galerie-btn" onclick="window.openMeisterwerke(event)" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-purple-400" title="Galerie der Kunstwerke">
                         <span class="text-base sm:text-lg md:text-xl">🎨</span> <span>GALERIE</span>
                     </button>
-                    <button id="info-btn" onclick="window.toggleInfo(event)" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-blue-400" title="Info &amp; Handreichung">
+                    <button id="info-btn" onclick="window.openInfo(event)" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-blue-400" title="Info &amp; Handreichung">
                         <span class="text-base sm:text-lg md:text-xl">💡</span> <span>INFO</span>
                     </button>
-                    <button onclick="readMission(event)" class="bg-slate-700 hover:bg-slate-600 text-white rounded-full w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 flex items-center justify-center shadow-lg border-2 border-slate-600 active:scale-95 transition-all shrink-0 text-base sm:text-lg md:text-xl" title="Mission vorlesen">
+                    <button onclick="readMission(event)" class="bg-slate-700/90 hover:bg-slate-600 text-white rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center shadow-xl border-2 border-slate-400 hover:border-white active:scale-95 hover:scale-105 transition-all shrink-0 text-lg sm:text-2xl md:text-3xl" title="Mission vorlesen" aria-label="Mission vorlesen">
                         🔊
                     </button>
                 </div>
@@ -131,7 +131,7 @@
                 <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-3 py-2 sm:px-5 sm:py-3 md:px-6 md:py-4 rounded-full shadow-2xl flex items-center justify-center gap-2 sm:gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all w-auto max-w-full">
                     <img src="assets/logo.png" class="h-8 sm:h-10 md:h-12 w-auto object-contain shrink-0" alt="Logo" onerror="this.style.display='none'">
                     <div class="flex flex-col text-left shrink min-w-0">
-                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.4.4)</span></span>
+                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.4.5)</span></span>
                         <span class="text-[11px] sm:text-sm md:text-base lg:text-lg font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
                     </div>
                 </button>
@@ -182,9 +182,9 @@
     </div>
 
     <!-- Info Modal -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 200000; display: none;" onclick="window.toggleInfo(event)">
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 200000; display: none;" onclick="window.closeInfo(event)">
         <div class="bg-slate-800 border-2 border-slate-600 rounded-[2rem] max-w-6xl w-full p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="window.toggleInfo(event)" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-slate-400 transition">✖</button>
+            <button onclick="window.closeInfo(event)" class="absolute top-6 right-6 text-white text-4xl font-bold hover:text-slate-400 transition">✖</button>
             
             <h2 class="text-4xl md:text-5xl font-black text-white mb-2 flex justify-between items-center">
                 <span>INFO</span>
@@ -233,9 +233,9 @@
     </div>
 
     <!-- Meisterwerke Galerie Modal -->
-    <div id="meisterwerke-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 999999; display: none;" onclick="window.toggleMeisterwerke(event)">
+    <div id="meisterwerke-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 999999; display: none;" onclick="window.closeMeisterwerke(event)">
         <div class="bg-slate-800 border-4 border-amber-500 rounded-[2.5rem] max-w-5xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="window.toggleMeisterwerke(event)" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition">✖</button>
+            <button onclick="window.closeMeisterwerke(event)" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition">✖</button>
             <div class="flex items-center gap-4 mb-6 border-b border-slate-700 pb-4">
                 <span class="text-4xl md:text-5xl">🎨</span>
                 <div>
@@ -282,7 +282,7 @@
                 <button onclick="hardReset()" class="bg-red-900 hover:bg-red-800 text-white font-bold py-4 rounded-xl">🧹 Update erzwingen</button>
                 <button onclick="closeAdmin()" class="bg-slate-600 text-white font-bold py-4 rounded-xl col-span-2">Zurück</button>
             </div>
-            <div class="mt-6 text-center text-slate-500 font-mono text-sm">App Version: 7.4.4 (Build 265)</div>
+            <div class="mt-6 text-center text-slate-500 font-mono text-sm">App Version: 7.4.5 (Build 266)</div>
         </div>
     </div>
 

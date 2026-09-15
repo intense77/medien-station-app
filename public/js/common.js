@@ -85,12 +85,12 @@
 
     // --- 2. Info Modal ---
     let lastInfoToggle = 0;
-    window.toggleInfo = function(event) {
+    window.openInfo = function(event) {
         if (event) {
             try { event.stopPropagation(); } catch(e) {}
         }
         const now = Date.now();
-        if (now - lastInfoToggle < 600) return;
+        if (now - lastInfoToggle < 400) return;
         lastInfoToggle = now;
 
         window.resetIdleTimer();
@@ -98,15 +98,32 @@
         
         const modal = document.getElementById('info-modal');
         if (modal) {
-            const isHidden = modal.style.display === 'none' || modal.classList.contains('hidden');
-            if (isHidden) {
-                modal.classList.remove('hidden');
-                modal.style.display = 'flex';
-            } else {
-                modal.classList.add('hidden');
-                modal.style.display = 'none';
-                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-            }
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+    };
+
+    window.closeInfo = function(event) {
+        if (event) {
+            try { event.stopPropagation(); } catch(e) {}
+        }
+        const modal = document.getElementById('info-modal');
+        if (modal) {
+            if (window.playSound) window.playSound('click');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+    };
+
+    window.toggleInfo = function(event) {
+        const modal = document.getElementById('info-modal');
+        if (!modal) return;
+        const isHidden = modal.style.display === 'none' || modal.classList.contains('hidden');
+        if (isHidden) {
+            window.openInfo(event);
+        } else {
+            window.closeInfo(event);
         }
     };
 
@@ -247,40 +264,6 @@
         
         // Global Hardening: Kontextmenü überall deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
-
-        // Galerie & Info Modal Binding – EINZIG zuverlässiges Muster für Tablet-PWAs:
-        // pointerup feuert genau EINMAL pro Tap (Touch & Maus), ohne Ghost-Clicks.
-        // Buttons haben KEINE onclick-Attribute mehr – dieser Handler ist der einzige Auslöser.
-        setTimeout(() => {
-            const galBtn = document.getElementById('galerie-btn') ||
-                           document.querySelector('button[title="Galerie der Kunstwerke"]');
-            if (galBtn) {
-                galBtn.addEventListener('pointerup', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.toggleMeisterwerke(e);
-                });
-                // Fallback für ältere Browser ohne Pointer Events
-                galBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    window.toggleMeisterwerke(e);
-                });
-            }
-
-            const infoBtn = document.getElementById('info-btn') ||
-                            document.querySelector('button[title="Info & Handreichung"]');
-            if (infoBtn) {
-                infoBtn.addEventListener('pointerup', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.toggleInfo(e);
-                });
-                infoBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    window.toggleInfo(e);
-                });
-            }
-        }, 100);
         
         // Wake Lock Logik
         requestWakeLock();
@@ -815,27 +798,34 @@
 
     window.saveToMeisterwerke = async function(item) {
         try {
-            if (item && item.type === 'image' && item.dataUrl && item.dataUrl.length > 50000) {
+            if (!item || !item.dataUrl) return;
+            if (item.type === 'image' && item.dataUrl.length > 50000) {
                 item.dataUrl = await compressImageDataUrl(item.dataUrl, 800, 0.75);
             }
             let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
             item.id = Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             item.timestamp = Date.now();
             list.unshift(item);
-            if (list.length > 30) list = list.slice(0, 30);
+            if (list.length > 25) list = list.slice(0, 25);
 
-            try {
-                localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
-            } catch(quotaErr) {
-                console.warn('⚠️ localStorage Quota überschritten, reduziere Galerieliste:', quotaErr);
-                list = list.slice(0, 10);
+            const trySave = (itemsToSave) => {
                 try {
-                    localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
-                } catch(e2) {
-                    console.error('Kritischer localStorage Fehler:', e2);
+                    localStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToSave));
+                    return true;
+                } catch(quotaErr) {
+                    return false;
+                }
+            };
+
+            if (!trySave(list)) {
+                console.warn('⚠️ localStorage Quota überschritten, reduziere Galerieliste');
+                list = list.slice(0, 10);
+                if (!trySave(list)) {
+                    list = list.slice(0, 5);
+                    trySave(list);
                 }
             }
-            window.triggerCelebration();
+            if (window.triggerCelebration) window.triggerCelebration();
         } catch(e) {
             console.warn('Meisterwerke Speicherfehler:', e);
         }
@@ -904,13 +894,12 @@
     };
 
     let lastMeisterwerkeToggle = 0;
-    window.toggleMeisterwerke = function(event) {
+    window.openMeisterwerke = function(event) {
         if (event) {
             try { event.stopPropagation(); } catch(e) {}
         }
         const now = Date.now();
-        // 300ms Debounce: absorbiert Ghost-Clicks & doppelte pointerup/click Aufrufe zuverlässig
-        if (now - lastMeisterwerkeToggle < 300) return;
+        if (now - lastMeisterwerkeToggle < 400) return;
         lastMeisterwerkeToggle = now;
 
         try { window.resetIdleTimer(); } catch(e) {}
@@ -922,15 +911,30 @@
             return;
         }
 
+        try { window.renderMeisterwerkeGrid(); } catch(e) { console.warn('renderMeisterwerkeGrid error:', e); }
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    };
+
+    window.closeMeisterwerke = function(event) {
+        if (event) {
+            try { event.stopPropagation(); } catch(e) {}
+        }
+        const modal = document.getElementById('meisterwerke-modal');
+        if (!modal) return;
+        try { if (window.playSound) window.playSound('click'); } catch(e) {}
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    };
+
+    window.toggleMeisterwerke = function(event) {
+        const modal = document.getElementById('meisterwerke-modal');
+        if (!modal) return;
         const isHidden = modal.style.display === 'none' || modal.classList.contains('hidden');
         if (isHidden) {
-            try { window.renderMeisterwerkeGrid(); } catch(e) { console.warn('renderMeisterwerkeGrid error:', e); }
-            // Modal anzeigen
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
+            window.openMeisterwerke(event);
         } else {
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
+            window.closeMeisterwerke(event);
         }
     };
 
