@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.4.0-v260';
+const CACHE_NAME = 'medien-station-v7.4.0-v261';
 const ASSETS = [
     './',
     './index.html',
@@ -143,7 +143,11 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             ))
-        ])
+        ]).then(() => {
+            return self.clients.matchAll({ includeUncontrolled: true }).then(clients => {
+                clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' }));
+            });
+        })
     );
 });
 

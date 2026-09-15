@@ -326,6 +326,11 @@
 
             navigator.serviceWorker.addEventListener('message', (event) => {
                 const data = event.data;
+                if (data && data.type === 'SW_UPDATED') {
+                    console.log('🔄 Neuer SW aktiv, reloading...');
+                    setTimeout(() => window.location.reload(), 300);
+                    return;
+                }
                 if (!['CACHE_START', 'CACHE_PROGRESS', 'CACHE_DONE', 'CACHE_ERROR'].includes(data.type)) return;
 
                 const ui = getUpdateOverlay();
