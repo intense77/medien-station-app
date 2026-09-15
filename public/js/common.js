@@ -251,6 +251,29 @@
         
         // Global Hardening: Kontextmenü überall deaktivieren
         document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Explicit Touch & Click Binding für Galerie & Info Modals (strikter Tablet/PWA Support)
+        setTimeout(() => {
+            const galBtn = document.querySelector('button[title="Galerie der Kunstwerke"]') || document.querySelector('button[onclick*="toggleMeisterwerke"]');
+            if (galBtn) {
+                const handleGal = (e) => {
+                    try { e.stopPropagation(); } catch(err) {}
+                    window.toggleMeisterwerke(e);
+                };
+                galBtn.addEventListener('touchend', handleGal, {passive: false});
+                galBtn.addEventListener('click', handleGal);
+            }
+
+            const infoBtn = document.querySelector('button[title="Info & Handreichung"]') || document.querySelector('button[onclick*="toggleInfo"]');
+            if (infoBtn) {
+                const handleInfo = (e) => {
+                    try { e.stopPropagation(); } catch(err) {}
+                    window.toggleInfo(e);
+                };
+                infoBtn.addEventListener('touchend', handleInfo, {passive: false});
+                infoBtn.addEventListener('click', handleInfo);
+            }
+        }, 50);
         
         // Wake Lock Logik
         requestWakeLock();
