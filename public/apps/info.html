@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Info & Handreichung</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/assets/apple-touch-icon.png?v=2">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../cordova.js"></script>
+    <script src="../js/audio.js"></script>
+    <script src="../js/common.js"></script>
+
+    <style>
+        html, body { 
+            height: 100%; width: 100%; margin: 0; padding: 0;
+            background-color: #0f172a; color: white; 
+            overflow-x: hidden; overflow-y: auto; user-select: none; touch-action: manipulation; 
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="flex flex-col p-3 md:p-6 box-border bg-slate-900 min-h-full w-full">
+
+    <!-- HEADER ZEILE -->
+    <div class="header-area h-16 md:h-20 flex-none shrink-0 flex justify-between items-center z-50 mb-4 px-1 relative max-w-7xl w-full mx-auto">
+        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2.5 md:px-6 md:py-3 rounded-full text-sm md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 cursor-pointer shrink-0">
+            🏠 <span>HAUPTMENÜ</span>
+        </button>
+
+        <h1 class="text-xl md:text-4xl font-black text-blue-400 flex items-center gap-3">
+            <span>💡</span> INFO & HANDREICHUNG
+        </h1>
+        
+        <button onclick="window.speakText('Info. Medienpädagogische Station für Kitas und Grundschulen. Die Apps: Musik Labor, Mikro Check, Video Loop, Zauber Selfie, Pixel Art, Nachrichten Studio, Comic Story und Trickfilm Studio.', event)" class="bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0 cursor-pointer" title="Info vorlesen">
+            🔊
+        </button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 max-w-7xl w-full mx-auto bg-slate-800/80 border-2 md:border-4 border-slate-600 rounded-3xl md:rounded-[2.5rem] p-6 md:p-10 shadow-2xl mb-6">
+        <p class="text-slate-300 text-lg md:text-2xl font-bold mb-8 border-b border-slate-700 pb-4">
+            Medienpädagogische Station für Kitas & Grundschulen
+        </p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+            <!-- Apps Section -->
+            <div>
+                <h2 class="text-2xl md:text-3xl font-black text-white mb-6 border-b border-slate-600 pb-2 flex items-center gap-3">
+                    <span>🚀</span> DIE APPS
+                </h2>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">🎹</span> <div><strong class="text-rose-400 text-xl block mb-1">Musik Labor</strong><span class="text-slate-300 text-base">Experimentieren mit Tönen & Beats.</span></div></div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">🎙️</span> <div><strong class="text-red-400 text-xl block mb-1">Mikro Check</strong><span class="text-slate-300 text-base">Stimme aufnehmen & verfremden.</span></div></div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">📹</span> <div><strong class="text-sky-400 text-xl block mb-1">Video Loop</strong><span class="text-slate-300 text-base">Bewegungen als Zeitschleife.</span></div></div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">🎬</span> <div><strong class="text-amber-400 text-xl block mb-1">Trickfilm Studio</strong><span class="text-slate-300 text-base">Stop-Motion Animation & Daumenkino.</span></div></div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">✨</span> <div><strong class="text-violet-400 text-xl block mb-1">Zauber Selfie</strong><span class="text-slate-300 text-base">KI-Green-Screen ohne grüne Wand.</span></div></div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">👾</span> <div><strong class="text-emerald-400 text-xl block mb-1">Pixel Art</strong><span class="text-slate-300 text-base">Malen mit digitalen Bausteinen.</span></div></div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">📰</span> <div><strong class="text-blue-400 text-xl block mb-1">Nachrichten Studio</strong><span class="text-slate-300 text-base">Nachrichten präsentieren.</span></div></div>
+                    <div class="flex items-center gap-4 p-4 bg-slate-700/40 rounded-2xl border border-slate-600/50"><span class="text-4xl md:text-5xl">📸</span> <div><strong class="text-orange-400 text-xl block mb-1">Comic Story</strong><span class="text-slate-300 text-base">Geschichten in Bildern erzählen.</span></div></div>
+                </div>
+            </div>
+
+            <!-- Pedagogical Section -->
+            <div>
+                <h2 class="text-2xl md:text-3xl font-black text-white mb-6 border-b border-slate-600 pb-2 flex items-center gap-3">
+                    <span>🎓</span> PÄDAGOGIK
+                </h2>
+                <div class="space-y-6 text-slate-300 text-lg md:text-xl leading-relaxed">
+                    <div class="p-4 bg-slate-700/30 rounded-2xl border border-slate-600/50"><strong class="text-white text-xl block mb-1">💡 Medienkompetenz</strong>Kinder lernen spielerisch, wie Medien produziert werden (statt nur zu konsumieren). Sie verstehen, dass Bilder und Töne manipulierbar sind.</div>
+                    <div class="p-4 bg-slate-700/30 rounded-2xl border border-slate-600/50"><strong class="text-white text-xl block mb-1">🗣️ Sprachförderung</strong>Apps wie <i>Nachrichten</i> und <i>Comic</i> regen zum Erzählen, Sprechen und Präsentieren an. Ideal für Partnerarbeit.</div>
+                    <div class="p-4 bg-slate-700/30 rounded-2xl border border-slate-600/50"><strong class="text-white text-xl block mb-1">🎨 Kreativität & Selbstwirksamkeit</strong>"Ich habe das gemacht!" – Schnelle Ergebnisse stärken das Selbstvertrauen. Fehler gibt es nicht, nur den "Rückgängig"-Button.</div>
+                    <div class="p-4 bg-slate-700/30 rounded-2xl border border-slate-600/50"><strong class="text-white text-xl block mb-1">🤝 Soziales Lernen</strong>Das Tablet ist als "Station" konzipiert: Mehrere Kinder arbeiten gleichzeitig davor, beraten sich und gestalten gemeinsam.</div>
+                </div>
+                <div class="mt-8 p-6 bg-yellow-500/10 border-2 border-yellow-500/30 rounded-2xl">
+                    <strong class="text-yellow-400 text-xl block mb-2">Tipp für Fachkräfte:</strong>
+                    <p class="text-base text-yellow-100 mb-4">Nutzen Sie die "Missionen" (Würfel oben) oder laden Sie unsere 12 haptischen Entdecker-Karten herunter.</p>
+                    <a href="../entdecker_karten.html" target="_blank" class="inline-flex items-center gap-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-6 rounded-xl shadow-lg transition text-base md:text-lg">
+                        <span>🎴</span> Entdecker-Karten (Druckvorlage PDF)
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end pt-8 border-t border-slate-700 mt-10">
+            <button onclick="window.goHome()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black py-3.5 px-8 rounded-full shadow-lg active:scale-95 transition border-2 border-yellow-300 flex items-center gap-2 text-lg cursor-pointer">
+                <span>👈</span> Zurück zum Hauptmenü
+            </button>
+        </div>
+    </div>
+</body>
+</html>

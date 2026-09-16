@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.4.5-v266';
+const CACHE_NAME = 'medien-station-v7.4.6-v267';
 const ASSETS = [
     './',
     './index.html',
@@ -53,6 +53,8 @@ const ASSETS = [
     './apps/pixel.html',
     './apps/news.html',
     './apps/stopmotion.html',
+    './apps/galerie.html',
+    './apps/info.html',
     './cordova.js',
     './cordova_plugins.js',
     './plugins/cordova-plugin-printer/www/printer.js',

@@ -110,15 +110,15 @@
                     </div>
                 </div>
                 <!-- Aktions-Buttons: Würfeln, Galerie, Info, Vorlesen -->
-                <div class="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2.5 md:gap-3 w-full">
-                    <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-yellow-300">
-                        <span class="text-base sm:text-lg md:text-xl">🎲</span> <span>WÜRFELN</span>
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full sm:w-auto">
+                    <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-yellow-300">
+                        <span class="text-xl md:text-2xl">🎲</span> <span>WÜRFELN</span>
                     </button>
-                    <button id="galerie-btn" onclick="window.openMeisterwerke(event)" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-purple-400" title="Galerie der Kunstwerke">
-                        <span class="text-base sm:text-lg md:text-xl">🎨</span> <span>GALERIE</span>
+                    <button onclick="openApp('apps/galerie.html', 'Galerie')" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-purple-400" title="Galerie der Kunstwerke">
+                        <span class="text-xl md:text-2xl">🎨</span> <span>GALERIE</span>
                     </button>
-                    <button id="info-btn" onclick="window.openInfo(event)" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm md:text-base lg:text-lg py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-5 lg:px-6 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 sm:gap-2 whitespace-nowrap border-2 border-blue-400" title="Info &amp; Handreichung">
-                        <span class="text-base sm:text-lg md:text-xl">💡</span> <span>INFO</span>
+                    <button onclick="openApp('apps/info.html', 'Info')" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-blue-400" title="Info &amp; Handreichung">
+                        <span class="text-xl md:text-2xl">💡</span> <span>INFO</span>
                     </button>
                     <button onclick="readMission(event)" class="bg-slate-700/90 hover:bg-slate-600 text-white rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center shadow-xl border-2 border-slate-400 hover:border-white active:scale-95 hover:scale-105 transition-all shrink-0 text-lg sm:text-2xl md:text-3xl" title="Mission vorlesen" aria-label="Mission vorlesen">
                         🔊
