@@ -89,8 +89,11 @@
         }
 
         /* --- LAYOUT PROPORTIONEN REGELN --- */
-        @media (orientation: landscape) {
-            .main-wrapper { flex-direction: row !important; }
+        @media (min-aspect-ratio: 1.05/1), (orientation: landscape) {
+            .main-wrapper { 
+                flex-direction: row !important; 
+                align-items: stretch !important;
+            }
             .side-bar { 
                 width: 13.5rem !important; 
                 min-width: 13.5rem !important;
@@ -99,20 +102,45 @@
                 flex-direction: column !important; 
                 justify-content: space-between !important; 
                 overflow-y: auto !important; 
+                overflow-x: hidden !important;
+                padding: 0.5rem !important;
             }
-            .content-area { flex: 1 1 0% !important; height: 100% !important; min-height: 0 !important; }
-            .video-main { flex: 1 1 0% !important; min-height: 0 !important; height: auto !important; border-width: 3px !important; }
+            .side-bar > * {
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+            }
+            .content-area { 
+                flex: 1 1 0% !important; 
+                height: 100% !important; 
+                min-height: 0 !important; 
+                min-width: 0 !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
+            .video-main { 
+                flex: 1 1 0% !important; 
+                min-height: 0 !important; 
+                height: auto !important; 
+                border-width: 3px !important; 
+            }
         }
 
-        @media (orientation: portrait) {
-            .main-wrapper { flex-direction: column !important; }
+        @media (max-aspect-ratio: 1.05/1) and (not (orientation: landscape)) {
+            .main-wrapper { 
+                flex-direction: column !important; 
+            }
             .side-bar { 
                 width: 100% !important; 
+                min-width: 100% !important;
+                max-width: 100% !important;
                 height: auto !important; 
+                max-height: 7rem !important;
                 flex-direction: row !important; 
                 flex-wrap: nowrap !important;
                 justify-content: flex-start !important; 
                 overflow-x: auto !important; 
+                overflow-y: hidden !important;
                 padding: 0.25rem !important;
                 gap: 0.35rem !important;
             }
@@ -121,8 +149,20 @@
                 min-width: 11rem !important; 
                 max-width: 15rem !important; 
             }
-            .content-area { flex: 1 1 0% !important; height: 100% !important; min-height: 0 !important; }
-            .video-main { flex: 1 1 0% !important; min-height: 0 !important; height: auto !important; border-width: 3px !important; }
+            .content-area { 
+                flex: 1 1 0% !important; 
+                height: 100% !important; 
+                min-height: 0 !important; 
+                min-width: 0 !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
+            }
+            .video-main { 
+                flex: 1 1 0% !important; 
+                min-height: 0 !important; 
+                height: auto !important; 
+                border-width: 3px !important; 
+            }
         }
         
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -184,7 +224,7 @@
     <div class="main-wrapper flex-1 flex flex-col min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden gap-1.5 md:gap-2.5">
         
         <!-- SIDE PANEL: Steuerung, Tempo, Bildfilter & Tonaufnahme -->
-        <div class="side-bar flex-none w-full md:w-60 landscape:w-64 bg-slate-800/95 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2 justify-between items-stretch h-auto md:h-full landscape:h-full overflow-x-auto landscape:overflow-y-auto no-scrollbar">
+        <div class="side-bar flex-none bg-slate-800/95 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-2xl flex gap-2 justify-between items-stretch no-scrollbar">
             
             <!-- KARTEN-GRUPPE 1: KAMERA & BILDFILTER -->
             <div class="bg-slate-900/80 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 border-slate-700/80 flex flex-col gap-1.5 shrink-0 shadow-md">
@@ -955,6 +995,34 @@
                 if (window.showError) window.showError("Fehler beim Erstellen des Daumenkinos!", "🖨️");
             }
         };
+
+        function checkLayoutOrientation() {
+            const isLandscape = window.innerWidth >= window.innerHeight;
+            const wrapper = document.querySelector('.main-wrapper');
+            const sidebar = document.querySelector('.side-bar');
+            if (wrapper && sidebar) {
+                if (isLandscape) {
+                    wrapper.style.flexDirection = 'row';
+                    sidebar.style.flexDirection = 'column';
+                    sidebar.style.width = '13.5rem';
+                    sidebar.style.height = '100%';
+                    sidebar.style.overflowY = 'auto';
+                    sidebar.style.overflowX = 'hidden';
+                } else {
+                    wrapper.style.flexDirection = 'column';
+                    sidebar.style.flexDirection = 'row';
+                    sidebar.style.width = '100%';
+                    sidebar.style.height = 'auto';
+                    sidebar.style.overflowX = 'auto';
+                    sidebar.style.overflowY = 'hidden';
+                }
+            }
+        }
+        window.addEventListener('resize', checkLayoutOrientation);
+        window.addEventListener('orientationchange', () => setTimeout(checkLayoutOrientation, 50));
+        document.addEventListener('DOMContentLoaded', checkLayoutOrientation);
+        checkLayoutOrientation();
+        setTimeout(checkLayoutOrientation, 50);
 
         setTimeout(initCam, 100);
     </script>
