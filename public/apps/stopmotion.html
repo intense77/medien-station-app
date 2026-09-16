@@ -12,7 +12,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
 
   <script src="../cordova.js"></script>
@@ -24,11 +24,11 @@
     :root {
       --bg-dark: #0f172a;
       --bg-card: #1e293b;
-      --bg-card-glass: rgba(30, 41, 59, 0.9);
+      --bg-card-glass: rgba(30, 41, 59, 0.92);
+      --accent-amber: #f59e0b;
+      --accent-yellow: #fbbf24;
       --accent-purple: #8b5cf6;
-      --accent-purple-hover: #7c3aed;
       --accent-pink: #ec4899;
-      --accent-yellow: #ffd166;
       --accent-green: #10b981;
       --accent-red: #ef4444;
       --text-light: #f8fafc;
@@ -36,7 +36,6 @@
       --font-main: 'Fredoka', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --radius-lg: 24px;
       --radius-md: 16px;
-      --radius-sm: 8px;
     }
 
     * {
@@ -55,54 +54,112 @@
       font-family: var(--font-main);
       background-color: var(--bg-dark);
       color: var(--text-light);
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    /* --- Header UX analog zu allen Medienstation-Apps (Loop Cam, Sound, Rec, Comic) --- */
+    /* --- HEADER UX EXAKT ANALOG ZU REC.HTML, GIF.HTML & MAGIC.HTML --- */
     .header-area {
       height: 4.5rem !important;
       min-height: 4.5rem !important;
       max-height: 4.5rem !important;
-      flex-shrink: 0 !important;
       background: rgba(15, 23, 42, 0.95);
-      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1rem;
+      padding: 0 1.25rem;
       position: relative;
       z-index: 50;
+      flex-shrink: 0;
     }
 
-    /* Centered Title analog zu den anderen Apps */
+    /* MENÜ BUTTON LINKS - GROSS UND BOLD WIE BEI DEN ANDEREN APPS */
+    .btn-home-menu {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+      border: 3px solid #475569 !important;
+      border-radius: 9999px !important;
+      padding: 8px 22px !important;
+      font-size: 1.15rem !important;
+      font-weight: 900 !important;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      cursor: pointer !important;
+      transition: transform 0.1s ease, border-color 0.2s ease !important;
+      z-index: 50 !important;
+      text-decoration: none !important;
+      outline: none !important;
+    }
+    .btn-home-menu:hover {
+      border-color: #ffffff !important;
+    }
+    .btn-home-menu:active {
+      transform: scale(0.95) !important;
+    }
+
+    /* ZENTRIERTER ULTRABOLD TITEL */
     .app-title-centered {
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      font-size: 1.75rem;
+      font-size: 1.85rem;
       font-weight: 900;
-      color: #fbbf24; /* amber-400 */
+      color: #fbbf24;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       pointer-events: none;
       z-index: 10;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
       white-space: nowrap;
     }
 
-    @media (min-width: 1024px) {
-      .app-title-centered {
-        font-size: 2.25rem;
-      }
+    /* HILFE BUTTON RECHTS - GROSS UND BOLD ANALOG ZU DEN ANDEREN APPS */
+    .btn-help-info {
+      width: 48px !important;
+      height: 48px !important;
+      background-color: #1e293b !important;
+      color: #fbbf24 !important;
+      border: 3px solid #475569 !important;
+      border-radius: 9999px !important;
+      font-size: 1.5rem !important;
+      font-weight: 900 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
+      cursor: pointer !important;
+      transition: transform 0.1s ease, border-color 0.2s ease !important;
+      z-index: 50 !important;
+      outline: none !important;
+    }
+    .btn-help-info:hover {
+      border-color: #ffffff !important;
+      color: #ffffff !important;
+    }
+    .btn-help-info:active {
+      transform: scale(0.95) !important;
     }
 
-    /* --- Main Layout --- */
+    /* TEMPO BOX HEADER RECHTS */
+    .tempo-header-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: #1e293b;
+      border: 3px solid #334155;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* --- MAIN APP CONTAINER --- */
     .app-container {
-      flex: 1;
+      flex: 1 1 0%;
       display: flex;
       flex-direction: column;
       padding: 0.75rem 1rem 1rem 1rem;
@@ -111,19 +168,22 @@
       height: calc(100dvh - 4.5rem);
       overflow: hidden;
       min-height: 0;
+      width: 100%;
     }
 
     .trickfilm-stage-container {
-      flex: 1;
+      flex: 1 1 0%;
       display: flex;
+      flex-direction: row;
       gap: 1rem;
       min-height: 0;
       overflow: hidden;
+      width: 100%;
     }
 
-    /* Viewport Card */
+    /* VIEWPORT CARD (KAMERA VORSCHAU) */
     .trickfilm-viewport-card {
-      flex: 1;
+      flex: 1 1 0%;
       background: #000;
       border-radius: var(--radius-lg);
       border: 4px solid #334155;
@@ -135,6 +195,7 @@
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
       min-width: 0;
       min-height: 0;
+      height: 100%;
     }
 
     .trickfilm-video,
@@ -158,7 +219,7 @@
       background: #000;
     }
 
-    /* Badges on Viewport */
+    /* Viewport Badges */
     .trickfilm-playback-badge {
       position: absolute;
       top: 14px;
@@ -212,21 +273,29 @@
       animation: blink 1s infinite;
     }
 
-    /* Ergonomic Action Control Panel */
+    /* ACTION CONTROL PANEL RECHTS */
     .trickfilm-action-panel {
       width: 230px;
+      min-width: 230px;
+      max-width: 230px;
+      height: 100%;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      justify-content: center;
+      justify-content: space-between;
       flex-shrink: 0;
+      background: rgba(30, 41, 59, 0.95);
+      border: 4px solid #334155;
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
     }
 
     .action-btn {
       font-family: var(--font-main);
       border: none;
       border-radius: var(--radius-md);
-      padding: 12px 16px;
+      padding: 12px 14px;
       font-size: 1rem;
       font-weight: 800;
       cursor: pointer;
@@ -267,7 +336,7 @@
     }
 
     .btn-secondary.active {
-      background: rgba(139, 92, 246, 0.35);
+      background: rgba(139, 92, 246, 0.4);
       border-color: var(--accent-purple);
       color: var(--accent-yellow);
     }
@@ -305,7 +374,7 @@
       background: rgba(239, 68, 68, 0.45);
     }
 
-    /* --- Timeline / Filmstrip Bar (Grosszügige Höhe ohne abgeschnittene Bilder!) --- */
+    /* --- TIMELINE / FILMSTRIP BAR (PFLICHT-HÖHE 145PX, ABSOLUT KEIN ANSCHNITT DER BILDER!) --- */
     .trickfilm-filmstrip-bar {
       background: var(--bg-card-glass);
       backdrop-filter: blur(12px);
@@ -315,10 +384,11 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      height: 140px;
-      min-height: 140px;
-      max-height: 140px;
-      flex-shrink: 0;
+      height: 145px !important;
+      min-height: 145px !important;
+      max-height: 145px !important;
+      flex-shrink: 0 !important;
+      width: 100%;
     }
 
     .filmstrip-header {
@@ -343,8 +413,8 @@
       gap: 12px;
       overflow-x: auto;
       overflow-y: hidden;
-      padding: 4px 2px 6px 2px;
-      height: 90px;
+      padding: 6px 4px;
+      height: 95px !important;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-purple) transparent;
     }
@@ -357,7 +427,7 @@
       text-align: center;
     }
 
-    /* Helpers */
+    /* Animations & Helpers */
     .hidden {
       display: none !important;
     }
@@ -372,7 +442,7 @@
       50% { opacity: 0.2; }
     }
 
-    /* Responsive Tablet & Mobile Adjustments */
+    /* Responsive Mobile / Portrait Fallback */
     @media (max-width: 850px), (orientation: portrait) {
       .app-title-centered {
         display: none;
@@ -382,6 +452,9 @@
       }
       .trickfilm-action-panel {
         width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: auto;
         flex-direction: row;
         flex-wrap: wrap;
         gap: 8px;
@@ -400,26 +473,27 @@
 </head>
 <body>
 
-  <!-- HEADER UX ANPASSUNG EXAKT ANALOG ZU ALLEN MEDIENSTATION APPS (LOOP CAM, REC, SOUND) -->
+  <!-- HEADER UX ANPASSUNG EXAKT ANALOG ZU REC.HTML, GIF.HTML, MAGIC.HTML & COMIC.HTML -->
   <header class="header-area">
-    <!-- HOMEMENÜ BUTTON LINKS (GROSS & PROMINENT WIE BEI DEN ANDERN APPS) -->
-    <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
-      🏠 <span class="hidden md:inline">MENÜ</span>
+    <!-- HOMEMENÜ BUTTON LINKS (GROSS, BOLD UND PROMINENT) -->
+    <button onclick="window.goHome()" class="btn-home-menu" title="Hauptmenü">
+      <span>🏠</span>
+      <span>MENÜ</span>
     </button>
 
-    <!-- METROPOLITAN TITEL MITTIG (ANALOG ZU LOOP CAM / TRICKFILM) -->
+    <!-- METROPOLITAN TITEL MITTIG (EXAKT ANALOG ZU MIKRO CHECK & VIDEO LOOP) -->
     <h1 class="app-title-centered">🎬 TRICKFILM STUDIO</h1>
 
     <!-- HEADER RECHTS: TEMPO-REGLER & HILFE-BUTTON -->
-    <div class="flex items-center gap-3 z-50">
-      <div class="hidden sm:flex items-center gap-2 bg-slate-800/90 border-2 md:border-4 border-slate-700 px-4 py-2 rounded-full shadow-xl">
-        <span class="text-xs md:text-sm font-black text-slate-300">🐢 TEMPO:</span>
-        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" class="w-20 accent-amber-400 cursor-pointer" aria-label="Abspielgeschwindigkeit">
-        <span id="fps-value-text" class="text-xs md:text-sm font-black text-amber-400 min-w-[85px]">4 B/SEK 🐇</span>
+    <div style="display: flex; align-items: center; gap: 12px; z-index: 50;">
+      <div class="tempo-header-box hidden sm:flex">
+        <span style="font-size: 0.85rem; font-weight: 900; color: #cbd5e1;">🐢 TEMPO:</span>
+        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" style="width: 80px; accent-color: #fbbf24; cursor: pointer;" aria-label="Abspielgeschwindigkeit">
+        <span id="fps-value-text" style="font-size: 0.85rem; font-weight: 900; color: #fbbf24; min-width: 85px;">4 B/SEK 🐇</span>
       </div>
 
-      <!-- HILFE BUTTON ? (GROSS ANALOG ZU DEN ANDERN APPS) -->
-      <button onclick="window.toggleInfo(event)" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50" title="Hilfe">
+      <!-- HILFE BUTTON ? (GROSSER KREIS ANALOG ZU DEN ANDERN APPS) -->
+      <button onclick="window.toggleInfo(event)" class="btn-help-info" title="Hilfe">
         ?
       </button>
     </div>
@@ -456,7 +530,7 @@
         </div>
       </div>
 
-      <!-- SIDE ACTIONS / ERGONOMIC CONTROL PANEL -->
+      <!-- SIDE ACTIONS / ERGONOMIC CONTROL PANEL RECHTS -->
       <div class="trickfilm-action-panel">
         <button class="action-btn btn-shutter" id="btn-trickfilm-snap" title="Foto Knipsen">
           <span class="shutter-icon text-xl">📸</span>
@@ -496,7 +570,7 @@
 
     </div>
 
-    <!-- BOTTOM FILMSTRIP TIMELINE BAR (MIT VOLLE HÖHE UND PERFEKTEN THUMBNAILS OHNE ANSCHNITT) -->
+    <!-- BOTTOM FILMSTRIP TIMELINE BAR (145PX HOCH, VOLLE BILDTHUMBNAILS OHNE ANSCHNITT) -->
     <div class="trickfilm-filmstrip-bar" id="trickfilm-filmstrip-bar">
       <div class="filmstrip-header">
         <span class="filmstrip-title">🎞️ Filmstreifen (Bilderleiste):</span>
@@ -748,7 +822,7 @@
             card.onclick = () => openFrameDetail(idx);
 
             const img = document.createElement('img');
-            img.style.cssText = 'width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
+            img.style.cssText = 'width: 96px !important; height: 72px !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
             img.src = frameCanvas.toDataURL('image/jpeg', 0.85);
 
             const badge = document.createElement('span');
