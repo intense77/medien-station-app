@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.5.0-v275';
+const CACHE_NAME = 'medien-station-v7.5.1-v276';
 const ASSETS = [
     './',
     './index.html',

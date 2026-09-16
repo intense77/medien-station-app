@@ -39,35 +39,35 @@
 
         /* --- EXAKTE STABILE COMPONENT HÖHEN OHNE UNSINNIGE OVERFLOWS --- */
         .header-area {
-            height: 2.75rem !important;
-            min-height: 2.75rem !important;
-            max-height: 2.75rem !important;
+            height: 2.5rem !important;
+            min-height: 2.5rem !important;
+            max-height: 2.5rem !important;
             flex-shrink: 0 !important;
         }
 
         .action-area {
-            height: 3rem !important;
-            min-height: 3rem !important;
-            max-height: 3rem !important;
+            height: 2.85rem !important;
+            min-height: 2.85rem !important;
+            max-height: 2.85rem !important;
             flex-shrink: 0 !important;
         }
 
         .filmstrip-area {
-            height: 4.25rem !important;
-            min-height: 4.25rem !important;
-            max-height: 4.25rem !important;
+            height: 4rem !important;
+            min-height: 4rem !important;
+            max-height: 4rem !important;
             flex-shrink: 0 !important;
             box-sizing: border-box !important;
         }
 
         .film-item {
             flex: 0 0 auto !important;
-            width: 3.5rem !important;
-            height: 3.5rem !important;
-            min-width: 3.5rem !important;
-            min-height: 3.5rem !important;
-            max-width: 3.5rem !important;
-            max-height: 3.5rem !important;
+            width: 3.25rem !important;
+            height: 3.25rem !important;
+            min-width: 3.25rem !important;
+            min-height: 3.25rem !important;
+            max-width: 3.25rem !important;
+            max-height: 3.25rem !important;
             position: relative !important;
             border-radius: 0.75rem !important;
             overflow: hidden !important;
@@ -92,16 +92,16 @@
         @media (orientation: landscape) {
             .main-wrapper { flex-direction: row !important; }
             .side-bar { 
-                width: 14.5rem !important; 
-                min-width: 14.5rem !important;
-                max-width: 14.5rem !important;
+                width: 13.5rem !important; 
+                min-width: 13.5rem !important;
+                max-width: 13.5rem !important;
                 height: 100% !important; 
                 flex-direction: column !important; 
                 justify-content: space-between !important; 
                 overflow-y: auto !important; 
             }
-            .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
-            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 3px !important; }
+            .content-area { flex: 1 1 0% !important; height: 100% !important; min-height: 0 !important; }
+            .video-main { flex: 1 1 0% !important; min-height: 0 !important; height: auto !important; border-width: 3px !important; }
         }
 
         @media (orientation: portrait) {
@@ -121,8 +121,8 @@
                 min-width: 11rem !important; 
                 max-width: 15rem !important; 
             }
-            .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
-            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 3px !important; }
+            .content-area { flex: 1 1 0% !important; height: 100% !important; min-height: 0 !important; }
+            .video-main { flex: 1 1 0% !important; min-height: 0 !important; height: auto !important; border-width: 3px !important; }
         }
         
         @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
