@@ -48,10 +48,26 @@
       -webkit-touch-callout: none;
     }
 
-    html, body {
+    html {
       width: 100%;
       height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+    }
+
+    body {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
       height: 100dvh;
+      height: var(--app-height, 100%);
+      max-height: 100%;
       font-family: var(--font-main);
       background-color: var(--bg-dark);
       color: var(--text-light);
@@ -60,11 +76,19 @@
       overflow: hidden;
       margin: 0;
       padding: 0;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+      box-sizing: border-box;
+      touch-action: manipulation;
     }
 
     /* HEADER */
     .trickfilm-header {
-      height: 48px;
+      height: 44px;
+      min-height: 44px;
+      max-height: 44px;
       flex-shrink: 0;
       display: flex;
       justify-content: space-between;
@@ -74,11 +98,14 @@
       background: #0f172a;
       border-bottom: 1px solid rgba(51, 65, 85, 0.6);
       z-index: 50;
+      box-sizing: border-box;
     }
 
     @media (min-width: 768px) {
       .trickfilm-header {
-        height: 60px;
+        height: 52px;
+        min-height: 52px;
+        max-height: 52px;
         padding: 0 16px;
       }
     }
@@ -87,17 +114,19 @@
     .app-container {
       flex: 1 1 0%;
       min-height: 0;
+      min-width: 0;
       display: flex;
       flex-direction: column;
-      padding: 6px 8px 8px 8px;
+      padding: 6px 8px;
       gap: 6px;
       width: 100%;
       overflow: hidden;
+      box-sizing: border-box;
     }
 
     @media (min-width: 768px) {
       .app-container {
-        padding: 8px 14px 12px 14px;
+        padding: 8px 12px;
         gap: 8px;
       }
     }
@@ -112,11 +141,12 @@
       gap: 6px;
       overflow: hidden;
       width: 100%;
+      box-sizing: border-box;
     }
 
     @media (min-width: 768px) {
       .trickfilm-stage-container {
-        gap: 10px;
+        gap: 8px;
       }
     }
 
@@ -214,31 +244,32 @@
 
     /* ACTION CONTROL PANEL (RECHTS IN LANDSCAPE) */
     .trickfilm-action-panel {
-      width: 195px;
-      min-width: 195px;
-      max-width: 195px;
+      width: 180px;
+      min-width: 180px;
+      max-width: 180px;
       height: 100%;
       min-height: 0;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       justify-content: space-between;
       flex-shrink: 0;
       background: rgba(30, 41, 59, 0.95);
       border: 3px solid #334155;
       border-radius: var(--radius-lg);
-      padding: 6px 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      padding: 5px 6px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
       overflow-y: auto;
+      box-sizing: border-box;
     }
 
     @media (min-width: 1024px) {
       .trickfilm-action-panel {
-        width: 230px;
-        min-width: 230px;
-        max-width: 230px;
-        padding: 8px 10px;
-        gap: 7px;
+        width: 215px;
+        min-width: 215px;
+        max-width: 215px;
+        padding: 6px 8px;
+        gap: 5px;
       }
     }
 
@@ -247,19 +278,20 @@
       font-family: var(--font-main);
       border: none;
       border-radius: var(--radius-md);
-      padding: 6px 10px;
-      font-size: 0.85rem;
+      padding: 4px 6px;
+      font-size: 0.8rem;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
       transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
       white-space: nowrap;
       min-height: 0;
       flex: 1 1 0%;
+      box-sizing: border-box;
     }
 
     .action-btn:active {
@@ -269,10 +301,10 @@
     .btn-shutter {
       background: linear-gradient(135deg, #EF4444, #EC4899);
       color: #FFF;
-      font-size: 1rem;
+      font-size: 0.92rem;
       border: 2px solid #FFF;
-      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
-      flex: 1.3 1 0%;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
+      flex: 1.25 1 0%;
     }
 
     .btn-shutter:hover {
@@ -326,30 +358,31 @@
       background: rgba(239, 68, 68, 0.45);
     }
 
-    /* TIMELINE / FILMSTRIP BAR (IMMER SICHTBAR AM UNTEREN RAND) */
+    /* TIMELINE / FILMSTRIP BAR (IMMER VOLLSTÄNDIG SICHTBAR AM UNTEREN RAND) */
     .trickfilm-filmstrip-bar {
       background: var(--bg-card-glass);
       backdrop-filter: blur(12px);
       border-radius: var(--radius-md);
       border: 2px solid rgba(255, 255, 255, 0.15);
-      padding: 5px 8px;
+      padding: 4px 6px;
       display: flex;
       flex-direction: column;
-      gap: 3px;
-      height: 82px;
-      min-height: 82px;
-      max-height: 82px;
+      gap: 2px;
+      height: 72px;
+      min-height: 72px;
+      max-height: 72px;
       flex-shrink: 0;
       width: 100%;
       overflow: hidden;
+      box-sizing: border-box;
     }
 
     @media (min-width: 768px) {
       .trickfilm-filmstrip-bar {
-        height: 98px;
-        min-height: 98px;
-        max-height: 98px;
-        padding: 6px 12px;
+        height: 84px;
+        min-height: 84px;
+        max-height: 84px;
+        padding: 4px 10px;
       }
     }
 
@@ -364,7 +397,7 @@
 
     @media (min-width: 768px) {
       .filmstrip-header {
-        font-size: 0.82rem;
+        font-size: 0.8rem;
       }
     }
 
@@ -393,9 +426,9 @@
 
     /* FILMSTRIP THUMBNAIL CARDS */
     .filmstrip-card {
-      flex: 0 0 68px;
-      width: 68px;
-      height: 50px;
+      flex: 0 0 62px;
+      width: 62px;
+      height: 44px;
       position: relative;
       overflow: hidden;
       border-radius: 8px;
@@ -413,9 +446,9 @@
 
     @media (min-width: 768px) {
       .filmstrip-card {
-        flex: 0 0 80px;
-        width: 80px;
-        height: 60px;
+        flex: 0 0 74px;
+        width: 74px;
+        height: 52px;
         border-radius: 10px;
       }
     }
@@ -521,72 +554,74 @@
         flex-direction: row;
         flex-wrap: wrap;
         gap: 5px;
-        padding: 6px;
+        padding: 5px;
         flex-shrink: 0;
         overflow: visible;
       }
       .action-btn {
         flex: 1 1 calc(33.333% - 5px);
-        padding: 6px 4px;
+        padding: 5px 4px;
         font-size: 0.75rem;
-        min-height: 36px;
+        min-height: 34px;
         gap: 4px;
       }
       .btn-shutter {
         flex: 1 1 100%;
         order: -1;
-        min-height: 42px;
-        font-size: 0.95rem;
+        min-height: 40px;
+        font-size: 0.92rem;
       }
       .trickfilm-filmstrip-bar {
-        height: 76px;
-        min-height: 76px;
-        max-height: 76px;
+        height: 70px;
+        min-height: 70px;
+        max-height: 70px;
       }
       .filmstrip-card {
-        flex: 0 0 62px;
-        width: 62px;
-        height: 46px;
+        flex: 0 0 58px;
+        width: 58px;
+        height: 42px;
       }
     }
 
     /* RESPONSIVE LANDSCAPE ON SMALL SCREENS (SMARTPHONES IN LANDSCAPE) */
     @media (max-height: 520px) and (orientation: landscape) {
       .trickfilm-header {
-        height: 42px;
+        height: 38px;
+        min-height: 38px;
+        max-height: 38px;
       }
       .app-container {
-        padding: 4px 6px 6px 6px;
+        padding: 3px 6px;
         gap: 4px;
       }
       .trickfilm-stage-container {
-        gap: 6px;
+        gap: 5px;
       }
       .trickfilm-action-panel {
-        width: 170px;
-        min-width: 170px;
-        max-width: 170px;
-        padding: 4px 6px;
+        width: 160px;
+        min-width: 160px;
+        max-width: 160px;
+        padding: 3px 5px;
         gap: 3px;
       }
       .action-btn {
-        padding: 3px 6px;
-        font-size: 0.72rem;
+        padding: 2px 4px;
+        font-size: 0.7rem;
         gap: 3px;
       }
       .btn-shutter {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
       }
       .trickfilm-filmstrip-bar {
-        height: 68px;
-        min-height: 68px;
-        max-height: 68px;
-        padding: 3px 6px;
+        height: 60px;
+        min-height: 60px;
+        max-height: 60px;
+        padding: 2px 6px;
       }
       .filmstrip-card {
-        flex: 0 0 58px;
-        width: 58px;
-        height: 40px;
+        flex: 0 0 52px;
+        width: 52px;
+        height: 36px;
       }
       .filmstrip-hint {
         display: none;
@@ -753,6 +788,30 @@
        ========================================================================== */
     (function () {
       'use strict';
+
+      // Standalone PWA Viewport Height Auto-Fix for iOS & Android Tablets
+      function fixPwaViewportHeight() {
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        document.documentElement.style.setProperty('--app-height', `${vh}px`);
+        if (document.body) {
+          document.body.style.height = `${vh}px`;
+        }
+      }
+      window.addEventListener('resize', fixPwaViewportHeight);
+      window.addEventListener('orientationchange', () => {
+        setTimeout(fixPwaViewportHeight, 50);
+        setTimeout(fixPwaViewportHeight, 150);
+        setTimeout(fixPwaViewportHeight, 300);
+      });
+      document.addEventListener('DOMContentLoaded', fixPwaViewportHeight);
+      window.addEventListener('load', () => {
+        fixPwaViewportHeight();
+        setTimeout(fixPwaViewportHeight, 50);
+        setTimeout(fixPwaViewportHeight, 150);
+        setTimeout(fixPwaViewportHeight, 300);
+        setTimeout(fixPwaViewportHeight, 600);
+      });
+      fixPwaViewportHeight();
 
       // State Variables
       let currentFacingMode = 'user';
@@ -1246,6 +1305,9 @@
             if (fpsText) fpsText.textContent = `${trickfilmFps} B/SEK 🐇`;
           });
         }
+
+        window.addEventListener('resize', drawOnionSkin);
+        window.addEventListener('orientationchange', () => setTimeout(drawOnionSkin, 150));
 
         startTrickfilmCamera(currentFacingMode);
       });
