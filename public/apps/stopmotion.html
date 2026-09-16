@@ -2,11 +2,11 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Kita-Trickfilmstudio</title>
+  <title>Trickfilm Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#8B5CF6">
+  <meta name="theme-color" content="#0f172a">
   <meta name="description" content="Kita-Trickfilmstudio: Kreatives Stop-Motion Studio für Kinder">
   
   <link rel="manifest" href="/manifest.json">
@@ -22,20 +22,20 @@
 
   <style>
     :root {
-      --bg-dark: #0F172A;
-      --bg-card: #1E293B;
-      --bg-card-glass: rgba(30, 41, 59, 0.85);
-      --accent-purple: #8B5CF6;
-      --accent-purple-hover: #7C3AED;
-      --accent-pink: #EC4899;
-      --accent-yellow: #FFD166;
-      --accent-green: #10B981;
-      --accent-red: #EF4444;
-      --text-light: #F8FAFC;
-      --text-muted: #94A3B8;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-glass: rgba(30, 41, 59, 0.9);
+      --accent-purple: #8b5cf6;
+      --accent-purple-hover: #7c3aed;
+      --accent-pink: #ec4899;
+      --accent-yellow: #ffd166;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
       --font-main: 'Fredoka', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --radius-lg: 20px;
-      --radius-md: 14px;
+      --radius-lg: 24px;
+      --radius-md: 16px;
       --radius-sm: 8px;
     }
 
@@ -61,101 +61,43 @@
       overflow: hidden;
     }
 
-    /* --- Header --- */
-    .app-header {
-      height: 64px;
+    /* --- Header UX analog zu allen Medienstation-Apps (Loop Cam, Sound, Rec, Comic) --- */
+    .header-area {
+      height: 4.5rem !important;
+      min-height: 4.5rem !important;
+      max-height: 4.5rem !important;
+      flex-shrink: 0 !important;
       background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(10px);
       border-bottom: 2px solid rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
-      z-index: 50;
+      padding: 0 1rem;
       position: relative;
-      flex-shrink: 0;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
       z-index: 50;
     }
 
+    /* Centered Title analog zu den anderen Apps */
     .app-title-centered {
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--accent-yellow);
-      letter-spacing: 0.05em;
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: #fbbf24; /* amber-400 */
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       pointer-events: none;
       z-index: 10;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      text-shadow: 0 4px 12px rgba(0,0,0,0.6);
       white-space: nowrap;
     }
 
-    .trickfilm-top-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 50;
-    }
-
-    .trickfilm-pill-btn {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-light);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-family: var(--font-main);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .trickfilm-pill-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .trickfilm-pill-btn.active {
-      background: var(--accent-purple);
-      border-color: var(--accent-pink);
-      box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
-    }
-
-    .trickfilm-fps-control {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 5px 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .fps-label {
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-
-    .trickfilm-fps-control input[type="range"] {
-      width: 80px;
-      accent-color: var(--accent-yellow);
-      cursor: pointer;
-    }
-
-    .fps-badge {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent-yellow);
-      min-width: 95px;
+    @media (min-width: 1024px) {
+      .app-title-centered {
+        font-size: 2.25rem;
+      }
     }
 
     /* --- Main Layout --- */
@@ -163,10 +105,10 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 16px;
-      gap: 16px;
-      height: calc(100vh - 64px);
-      height: calc(100dvh - 64px);
+      padding: 0.75rem 1rem 1rem 1rem;
+      gap: 0.75rem;
+      height: calc(100vh - 4.5rem);
+      height: calc(100dvh - 4.5rem);
       overflow: hidden;
       min-height: 0;
     }
@@ -174,7 +116,7 @@
     .trickfilm-stage-container {
       flex: 1;
       display: flex;
-      gap: 16px;
+      gap: 1rem;
       min-height: 0;
       overflow: hidden;
     }
@@ -184,13 +126,13 @@
       flex: 1;
       background: #000;
       border-radius: var(--radius-lg);
-      border: 3px solid rgba(255, 255, 255, 0.15);
+      border: 4px solid #334155;
       position: relative;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
       min-width: 0;
       min-height: 0;
     }
@@ -224,13 +166,13 @@
       transform: translateX(-50%);
       background: rgba(236, 72, 153, 0.95);
       color: #FFF;
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 8px 18px;
-      border-radius: 20px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      padding: 10px 22px;
+      border-radius: 30px;
       z-index: 20;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.5);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
       animation: pulse 1.5s infinite alternate;
     }
 
@@ -238,14 +180,14 @@
       position: absolute;
       bottom: 14px;
       left: 14px;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(8px);
       color: var(--accent-yellow);
       font-size: 0.95rem;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-weight: 800;
+      padding: 6px 16px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
       z-index: 15;
     }
 
@@ -253,16 +195,17 @@
       position: absolute;
       top: 14px;
       right: 14px;
-      background: rgba(239, 68, 68, 0.9);
+      background: rgba(239, 68, 68, 0.95);
       color: #FFF;
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      padding: 6px 16px;
+      border-radius: 14px;
       z-index: 15;
       display: flex;
       align-items: center;
       gap: 6px;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
     }
 
     .rec-pulse-dot {
@@ -271,7 +214,7 @@
 
     /* Ergonomic Action Control Panel */
     .trickfilm-action-panel {
-      width: 220px;
+      width: 230px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -283,16 +226,16 @@
       font-family: var(--font-main);
       border: none;
       border-radius: var(--radius-md);
-      padding: 12px 14px;
-      font-size: 0.95rem;
-      font-weight: 700;
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
       transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
       white-space: nowrap;
     }
 
@@ -303,10 +246,10 @@
     .btn-shutter {
       background: linear-gradient(135deg, #EF4444, #EC4899);
       color: #FFF;
-      font-size: 1.1rem;
-      padding: 16px 14px;
-      border: 2px solid #FFF;
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+      font-size: 1.15rem;
+      padding: 16px 16px;
+      border: 3px solid #FFF;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.5);
     }
 
     .btn-shutter:hover {
@@ -324,13 +267,13 @@
     }
 
     .btn-secondary.active {
-      background: rgba(139, 92, 246, 0.3);
+      background: rgba(139, 92, 246, 0.35);
       border-color: var(--accent-purple);
       color: var(--accent-yellow);
     }
 
     .btn-secondary.recording {
-      background: rgba(239, 68, 68, 0.8);
+      background: rgba(239, 68, 68, 0.85);
       border-color: #FFF;
       color: #FFF;
       animation: pulse 1s infinite alternate;
@@ -339,7 +282,7 @@
     .btn-play {
       background: linear-gradient(135deg, #10B981, #059669);
       color: #FFF;
-      font-size: 1rem;
+      font-size: 1.05rem;
     }
 
     .btn-play.playing {
@@ -349,30 +292,32 @@
     .btn-print {
       background: linear-gradient(135deg, #38BDF8, #0284C7);
       color: #FFF;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.25);
       color: #FCA5A5;
-      border: 1px solid rgba(239, 68, 68, 0.4);
+      border: 2px solid rgba(239, 68, 68, 0.4);
     }
 
     .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.4);
+      background: rgba(239, 68, 68, 0.45);
     }
 
-    /* --- Timeline / Filmstrip Bar --- */
+    /* --- Timeline / Filmstrip Bar (Grosszügige Höhe ohne abgeschnittene Bilder!) --- */
     .trickfilm-filmstrip-bar {
       background: var(--bg-card-glass);
       backdrop-filter: blur(12px);
       border-radius: var(--radius-md);
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      padding: 10px 14px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 16px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      height: 124px;
+      gap: 6px;
+      height: 140px;
+      min-height: 140px;
+      max-height: 140px;
       flex-shrink: 0;
     }
 
@@ -384,7 +329,7 @@
     }
 
     .filmstrip-title {
-      font-weight: 700;
+      font-weight: 800;
       color: var(--accent-yellow);
     }
 
@@ -395,18 +340,18 @@
     .filmstrip-scroll-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       overflow-x: auto;
       overflow-y: hidden;
-      padding-bottom: 4px;
-      height: 72px;
+      padding: 4px 2px 6px 2px;
+      height: 90px;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-purple) transparent;
     }
 
     .filmstrip-empty-text {
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-style: italic;
       width: 100%;
       text-align: center;
@@ -455,29 +400,26 @@
 </head>
 <body>
 
-  <!-- App Header -->
-  <header class="app-header">
-    <div class="header-left">
-      <button onclick="window.goHome()" class="bg-slate-800 hover:bg-slate-700 text-white border-2 border-amber-400 hover:border-amber-300 px-3 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
-        🏠 <span>MENÜ</span>
-      </button>
-      <div class="text-xl">🎬</div>
-    </div>
+  <!-- HEADER UX ANPASSUNG EXAKT ANALOG ZU ALLEN MEDIENSTATION APPS (LOOP CAM, REC, SOUND) -->
+  <header class="header-area">
+    <!-- HOMEMENÜ BUTTON LINKS (GROSS & PROMINENT WIE BEI DEN ANDERN APPS) -->
+    <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+      🏠 <span class="hidden md:inline">MENÜ</span>
+    </button>
 
-    <!-- CENTERED TITLE MATCHING OTHER MEDIENSTATION APPS -->
+    <!-- METROPOLITAN TITEL MITTIG (ANALOG ZU LOOP CAM / TRICKFILM) -->
     <h1 class="app-title-centered">🎬 TRICKFILM STUDIO</h1>
 
-    <div class="trickfilm-top-bar">
-      <button class="trickfilm-pill-btn active" id="btn-trickfilm-mode-cam">🎥 Studio / Kamera</button>
-      <button class="trickfilm-pill-btn" id="btn-trickfilm-mode-play">▶️ Film Abspielen</button>
-
-      <div class="trickfilm-fps-control">
-        <span class="fps-label">🐢 Tempo:</span>
-        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" aria-label="Abspielgeschwindigkeit">
-        <span id="fps-value-text" class="fps-badge">4 Bilder/Sek. 🐇</span>
+    <!-- HEADER RECHTS: TEMPO-REGLER & HILFE-BUTTON -->
+    <div class="flex items-center gap-3 z-50">
+      <div class="hidden sm:flex items-center gap-2 bg-slate-800/90 border-2 md:border-4 border-slate-700 px-4 py-2 rounded-full shadow-xl">
+        <span class="text-xs md:text-sm font-black text-slate-300">🐢 TEMPO:</span>
+        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" class="w-20 accent-amber-400 cursor-pointer" aria-label="Abspielgeschwindigkeit">
+        <span id="fps-value-text" class="text-xs md:text-sm font-black text-amber-400 min-w-[85px]">4 B/SEK 🐇</span>
       </div>
 
-      <button onclick="window.toggleInfo(event)" class="w-8 h-8 bg-slate-800 text-amber-400 hover:text-amber-300 rounded-full font-black border-2 border-amber-400 hover:border-amber-300 shadow-lg flex items-center justify-center transition-transform active:scale-95 text-base shrink-0 z-50" title="Hilfe">
+      <!-- HILFE BUTTON ? (GROSS ANALOG ZU DEN ANDERN APPS) -->
+      <button onclick="window.toggleInfo(event)" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50" title="Hilfe">
         ?
       </button>
     </div>
@@ -517,7 +459,7 @@
       <!-- SIDE ACTIONS / ERGONOMIC CONTROL PANEL -->
       <div class="trickfilm-action-panel">
         <button class="action-btn btn-shutter" id="btn-trickfilm-snap" title="Foto Knipsen">
-          <span class="shutter-icon">📸</span>
+          <span class="shutter-icon text-xl">📸</span>
           <span>Foto Knipsen!</span>
         </button>
 
@@ -554,7 +496,7 @@
 
     </div>
 
-    <!-- BOTTOM FILMSTRIP TIMELINE BAR -->
+    <!-- BOTTOM FILMSTRIP TIMELINE BAR (MIT VOLLE HÖHE UND PERFEKTEN THUMBNAILS OHNE ANSCHNITT) -->
     <div class="trickfilm-filmstrip-bar" id="trickfilm-filmstrip-bar">
       <div class="filmstrip-header">
         <span class="filmstrip-title">🎞️ Filmstreifen (Bilderleiste):</span>
@@ -590,7 +532,7 @@
       </div>
   </div>
 
-  <!-- HILFE MODAL -->
+  <!-- HILFE MODAL (EXAKT ANALOG ZU MEDIENSTATION UX) -->
   <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo(event)">
       <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
           <button onclick="window.toggleInfo(event)" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
@@ -706,8 +648,6 @@
         const btnMic = document.getElementById('btn-trickfilm-mic');
         const btnClear = document.getElementById('btn-trickfilm-clear');
         const btnPlay = document.getElementById('btn-trickfilm-play');
-        const btnModeCam = document.getElementById('btn-trickfilm-mode-cam');
-        const btnModePlay = document.getElementById('btn-trickfilm-mode-play');
         const fpsSlider = document.getElementById('trickfilm-fps-slider');
         const fpsText = document.getElementById('fps-value-text');
         const micStatus = document.getElementById('trickfilm-mic-status');
@@ -803,20 +743,20 @@
 
           trickfilmFrames.forEach((frameCanvas, idx) => {
             const card = document.createElement('div');
-            card.style.cssText = 'flex: 0 0 84px !important; width: 84px !important; min-width: 84px !important; max-width: 84px !important; height: 64px !important; position: relative !important; overflow: hidden !important; border-radius: 10px !important; border: 2px solid rgba(255,255,255,0.4) !important; background: #1E293B !important; cursor: pointer !important; box-shadow: 0 3px 8px rgba(0,0,0,0.3) !important;';
+            card.style.cssText = 'flex: 0 0 96px !important; width: 96px !important; min-width: 96px !important; max-width: 96px !important; height: 72px !important; min-height: 72px !important; position: relative !important; overflow: hidden !important; border-radius: 12px !important; border: 2px solid rgba(255,255,255,0.4) !important; background: #1E293B !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0,0,0,0.4) !important; margin-top: 2px; margin-bottom: 2px;';
             card.id = `thumb-item-${idx}`;
             card.onclick = () => openFrameDetail(idx);
 
             const img = document.createElement('img');
-            img.style.cssText = 'width: 84px !important; height: 64px !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
+            img.style.cssText = 'width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
             img.src = frameCanvas.toDataURL('image/jpeg', 0.85);
 
             const badge = document.createElement('span');
-            badge.style.cssText = 'position: absolute !important; bottom: 2px !important; left: 2px !important; background: rgba(0,0,0,0.75) !important; color: #FFFFFF !important; font-size: 0.75rem !important; font-weight: 800 !important; padding: 1px 6px !important; border-radius: 8px !important; z-index: 2 !important;';
+            badge.style.cssText = 'position: absolute !important; bottom: 3px !important; left: 3px !important; background: rgba(0,0,0,0.85) !important; color: #FFD166 !important; font-size: 0.75rem !important; font-weight: 800 !important; padding: 1px 6px !important; border-radius: 6px !important; z-index: 2 !important;';
             badge.textContent = `#${idx + 1}`;
 
             const delBtn = document.createElement('button');
-            delBtn.style.cssText = 'position: absolute !important; top: 2px !important; right: 2px !important; background: rgba(239,68,68,0.85) !important; color: #FFFFFF !important; font-size: 0.75rem !important; border-radius: 50% !important; width: 20px !important; height: 20px !important; display: flex !important; align-items: center !important; justify-content: center !important; border: none !important; cursor: pointer !important; z-index: 3 !important;';
+            delBtn.style.cssText = 'position: absolute !important; top: 3px !important; right: 3px !important; background: rgba(239,68,68,0.9) !important; color: #FFFFFF !important; font-size: 0.75rem !important; border-radius: 50% !important; width: 22px !important; height: 22px !important; display: flex !important; align-items: center !important; justify-content: center !important; border: none !important; cursor: pointer !important; z-index: 3 !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5);';
             delBtn.innerHTML = '🗑️';
             delBtn.title = 'Bild löschen';
             delBtn.addEventListener('click', (e) => {
@@ -922,12 +862,6 @@
             btnPlay.innerHTML = '<span class="btn-icon">⏹️</span> Film Stoppen';
             btnPlay.classList.add('playing');
           }
-          if (btnModePlay) {
-            btnModePlay.innerHTML = '<span class="btn-icon">⏹️</span> Film Stoppen';
-            btnModePlay.classList.add('playing');
-            btnModePlay.classList.add('active');
-          }
-          if (btnModeCam) btnModeCam.classList.remove('active');
 
           if (trickfilmAudioUrl) {
             if (!trickfilmAudioElement) {
@@ -971,12 +905,6 @@
             btnPlay.innerHTML = '<span class="btn-icon">▶️</span> Film Abspielen';
             btnPlay.classList.remove('playing');
           }
-          if (btnModePlay) {
-            btnModePlay.innerHTML = '<span class="btn-icon">▶️</span> Film Abspielen';
-            btnModePlay.classList.remove('playing');
-            btnModePlay.classList.remove('active');
-          }
-          if (btnModeCam) btnModeCam.classList.add('active');
 
           if (trickfilmAudioElement) {
             trickfilmAudioElement.pause();
@@ -1116,16 +1044,10 @@
         if (playbackCanvas) playbackCanvas.addEventListener('click', stopPlayback);
         if (playbackBadge) playbackBadge.addEventListener('click', stopPlayback);
 
-        if (btnModeCam) btnModeCam.addEventListener('click', stopPlayback);
-        if (btnModePlay) btnModePlay.addEventListener('click', () => {
-          if (isPlaybackRunning) stopPlayback();
-          else startPlayback();
-        });
-
         if (fpsSlider) {
           fpsSlider.addEventListener('input', (e) => {
             trickfilmFps = parseInt(e.target.value, 10);
-            if (fpsText) fpsText.textContent = `${trickfilmFps} Bilder/Sek. 🐇`;
+            if (fpsText) fpsText.textContent = `${trickfilmFps} B/SEK 🐇`;
           });
         }
 
