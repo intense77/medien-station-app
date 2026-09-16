@@ -1,7 +1,7 @@
 {
-  "name": "MedienStation",
+  "name": "AV-Medienzentrale Kita-Medienstation",
   "short_name": "MedienStation",
-  "version": "7.5.3",
+  "version": "7.5.4",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0f172a",

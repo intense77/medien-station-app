@@ -274,19 +274,19 @@
       background: rgba(239, 68, 68, 0.45);
     }
 
-    /* --- TIMELINE / FILMSTRIP BAR (120PX HOCH, REIN IN DER ANSICHT OHNE OVERFLOW) --- */
+    /* --- TIMELINE / FILMSTRIP BAR (EXAKT 110PX HOCH AUS TRICKFILM-STUDIO) --- */
     .trickfilm-filmstrip-bar {
       background: var(--bg-card-glass);
       backdrop-filter: blur(12px);
       border-radius: var(--radius-md);
       border: 2px solid rgba(255, 255, 255, 0.15);
-      padding: 8px 12px;
+      padding: 6px 12px;
       display: flex;
       flex-direction: column;
       gap: 4px;
-      height: 120px !important;
-      min-height: 120px !important;
-      max-height: 120px !important;
+      height: 110px !important;
+      min-height: 110px !important;
+      max-height: 110px !important;
       flex-shrink: 0 !important;
       width: 100%;
     }
@@ -314,7 +314,7 @@
       overflow-x: auto;
       overflow-y: hidden;
       padding: 2px 2px;
-      height: 82px !important;
+      height: 72px !important;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-purple) transparent;
     }
@@ -718,12 +718,12 @@
 
           trickfilmFrames.forEach((frameCanvas, idx) => {
             const card = document.createElement('div');
-            card.style.cssText = 'flex: 0 0 96px !important; width: 96px !important; min-width: 96px !important; max-width: 96px !important; height: 72px !important; min-height: 72px !important; position: relative !important; overflow: hidden !important; border-radius: 12px !important; border: 2px solid rgba(255,255,255,0.4) !important; background: #1E293B !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0,0,0,0.4) !important; margin-top: 2px; margin-bottom: 2px;';
+            card.style.cssText = 'flex: 0 0 84px !important; width: 84px !important; min-width: 84px !important; max-width: 84px !important; height: 64px !important; min-height: 64px !important; position: relative !important; overflow: hidden !important; border-radius: 10px !important; border: 2px solid rgba(255,255,255,0.4) !important; background: #1E293B !important; cursor: pointer !important; box-shadow: 0 3px 8px rgba(0,0,0,0.3) !important; margin-top: 1px; margin-bottom: 1px;';
             card.id = `thumb-item-${idx}`;
             card.onclick = () => openFrameDetail(idx);
 
             const img = document.createElement('img');
-            img.style.cssText = 'width: 96px !important; height: 72px !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
+            img.style.cssText = 'width: 84px !important; height: 64px !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
             img.src = frameCanvas.toDataURL('image/jpeg', 0.85);
 
             const badge = document.createElement('span');
