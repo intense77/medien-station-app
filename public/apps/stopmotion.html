@@ -1,406 +1,617 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Trickfilm Studio</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/assets/apple-touch-icon.png?v=2">
-    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=2">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <link rel="stylesheet" href="../css/style.css">
-    <script src="../cordova.js"></script>
-    <script src="../js/audio.js"></script>
-    <script src="../js/common.js"></script>
-    <script src="../js/print.js"></script>
+  <meta charset="UTF-8">
+  <title>Kita-Trickfilmstudio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#8B5CF6">
+  <meta name="description" content="Kita-Trickfilmstudio: Kreatives Stop-Motion Studio für Kinder">
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
 
-    <style>
-        html, body {
-            width: 100%;
-            height: 100%;
-            height: 100dvh;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-        body { 
-            background-color: #0f172a; 
-            color: white; 
-            user-select: none; 
-            touch-action: manipulation; 
-        }
+  <script src="../cordova.js"></script>
+  <script src="../js/audio.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/print.js"></script>
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  <style>
+    :root {
+      --bg-dark: #0F172A;
+      --bg-card: #1E293B;
+      --bg-card-glass: rgba(30, 41, 59, 0.85);
+      --accent-purple: #8B5CF6;
+      --accent-purple-hover: #7C3AED;
+      --accent-pink: #EC4899;
+      --accent-yellow: #FFD166;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --text-light: #F8FAFC;
+      --text-muted: #94A3B8;
+      --font-main: 'Fredoka', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 8px;
+    }
 
-        /* Standard Header UX analog zu allen Medienstation-Apps */
-        .header-area {
-            height: 3.25rem !important;
-            min-height: 3.25rem !important;
-            max-height: 3.25rem !important;
-            flex-shrink: 0 !important;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
 
-        /* Haupt-Container vertikal (Stage oben, Filmleiste unten) */
-        .main-wrapper {
-            display: flex !important;
-            flex-direction: column !important;
-            flex: 1 1 0% !important;
-            min-height: 0 !important;
-            width: 100% !important;
-            overflow: hidden !important;
-        }
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      font-family: var(--font-main);
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-        /* Ergonomisches Action-Panel */
-        .action-btn {
-            font-family: inherit;
-            border: none;
-            border-radius: 1rem;
-            padding: 0.65rem 1rem;
-            font-size: 0.95rem;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            white-space: nowrap;
-        }
+    /* --- Header --- */
+    .app-header {
+      height: 64px;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 50;
+      position: relative;
+      flex-shrink: 0;
+    }
 
-        .action-btn:active { transform: scale(0.96); }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 50;
+    }
 
-        .btn-shutter {
-            background: linear-gradient(135deg, #EF4444, #EC4899);
-            color: #FFF;
-            font-size: 1.1rem;
-            padding: 0.9rem 1rem;
-            border: 2px solid #FFF;
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
-        }
+    .app-title-centered {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--accent-yellow);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      pointer-events: none;
+      z-index: 10;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
 
-        .btn-shutter:hover { filter: brightness(1.1); }
+    .trickfilm-top-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 50;
+    }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #F8FAFC;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
+    .trickfilm-pill-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-light);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: var(--font-main);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
 
-        .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+    .trickfilm-pill-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
 
-        .btn-secondary.active {
-            background: rgba(139, 92, 246, 0.4);
-            border-color: #8B5CF6;
-            color: #FFD166;
-        }
+    .trickfilm-pill-btn.active {
+      background: var(--accent-purple);
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+    }
 
-        .btn-secondary.recording {
-            background: rgba(239, 68, 68, 0.9);
-            border-color: #FFF;
-            color: #FFF;
-            animation: pulse 1s infinite alternate;
-        }
+    .trickfilm-fps-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
 
-        .btn-play {
-            background: linear-gradient(135deg, #10B981, #059669);
-            color: #FFF;
-            font-size: 1rem;
-        }
+    .fps-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
 
-        .btn-play.playing { background: linear-gradient(135deg, #EC4899, #D946EF); }
+    .trickfilm-fps-control input[type="range"] {
+      width: 80px;
+      accent-color: var(--accent-yellow);
+      cursor: pointer;
+    }
 
-        .btn-print {
-            background: linear-gradient(135deg, #38BDF8, #0284C7);
-            color: #FFF;
-            font-size: 0.95rem;
-        }
+    .fps-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-yellow);
+      min-width: 95px;
+    }
 
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.25);
-            color: #FCA5A5;
-            border: 1px solid rgba(239, 68, 68, 0.4);
-        }
+    /* --- Main Layout --- */
+    .app-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
+      height: calc(100vh - 64px);
+      height: calc(100dvh - 64px);
+      overflow: hidden;
+      min-height: 0;
+    }
 
-        .btn-danger:hover { background: rgba(239, 68, 68, 0.45); }
+    .trickfilm-stage-container {
+      flex: 1;
+      display: flex;
+      gap: 16px;
+      min-height: 0;
+      overflow: hidden;
+    }
 
-        /* Filmstreifen & Cards */
-        .filmstrip-area {
-            height: 4.75rem !important;
-            min-height: 4.75rem !important;
-            max-height: 4.75rem !important;
-            flex-shrink: 0 !important;
-        }
+    /* Viewport Card */
+    .trickfilm-viewport-card {
+      flex: 1;
+      background: #000;
+      border-radius: var(--radius-lg);
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      min-width: 0;
+      min-height: 0;
+    }
 
-        .film-frame-card {
-            flex: 0 0 5.25rem !important;
-            width: 5.25rem !important;
-            min-width: 5.25rem !important;
-            max-width: 5.25rem !important;
-            height: 3.75rem !important;
-            position: relative !important;
-            overflow: hidden !important;
-            border-radius: 0.75rem !important;
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
-            background: #1E293B !important;
-            cursor: pointer !important;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
-            transition: all 0.2s ease !important;
-        }
+    .trickfilm-video,
+    .trickfilm-onion-overlay,
+    .trickfilm-playback-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
 
-        .film-frame-card:hover { border-color: #f59e0b !important; }
-        .film-frame-card.active-playing {
-            border: 3.5px solid #f59e0b !important;
-            transform: scale(1.05) !important;
-            box-shadow: 0 0 20px #f59e0b !important;
-            z-index: 30 !important;
-        }
+    .trickfilm-onion-overlay {
+      pointer-events: none;
+      z-index: 2;
+    }
 
-        /* Maximale Ausnutzung der Bildschirmlänge im Tablet Querformat */
-        @media (min-aspect-ratio: 1.05/1), (orientation: landscape) {
-            .stage-area {
-                flex-direction: row !important;
-            }
-            .side-bar { 
-                width: 14.5rem !important; 
-                min-width: 14.5rem !important;
-                max-width: 14.5rem !important;
-                height: 100% !important; 
-                flex-direction: column !important; 
-                justify-content: space-between !important; 
-                padding: 0.5rem !important;
-            }
-            .video-main {
-                flex: 1 1 0px !important;
-                height: 100% !important;
-                min-height: 0 !important;
-            }
-        }
+    .trickfilm-playback-overlay {
+      z-index: 10;
+      background: #000;
+    }
 
-        @media (max-aspect-ratio: 1.05/1) and (not (orientation: landscape)) {
-            .stage-area {
-                flex-direction: column !important;
-            }
-            .side-bar { 
-                width: 100% !important; 
-                min-width: 100% !important;
-                max-width: 100% !important;
-                height: auto !important; 
-                flex-direction: row !important; 
-                flex-wrap: wrap !important;
-                justify-content: center !important; 
-                padding: 0.4rem !important;
-                gap: 0.4rem !important;
-            }
-            .action-btn {
-                flex: 1 1 calc(33% - 0.4rem);
-                padding: 0.5rem;
-                font-size: 0.85rem;
-            }
-            .btn-shutter {
-                flex: 1 1 100%;
-                order: -1;
-                padding: 0.75rem;
-                font-size: 1rem;
-            }
-        }
+    /* Badges on Viewport */
+    .trickfilm-playback-badge {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(236, 72, 153, 0.95);
+      color: #FFF;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 20px;
+      z-index: 20;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(236, 72, 153, 0.5);
+      animation: pulse 1.5s infinite alternate;
+    }
 
-        @keyframes pulse {
-            from { opacity: 0.85; transform: scale(1); }
-            to { opacity: 1; transform: scale(1.04); }
-        }
+    .trickfilm-frame-counter {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      color: var(--accent-yellow);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 15;
+    }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
-        }
+    .trickfilm-mic-status {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(239, 68, 68, 0.9);
+      color: #FFF;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 12px;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        .fly-thumb {
-            animation: flyToTimeline 0.5s ease-in-out forwards;
-            pointer-events: none;
-            position: fixed;
-            z-index: 9999;
-        }
-        @keyframes flyToTimeline {
-            0% { transform: scale(1) translate(0, 0); opacity: 1; }
-            100% { transform: scale(0.2) translate(0, 200px); opacity: 0; }
-        }
-    </style>
+    .rec-pulse-dot {
+      animation: blink 1s infinite;
+    }
+
+    /* Ergonomic Action Control Panel */
+    .trickfilm-action-panel {
+      width: 220px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .action-btn {
+      font-family: var(--font-main);
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      white-space: nowrap;
+    }
+
+    .action-btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-shutter {
+      background: linear-gradient(135deg, #EF4444, #EC4899);
+      color: #FFF;
+      font-size: 1.1rem;
+      padding: 16px 14px;
+      border: 2px solid #FFF;
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-shutter:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-light);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary.active {
+      background: rgba(139, 92, 246, 0.3);
+      border-color: var(--accent-purple);
+      color: var(--accent-yellow);
+    }
+
+    .btn-secondary.recording {
+      background: rgba(239, 68, 68, 0.8);
+      border-color: #FFF;
+      color: #FFF;
+      animation: pulse 1s infinite alternate;
+    }
+
+    .btn-play {
+      background: linear-gradient(135deg, #10B981, #059669);
+      color: #FFF;
+      font-size: 1rem;
+    }
+
+    .btn-play.playing {
+      background: linear-gradient(135deg, #EC4899, #D946EF);
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, #38BDF8, #0284C7);
+      color: #FFF;
+      font-size: 0.95rem;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #FCA5A5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.4);
+    }
+
+    /* --- Timeline / Filmstrip Bar --- */
+    .trickfilm-filmstrip-bar {
+      background: var(--bg-card-glass);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-md);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      height: 124px;
+      flex-shrink: 0;
+    }
+
+    .filmstrip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+
+    .filmstrip-title {
+      font-weight: 700;
+      color: var(--accent-yellow);
+    }
+
+    .filmstrip-hint {
+      color: var(--text-muted);
+    }
+
+    .filmstrip-scroll-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 4px;
+      height: 72px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-purple) transparent;
+    }
+
+    .filmstrip-empty-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-style: italic;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Helpers */
+    .hidden {
+      display: none !important;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.85; transform: scale(1); }
+      to { opacity: 1; transform: scale(1.04); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    /* Responsive Tablet & Mobile Adjustments */
+    @media (max-width: 850px), (orientation: portrait) {
+      .app-title-centered {
+        display: none;
+      }
+      .trickfilm-stage-container {
+        flex-direction: column;
+      }
+      .trickfilm-action-panel {
+        width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .action-btn {
+        flex: 1 1 calc(33% - 8px);
+        padding: 8px;
+        font-size: 0.85rem;
+      }
+      .btn-shutter {
+        flex: 1 1 100%;
+        order: -1;
+      }
+    }
+  </style>
 </head>
-<body class="flex flex-col p-2 md:p-3 box-border bg-slate-900 h-full w-full">
+<body>
 
-    <!-- HEADER UX ANALOG ZU ALLEN MEDIENSTATION APPS -->
-    <div class="header-area flex-none flex justify-between items-center z-50 mb-1 px-1 relative">
-        <!-- MENÜ BUTTON LEFT -->
-        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-amber-400 hover:border-amber-300 px-3 py-1.5 md:px-5 md:py-2 rounded-full text-xs md:text-base font-black shadow-xl flex items-center gap-1 md:gap-2 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
-            🏠 <span class="hidden md:inline">MENÜ</span>
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <button onclick="window.goHome()" class="bg-slate-800 hover:bg-slate-700 text-white border-2 border-amber-400 hover:border-amber-300 px-3 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+        🏠 <span>MENÜ</span>
+      </button>
+      <div class="text-xl">🎬</div>
+    </div>
+
+    <!-- CENTERED TITLE MATCHING OTHER MEDIENSTATION APPS -->
+    <h1 class="app-title-centered">🎬 TRICKFILM STUDIO</h1>
+
+    <div class="trickfilm-top-bar">
+      <button class="trickfilm-pill-btn active" id="btn-trickfilm-mode-cam">🎥 Studio / Kamera</button>
+      <button class="trickfilm-pill-btn" id="btn-trickfilm-mode-play">▶️ Film Abspielen</button>
+
+      <div class="trickfilm-fps-control">
+        <span class="fps-label">🐢 Tempo:</span>
+        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" aria-label="Abspielgeschwindigkeit">
+        <span id="fps-value-text" class="fps-badge">4 Bilder/Sek. 🐇</span>
+      </div>
+
+      <button onclick="window.toggleInfo(event)" class="w-8 h-8 bg-slate-800 text-amber-400 hover:text-amber-300 rounded-full font-black border-2 border-amber-400 hover:border-amber-300 shadow-lg flex items-center justify-center transition-transform active:scale-95 text-base shrink-0 z-50" title="Hilfe">
+        ?
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="app-container">
+    <div class="trickfilm-stage-container" id="trickfilm-stage-container">
+      
+      <!-- VIEWPORT CARD -->
+      <div class="trickfilm-viewport-card" id="trickfilm-viewport-card">
+        <!-- Live Camera Video Stream -->
+        <video id="trickfilm-camera-video" class="trickfilm-video" autoplay playsinline muted></video>
+        
+        <!-- ONION SKINNING GHOST OVERLAY CANVAS -->
+        <canvas id="trickfilm-onion-canvas" class="trickfilm-onion-overlay"></canvas>
+        
+        <!-- PLAYBACK / PREVIEW CANVAS -->
+        <canvas id="trickfilm-playback-canvas" class="trickfilm-playback-overlay hidden"></canvas>
+
+        <!-- Playback Running Badge (Tap to Stop) -->
+        <div class="trickfilm-playback-badge hidden" id="trickfilm-playback-badge">
+          ▶️ Film läuft... (Tippen zum Stoppen ⏹️)
+        </div>
+
+        <!-- Frame Counter Badge -->
+        <div class="trickfilm-frame-counter" id="trickfilm-frame-counter">
+          🎬 <span>0</span> Bilder aufgenommen
+        </div>
+
+        <!-- Microphone Recording Status Badge -->
+        <div class="trickfilm-mic-status hidden" id="trickfilm-mic-status">
+          <span class="rec-pulse-dot">🔴</span> Sprachaufnahme läuft...
+        </div>
+      </div>
+
+      <!-- SIDE ACTIONS / ERGONOMIC CONTROL PANEL -->
+      <div class="trickfilm-action-panel">
+        <button class="action-btn btn-shutter" id="btn-trickfilm-snap" title="Foto Knipsen">
+          <span class="shutter-icon">📸</span>
+          <span>Foto Knipsen!</span>
         </button>
 
-        <!-- ZENTRIERTER METROPOLITAN TITEL (ANALOG ZU LOOP CAM / TRICKFILM) -->
-        <h1 class="hidden md:block absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-xl lg:text-3xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none z-10 uppercase">
-            🎬 TRICKFILM STUDIO
-        </h1>
+        <button class="action-btn btn-secondary" id="btn-trickfilm-cam-switch" title="Kamera wechseln">
+          <span class="btn-icon">🔄</span>
+          <span id="trickfilm-cam-label">Rück-Kamera</span>
+        </button>
 
-        <!-- HEADER RIGHT: MODUS & FPS TEMPO & HELP -->
-        <div class="flex items-center gap-2 z-50">
-            <div class="hidden sm:flex items-center gap-2 bg-slate-800/90 px-3 py-1.5 rounded-full border-2 border-slate-700 shadow-md">
-                <button class="px-2.5 py-1 rounded-full text-xs font-bold transition-all bg-purple-600 text-white shadow" id="btn-trickfilm-mode-cam">🎥 Kamera</button>
-                <button class="px-2.5 py-1 rounded-full text-xs font-bold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" id="btn-trickfilm-mode-play" onclick="togglePlay()">▶️ Film</button>
-                <div class="h-4 w-[1px] bg-slate-600 mx-1"></div>
-                <span class="text-xs font-bold text-slate-300">🐢 Tempo:</span>
-                <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" class="w-16 accent-amber-400 cursor-pointer" aria-label="Abspielgeschwindigkeit">
-                <span id="fps-value-text" class="text-xs font-black text-amber-400 min-w-[70px]">4 B/Sek. 🐇</span>
-            </div>
+        <button class="action-btn btn-secondary active" id="btn-trickfilm-onion" title="Zwiebelhaut Transparenz Umschalten">
+          <span class="btn-icon">👻</span>
+          <span>Zwiebelhaut AN</span>
+        </button>
 
-            <!-- HILFE BUTTON ? -->
-            <button onclick="window.toggleInfo(event)" class="w-9 h-9 md:w-11 md:h-11 bg-slate-800 text-amber-400 hover:text-amber-300 rounded-full font-black border-2 md:border-3 border-amber-400 hover:border-amber-300 shadow-xl flex items-center justify-center transition-transform active:scale-95 text-base md:text-xl shrink-0 z-50" title="Hilfe">
-                ?
-            </button>
-        </div>
-    </div>
+        <button class="action-btn btn-secondary" id="btn-trickfilm-mic" title="Sprache/Ton Aufnehmen">
+          <span class="btn-icon">🎙️</span>
+          <span>Ton Aufnehmen</span>
+        </button>
 
-    <!-- MAIN WRAPPER (FÜLLT DIE KOMPLETTE VOLLE HÖHE DES TABLETS AUS) -->
-    <div class="main-wrapper flex-1 flex flex-col min-h-0 w-full max-w-[98rem] mx-auto overflow-hidden gap-2">
-        
-        <!-- STAGE AREA: Kamera Viewport + Side Action Panel -->
-        <div class="stage-area flex-1 flex min-h-0 min-w-0 w-full overflow-hidden gap-2 md:gap-3">
-            
-            <!-- VIDEO VIEWPORT (MAXIMALE VOLLE HÖHE) -->
-            <div class="video-main relative flex-1 min-h-0 min-w-0 w-full bg-black rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border-3 md:border-[5px] border-slate-700 shadow-2xl flex items-center justify-center">
-                <!-- Live Kamera Stream -->
-                <video id="trickfilm-camera-video" class="absolute inset-0 w-full h-full object-contain block" autoplay playsinline muted></video>
-                
-                <!-- Zwiebelhaut (Onion Skinning) Transparenz-Canvas -->
-                <canvas id="trickfilm-onion-canvas" class="absolute inset-0 w-full h-full object-contain pointer-events-none z-10 block"></canvas>
-                
-                <!-- Playback Overlay Canvas -->
-                <canvas id="trickfilm-playback-canvas" class="absolute inset-0 w-full h-full object-contain bg-black z-20 hidden"></canvas>
+        <button class="action-btn btn-play" id="btn-trickfilm-play" title="Film abspielen">
+          <span class="btn-icon">▶️</span>
+          <span>Film Abspielen</span>
+        </button>
 
-                <!-- Playback Badge (Tap to Stop) -->
-                <div class="hidden absolute top-4 left-1/2 -translate-x-1/2 bg-pink-600/90 text-white font-black text-sm md:text-base px-5 py-2 rounded-full shadow-2xl z-30 cursor-pointer animate-pulse" id="trickfilm-playback-badge" onclick="stopPlayback()">
-                    ▶️ Film läuft... (Tippen zum Stoppen ⏹️)
-                </div>
+        <button class="action-btn btn-print" id="btn-trickfilm-print" onclick="printFlipbook(this)" title="Daumenkino Drucken">
+          <span class="btn-icon">🖨️</span>
+          <span>Daumenkino</span>
+        </button>
 
-                <!-- Frame Counter Badge -->
-                <div class="absolute bottom-3 left-3 bg-slate-900/85 backdrop-blur-md text-amber-400 text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border border-slate-700 z-20 shadow-lg" id="trickfilm-frame-counter">
-                    🎬 <span>0</span> Bilder aufgenommen
-                </div>
-
-                <!-- Microphone Recording Status Badge -->
-                <div class="hidden absolute top-3 right-3 bg-red-600/90 text-white text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl z-20 shadow-lg flex items-center gap-1.5" id="trickfilm-mic-status">
-                    <span class="animate-pulse">🔴</span> Sprachaufnahme läuft...
-                </div>
-            </div>
-
-            <!-- ERGONOMISCHES SIDE ACTION PANEL (RECHTS IN QUERFORMAT, FÜLLT VOLLE HÖHE) -->
-            <div class="side-bar flex-none bg-slate-800/95 rounded-xl md:rounded-[1.75rem] border-2 md:border-4 border-slate-700 shadow-2xl flex flex-col justify-between items-stretch gap-2 no-scrollbar">
-                
-                <!-- SHUTTER BUTTON (GHOST-ROTER/PINKER HAUPTAUSLÖSER OBEN) -->
-                <button class="action-btn btn-shutter" id="btn-trickfilm-snap" title="Foto Knipsen">
-                    <span class="text-xl md:text-2xl">📸</span>
-                    <span>Foto Knipsen!</span>
-                </button>
-
-                <!-- KAMERA WECHSELN -->
-                <button class="action-btn btn-secondary" id="btn-trickfilm-cam-switch" title="Kamera wechseln">
-                    <span class="text-lg">🔄</span>
-                    <span id="trickfilm-cam-label">Rück-Kamera</span>
-                </button>
-
-                <!-- ZWIEBELHAUT AN / AUS -->
-                <button class="action-btn btn-secondary active" id="btn-trickfilm-onion" title="Zwiebelhaut Umschalten">
-                    <span class="text-lg">👻</span>
-                    <span id="onion-label-text">Zwiebelhaut AN</span>
-                </button>
-
-                <!-- TON AUFNEHMEN -->
-                <button class="action-btn btn-secondary" id="btn-trickfilm-mic" title="Sprache/Ton Aufnehmen">
-                    <span class="text-lg">🎙️</span>
-                    <span id="mic-label-text">Ton Aufnehmen</span>
-                </button>
-
-                <!-- FILM ABSPIELEN -->
-                <button class="action-btn btn-play" id="btn-trickfilm-play" title="Film Abspielen">
-                    <span class="text-lg">▶️</span>
-                    <span id="play-label-text">Film Abspielen</span>
-                </button>
-
-                <!-- DAUMENKINO DRUCKEN -->
-                <button class="action-btn btn-print" id="btn-trickfilm-print" onclick="printFlipbook(this)" title="Daumenkino Drucken">
-                    <span class="text-lg">🖨️</span>
-                    <span>Daumenkino</span>
-                </button>
-
-                <!-- NEUER FILM (RESET) -->
-                <button class="action-btn btn-danger mt-auto" id="btn-trickfilm-clear" title="Neuen Film starten">
-                    <span class="text-lg">🧹</span>
-                    <span>Neuer Film</span>
-                </button>
-            </div>
-
-        </div>
-
-        <!-- UNTERE FILMSTRIP TIMELINE LEISTE -->
-        <div class="filmstrip-area flex-none w-full bg-slate-800/90 backdrop-blur-md p-2 rounded-xl md:rounded-2xl border-2 md:border-3 border-slate-700 shadow-inner flex flex-col gap-1 overflow-hidden" id="trickfilm-filmstrip-bar">
-            <div class="filmstrip-header flex justify-between items-center text-xs font-bold px-1">
-                <span class="text-amber-400 font-extrabold">🎞️ Filmstreifen (Bilderleiste):</span>
-                <span class="text-slate-400">Tippe auf ✕ um ein einzelnes Bild zu löschen</span>
-            </div>
-            <div class="filmstrip-scroll-container flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5" id="trickfilm-filmstrip-scroll">
-                <div class="text-slate-400 font-bold text-xs md:text-sm px-4 text-center w-full shrink-0" id="filmstrip-empty-text">
-                    Knipse dein erstes Bild mit dem roten 📸 Foto-Button!
-                </div>
-            </div>
-        </div>
+        <button class="action-btn btn-danger" id="btn-trickfilm-clear" title="Neuen Film starten">
+          <span class="btn-icon">🧹</span>
+          <span>Neuer Film</span>
+        </button>
+      </div>
 
     </div>
 
-    <!-- BILD DETAIL / REIHENFOLGE MODAL -->
-    <div id="frame-detail-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-[150] flex flex-col items-center justify-center p-4">
-        <h3 id="frame-detail-title" class="text-xl md:text-3xl font-black text-amber-400 mb-4">Bild 1</h3>
-        <div class="relative max-w-2xl max-h-[55vh] border-4 border-white rounded-2xl overflow-hidden bg-black mb-6 shadow-2xl">
-            <img id="frame-detail-img" class="w-full h-full object-contain" src="">
+    <!-- BOTTOM FILMSTRIP TIMELINE BAR -->
+    <div class="trickfilm-filmstrip-bar" id="trickfilm-filmstrip-bar">
+      <div class="filmstrip-header">
+        <span class="filmstrip-title">🎞️ Filmstreifen (Bilderleiste):</span>
+        <span class="filmstrip-hint">Tippe auf 🗑️ um ein einzelnes Bild zu löschen</span>
+      </div>
+      <div class="filmstrip-scroll-container" id="trickfilm-filmstrip-scroll">
+        <div class="filmstrip-empty-text" id="filmstrip-empty-text">
+          Knipse dein erstes Bild mit dem roten 📸 Foto-Button!
         </div>
-        <div class="flex flex-wrap justify-center gap-3">
-            <button onclick="moveSelectedFrame(-1)" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-base md:text-lg shadow-lg border-2 border-amber-200 flex items-center gap-2">
-                ◀️ NACH LINKS
-            </button>
-            <button onclick="moveSelectedFrame(1)" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-base md:text-lg shadow-lg border-2 border-amber-200 flex items-center gap-2">
-                NACH RECHTS ▶️
-            </button>
-            <button id="btn-delete-single" onclick="deleteSelectedFrame()" class="px-5 py-3 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-base md:text-lg shadow-lg border-2 border-red-300 flex items-center gap-2">
-                🗑️ LÖSCHEN
-            </button>
-            <button onclick="closeFrameDetail()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-base md:text-lg shadow-lg border-2 border-slate-500">
-                ZURÜCK
-            </button>
-        </div>
+      </div>
     </div>
+  </main>
 
-    <!-- HILFE MODAL (ANALOG ZU MEDIENSTATION UX) -->
-    <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo(event)">
-        <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="window.toggleInfo(event)" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
-            <h2 class="text-3xl md:text-4xl font-black text-white mb-6 border-b border-slate-600 pb-4 flex items-center gap-4">
-                <span class="text-5xl">🎬</span> ANLEITUNG TRICKFILM
-                <button onclick="window.speakText('Anleitung für das Trickfilm Studio. Erstens: Baue deine Figuren vor der Kamera auf. Zweitens: Tippe auf Foto knipsen. Drittens: Bewege deine Figuren ein kleines Stück. Die Zwiebelhaut zeigt dir transparent das vorherige Bild. Viertens: Nimm eine Sprach- oder Tonspur mit dem Mikrofon auf. Fünftens: Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
-            </h2>
-            <div class="text-base md:text-lg text-slate-300 space-y-4">
-                <p>1. <b>🧱 Motiv aufbauen</b>: Stelle deine Gegenstände oder Figuren vor die Kamera.</p>
-                <p>2. <b>📸 Foto knipsen</b>: Tippe auf den roten Foto-Button.</p>
-                <p>3. <b>👻 Zwiebelhaut nutzen</b>: Bewege deine Figur ein Stück. Das durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
-                <p>4. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf Ton Aufnehmen, um Geräusche oder Stimmen einzusprechen.</p>
-                <p>5. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film ab oder drucke ihn als Daumenkino-Bogen aus!</p>
-            </div>
-        </div>
-    </div>
+  <!-- BILD DETAIL / REIHENFOLGE MODAL -->
+  <div id="frame-detail-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-[150] flex flex-col items-center justify-center p-4">
+      <h3 id="frame-detail-title" class="text-xl md:text-3xl font-black text-amber-400 mb-4">Bild 1</h3>
+      <div class="relative max-w-2xl max-h-[55vh] border-4 border-white rounded-2xl overflow-hidden bg-black mb-6 shadow-2xl">
+          <img id="frame-detail-img" class="w-full h-full object-contain" src="">
+      </div>
+      <div class="flex flex-wrap justify-center gap-3">
+          <button onclick="moveSelectedFrame(-1)" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-base md:text-lg shadow-lg border-2 border-amber-200 flex items-center gap-2">
+              ◀️ NACH LINKS
+          </button>
+          <button onclick="moveSelectedFrame(1)" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-base md:text-lg shadow-lg border-2 border-amber-200 flex items-center gap-2">
+              NACH RECHTS ▶️
+          </button>
+          <button id="btn-delete-single" onclick="deleteSelectedFrame()" class="px-5 py-3 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-base md:text-lg shadow-lg border-2 border-red-300 flex items-center gap-2">
+              🗑️ LÖSCHEN
+          </button>
+          <button onclick="closeFrameDetail()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-base md:text-lg shadow-lg border-2 border-slate-500">
+              ZURÜCK
+          </button>
+      </div>
+  </div>
 
-    <script>
+  <!-- HILFE MODAL -->
+  <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo(event)">
+      <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+          <button onclick="window.toggleInfo(event)" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
+          <h2 class="text-3xl md:text-4xl font-black text-white mb-6 border-b border-slate-600 pb-4 flex items-center gap-4">
+              <span class="text-5xl">🎬</span> ANLEITUNG TRICKFILM
+              <button onclick="window.speakText('Anleitung für das Kita Trickfilmstudio. Erstens: Baue deine Figuren vor der Kamera auf. Zweitens: Tippe auf Foto knipsen. Drittens: Bewege deine Figuren ein kleines Stück. Die Zwiebelhaut zeigt dir transparent das vorherige Bild. Viertens: Nimm eine Sprach- oder Tonspur mit dem Mikrofon auf. Fünftens: Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+          </h2>
+          <div class="text-base md:text-lg text-slate-300 space-y-4">
+              <p>1. <b>🧱 Motiv aufbauen</b>: Stelle deine Gegenstände oder Figuren vor die Kamera.</p>
+              <p>2. <b>📸 Foto knipsen</b>: Tippe auf den roten Foto-Button.</p>
+              <p>3. <b>👻 Zwiebelhaut nutzen</b>: Bewege deine Figur ein Stück. Das durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
+              <p>4. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf Ton Aufnehmen, um Geräusche oder Stimmen einzusprechen.</p>
+              <p>5. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film ab oder drucke ihn als Daumenkino-Bogen aus!</p>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       KITA-TRICKFILMSTUDIO ENGINE (Vanilla JS & Web APIs)
+       ========================================================================== */
     (function () {
       'use strict';
 
@@ -423,7 +634,7 @@
       let trickfilmAudioUrl = null;
       let trickfilmAudioElement = null;
 
-      // Web Audio Synthesizer
+      // Web Audio Context Synthesizer
       let audioCtx = null;
       function getAudioContext() {
         if (!audioCtx) {
@@ -479,7 +690,6 @@
         }
       }
 
-      // DOM Elements
       document.addEventListener('DOMContentLoaded', () => {
         const video = document.getElementById('trickfilm-camera-video');
         const onionCanvas = document.getElementById('trickfilm-onion-canvas');
@@ -493,12 +703,9 @@
         const btnCamSwitch = document.getElementById('btn-trickfilm-cam-switch');
         const camLabel = document.getElementById('trickfilm-cam-label');
         const btnOnion = document.getElementById('btn-trickfilm-onion');
-        const onionLabel = document.getElementById('onion-label-text');
         const btnMic = document.getElementById('btn-trickfilm-mic');
-        const micLabel = document.getElementById('mic-label-text');
         const btnClear = document.getElementById('btn-trickfilm-clear');
         const btnPlay = document.getElementById('btn-trickfilm-play');
-        const playLabel = document.getElementById('play-label-text');
         const btnModeCam = document.getElementById('btn-trickfilm-mode-cam');
         const btnModePlay = document.getElementById('btn-trickfilm-mode-play');
         const fpsSlider = document.getElementById('trickfilm-fps-slider');
@@ -528,7 +735,7 @@
 
         async function toggleCameraFacing() {
           currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
-          if (camLabel) camLabel.textContent = (currentFacingMode === 'user') ? 'Rück-Kamera 📸' : 'Front-Kamera 🤳';
+          if (camLabel) camLabel.textContent = (currentFacingMode === 'user') ? 'Front-Kamera' : 'Rück-Kamera 📸';
           await startTrickfilmCamera(currentFacingMode);
           playPopSound(600);
         }
@@ -536,12 +743,6 @@
         function snapFrame() {
           playShutterSound();
           triggerHaptic(30);
-
-          // Flash Effect
-          const flash = document.createElement('div');
-          flash.className = 'absolute inset-0 bg-white z-50 transition-opacity duration-300 pointer-events-none';
-          if (video.parentElement) video.parentElement.appendChild(flash);
-          setTimeout(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 300); }, 50);
 
           const canvas = document.createElement('canvas');
           const hasLiveVideo = (video && video.readyState >= 2 && video.videoWidth > 0);
@@ -564,26 +765,6 @@
           updateFrameCount();
           drawOnionSkin();
           renderFilmstrip();
-          triggerFlyAnimation(canvas.toDataURL('image/jpeg', 0.85));
-        }
-
-        function triggerFlyAnimation(imgSrc) {
-          try {
-            const flyEl = document.createElement('img');
-            flyEl.src = imgSrc;
-            flyEl.className = 'fly-thumb shadow-2xl rounded-lg border-2 border-amber-400';
-            flyEl.style.width = '80px';
-            flyEl.style.height = '60px';
-            
-            const snapBtn = document.getElementById('btn-trickfilm-snap');
-            if (snapBtn) {
-              const rect = snapBtn.getBoundingClientRect();
-              flyEl.style.left = (rect.left + rect.width / 2 - 40) + 'px';
-              flyEl.style.top = (rect.top - 30) + 'px';
-              document.body.appendChild(flyEl);
-              setTimeout(() => flyEl.remove(), 500);
-            }
-          } catch(e) {}
         }
 
         function drawOnionSkin() {
@@ -622,21 +803,21 @@
 
           trickfilmFrames.forEach((frameCanvas, idx) => {
             const card = document.createElement('div');
-            card.className = 'film-frame-card';
+            card.style.cssText = 'flex: 0 0 84px !important; width: 84px !important; min-width: 84px !important; max-width: 84px !important; height: 64px !important; position: relative !important; overflow: hidden !important; border-radius: 10px !important; border: 2px solid rgba(255,255,255,0.4) !important; background: #1E293B !important; cursor: pointer !important; box-shadow: 0 3px 8px rgba(0,0,0,0.3) !important;';
             card.id = `thumb-item-${idx}`;
             card.onclick = () => openFrameDetail(idx);
 
             const img = document.createElement('img');
-            img.style.cssText = 'width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
+            img.style.cssText = 'width: 84px !important; height: 64px !important; object-fit: cover !important; display: block !important; pointer-events: none !important;';
             img.src = frameCanvas.toDataURL('image/jpeg', 0.85);
 
             const badge = document.createElement('span');
-            badge.style.cssText = 'position: absolute !important; bottom: 2px !important; left: 2px !important; background: rgba(0,0,0,0.85) !important; color: #FFD166 !important; font-size: 0.7rem !important; font-weight: 800 !important; padding: 1px 5px !important; border-radius: 6px !important; z-index: 2 !important;';
+            badge.style.cssText = 'position: absolute !important; bottom: 2px !important; left: 2px !important; background: rgba(0,0,0,0.75) !important; color: #FFFFFF !important; font-size: 0.75rem !important; font-weight: 800 !important; padding: 1px 6px !important; border-radius: 8px !important; z-index: 2 !important;';
             badge.textContent = `#${idx + 1}`;
 
             const delBtn = document.createElement('button');
-            delBtn.style.cssText = 'position: absolute !important; top: 2px !important; right: 2px !important; background: rgba(239,68,68,0.9) !important; color: #FFFFFF !important; font-size: 0.75rem !important; border-radius: 50% !important; width: 20px !important; height: 20px !important; display: flex !important; align-items: center !important; justify-content: center !important; border: none !important; cursor: pointer !important; z-index: 3 !important;';
-            delBtn.innerHTML = '✕';
+            delBtn.style.cssText = 'position: absolute !important; top: 2px !important; right: 2px !important; background: rgba(239,68,68,0.85) !important; color: #FFFFFF !important; font-size: 0.75rem !important; border-radius: 50% !important; width: 20px !important; height: 20px !important; display: flex !important; align-items: center !important; justify-content: center !important; border: none !important; cursor: pointer !important; z-index: 3 !important;';
+            delBtn.innerHTML = '🗑️';
             delBtn.title = 'Bild löschen';
             delBtn.addEventListener('click', (e) => {
               e.stopPropagation();
@@ -699,20 +880,9 @@
         };
 
         function clearFilm() {
-          if (trickfilmFrames.length > 0) {
-            if (window.showConfirm) {
-              window.showConfirm("Möchtest du deinen aktuellen Film wirklich löschen und neu starten?", () => {
-                resetAllFilmData();
-              }, "🧹");
-              return;
-            } else if (!confirm("Möchtest du deinen aktuellen Film wirklich löschen und neu starten?")) {
-              return;
-            }
+          if (trickfilmFrames.length > 0 && !confirm("Möchtest du deinen aktuellen Film wirklich löschen und neu starten?")) {
+            return;
           }
-          resetAllFilmData();
-        }
-
-        function resetAllFilmData() {
           trickfilmFrames = [];
           if (trickfilmAudioElement) {
             trickfilmAudioElement.pause();
@@ -731,11 +901,6 @@
           playPopSound(350);
         }
 
-        window.togglePlay = () => {
-          if (isPlaybackRunning) stopPlayback();
-          else startPlayback();
-        };
-
         function startPlayback() {
           if (isPlaybackRunning) {
             stopPlayback();
@@ -743,8 +908,7 @@
           }
 
           if (trickfilmFrames.length === 0) {
-            if (window.showAlert) window.showAlert("Knipse zuerst ein paar Bilder! 📸", "🎬");
-            else alert("Knipse zuerst ein paar Bilder! 📸");
+            alert("Knipse zuerst ein paar Bilder! 📸");
             return;
           }
 
@@ -755,15 +919,15 @@
           if (playbackBadge) playbackBadge.classList.remove('hidden');
 
           if (btnPlay) {
-            if (playLabel) playLabel.textContent = 'Film Stoppen';
+            btnPlay.innerHTML = '<span class="btn-icon">⏹️</span> Film Stoppen';
             btnPlay.classList.add('playing');
           }
           if (btnModePlay) {
-            btnModePlay.className = 'px-2.5 py-1 rounded-full text-xs font-bold transition-all bg-purple-600 text-white shadow';
+            btnModePlay.innerHTML = '<span class="btn-icon">⏹️</span> Film Stoppen';
+            btnModePlay.classList.add('playing');
+            btnModePlay.classList.add('active');
           }
-          if (btnModeCam) {
-            btnModeCam.className = 'px-2.5 py-1 rounded-full text-xs font-bold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600';
-          }
+          if (btnModeCam) btnModeCam.classList.remove('active');
 
           if (trickfilmAudioUrl) {
             if (!trickfilmAudioElement) {
@@ -780,18 +944,6 @@
             if (timestamp - lastTime >= interval) {
               lastTime = timestamp;
               drawPlaybackFrame(playbackFrameIdx);
-
-              document.querySelectorAll('.film-frame-card').forEach(el => el.classList.remove('active-playing'));
-              const activeThumb = document.getElementById(`thumb-item-${playbackFrameIdx}`);
-              if (activeThumb) {
-                activeThumb.classList.add('active-playing');
-                if (filmstripScroll) {
-                  const containerWidth = filmstripScroll.clientWidth;
-                  const thumbLeft = activeThumb.offsetLeft;
-                  filmstripScroll.scrollLeft = thumbLeft - (containerWidth / 2) + 40;
-                }
-              }
-
               playbackFrameIdx = (playbackFrameIdx + 1) % trickfilmFrames.length;
             }
             playbackAnimFrame = requestAnimationFrame(loop);
@@ -800,37 +952,35 @@
           playbackAnimFrame = requestAnimationFrame(loop);
         }
 
-        window.stopPlayback = function() {
+        function drawPlaybackFrame(idx) {
+          if (!playbackCanvas || !trickfilmFrames[idx]) return;
+          const frame = trickfilmFrames[idx];
+          playbackCanvas.width = video ? (video.clientWidth || 800) : 800;
+          playbackCanvas.height = video ? (video.clientHeight || 600) : 600;
+          const ctx = playbackCanvas.getContext('2d');
+          ctx.drawImage(frame, 0, 0, playbackCanvas.width, playbackCanvas.height);
+        }
+
+        function stopPlayback() {
           isPlaybackRunning = false;
           cancelAnimationFrame(playbackAnimFrame);
           if (playbackCanvas) playbackCanvas.classList.add('hidden');
           if (playbackBadge) playbackBadge.classList.add('hidden');
 
-          document.querySelectorAll('.film-frame-card').forEach(el => el.classList.remove('active-playing'));
-
           if (btnPlay) {
-            if (playLabel) playLabel.textContent = 'Film Abspielen';
+            btnPlay.innerHTML = '<span class="btn-icon">▶️</span> Film Abspielen';
             btnPlay.classList.remove('playing');
           }
-          if (btnModeCam) {
-            btnModeCam.className = 'px-2.5 py-1 rounded-full text-xs font-bold transition-all bg-purple-600 text-white shadow';
-          }
           if (btnModePlay) {
-            btnModePlay.className = 'px-2.5 py-1 rounded-full text-xs font-bold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600';
+            btnModePlay.innerHTML = '<span class="btn-icon">▶️</span> Film Abspielen';
+            btnModePlay.classList.remove('playing');
+            btnModePlay.classList.remove('active');
           }
+          if (btnModeCam) btnModeCam.classList.add('active');
 
           if (trickfilmAudioElement) {
             trickfilmAudioElement.pause();
           }
-        };
-
-        function drawPlaybackFrame(idx) {
-          if (!playbackCanvas || !trickfilmFrames[idx]) return;
-          const frameCanvas = trickfilmFrames[idx];
-          playbackCanvas.width = video ? (video.clientWidth || 800) : 800;
-          playbackCanvas.height = video ? (video.clientHeight || 600) : 600;
-          const ctx = playbackCanvas.getContext('2d');
-          ctx.drawImage(frameCanvas, 0, 0, playbackCanvas.width, playbackCanvas.height);
         }
 
         async function toggleAudioRecording() {
@@ -840,7 +990,6 @@
             }
             isRecordingAudio = false;
             if (btnMic) btnMic.classList.remove('recording');
-            if (micLabel) micLabel.textContent = 'Ton Aufnehmen';
             if (micStatus) micStatus.classList.add('hidden');
             playPopSound(600);
           } else {
@@ -859,13 +1008,12 @@
               trickfilmMediaRecorder.start();
               isRecordingAudio = true;
               if (btnMic) btnMic.classList.add('recording');
-              if (micLabel) micLabel.textContent = 'Aufnahme Stoppen';
               if (micStatus) micStatus.classList.remove('hidden');
               playPopSound(800);
               triggerHaptic(40);
             } catch (err) {
-              console.warn('[Trickfilm] Mikrofon-Fehler:', err);
-              if (window.showError) window.showError("Mikrofon-Zugriff nicht verfügbar!", "🎙️");
+              console.warn('[Trickfilm] Microphone error:', err);
+              alert("Mikrofon-Zugriff nicht verfügbar!");
             }
           }
         }
@@ -873,7 +1021,7 @@
         // Daumenkino Drucken
         window.printFlipbook = async (btn) => {
           if (trickfilmFrames.length === 0) {
-            if (window.showAlert) window.showAlert("Knipse zuerst ein paar Bilder!", "🖨️");
+            alert("Knipse zuerst ein paar Bilder!");
             return;
           }
 
@@ -941,7 +1089,7 @@
             }
           } catch (e) {
             console.error("Daumenkino-Druckfehler:", e);
-            if (window.showError) window.showError("Fehler beim Erstellen des Daumenkinos!", "🖨️");
+            alert("Fehler beim Erstellen des Daumenkinos!");
           }
         };
 
@@ -952,7 +1100,7 @@
           btnOnion.addEventListener('click', () => {
             isOnionSkinActive = !isOnionSkinActive;
             btnOnion.classList.toggle('active', isOnionSkinActive);
-            if (onionLabel) onionLabel.textContent = isOnionSkinActive ? 'Zwiebelhaut AN' : 'Zwiebelhaut AUS';
+            btnOnion.innerHTML = isOnionSkinActive ? '<span class="btn-icon">👻</span> Zwiebelhaut AN' : '<span class="btn-icon">👻</span> Zwiebelhaut AUS';
             drawOnionSkin();
             playPopSound(520);
           });
@@ -966,6 +1114,7 @@
         });
 
         if (playbackCanvas) playbackCanvas.addEventListener('click', stopPlayback);
+        if (playbackBadge) playbackBadge.addEventListener('click', stopPlayback);
 
         if (btnModeCam) btnModeCam.addEventListener('click', stopPlayback);
         if (btnModePlay) btnModePlay.addEventListener('click', () => {
@@ -976,7 +1125,7 @@
         if (fpsSlider) {
           fpsSlider.addEventListener('input', (e) => {
             trickfilmFps = parseInt(e.target.value, 10);
-            if (fpsText) fpsText.textContent = `${trickfilmFps} B/Sek. 🐇`;
+            if (fpsText) fpsText.textContent = `${trickfilmFps} Bilder/Sek. 🐇`;
           });
         }
 
