@@ -254,10 +254,10 @@
         </div>
 
         <!-- CENTER AREA: Kamera Viewport & Filmleiste -->
-        <div class="content-area flex-1 flex flex-col min-h-0 w-full gap-1.5">
+        <div class="content-area flex-1 flex flex-col min-h-0 min-w-0 w-full max-w-full overflow-hidden gap-1.5">
             
             <!-- VIDEO / PLAYBACK VIEWPORT -->
-            <div class="video-main relative flex-1 min-h-0 w-full bg-black rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center">
+            <div class="video-main relative flex-1 min-h-0 min-w-0 w-full max-w-full bg-black rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-3 md:border-[6px] border-slate-700 shadow-2xl flex items-center justify-center">
                 <!-- Direkte Live Video Vorschau -->
                 <video id="video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-contain block"></video>
                 
@@ -265,13 +265,13 @@
                 <canvas id="view-canvas" class="absolute inset-0 w-full h-full object-contain pointer-events-none block"></canvas>
                 
                 <!-- Touch Auslöser Direkt auf dem Videobild -->
-                <button id="viewport-snap-btn" onclick="captureFrame()" class="absolute bottom-4 right-4 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 hover:from-amber-200 hover:to-amber-300 active:scale-90 text-slate-950 w-16 h-16 md:w-22 md:h-22 rounded-full border-4 border-amber-100 shadow-[0_0_35px_rgba(245,158,11,0.9)] flex items-center justify-center text-3xl md:text-5xl font-black z-30 transition-transform">
+                <button id="viewport-snap-btn" onclick="captureFrame()" class="absolute bottom-3 right-3 md:bottom-4 md:right-4 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 hover:from-amber-200 hover:to-amber-300 active:scale-90 text-slate-950 w-12 h-12 md:w-18 md:h-18 rounded-full border-3 md:border-4 border-amber-100 shadow-[0_0_35px_rgba(245,158,11,0.9)] flex items-center justify-center text-2xl md:text-4xl font-black z-40 transition-transform">
                     📸
                 </button>
             </div>
 
             <!-- FILMSTRIP TIMELINE MIT MITFAHRENDER ANZEIGE (STABILE HÖHE REIN PER CSS) -->
-            <div class="filmstrip-area flex-none shrink-0 w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-3 overflow-x-auto no-scrollbar flex-nowrap" id="filmstrip-container">
+            <div class="filmstrip-area flex-none shrink-0 w-full min-w-0 max-w-full bg-slate-800 p-1.5 md:p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-2.5 overflow-x-auto no-scrollbar flex-nowrap" id="filmstrip-container">
                 <div class="text-slate-400 font-bold text-xs md:text-sm px-4 text-center w-full shrink-0" id="empty-strip-hint">
                     Klicke auf 📸 FOTO KNIPSEN, um dein erstes Bild aufzunehmen!
                 </div>
@@ -583,7 +583,9 @@
             });
 
             setTimeout(() => {
-                container.scrollLeft = container.scrollWidth;
+                if (container) {
+                    container.scrollTo({ left: container.scrollWidth, behavior: 'smooth' });
+                }
             }, 50);
         }
 
