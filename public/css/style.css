@@ -1055,8 +1055,8 @@ video {
   min-width: 0px;
 }
 
-.min-w-\[75px\] {
-  min-width: 75px;
+.min-w-\[70px\] {
+  min-width: 70px;
 }
 
 .max-w-2xl {
@@ -1659,10 +1659,6 @@ video {
   border-color: rgb(51 65 85 / var(--tw-border-opacity, 1));
 }
 
-.border-slate-700\/60 {
-  border-color: rgb(51 65 85 / 0.6);
-}
-
 .border-slate-700\/80 {
   border-color: rgb(51 65 85 / 0.8);
 }
@@ -2098,6 +2094,11 @@ video {
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+}
+
+.px-2\.5 {
+  padding-left: 0.625rem;
+  padding-right: 0.625rem;
 }
 
 .px-3 {
