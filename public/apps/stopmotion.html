@@ -274,19 +274,19 @@
       background: rgba(239, 68, 68, 0.45);
     }
 
-    /* --- TIMELINE / FILMSTRIP BAR (PFLICHT-HÖHE 145PX, ABSOLUT KEIN ANSCHNITT DER BILDER!) --- */
+    /* --- TIMELINE / FILMSTRIP BAR (120PX HOCH, REIN IN DER ANSICHT OHNE OVERFLOW) --- */
     .trickfilm-filmstrip-bar {
       background: var(--bg-card-glass);
       backdrop-filter: blur(12px);
       border-radius: var(--radius-md);
-      border: 3px solid rgba(255, 255, 255, 0.15);
-      padding: 10px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      height: 145px !important;
-      min-height: 145px !important;
-      max-height: 145px !important;
+      gap: 4px;
+      height: 120px !important;
+      min-height: 120px !important;
+      max-height: 120px !important;
       flex-shrink: 0 !important;
       width: 100%;
     }
@@ -295,7 +295,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
 
     .filmstrip-title {
@@ -310,11 +310,11 @@
     .filmstrip-scroll-container {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       overflow-x: auto;
       overflow-y: hidden;
-      padding: 6px 4px;
-      height: 95px !important;
+      padding: 2px 2px;
+      height: 82px !important;
       scrollbar-width: thin;
       scrollbar-color: var(--accent-purple) transparent;
     }
@@ -374,31 +374,31 @@
 <body>
 
   <!-- HEADER UX ANPASSUNG EXAKT ANALOG ZU REC.HTML, GIF.HTML, MAGIC.HTML & COMIC.HTML -->
-  <header class="header-area h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-1 md:mb-2 px-3 md:px-6 relative bg-slate-900/95 border-b-2 border-slate-700/50">
-    <!-- HOMEMENÜ BUTTON LINKS (GROSS, BOLD UND PROMINENT ANALOG ZU REC.HTML) -->
-    <button onclick="window.goHome()" class="bg-slate-800 hover:bg-slate-700 text-white border-4 border-slate-500 hover:border-white px-7 py-3 rounded-full text-2xl font-black shadow-2xl flex items-center gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50" title="Hauptmenü">
-      <span>🏠</span> <span class="tracking-wider">MENÜ</span>
+  <div class="header-area h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-1 md:mb-2 px-1 md:px-4 relative bg-slate-900 border-b border-slate-700/60">
+    <!-- HOMEMENÜ BUTTON LINKS (EXAKT GLEICH WIE IN REC.HTML / MAGIC.HTML / GIF.HTML) -->
+    <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-sm md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50" title="Hauptmenü">
+      🏠 <span>MENÜ</span>
     </button>
 
     <!-- METROPOLITAN TITEL MITTIG (IMMER SICHTBAR & ZENTRIERT) -->
-    <h1 class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl md:text-4xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none z-10 uppercase whitespace-nowrap">
+    <h1 class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-xl md:text-3xl lg:text-4xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none z-10 uppercase whitespace-nowrap">
       🎬 TRICKFILM STUDIO
     </h1>
 
     <!-- HEADER RECHTS: TEMPO-REGLER & HILFE-BUTTON -->
-    <div class="flex items-center gap-3 md:gap-5 z-50">
-      <div class="hidden sm:flex items-center gap-2 bg-slate-800 border-2 border-slate-700 px-4 py-2 rounded-full shadow-lg">
+    <div class="flex items-center gap-2 md:gap-4 z-50">
+      <div class="hidden sm:flex items-center gap-2 bg-slate-800 border-2 border-slate-700 px-3 py-1.5 rounded-full shadow-lg">
         <span class="text-xs font-black text-slate-300">🐢 TEMPO:</span>
         <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" class="w-20 accent-amber-400 cursor-pointer" aria-label="Abspielgeschwindigkeit">
         <span id="fps-value-text" class="text-xs font-black text-amber-400 min-w-[75px]">4 B/SEK 🐇</span>
       </div>
 
       <!-- HILFE BUTTON ? (GROSSER KREIS ANALOG ZU DEN ANDERN APPS) -->
-      <button onclick="window.toggleInfo(event)" class="w-14 h-14 bg-slate-800 text-amber-400 rounded-full font-black border-4 border-slate-500 hover:border-white shadow-2xl flex items-center justify-center transition-transform active:scale-95 text-2xl shrink-0 z-50" title="Hilfe">
+      <button onclick="window.toggleInfo(event)" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50" title="Hilfe">
         ?
       </button>
     </div>
-  </header>
+  </div>
 
   <!-- Main View Container -->
   <main class="app-container">
