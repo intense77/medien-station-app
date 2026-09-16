@@ -38,22 +38,22 @@
         @media (orientation: landscape) {
             .header-area { height: 3.5rem !important; margin-bottom: 0.25rem !important; }
             .main-wrapper { flex-direction: row !important; }
-            .side-bar { width: 13.5rem !important; height: 100% !important; flex-direction: column !important; justify-content: flex-start !important; overflow-y: auto !important; }
+            .side-bar { width: 15.5rem !important; height: 100% !important; flex-direction: column !important; justify-content: space-between !important; overflow-y: auto !important; padding: 0.5rem !important; gap: 0.5rem !important; }
             .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
             .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 4px !important; }
             .action-area { height: 4rem !important; gap: 0.5rem !important; }
-            .filmstrip-area { height: 5.5rem !important; }
+            .filmstrip-area { height: 6rem !important; min-height: 6rem !important; max-height: 6rem !important; flex-shrink: 0 !important; }
         }
 
         /* Maximale Mobil- & Smartphone-Optimierung (Landscape & Portrait) */
         @media (orientation: landscape) and (max-height: 500px) {
             .header-area { height: 2.5rem !important; margin-bottom: 0.15rem !important; }
             .main-wrapper { flex-direction: row !important; }
-            .side-bar { width: 10.5rem !important; height: 100% !important; flex-direction: column !important; justify-content: flex-start !important; overflow-y: auto !important; padding: 0.35rem !important; gap: 0.35rem !important; }
+            .side-bar { width: 12.5rem !important; height: 100% !important; flex-direction: column !important; justify-content: space-between !important; overflow-y: auto !important; padding: 0.35rem !important; gap: 0.35rem !important; }
             .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
             .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 3px !important; }
             .action-area { height: 3rem !important; gap: 0.35rem !important; }
-            .filmstrip-area { height: 3.75rem !important; padding: 0.25rem !important; }
+            .filmstrip-area { height: 4.25rem !important; min-height: 4.25rem !important; max-height: 4.25rem !important; flex-shrink: 0 !important; padding: 0.25rem !important; }
             .film-item { width: 3.25rem !important; height: 3.25rem !important; min-width: 3.25rem !important; min-height: 3.25rem !important; }
             #viewport-snap-btn { width: 3rem !important; height: 3rem !important; font-size: 1.5rem !important; bottom: 0.5rem !important; right: 0.5rem !important; }
         }
@@ -61,8 +61,8 @@
         @media (max-width: 640px) and (orientation: portrait) {
             .header-area { height: 3rem !important; margin-bottom: 0.25rem !important; }
             .side-bar { flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding: 0.25rem !important; gap: 0.35rem !important; }
-            .side-bar > * { flex: 0 0 auto !important; width: auto !important; max-width: 9rem !important; }
-            .filmstrip-area { height: 4.25rem !important; padding: 0.25rem !important; }
+            .side-bar > * { flex: 0 0 auto !important; width: auto !important; max-width: 11rem !important; }
+            .filmstrip-area { height: 4.5rem !important; min-height: 4.5rem !important; max-height: 4.5rem !important; flex-shrink: 0 !important; padding: 0.25rem !important; }
             .film-item { width: 3.5rem !important; height: 3.5rem !important; min-width: 3.5rem !important; min-height: 3.5rem !important; }
             .action-area { height: 3.25rem !important; gap: 0.25rem !important; }
             #viewport-snap-btn { width: 3.25rem !important; height: 3.25rem !important; font-size: 1.75rem !important; bottom: 0.5rem !important; right: 0.5rem !important; }
@@ -160,59 +160,73 @@
     <div class="main-wrapper flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
         
         <!-- SIDE PANEL: Steuerung, Tempo, Bildfilter & Tonaufnahme -->
-        <div class="side-bar flex-none w-full md:w-56 landscape:w-52 bg-slate-800 p-2 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2 justify-between items-center h-auto md:h-full landscape:h-full overflow-x-auto landscape:overflow-y-auto no-scrollbar">
+        <div class="side-bar flex-none w-full md:w-60 landscape:w-64 bg-slate-800/95 p-2.5 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2.5 justify-between items-stretch h-auto md:h-full landscape:h-full overflow-x-auto landscape:overflow-y-auto no-scrollbar">
             
-            <!-- GEISTERBILD (Onion Skin) TOGGLE BUTTON MIT HOHEM KONTRAST -->
-            <button id="onion-btn" onclick="toggleOnionSkin()" class="w-full py-2 px-3 rounded-xl bg-amber-400 border-2 border-amber-300 text-slate-950 font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition shrink-0">
-                <span class="flex items-center gap-1.5">👻 GEISTERBILD</span>
-                <span id="onion-status" class="bg-slate-950 text-amber-400 px-2 py-0.5 rounded text-[10px] font-black">AN</span>
-            </button>
+            <!-- KARTEN-GRUPPE 1: KAMERA & BILDFILTER -->
+            <div class="bg-slate-900/80 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 border-slate-700/80 flex flex-col gap-2 shrink-0 shadow-md">
+                <div class="text-[10px] md:text-[11px] font-extrabold tracking-wider text-amber-400 uppercase flex items-center gap-1 px-1">
+                    <span>📷</span> KAMERA & EFFEKTE
+                </div>
 
-            <!-- BILDFILTER EFFEKT SELECTOR -->
-            <div class="flex flex-col gap-1 w-full text-center shrink-0">
-                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider hidden md:block">🎨 BILDFILTER</span>
-                <button id="filter-btn" onclick="cycleFilter()" class="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-400 text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition shrink-0" title="Bildfilter wechseln">
-                    <span id="filter-name" class="flex items-center gap-1">📷 NORMAL</span>
-                    <span class="bg-black/30 px-1.5 py-0.5 rounded text-[10px] font-bold">WECHSELN 🔄</span>
+                <!-- GEISTERBILD TOGGLE -->
+                <button id="onion-btn" onclick="toggleOnionSkin()" class="w-full py-2 px-3 rounded-xl bg-amber-400 border-2 border-amber-300 text-slate-950 font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200 hover:brightness-110">
+                    <span class="flex items-center gap-1.5">👻 GEISTERBILD</span>
+                    <span id="onion-status" class="bg-slate-950 text-amber-400 px-2 py-0.5 rounded-md text-[10px] font-black">AN</span>
+                </button>
+
+                <!-- BILDFILTER EFFEKT SELECTOR -->
+                <button id="filter-btn" onclick="cycleFilter()" class="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-400 text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200" title="Bildfilter wechseln">
+                    <span id="filter-name" class="flex items-center gap-1 truncate">📷 NORMAL</span>
+                    <span class="bg-black/30 px-2 py-0.5 rounded-md text-[10px] font-extrabold shrink-0">WECHSELN 🔄</span>
+                </button>
+
+                <!-- KAMERA WECHSELN -->
+                <button onclick="switchCamera()" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-500 text-slate-200 hover:text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200" title="Kamera wechseln">
+                    <span class="flex items-center gap-1.5">🔄 KAMERA</span>
+                    <span class="bg-slate-950/60 text-slate-300 px-2 py-0.5 rounded-md text-[10px] font-bold">WECHSELN</span>
                 </button>
             </div>
 
-            <!-- Geschwindigkeits-Regler -->
-            <div class="flex flex-col gap-1 w-full text-center shrink-0">
-                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider hidden md:block">TEMPO (FPS)</span>
-                <div class="flex gap-1 justify-center w-full">
-                    <button onclick="setSpeed(3, this)" class="btn-speed flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 text-xs font-bold text-white shadow">🐌 3</button>
-                    <button onclick="setSpeed(6, this)" class="btn-speed active flex-1 py-2 rounded-lg bg-amber-400 border border-amber-300 text-xs font-black text-slate-950 shadow">🏃 6</button>
-                    <button onclick="setSpeed(12, this)" class="btn-speed flex-1 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 text-xs font-bold text-white shadow">🚀 12</button>
+            <!-- KARTEN-GRUPPE 2: WIEDERGABE & AUDIO -->
+            <div class="bg-slate-900/80 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 border-slate-700/80 flex flex-col gap-2 shrink-0 shadow-md">
+                <div class="text-[10px] md:text-[11px] font-extrabold tracking-wider text-amber-400 uppercase flex items-center gap-1 px-1">
+                    <span>⏱️</span> WIEDERGABE & TON
+                </div>
+
+                <!-- Geschwindigkeits-Regler -->
+                <div class="flex flex-col gap-1 w-full">
+                    <span class="text-[10px] font-bold text-slate-400 px-1 hidden md:block">TEMPO (BILDER / SEC):</span>
+                    <div class="grid grid-cols-3 gap-1.5 w-full">
+                        <button onclick="setSpeed(3, this)" class="btn-speed py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-xs font-black text-slate-300 transition-all duration-200 shadow">🐌 3</button>
+                        <button onclick="setSpeed(6, this)" class="btn-speed active py-2 rounded-xl bg-amber-400 border-2 border-amber-300 text-xs font-black text-slate-950 transition-all duration-200 shadow">🏃 6</button>
+                        <button onclick="setSpeed(12, this)" class="btn-speed py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-xs font-black text-slate-300 transition-all duration-200 shadow">🚀 12</button>
+                    </div>
+                </div>
+
+                <!-- TONAUFNAHME BEREICH -->
+                <div class="flex flex-col gap-1.5 w-full pt-1">
+                    <button id="btn-audio-rec" onclick="toggleAudioRecording()" class="w-full py-2.5 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all duration-200 border-2 border-red-400">
+                        <span id="audio-rec-icon">🔴</span> <span id="audio-rec-text">TON AUFNEHMEN</span>
+                    </button>
+                    
+                    <div id="audio-controls" class="hidden flex gap-1.5 w-full">
+                        <button id="btn-audio-play" onclick="playAudioTrack()" class="flex-1 py-2 bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs rounded-xl flex items-center justify-center gap-1 shadow border-2 border-teal-200 transition-all active:scale-95">
+                            ▶️ ANHÖREN
+                        </button>
+                        <button id="btn-audio-del" onclick="deleteAudioTrack()" class="py-2 px-3 bg-red-700 hover:bg-red-600 text-white font-black text-xs rounded-xl flex items-center justify-center shadow border-2 border-red-500 transition-all active:scale-95" title="Ton löschen">
+                            🗑️
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- TONAUFNAHME BEREICH -->
-            <div class="flex flex-col gap-1.5 w-full bg-slate-900/80 p-2.5 rounded-xl border border-slate-700 shrink-0">
-                <span class="text-[11px] font-black text-amber-400 uppercase tracking-wider text-center block">🎙️ TONSPUR</span>
-                <button id="btn-audio-rec" onclick="toggleAudioRecording()" class="w-full py-2 px-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs md:text-sm flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition border-2 border-red-400">
-                    <span id="audio-rec-icon">🔴</span> <span id="audio-rec-text">TON AUFNEHMEN</span>
+            <!-- KARTEN-GRUPPE 3: PROJEKT NEU STARTEN -->
+            <div class="shrink-0 md:mt-auto pt-1">
+                <button onclick="clearAllFrames()" class="w-full py-2.5 px-3 rounded-xl md:rounded-2xl bg-rose-900/40 hover:bg-rose-800/60 border-2 border-rose-600/80 text-rose-200 hover:text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all duration-200">
+                    <span>🧹</span> <span>PROJEKT NEU STARTEN</span>
                 </button>
-                
-                <div id="audio-controls" class="hidden flex gap-1 w-full">
-                    <button id="btn-audio-play" onclick="playAudioTrack()" class="flex-1 py-2 bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs rounded-lg flex items-center justify-center gap-1 shadow border border-teal-200">
-                        ▶️ ANHÖREN
-                    </button>
-                    <button id="btn-audio-del" onclick="deleteAudioTrack()" class="py-2 px-3 bg-red-700 hover:bg-red-600 text-white font-black text-xs rounded-lg flex items-center justify-center shadow border border-red-500" title="Ton löschen">
-                        🗑️
-                    </button>
-                </div>
             </div>
 
-            <!-- Kamera Wechseln -->
-            <button onclick="switchCamera()" class="py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-400 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition w-auto md:w-full shrink-0" title="Kamera wechseln">
-                <span class="text-base">🔄</span> <span class="hidden md:inline">KAMERA</span>
-            </button>
-
-            <!-- Alles Löschen / Neu Starten -->
-            <button onclick="clearAllFrames()" class="py-2 px-3 rounded-xl bg-rose-700 hover:bg-rose-600 border-2 border-rose-400 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition w-auto md:w-full shrink-0">
-                <span>🧹</span> <span class="hidden md:inline">NEU STARTEN</span>
-            </button>
         </div>
 
         <!-- CENTER AREA: Kamera Viewport & Filmleiste -->
@@ -232,8 +246,8 @@
                 </button>
             </div>
 
-            <!-- FILMSTRIP TIMELINE MIT MITFAHRENDER ANZEIGE -->
-            <div class="filmstrip-area h-20 md:h-28 flex-none w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-3 overflow-x-auto no-scrollbar flex-nowrap" id="filmstrip-container">
+            <!-- FILMSTRIP TIMELINE MIT MITFAHRENDER ANZEIGE (FESTE HÖHE REGULIERT) -->
+            <div class="filmstrip-area h-24 md:h-28 flex-none shrink-0 min-h-[6rem] md:min-h-[7rem] max-h-[6rem] md:max-h-[7rem] w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-3 overflow-x-auto no-scrollbar flex-nowrap" id="filmstrip-container">
                 <div class="text-slate-400 font-bold text-xs md:text-sm px-4 text-center w-full shrink-0" id="empty-strip-hint">
                     Klicke auf 📸 FOTO KNIPSEN, um dein erstes Bild aufzunehmen!
                 </div>
@@ -380,7 +394,9 @@
                 currentStream = null;
             }
 
-            video.style.transform = (currentFacingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
+            const transformStyle = (currentFacingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
+            video.style.transform = transformStyle;
+            canvas.style.transform = transformStyle;
 
             const constraintsList = [
                 { video: { facingMode: { exact: currentFacingMode }, width: { ideal: 1280 }, height: { ideal: 720 } } },
