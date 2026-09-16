@@ -59,116 +59,16 @@
       overflow: hidden;
     }
 
-    /* --- HEADER UX EXAKT ANALOG ZU REC.HTML, GIF.HTML & MAGIC.HTML --- */
-    .header-area {
-      height: 4.5rem !important;
-      min-height: 4.5rem !important;
-      max-height: 4.5rem !important;
-      background: rgba(15, 23, 42, 0.95);
-      border-bottom: 2px solid rgba(255, 255, 255, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1.25rem;
-      position: relative;
-      z-index: 50;
-      flex-shrink: 0;
-    }
-
-    /* MENÜ BUTTON LINKS - GROSS UND BOLD WIE BEI DEN ANDEREN APPS */
-    .btn-home-menu {
-      background-color: #1e293b !important;
-      color: #ffffff !important;
-      border: 3px solid #475569 !important;
-      border-radius: 9999px !important;
-      padding: 8px 22px !important;
-      font-size: 1.15rem !important;
-      font-weight: 900 !important;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 10px !important;
-      cursor: pointer !important;
-      transition: transform 0.1s ease, border-color 0.2s ease !important;
-      z-index: 50 !important;
-      text-decoration: none !important;
-      outline: none !important;
-    }
-    .btn-home-menu:hover {
-      border-color: #ffffff !important;
-    }
-    .btn-home-menu:active {
-      transform: scale(0.95) !important;
-    }
-
-    /* ZENTRIERTER ULTRABOLD TITEL */
-    .app-title-centered {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.85rem;
-      font-weight: 900;
-      color: #fbbf24;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      pointer-events: none;
-      z-index: 10;
-      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
-      white-space: nowrap;
-    }
-
-    /* HILFE BUTTON RECHTS - GROSS UND BOLD ANALOG ZU DEN ANDEREN APPS */
-    .btn-help-info {
-      width: 48px !important;
-      height: 48px !important;
-      background-color: #1e293b !important;
-      color: #fbbf24 !important;
-      border: 3px solid #475569 !important;
-      border-radius: 9999px !important;
-      font-size: 1.5rem !important;
-      font-weight: 900 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4) !important;
-      cursor: pointer !important;
-      transition: transform 0.1s ease, border-color 0.2s ease !important;
-      z-index: 50 !important;
-      outline: none !important;
-    }
-    .btn-help-info:hover {
-      border-color: #ffffff !important;
-      color: #ffffff !important;
-    }
-    .btn-help-info:active {
-      transform: scale(0.95) !important;
-    }
-
-    /* TEMPO BOX HEADER RECHTS */
-    .tempo-header-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background-color: #1e293b;
-      border: 3px solid #334155;
-      padding: 6px 16px;
-      border-radius: 9999px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-
     /* --- MAIN APP CONTAINER --- */
     .app-container {
       flex: 1 1 0%;
       display: flex;
       flex-direction: column;
-      padding: 0.75rem 1rem 1rem 1rem;
+      padding: 0.5rem 1rem 1rem 1rem;
       gap: 0.75rem;
-      height: calc(100vh - 4.5rem);
-      height: calc(100dvh - 4.5rem);
-      overflow: hidden;
       min-height: 0;
       width: 100%;
+      overflow: hidden;
     }
 
     .trickfilm-stage-container {
@@ -474,26 +374,27 @@
 <body>
 
   <!-- HEADER UX ANPASSUNG EXAKT ANALOG ZU REC.HTML, GIF.HTML, MAGIC.HTML & COMIC.HTML -->
-  <header class="header-area">
-    <!-- HOMEMENÜ BUTTON LINKS (GROSS, BOLD UND PROMINENT) -->
-    <button onclick="window.goHome()" class="btn-home-menu" title="Hauptmenü">
-      <span>🏠</span>
-      <span>MENÜ</span>
+  <header class="header-area h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-1 md:mb-2 px-3 md:px-6 relative bg-slate-900/95 border-b-2 border-slate-700/50">
+    <!-- HOMEMENÜ BUTTON LINKS (GROSS, BOLD UND PROMINENT ANALOG ZU REC.HTML) -->
+    <button onclick="window.goHome()" class="bg-slate-800 hover:bg-slate-700 text-white border-4 border-slate-500 hover:border-white px-7 py-3 rounded-full text-2xl font-black shadow-2xl flex items-center gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50" title="Hauptmenü">
+      <span>🏠</span> <span class="tracking-wider">MENÜ</span>
     </button>
 
-    <!-- METROPOLITAN TITEL MITTIG (EXAKT ANALOG ZU MIKRO CHECK & VIDEO LOOP) -->
-    <h1 class="app-title-centered">🎬 TRICKFILM STUDIO</h1>
+    <!-- METROPOLITAN TITEL MITTIG (IMMER SICHTBAR & ZENTRIERT) -->
+    <h1 class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 text-2xl md:text-4xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none z-10 uppercase whitespace-nowrap">
+      🎬 TRICKFILM STUDIO
+    </h1>
 
     <!-- HEADER RECHTS: TEMPO-REGLER & HILFE-BUTTON -->
-    <div style="display: flex; align-items: center; gap: 12px; z-index: 50;">
-      <div class="tempo-header-box hidden sm:flex">
-        <span style="font-size: 0.85rem; font-weight: 900; color: #cbd5e1;">🐢 TEMPO:</span>
-        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" style="width: 80px; accent-color: #fbbf24; cursor: pointer;" aria-label="Abspielgeschwindigkeit">
-        <span id="fps-value-text" style="font-size: 0.85rem; font-weight: 900; color: #fbbf24; min-width: 85px;">4 B/SEK 🐇</span>
+    <div class="flex items-center gap-3 md:gap-5 z-50">
+      <div class="hidden sm:flex items-center gap-2 bg-slate-800 border-2 border-slate-700 px-4 py-2 rounded-full shadow-lg">
+        <span class="text-xs font-black text-slate-300">🐢 TEMPO:</span>
+        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" class="w-20 accent-amber-400 cursor-pointer" aria-label="Abspielgeschwindigkeit">
+        <span id="fps-value-text" class="text-xs font-black text-amber-400 min-w-[75px]">4 B/SEK 🐇</span>
       </div>
 
       <!-- HILFE BUTTON ? (GROSSER KREIS ANALOG ZU DEN ANDERN APPS) -->
-      <button onclick="window.toggleInfo(event)" class="btn-help-info" title="Hilfe">
+      <button onclick="window.toggleInfo(event)" class="w-14 h-14 bg-slate-800 text-amber-400 rounded-full font-black border-4 border-slate-500 hover:border-white shadow-2xl flex items-center justify-center transition-transform active:scale-95 text-2xl shrink-0 z-50" title="Hilfe">
         ?
       </button>
     </div>
