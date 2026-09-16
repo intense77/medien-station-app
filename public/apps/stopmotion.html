@@ -19,8 +19,8 @@
 
     <style>
         html, body {
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -33,51 +33,60 @@
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Optimierung für Querformat (Landscape) auf Tablets & Mobilgeräten */
-        @media (orientation: landscape) {
-            .header-area { height: 3.5rem !important; margin-bottom: 0.25rem !important; }
-            .main-wrapper { flex-direction: row !important; }
-            .side-bar { width: 15.5rem !important; height: 100% !important; flex-direction: column !important; justify-content: space-between !important; overflow-y: auto !important; padding: 0.5rem !important; gap: 0.5rem !important; }
-            .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
-            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 4px !important; }
-            .action-area { height: 4rem !important; gap: 0.5rem !important; }
-            .filmstrip-area { height: 6rem !important; min-height: 6rem !important; max-height: 6rem !important; flex-shrink: 0 !important; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* --- KONSISTENTE UND STABILE COMPONENT-HÖHEN FOR ZERO-SHIFT --- */
+        .header-area {
+            height: 3rem !important;
+            min-height: 3rem !important;
+            max-height: 3rem !important;
+            flex-shrink: 0 !important;
+        }
+        @media (min-height: 800px) {
+            .header-area {
+                height: 3.5rem !important;
+                min-height: 3.5rem !important;
+                max-height: 3.5rem !important;
+            }
         }
 
-        /* Maximale Mobil- & Smartphone-Optimierung (Landscape & Portrait) */
-        @media (orientation: landscape) and (max-height: 500px) {
-            .header-area { height: 2.5rem !important; margin-bottom: 0.15rem !important; }
-            .main-wrapper { flex-direction: row !important; }
-            .side-bar { width: 12.5rem !important; height: 100% !important; flex-direction: column !important; justify-content: space-between !important; overflow-y: auto !important; padding: 0.35rem !important; gap: 0.35rem !important; }
-            .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
-            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 3px !important; }
-            .action-area { height: 3rem !important; gap: 0.35rem !important; }
-            .filmstrip-area { height: 4.25rem !important; min-height: 4.25rem !important; max-height: 4.25rem !important; flex-shrink: 0 !important; padding: 0.25rem !important; }
-            .film-item { width: 3.25rem !important; height: 3.25rem !important; min-width: 3.25rem !important; min-height: 3.25rem !important; }
-            #viewport-snap-btn { width: 3rem !important; height: 3rem !important; font-size: 1.5rem !important; bottom: 0.5rem !important; right: 0.5rem !important; }
+        .action-area {
+            height: 3.25rem !important;
+            min-height: 3.25rem !important;
+            max-height: 3.25rem !important;
+            flex-shrink: 0 !important;
+        }
+        @media (min-height: 800px) {
+            .action-area {
+                height: 3.75rem !important;
+                min-height: 3.75rem !important;
+                max-height: 3.75rem !important;
+            }
         }
 
-        @media (max-width: 640px) and (orientation: portrait) {
-            .header-area { height: 3rem !important; margin-bottom: 0.25rem !important; }
-            .side-bar { flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding: 0.25rem !important; gap: 0.35rem !important; }
-            .side-bar > * { flex: 0 0 auto !important; width: auto !important; max-width: 11rem !important; }
-            .filmstrip-area { height: 4.5rem !important; min-height: 4.5rem !important; max-height: 4.5rem !important; flex-shrink: 0 !important; padding: 0.25rem !important; }
-            .film-item { width: 3.5rem !important; height: 3.5rem !important; min-width: 3.5rem !important; min-height: 3.5rem !important; }
-            .action-area { height: 3.25rem !important; gap: 0.25rem !important; }
-            #viewport-snap-btn { width: 3.25rem !important; height: 3.25rem !important; font-size: 1.75rem !important; bottom: 0.5rem !important; right: 0.5rem !important; }
+        .filmstrip-area {
+            height: 4.75rem !important;
+            min-height: 4.75rem !important;
+            max-height: 4.75rem !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
         }
-        
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
+        @media (min-height: 800px) {
+            .filmstrip-area {
+                height: 5.5rem !important;
+                min-height: 5.5rem !important;
+                max-height: 5.5rem !important;
+            }
+        }
 
         .film-item {
             flex: 0 0 auto !important;
-            width: 4.5rem !important;
-            height: 4.5rem !important;
-            min-width: 4.5rem !important;
-            min-height: 4.5rem !important;
+            width: 3.75rem !important;
+            height: 3.75rem !important;
+            min-width: 3.75rem !important;
+            min-height: 3.75rem !important;
+            max-width: 3.75rem !important;
+            max-height: 3.75rem !important;
             position: relative !important;
             border-radius: 0.75rem !important;
             overflow: hidden !important;
@@ -87,12 +96,14 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
             transition: all 0.2s ease-in-out !important;
         }
-        @media (min-width: 768px) {
+        @media (min-height: 800px) {
             .film-item {
-                width: 5.5rem !important;
-                height: 5.5rem !important;
-                min-width: 5.5rem !important;
-                min-height: 5.5rem !important;
+                width: 4.5rem !important;
+                height: 4.5rem !important;
+                min-width: 4.5rem !important;
+                min-height: 4.5rem !important;
+                max-width: 4.5rem !important;
+                max-height: 4.5rem !important;
             }
         }
         .film-item:hover {
@@ -100,10 +111,52 @@
         }
         .film-item.active-playing {
             border: 4px solid #f59e0b !important;
-            transform: scale(1.1) !important;
+            transform: scale(1.05) !important;
             box-shadow: 0 0 20px #f59e0b !important;
             z-index: 30 !important;
         }
+
+        /* --- ORIENTATION & RESPONSIVE LAYOUT RULES --- */
+        @media (orientation: landscape) {
+            .main-wrapper { flex-direction: row !important; }
+            .side-bar { 
+                width: 15rem !important; 
+                min-width: 15rem !important;
+                max-width: 15rem !important;
+                height: 100% !important; 
+                flex-direction: column !important; 
+                justify-content: space-between !important; 
+                overflow-y: auto !important; 
+            }
+            .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
+            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 4px !important; }
+        }
+
+        @media (orientation: portrait) {
+            .main-wrapper { flex-direction: column !important; }
+            .side-bar { 
+                width: 100% !important; 
+                height: auto !important; 
+                max-height: 25vh !important;
+                flex-direction: row !important; 
+                flex-wrap: nowrap !important;
+                justify-content: flex-start !important; 
+                overflow-x: auto !important; 
+                padding: 0.35rem !important;
+                gap: 0.5rem !important;
+            }
+            .side-bar > * { 
+                flex: 0 0 auto !important; 
+                min-width: 12rem !important; 
+                max-width: 16rem !important; 
+            }
+            .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
+            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 3px !important; }
+        }
+        
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .font-comic { font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif; }
 
         .btn-speed.active {
             background-color: #f59e0b !important;
@@ -246,28 +299,28 @@
                 </button>
             </div>
 
-            <!-- FILMSTRIP TIMELINE MIT MITFAHRENDER ANZEIGE (FESTE HÖHE REGULIERT) -->
-            <div class="filmstrip-area h-24 md:h-28 flex-none shrink-0 min-h-[6rem] md:min-h-[7rem] max-h-[6rem] md:max-h-[7rem] w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-3 overflow-x-auto no-scrollbar flex-nowrap" id="filmstrip-container">
+            <!-- FILMSTRIP TIMELINE MIT MITFAHRENDER ANZEIGE (STABILE HÖHE REIN PER CSS) -->
+            <div class="filmstrip-area flex-none shrink-0 w-full bg-slate-800 p-2 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-inner flex items-center gap-3 overflow-x-auto no-scrollbar flex-nowrap" id="filmstrip-container">
                 <div class="text-slate-400 font-bold text-xs md:text-sm px-4 text-center w-full shrink-0" id="empty-strip-hint">
                     Klicke auf 📸 FOTO KNIPSEN, um dein erstes Bild aufzunehmen!
                 </div>
             </div>
 
-            <!-- ACTION BUTTONS BAR (HOHE KONTRASTE & KLARE HIERARCHIE) -->
-            <div class="action-area h-12 sm:h-14 md:h-20 flex-none shrink-0 w-full flex items-center justify-center gap-1.5 sm:gap-2 md:gap-4 px-1">
-                <!-- Sekundäre Aktion: Abspielen (Kräftiges Smaragdgrün mit schwarzem Text) -->
-                <button id="play-btn" onclick="togglePlay()" class="h-10 sm:h-12 md:h-16 px-2.5 sm:px-4 md:px-8 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[11px] sm:text-sm md:text-2xl font-black rounded-lg sm:rounded-xl md:rounded-2xl border-2 md:border-4 border-emerald-300 active:translate-y-1 transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-xl shrink-0 opacity-50 cursor-not-allowed" disabled>
-                    <span class="text-sm sm:text-lg md:text-2xl" id="play-icon">▶️</span> <span id="play-text" class="truncate"><span class="hidden sm:inline">FILM </span>ABSPIELEN</span>
+            <!-- ACTION BUTTONS BAR (KEIN TEXT-ABSCHNITT, VOLLSTANDIG RESPONSIV) -->
+            <div class="action-area flex-none shrink-0 w-full flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3 px-1">
+                <!-- Sekundäre Aktion: Abspielen -->
+                <button id="play-btn" onclick="togglePlay()" class="h-full px-3 sm:px-4 md:px-6 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs sm:text-sm md:text-lg font-black rounded-xl md:rounded-2xl border-2 md:border-4 border-emerald-300 active:translate-y-1 transition-all flex items-center justify-center gap-1.5 shadow-xl shrink-0 whitespace-nowrap opacity-50 cursor-not-allowed" disabled>
+                    <span class="text-sm md:text-xl" id="play-icon">▶️</span> <span id="play-text" class="whitespace-nowrap"><span class="hidden sm:inline">FILM </span>ABSPIELEN</span>
                 </button>
 
-                <!-- PRIMÄRER AUSLÖSER BUTTON (Goldschimmer & Maximaler Kontrast) -->
-                <button id="snap-btn" onclick="captureFrame()" class="flex-1 max-w-[12rem] sm:max-w-xs md:max-w-md h-10 sm:h-12 md:h-16 bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 hover:from-amber-200 hover:to-amber-300 text-slate-950 text-xs sm:text-base md:text-2xl font-black rounded-lg sm:rounded-xl md:rounded-2xl border-2 md:border-4 border-amber-200 active:translate-y-1 transition-all flex items-center justify-center gap-1 md:gap-4 shadow-[0_0_30px_rgba(245,158,11,0.8)] active:scale-95 group truncate">
-                    <span class="group-hover:scale-125 transition-transform duration-300 text-base sm:text-2xl md:text-4xl">📸</span> <span class="truncate">FOTO KNIPSEN!</span>
+                <!-- PRIMÄRER AUSLÖSER BUTTON -->
+                <button id="snap-btn" onclick="captureFrame()" class="flex-1 max-w-[16rem] md:max-w-md h-full bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-400 hover:from-amber-200 hover:to-amber-300 text-slate-950 text-xs sm:text-base md:text-xl font-black rounded-xl md:rounded-2xl border-2 md:border-4 border-amber-200 active:translate-y-1 transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(245,158,11,0.8)] active:scale-95 group whitespace-nowrap">
+                    <span class="group-hover:scale-125 transition-transform duration-300 text-lg sm:text-2xl md:text-3xl">📸</span> <span class="whitespace-nowrap">FOTO KNIPSEN!</span>
                 </button>
 
-                <!-- Sekundäre Aktion: Daumenkino Drucken (Leuchtendes Himmelblau mit schwarzem Text) -->
-                <button id="print-btn" onclick="printFlipbook(this)" class="h-10 sm:h-12 md:h-16 px-2.5 sm:px-4 md:px-8 bg-sky-400 hover:bg-sky-300 text-slate-950 text-[11px] sm:text-sm md:text-2xl font-black rounded-lg sm:rounded-xl md:rounded-2xl border-2 md:border-4 border-sky-200 active:translate-y-1 transition-all flex items-center justify-center gap-1 sm:gap-2 shadow-xl shrink-0 opacity-50 cursor-not-allowed" disabled>
-                    <span class="text-sm sm:text-lg md:text-2xl">🖨️</span> <span class="truncate"><span class="hidden sm:inline">DAUMENKINO</span><span class="sm:hidden">DRUCKEN</span></span>
+                <!-- Sekundäre Aktion: Daumenkino Drucken -->
+                <button id="print-btn" onclick="printFlipbook(this)" class="h-full px-3 sm:px-4 md:px-6 bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs sm:text-sm md:text-lg font-black rounded-xl md:rounded-2xl border-2 md:border-4 border-sky-200 active:translate-y-1 transition-all flex items-center justify-center gap-1.5 shadow-xl shrink-0 whitespace-nowrap opacity-50 cursor-not-allowed" disabled>
+                    <span class="text-sm md:text-xl">🖨️</span> <span class="whitespace-nowrap"><span class="hidden sm:inline">DAUMENKINO </span>DRUCKEN</span>
                 </button>
             </div>
 
