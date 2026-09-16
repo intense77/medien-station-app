@@ -19,11 +19,13 @@
 
     <style>
         html, body {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
             margin: 0;
             padding: 0;
             overflow: hidden;
+            box-sizing: border-box;
         }
         body { 
             background-color: #0f172a; 
@@ -35,58 +37,37 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* --- KONSISTENTE UND STABILE COMPONENT-HÖHEN FOR ZERO-SHIFT --- */
+        /* --- EXAKTE STABILE COMPONENT HÖHEN OHNE UNSINNIGE OVERFLOWS --- */
         .header-area {
+            height: 2.75rem !important;
+            min-height: 2.75rem !important;
+            max-height: 2.75rem !important;
+            flex-shrink: 0 !important;
+        }
+
+        .action-area {
             height: 3rem !important;
             min-height: 3rem !important;
             max-height: 3rem !important;
             flex-shrink: 0 !important;
         }
-        @media (min-height: 800px) {
-            .header-area {
-                height: 3.5rem !important;
-                min-height: 3.5rem !important;
-                max-height: 3.5rem !important;
-            }
-        }
-
-        .action-area {
-            height: 3.25rem !important;
-            min-height: 3.25rem !important;
-            max-height: 3.25rem !important;
-            flex-shrink: 0 !important;
-        }
-        @media (min-height: 800px) {
-            .action-area {
-                height: 3.75rem !important;
-                min-height: 3.75rem !important;
-                max-height: 3.75rem !important;
-            }
-        }
 
         .filmstrip-area {
-            height: 4.75rem !important;
-            min-height: 4.75rem !important;
-            max-height: 4.75rem !important;
+            height: 4.25rem !important;
+            min-height: 4.25rem !important;
+            max-height: 4.25rem !important;
             flex-shrink: 0 !important;
             box-sizing: border-box !important;
-        }
-        @media (min-height: 800px) {
-            .filmstrip-area {
-                height: 5.5rem !important;
-                min-height: 5.5rem !important;
-                max-height: 5.5rem !important;
-            }
         }
 
         .film-item {
             flex: 0 0 auto !important;
-            width: 3.75rem !important;
-            height: 3.75rem !important;
-            min-width: 3.75rem !important;
-            min-height: 3.75rem !important;
-            max-width: 3.75rem !important;
-            max-height: 3.75rem !important;
+            width: 3.5rem !important;
+            height: 3.5rem !important;
+            min-width: 3.5rem !important;
+            min-height: 3.5rem !important;
+            max-width: 3.5rem !important;
+            max-height: 3.5rem !important;
             position: relative !important;
             border-radius: 0.75rem !important;
             overflow: hidden !important;
@@ -96,16 +77,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
             transition: all 0.2s ease-in-out !important;
         }
-        @media (min-height: 800px) {
-            .film-item {
-                width: 4.5rem !important;
-                height: 4.5rem !important;
-                min-width: 4.5rem !important;
-                min-height: 4.5rem !important;
-                max-width: 4.5rem !important;
-                max-height: 4.5rem !important;
-            }
-        }
+
         .film-item:hover {
             border-color: #f59e0b !important;
         }
@@ -116,20 +88,20 @@
             z-index: 30 !important;
         }
 
-        /* --- ORIENTATION & RESPONSIVE LAYOUT RULES --- */
+        /* --- LAYOUT PROPORTIONEN REGELN --- */
         @media (orientation: landscape) {
             .main-wrapper { flex-direction: row !important; }
             .side-bar { 
-                width: 15rem !important; 
-                min-width: 15rem !important;
-                max-width: 15rem !important;
+                width: 14.5rem !important; 
+                min-width: 14.5rem !important;
+                max-width: 14.5rem !important;
                 height: 100% !important; 
                 flex-direction: column !important; 
                 justify-content: space-between !important; 
                 overflow-y: auto !important; 
             }
             .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
-            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 4px !important; }
+            .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 3px !important; }
         }
 
         @media (orientation: portrait) {
@@ -137,18 +109,17 @@
             .side-bar { 
                 width: 100% !important; 
                 height: auto !important; 
-                max-height: 25vh !important;
                 flex-direction: row !important; 
                 flex-wrap: nowrap !important;
                 justify-content: flex-start !important; 
                 overflow-x: auto !important; 
-                padding: 0.35rem !important;
-                gap: 0.5rem !important;
+                padding: 0.25rem !important;
+                gap: 0.35rem !important;
             }
             .side-bar > * { 
                 flex: 0 0 auto !important; 
-                min-width: 12rem !important; 
-                max-width: 16rem !important; 
+                min-width: 11rem !important; 
+                max-width: 15rem !important; 
             }
             .content-area { flex: 1 !important; height: 100% !important; min-height: 0 !important; }
             .video-main { flex: 1 !important; min-height: 0 !important; height: 100% !important; border-width: 3px !important; }
@@ -187,61 +158,61 @@
         }
     </style>
 </head>
-<body class="flex flex-col p-2 md:p-4 box-border bg-slate-900 h-full w-full">
+<body class="flex flex-col p-1.5 md:p-2.5 box-border bg-slate-900 h-full w-full">
 
     <!-- HEADER -->
-    <div class="header-area h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
-        <button onclick="window.goHome()" class="bg-slate-800 hover:bg-slate-700 text-white border-2 md:border-4 border-amber-400 hover:border-amber-300 px-3 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-xl font-black shadow-xl flex items-center gap-1 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
+    <div class="header-area flex-none flex justify-between items-center z-50 mb-1.5 px-1 relative">
+        <button onclick="window.goHome()" class="bg-slate-800 hover:bg-slate-700 text-white border-2 md:border-3 border-amber-400 hover:border-amber-300 px-3 py-1.5 md:px-5 md:py-2 rounded-full text-xs md:text-base font-black shadow-xl flex items-center gap-1 md:gap-2 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50">
             🏠 <span class="hidden md:inline">MENÜ</span>
         </button>
 
-        <div class="flex items-center gap-2 md:gap-4 z-10">
-            <h1 class="hidden md:block text-xl lg:text-4xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none uppercase">
+        <div class="flex items-center gap-2 md:gap-3 z-10">
+            <h1 class="hidden md:block text-lg lg:text-2xl font-black text-amber-400 tracking-wider drop-shadow-lg pointer-events-none uppercase">
                 🎬 TRICKFILM STUDIO
             </h1>
-            <div class="bg-slate-800 text-amber-400 px-3 py-1.5 md:px-5 md:py-2 rounded-full font-black text-xs md:text-lg border-2 border-amber-400/80 shadow-xl flex items-center gap-2 shrink-0">
+            <div class="bg-slate-800 text-amber-400 px-3 py-1 md:px-4 md:py-1.5 rounded-full font-black text-xs md:text-base border-2 border-amber-400/80 shadow-xl flex items-center gap-1.5 shrink-0">
                 <span id="frame-counter">0 / 16 BILDER</span>
             </div>
         </div>
 
-        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-amber-400 hover:text-amber-300 rounded-full font-black border-2 md:border-4 border-amber-400 hover:border-amber-300 shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50" title="Hilfe">
+        <button onclick="window.toggleInfo()" class="w-8 h-8 md:w-10 md:h-10 bg-slate-800 text-amber-400 hover:text-amber-300 rounded-full font-black border-2 md:border-3 border-amber-400 hover:border-amber-300 shadow-xl flex items-center justify-center transition-transform active:scale-95 text-base md:text-xl shrink-0 z-50" title="Hilfe">
             ?
         </button>
     </div>
 
     <!-- MAIN AREA -->
-    <div class="main-wrapper flex-1 flex flex-col md:flex-row landscape:flex-row gap-2 md:gap-4 min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden">
+    <div class="main-wrapper flex-1 flex flex-col min-h-0 w-full max-w-[95rem] mx-auto overflow-hidden gap-1.5 md:gap-2.5">
         
         <!-- SIDE PANEL: Steuerung, Tempo, Bildfilter & Tonaufnahme -->
-        <div class="side-bar flex-none w-full md:w-60 landscape:w-64 bg-slate-800/95 p-2.5 md:p-3 rounded-xl md:rounded-[2rem] border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2.5 justify-between items-stretch h-auto md:h-full landscape:h-full overflow-x-auto landscape:overflow-y-auto no-scrollbar">
+        <div class="side-bar flex-none w-full md:w-60 landscape:w-64 bg-slate-800/95 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 md:border-4 border-slate-700 shadow-2xl flex flex-row md:flex-col landscape:flex-col gap-2 justify-between items-stretch h-auto md:h-full landscape:h-full overflow-x-auto landscape:overflow-y-auto no-scrollbar">
             
             <!-- KARTEN-GRUPPE 1: KAMERA & BILDFILTER -->
-            <div class="bg-slate-900/80 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 border-slate-700/80 flex flex-col gap-2 shrink-0 shadow-md">
+            <div class="bg-slate-900/80 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 border-slate-700/80 flex flex-col gap-1.5 shrink-0 shadow-md">
                 <div class="text-[10px] md:text-[11px] font-extrabold tracking-wider text-amber-400 uppercase flex items-center gap-1 px-1">
                     <span>📷</span> KAMERA & EFFEKTE
                 </div>
 
                 <!-- GEISTERBILD TOGGLE -->
-                <button id="onion-btn" onclick="toggleOnionSkin()" class="w-full py-2 px-3 rounded-xl bg-amber-400 border-2 border-amber-300 text-slate-950 font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200 hover:brightness-110">
+                <button id="onion-btn" onclick="toggleOnionSkin()" class="w-full py-1.5 px-2.5 rounded-xl bg-amber-400 border-2 border-amber-300 text-slate-950 font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200 hover:brightness-110">
                     <span class="flex items-center gap-1.5">👻 GEISTERBILD</span>
                     <span id="onion-status" class="bg-slate-950 text-amber-400 px-2 py-0.5 rounded-md text-[10px] font-black">AN</span>
                 </button>
 
                 <!-- BILDFILTER EFFEKT SELECTOR -->
-                <button id="filter-btn" onclick="cycleFilter()" class="w-full py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-400 text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200" title="Bildfilter wechseln">
+                <button id="filter-btn" onclick="cycleFilter()" class="w-full py-1.5 px-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 border-2 border-indigo-400 text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200" title="Bildfilter wechseln">
                     <span id="filter-name" class="flex items-center gap-1 truncate">📷 NORMAL</span>
                     <span class="bg-black/30 px-2 py-0.5 rounded-md text-[10px] font-extrabold shrink-0">WECHSELN 🔄</span>
                 </button>
 
                 <!-- KAMERA WECHSELN -->
-                <button onclick="switchCamera()" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-500 text-slate-200 hover:text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200" title="Kamera wechseln">
+                <button onclick="switchCamera()" class="w-full py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-500 text-slate-200 hover:text-white font-black text-xs md:text-sm flex items-center justify-between shadow-md active:scale-95 transition-all duration-200" title="Kamera wechseln">
                     <span class="flex items-center gap-1.5">🔄 KAMERA</span>
                     <span class="bg-slate-950/60 text-slate-300 px-2 py-0.5 rounded-md text-[10px] font-bold">WECHSELN</span>
                 </button>
             </div>
 
             <!-- KARTEN-GRUPPE 2: WIEDERGABE & AUDIO -->
-            <div class="bg-slate-900/80 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 border-slate-700/80 flex flex-col gap-2 shrink-0 shadow-md">
+            <div class="bg-slate-900/80 p-2 md:p-2.5 rounded-xl md:rounded-2xl border-2 border-slate-700/80 flex flex-col gap-1.5 shrink-0 shadow-md">
                 <div class="text-[10px] md:text-[11px] font-extrabold tracking-wider text-amber-400 uppercase flex items-center gap-1 px-1">
                     <span>⏱️</span> WIEDERGABE & TON
                 </div>
@@ -250,23 +221,23 @@
                 <div class="flex flex-col gap-1 w-full">
                     <span class="text-[10px] font-bold text-slate-400 px-1 hidden md:block">TEMPO (BILDER / SEC):</span>
                     <div class="grid grid-cols-3 gap-1.5 w-full">
-                        <button onclick="setSpeed(3, this)" class="btn-speed py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-xs font-black text-slate-300 transition-all duration-200 shadow">🐌 3</button>
-                        <button onclick="setSpeed(6, this)" class="btn-speed active py-2 rounded-xl bg-amber-400 border-2 border-amber-300 text-xs font-black text-slate-950 transition-all duration-200 shadow">🏃 6</button>
-                        <button onclick="setSpeed(12, this)" class="btn-speed py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-xs font-black text-slate-300 transition-all duration-200 shadow">🚀 12</button>
+                        <button onclick="setSpeed(3, this)" class="btn-speed py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-xs font-black text-slate-300 transition-all duration-200 shadow">🐌 3</button>
+                        <button onclick="setSpeed(6, this)" class="btn-speed active py-1.5 rounded-xl bg-amber-400 border-2 border-amber-300 text-xs font-black text-slate-950 transition-all duration-200 shadow">🏃 6</button>
+                        <button onclick="setSpeed(12, this)" class="btn-speed py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-xs font-black text-slate-300 transition-all duration-200 shadow">🚀 12</button>
                     </div>
                 </div>
 
                 <!-- TONAUFNAHME BEREICH -->
-                <div class="flex flex-col gap-1.5 w-full pt-1">
-                    <button id="btn-audio-rec" onclick="toggleAudioRecording()" class="w-full py-2.5 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all duration-200 border-2 border-red-400">
+                <div class="flex flex-col gap-1.5 w-full pt-0.5">
+                    <button id="btn-audio-rec" onclick="toggleAudioRecording()" class="w-full py-2 px-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all duration-200 border-2 border-red-400">
                         <span id="audio-rec-icon">🔴</span> <span id="audio-rec-text">TON AUFNEHMEN</span>
                     </button>
                     
                     <div id="audio-controls" class="hidden flex gap-1.5 w-full">
-                        <button id="btn-audio-play" onclick="playAudioTrack()" class="flex-1 py-2 bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs rounded-xl flex items-center justify-center gap-1 shadow border-2 border-teal-200 transition-all active:scale-95">
+                        <button id="btn-audio-play" onclick="playAudioTrack()" class="flex-1 py-1.5 bg-teal-400 hover:bg-teal-300 text-slate-950 font-black text-xs rounded-xl flex items-center justify-center gap-1 shadow border-2 border-teal-200 transition-all active:scale-95">
                             ▶️ ANHÖREN
                         </button>
-                        <button id="btn-audio-del" onclick="deleteAudioTrack()" class="py-2 px-3 bg-red-700 hover:bg-red-600 text-white font-black text-xs rounded-xl flex items-center justify-center shadow border-2 border-red-500 transition-all active:scale-95" title="Ton löschen">
+                        <button id="btn-audio-del" onclick="deleteAudioTrack()" class="py-1.5 px-2.5 bg-red-700 hover:bg-red-600 text-white font-black text-xs rounded-xl flex items-center justify-center shadow border-2 border-red-500 transition-all active:scale-95" title="Ton löschen">
                             🗑️
                         </button>
                     </div>
@@ -274,8 +245,8 @@
             </div>
 
             <!-- KARTEN-GRUPPE 3: PROJEKT NEU STARTEN -->
-            <div class="shrink-0 md:mt-auto pt-1">
-                <button onclick="clearAllFrames()" class="w-full py-2.5 px-3 rounded-xl md:rounded-2xl bg-rose-900/40 hover:bg-rose-800/60 border-2 border-rose-600/80 text-rose-200 hover:text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all duration-200">
+            <div class="shrink-0 md:mt-auto pt-0.5">
+                <button onclick="clearAllFrames()" class="w-full py-2 px-2.5 rounded-xl md:rounded-2xl bg-rose-900/40 hover:bg-rose-800/60 border-2 border-rose-600/80 text-rose-200 hover:text-white font-black text-xs md:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all duration-200">
                     <span>🧹</span> <span>PROJEKT NEU STARTEN</span>
                 </button>
             </div>
@@ -283,7 +254,7 @@
         </div>
 
         <!-- CENTER AREA: Kamera Viewport & Filmleiste -->
-        <div class="content-area flex-1 flex flex-col min-h-0 w-full gap-2 md:gap-3">
+        <div class="content-area flex-1 flex flex-col min-h-0 w-full gap-1.5">
             
             <!-- VIDEO / PLAYBACK VIEWPORT -->
             <div class="video-main relative flex-1 min-h-0 w-full bg-black rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-4 md:border-[8px] border-slate-700 shadow-2xl flex items-center justify-center">
