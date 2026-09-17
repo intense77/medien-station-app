@@ -921,7 +921,10 @@
             trickfilmCamStream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = trickfilmCamStream;
             video.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
-            if (onionCanvas) onionCanvas.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
+            if (onionCanvas) onionCanvas.style.transform = 'none';
+            video.onloadedmetadata = () => {
+              drawOnionSkin();
+            };
             await video.play().catch(() => {});
             drawOnionSkin();
           } catch (err) {
@@ -934,6 +937,31 @@
           if (camLabel) camLabel.textContent = (currentFacingMode === 'user') ? 'Front-Kamera' : 'Rück-Kamera 📸';
           await startTrickfilmCamera(currentFacingMode);
           playPopSound(600);
+        }
+
+        function getContainRect(containerW, containerH, contentW, contentH) {
+          if (!contentW || !contentH || !containerW || !containerH) {
+            return { x: 0, y: 0, width: containerW || 800, height: containerH || 600 };
+          }
+          const contentAspect = contentW / contentH;
+          const containerAspect = containerW / containerH;
+          let renderW, renderH, renderX, renderY;
+
+          if (containerAspect > contentAspect) {
+            // Container ist breiter als das Video -> schwarze Balken links/rechts
+            renderH = containerH;
+            renderW = containerH * contentAspect;
+            renderX = (containerW - renderW) / 2;
+            renderY = 0;
+          } else {
+            // Container ist höher als das Video -> schwarze Balken oben/unten
+            renderW = containerW;
+            renderH = containerW / contentAspect;
+            renderX = 0;
+            renderY = (containerH - renderH) / 2;
+          }
+
+          return { x: renderX, y: renderY, width: renderW, height: renderH };
         }
 
         function snapFrame() {
@@ -965,16 +993,23 @@
 
         function drawOnionSkin() {
           if (!onionCanvas || !video) return;
-          onionCanvas.width = video.clientWidth || 800;
-          onionCanvas.height = video.clientHeight || 600;
+          const cw = video.clientWidth || 800;
+          const ch = video.clientHeight || 600;
+          onionCanvas.width = cw;
+          onionCanvas.height = ch;
           const ctx = onionCanvas.getContext('2d');
-          ctx.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
+          ctx.clearRect(0, 0, cw, ch);
 
           if (isOnionSkinActive && trickfilmFrames.length > 0) {
             const lastFrame = trickfilmFrames[trickfilmFrames.length - 1];
+            const vw = (video.videoWidth > 0) ? video.videoWidth : lastFrame.width;
+            const vh = (video.videoHeight > 0) ? video.videoHeight : lastFrame.height;
+            const rect = getContainRect(cw, ch, vw, vh);
+
+            ctx.save();
             ctx.globalAlpha = 0.38;
-            ctx.drawImage(lastFrame, 0, 0, onionCanvas.width, onionCanvas.height);
-            ctx.globalAlpha = 1.0;
+            ctx.drawImage(lastFrame, rect.x, rect.y, rect.width, rect.height);
+            ctx.restore();
           }
         }
 
@@ -1144,10 +1179,15 @@
         function drawPlaybackFrame(idx) {
           if (!playbackCanvas || !trickfilmFrames[idx]) return;
           const frame = trickfilmFrames[idx];
-          playbackCanvas.width = video ? (video.clientWidth || 800) : 800;
-          playbackCanvas.height = video ? (video.clientHeight || 600) : 600;
+          const cw = video ? (video.clientWidth || 800) : 800;
+          const ch = video ? (video.clientHeight || 600) : 600;
+          playbackCanvas.width = cw;
+          playbackCanvas.height = ch;
           const ctx = playbackCanvas.getContext('2d');
-          ctx.drawImage(frame, 0, 0, playbackCanvas.width, playbackCanvas.height);
+          ctx.clearRect(0, 0, cw, ch);
+
+          const rect = getContainRect(cw, ch, frame.width, frame.height);
+          ctx.drawImage(frame, rect.x, rect.y, rect.width, rect.height);
         }
 
         function stopPlayback() {
