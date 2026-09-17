@@ -85,13 +85,16 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
 
 ## 🎨 Galerie der Meisterwerke & Speicher-Systematik
 
-Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/galerie.html` und das Galerie-Modal im Hauptmenü). 
+Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/galerie.html` und das Galerie-Modal im Hauptmenü) mit **IndexedDB-Speicher** (`MedienStationDB`) für bis zu 40 hochauflösende Werke.
 
 ### Das transparente Speicher-Prinzip:
 1. **Schnappschuss-Apps (*Zauber Selfie*, *News Studio*, *Mikro Check*)**:
    - Da das Auslösen des Fotos oder das Stoppen der Tonaufnahme direkt das fertige Endprodukt liefert, landen die Werke **automatisch sofort** in der Galerie.
 2. **Kreativ- & Gestaltungs-Apps (*Pixel Labor*, *Comic Story*, *Trickfilm Studio*, *Video Loop*)**:
    - Kinder arbeiten in Etappen. Hier speichern die Kinder ihr Werk nach Fertigstellung ganz bewusst mit dem goldenen **`💾 SPEICHERN`**-Button (mit Konfetti 🎉) oder drucken es direkt mit **`🖨️ DRUCKEN`** aus.
+
+### 📥 100% Offline-ZIP-Export:
+- Fachkräfte und Kinder können alle Werke des Tages mit einem Klick (**"📥 Alle als ZIP speichern"**) gebündelt als ZIP-Archiv inklusive Inhaltsübersicht auf USB-Stick oder PC sichern.
 
 ---
 
@@ -108,9 +111,18 @@ Das MedienStation Hub erfüllt höchste Anforderungen an den Datenschutz und die
    - Sobald eine Anwendung verlassen wird (`Menü`-Button) oder der automatische Inaktivitäts-Timer abläuft, werden **alle temporär erstellten Rohdaten und Kamera-Streams hardwareseitig sofort deaktiviert**.
 
 3. **Automatischer täglicher Galerie-Reset (DSGVO-Speicherbegrenzung)**:
-   - Die lokale Galerie speichert erstellte Fotos und Sounds für die Dauer des Kita-Tages (z. B. zum Präsentieren beim Abholen).
+   - Die lokale Galerie speichert erstellte Fotos und Sounds standardmäßig für die Dauer des Kita-Tages (z. B. zum Präsentieren beim Abholen).
    - Bei jedem neuen Tag (beim ersten Start am neuen Datum) wird die Galerie automatisch und vollständig zurückgesetzt (Art. 5 Abs. 1 lit. e DSGVO).
-   - Ein manuelles Leeren ist jederzeit per Button mit kindgerechter Sicherheitsabfrage möglich.
+   - Fachkräfte können im Admin-Menü bei Bedarf einen **7-tägigen Projekt-Modus** aktivieren, um laufende Filme oder Comics über Nacht zu behalten.
+
+---
+
+## ⚙️ Fachkraft- & Admin-Menü (PIN-geschützt)
+
+Durch **5× Antippen des Titels „Deine Mission“** und Eingabe der PIN (`1234`) öffnet sich das Fachkraft-Dashboard:
+* 🛡️ **Datenschutz & Auto-Reset steuern**: Strenger Tages-Reset (Standard) vs. Projektwochen-Pause (7 Tage) vs. Dauerhaft.
+* 🎨 **Galerie verwalten**: Speicherbelegung einsehen, alle Werke als ZIP exportieren oder Galerie sofort leeren.
+* 🛠️ **System & Wartung**: App neu laden, PIN ändern und Update erzwingen / Cache leeren.
 
 ---
 
