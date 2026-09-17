@@ -334,6 +334,23 @@
       animation: pulse 1s infinite alternate;
     }
 
+    .btn-filter {
+      background: rgba(99, 102, 241, 0.25);
+      color: #E0E7FF;
+      border: 1.5px solid rgba(129, 140, 248, 0.4);
+    }
+
+    .btn-filter:hover {
+      background: rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-filter.active-filter {
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      color: #FFF;
+      border-color: #A5B4FC;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5);
+    }
+
     .btn-play {
       background: linear-gradient(135deg, #10B981, #059669);
       color: #FFF;
@@ -700,6 +717,11 @@
           <span id="trickfilm-cam-label">Rück-Kamera</span>
         </button>
 
+        <button class="action-btn btn-filter" id="btn-trickfilm-filter" title="Bildfilter wechseln">
+          <span class="btn-icon">🎨</span>
+          <span id="trickfilm-filter-label">Filter: Normal</span>
+        </button>
+
         <button class="action-btn btn-secondary active" id="btn-trickfilm-onion" title="Zwiebelhaut Transparenz Umschalten">
           <span class="btn-icon">👻</span>
           <span>Zwiebelhaut AN</span>
@@ -770,14 +792,15 @@
           <button onclick="window.toggleInfo(event)" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
           <h2 class="text-3xl md:text-4xl font-black text-white mb-6 border-b border-slate-600 pb-4 flex items-center gap-4">
               <span class="text-5xl">🎬</span> ANLEITUNG TRICKFILM
-              <button onclick="window.speakText('Anleitung für das Kita Trickfilmstudio. Erstens: Baue deine Figuren vor der Kamera auf. Zweitens: Tippe auf Foto knipsen. Drittens: Bewege deine Figuren ein kleines Stück. Die Zwiebelhaut zeigt dir transparent das vorherige Bild. Viertens: Nimm eine Sprach- oder Tonspur mit dem Mikrofon auf. Fünftens: Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+              <button onclick="window.speakText('Anleitung für das Kita Trickfilmstudio. Erstens: Baue deine Figuren vor der Kamera auf. Zweitens: Wähle optional einen bunten Bildfilter wie Schwarz-Weiß, Sepia oder Neon. Drittens: Tippe auf Foto knipsen. Viertens: Bewege deine Figuren ein kleines Stück. Die Zwiebelhaut zeigt dir transparent das vorherige Bild. Fünftens: Nimm eine Sprach- oder Tonspur mit dem Mikrofon auf. Sechstens: Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
           </h2>
           <div class="text-base md:text-lg text-slate-300 space-y-4">
               <p>1. <b>🧱 Motiv aufbauen</b>: Stelle deine Gegenstände oder Figuren vor die Kamera.</p>
-              <p>2. <b>📸 Foto knipsen</b>: Tippe auf den roten Foto-Button.</p>
-              <p>3. <b>👻 Zwiebelhaut nutzen</b>: Bewege deine Figur ein Stück. Das durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
-              <p>4. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf Ton Aufnehmen, um Geräusche oder Stimmen einzusprechen.</p>
-              <p>5. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film ab oder drucke ihn als Daumenkino-Bogen aus!</p>
+              <p>2. <b>🎨 Bildfilter wählen</b>: Probiere Schwarz-Weiß (Krimi), Sepia (Retro), Pop-Art oder Neon aus!</p>
+              <p>3. <b>📸 Foto knipsen</b>: Tippe auf den roten Foto-Button.</p>
+              <p>4. <b>👻 Zwiebelhaut nutzen</b>: Bewege deine Figur ein Stück. Das durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
+              <p>5. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf Ton Aufnehmen, um Geräusche oder Stimmen einzusprechen.</p>
+              <p>6. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film ab oder drucke ihn als Daumenkino-Bogen aus!</p>
           </div>
       </div>
   </div>
@@ -823,6 +846,16 @@
       let playbackAnimFrame = null;
       let playbackFrameIdx = 0;
       let selectedFrameIdx = -1;
+
+      // Bildfilter Definitionen
+      const FILTERS = [
+        { id: 'normal', name: 'Normal', icon: '📷', css: 'none' },
+        { id: 'bw', name: 'SW Krimi', icon: '🕵️', css: 'grayscale(100%) contrast(125%)' },
+        { id: 'sepia', name: 'Sepia Retro', icon: '📜', css: 'sepia(100%) contrast(110%) saturate(140%)' },
+        { id: 'pop', name: 'Pop-Art', icon: '🎨', css: 'saturate(250%) contrast(140%)' },
+        { id: 'neon', name: 'Neon Sci-Fi', icon: '🔮', css: 'invert(100%) hue-rotate(180deg)' }
+      ];
+      let currentFilterIdx = 0;
 
       // Audio Recording State
       let trickfilmMediaRecorder = null;
@@ -900,6 +933,8 @@
         const btnSnap = document.getElementById('btn-trickfilm-snap');
         const btnCamSwitch = document.getElementById('btn-trickfilm-cam-switch');
         const camLabel = document.getElementById('trickfilm-cam-label');
+        const btnFilter = document.getElementById('btn-trickfilm-filter');
+        const filterLabel = document.getElementById('trickfilm-filter-label');
         const btnOnion = document.getElementById('btn-trickfilm-onion');
         const btnMic = document.getElementById('btn-trickfilm-mic');
         const btnClear = document.getElementById('btn-trickfilm-clear');
@@ -907,6 +942,24 @@
         const fpsSlider = document.getElementById('trickfilm-fps-slider');
         const fpsText = document.getElementById('fps-value-text');
         const micStatus = document.getElementById('trickfilm-mic-status');
+
+        function cycleFilter() {
+          currentFilterIdx = (currentFilterIdx + 1) % FILTERS.length;
+          applyCurrentFilter();
+          playPopSound(540);
+          triggerHaptic(25);
+        }
+
+        function applyCurrentFilter() {
+          const f = FILTERS[currentFilterIdx];
+          if (video) video.style.filter = (f.css === 'none') ? '' : f.css;
+          if (filterLabel) filterLabel.textContent = `Filter: ${f.name}`;
+          if (btnFilter) {
+            btnFilter.classList.toggle('active-filter', f.id !== 'normal');
+            const iconSpan = btnFilter.querySelector('.btn-icon');
+            if (iconSpan) iconSpan.textContent = f.icon;
+          }
+        }
 
         async function startTrickfilmCamera(facing = currentFacingMode) {
           if (!video) return;
@@ -922,6 +975,7 @@
             video.srcObject = trickfilmCamStream;
             video.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
             if (onionCanvas) onionCanvas.style.transform = 'none';
+            applyCurrentFilter();
             video.onloadedmetadata = () => {
               drawOnionSkin();
             };
@@ -978,6 +1032,10 @@
             if (currentFacingMode === 'user') {
               ctx.translate(canvas.width, 0);
               ctx.scale(-1, 1);
+            }
+            const currentFilter = FILTERS[currentFilterIdx];
+            if (currentFilter && currentFilter.css && currentFilter.css !== 'none') {
+              ctx.filter = currentFilter.css;
             }
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           } else {
@@ -1319,6 +1377,7 @@
         // Event Listeners
         if (btnSnap) btnSnap.addEventListener('click', snapFrame);
         if (btnCamSwitch) btnCamSwitch.addEventListener('click', toggleCameraFacing);
+        if (btnFilter) btnFilter.addEventListener('click', cycleFilter);
         if (btnOnion) {
           btnOnion.addEventListener('click', () => {
             isOnionSkinActive = !isOnionSkinActive;
