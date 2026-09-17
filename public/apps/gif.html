@@ -117,8 +117,13 @@
                     </button>
                 </div>
                 
-                <div id="action-buttons" class="hidden gap-4 w-full justify-center">
-                    <button onclick="window.resetApp()" class="flex-1 max-w-sm bg-yellow-500 text-black font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-yellow-700 active:translate-y-1 active:border-b-0">🔄 NOCHMAL</button>
+                <div id="action-buttons" class="hidden gap-4 w-full justify-center max-w-xl mx-auto">
+                    <button onclick="window.saveGifToGallery(this)" class="flex-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-amber-600 active:translate-y-1 active:border-b-0 text-sm md:text-xl flex items-center justify-center gap-2 cursor-pointer shadow-xl" title="In Galerie speichern">
+                        <span>💾</span> <span>SPEICHERN</span>
+                    </button>
+                    <button onclick="window.resetApp()" class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-black py-3 md:py-5 rounded-xl border-b-4 md:border-b-8 border-sky-800 active:translate-y-1 active:border-b-0 text-sm md:text-xl flex items-center justify-center gap-2 cursor-pointer shadow-xl">
+                        <span>🔄</span> <span>NOCHMAL</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -289,6 +294,68 @@
             });
             document.getElementById('sp-' + ms).classList.add('bg-sky-600', 'border-2', 'border-white');
             play();
+        };
+
+        window.saveGifToGallery = function(btn) {
+            if (frames.length === 0) return;
+            if (window.playSound) window.playSound('click');
+            try {
+                // Erstelle eine 4er-Fotostreifen-Collage des Loops
+                const posterCanvas = document.createElement('canvas');
+                posterCanvas.width = 1200;
+                posterCanvas.height = 800;
+                const pCtx = posterCanvas.getContext('2d');
+                pCtx.fillStyle = '#0f172a';
+                pCtx.fillRect(0, 0, 1200, 800);
+
+                pCtx.fillStyle = '#38bdf8';
+                pCtx.font = 'bold 32px sans-serif';
+                pCtx.fillText('🔄 VIDEO LOOP - KITA MEDIENSTATION', 40, 50);
+
+                const indices = [0, Math.floor(frames.length * 0.33), Math.floor(frames.length * 0.66), frames.length - 1];
+                const w = 540;
+                const h = 320;
+                const coords = [
+                    { x: 40, y: 80 },
+                    { x: 620, y: 80 },
+                    { x: 40, y: 440 },
+                    { x: 620, y: 440 }
+                ];
+
+                indices.forEach((idx, i) => {
+                    const f = frames[idx] || frames[0];
+                    if (f && coords[i]) {
+                        const tempC = document.createElement('canvas');
+                        tempC.width = canvas.width;
+                        tempC.height = canvas.height;
+                        tempC.getContext('2d').putImageData(f, 0, 0);
+                        pCtx.drawImage(tempC, coords[i].x, coords[i].y, w, h);
+                        pCtx.strokeStyle = '#38bdf8';
+                        pCtx.lineWidth = 3;
+                        pCtx.strokeRect(coords[i].x, coords[i].y, w, h);
+                    }
+                });
+
+                const dataUrl = posterCanvas.toDataURL('image/jpeg', 0.85);
+                if (window.saveToMeisterwerke) {
+                    window.saveToMeisterwerke({
+                        type: 'image',
+                        appName: 'Video Loop',
+                        title: 'Video Loop Collage',
+                        dataUrl: dataUrl
+                    });
+                }
+                if (window.playSound) window.playSound('success');
+                if (window.triggerCelebration) window.triggerCelebration();
+
+                if (btn) {
+                    const origHtml = btn.innerHTML;
+                    btn.innerHTML = '<span>🌟</span> <span>GESPEICHERT!</span>';
+                    setTimeout(() => { btn.innerHTML = origHtml; }, 2200);
+                }
+            } catch (e) {
+                console.error("Fehler beim Speichern des Loops:", e);
+            }
         };
 
         window.resetApp = () => {
