@@ -244,32 +244,32 @@
 
     /* ACTION CONTROL PANEL (RECHTS IN LANDSCAPE) */
     .trickfilm-action-panel {
-      width: 180px;
-      min-width: 180px;
-      max-width: 180px;
+      width: 220px;
+      min-width: 220px;
+      max-width: 220px;
       height: 100%;
       min-height: 0;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 5px;
       justify-content: space-between;
       flex-shrink: 0;
-      background: rgba(30, 41, 59, 0.95);
-      border: 3px solid #334155;
+      background: #0f172a;
+      border: 2.5px solid #334155;
       border-radius: var(--radius-lg);
-      padding: 5px 6px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      padding: 6px 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       overflow-y: auto;
       box-sizing: border-box;
     }
 
     @media (min-width: 1024px) {
       .trickfilm-action-panel {
-        width: 215px;
-        min-width: 215px;
-        max-width: 215px;
-        padding: 6px 8px;
-        gap: 5px;
+        width: 245px;
+        min-width: 245px;
+        max-width: 245px;
+        padding: 8px 10px;
+        gap: 6px;
       }
     }
 
@@ -278,101 +278,176 @@
       font-family: var(--font-main);
       border: none;
       border-radius: var(--radius-md);
-      padding: 4px 6px;
-      font-size: 0.8rem;
+      padding: 5px 8px;
+      font-size: 0.82rem;
       font-weight: 800;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+      gap: 6px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
       white-space: nowrap;
-      min-height: 0;
+      min-height: 36px;
       flex: 1 1 0%;
       box-sizing: border-box;
     }
 
-    .action-btn:active {
-      transform: scale(0.96);
+    .action-btn .btn-icon {
+      font-size: 1.15rem;
+      line-height: 1;
+      flex-shrink: 0;
     }
 
+    .action-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* 1. HERO AUSLÖSER BUTTON (GROSS & LEUCHTEND) */
     .btn-shutter {
-      background: linear-gradient(135deg, #EF4444, #EC4899);
+      background: linear-gradient(135deg, #FF1A53, #FF5E3A);
       color: #FFF;
-      font-size: 0.92rem;
-      border: 2px solid #FFF;
-      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
-      flex: 1.25 1 0%;
+      font-size: 0.96rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      border: 2.5px solid #FFF;
+      box-shadow: 0 4px 16px rgba(255, 26, 83, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      flex: 1.6 1 0%;
+      min-height: 48px;
+    }
+
+    .btn-shutter .shutter-icon {
+      font-size: 1.35rem;
+      animation: pulse 2s infinite alternate;
     }
 
     .btn-shutter:hover {
       filter: brightness(1.1);
+      box-shadow: 0 6px 20px rgba(255, 26, 83, 0.65);
     }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-light);
-      border: 1.5px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.18);
-    }
-
-    .btn-secondary.active {
-      background: rgba(139, 92, 246, 0.4);
-      border-color: var(--accent-purple);
-      color: var(--accent-yellow);
-    }
-
-    .btn-secondary.recording {
-      background: rgba(239, 68, 68, 0.85);
-      border-color: #FFF;
-      color: #FFF;
-      animation: pulse 1s infinite alternate;
-    }
-
-    .btn-filter {
-      background: rgba(99, 102, 241, 0.25);
-      color: #E0E7FF;
-      border: 1.5px solid rgba(129, 140, 248, 0.4);
-    }
-
-    .btn-filter:hover {
-      background: rgba(99, 102, 241, 0.45);
-    }
-
-    .btn-filter.active-filter {
-      background: linear-gradient(135deg, #6366F1, #8B5CF6);
-      color: #FFF;
-      border-color: #A5B4FC;
-      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5);
-    }
-
+    /* 2. PLAY BUTTON (GRÜN / STOPP PINK) */
     .btn-play {
       background: linear-gradient(135deg, #10B981, #059669);
       color: #FFF;
+      font-size: 0.88rem;
+      border: 2px solid #6EE7B7;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.35);
+      flex: 1.2 1 0%;
+      min-height: 40px;
     }
 
     .btn-play.playing {
-      background: linear-gradient(135deg, #EC4899, #D946EF);
+      background: linear-gradient(135deg, #EC4899, #DB2777);
+      border-color: #FBCFE8;
+      box-shadow: 0 3px 12px rgba(236, 72, 153, 0.5);
+      animation: pulse 1.2s infinite alternate;
     }
 
-    .btn-print {
-      background: linear-gradient(135deg, #38BDF8, #0284C7);
+    /* 3. GEISTERBILD BUTTON */
+    .btn-ghost {
+      background: rgba(30, 41, 59, 0.85);
+      color: #94A3B8;
+      border: 1.5px solid #475569;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(51, 65, 85, 0.9);
+    }
+
+    .btn-ghost.active {
+      background: linear-gradient(135deg, #7C3AED, #6D28D9);
+      color: #FDE047;
+      border: 2px solid #C4B5FD;
+      box-shadow: 0 3px 10px rgba(124, 58, 237, 0.45);
+      font-weight: 900;
+    }
+
+    /* 4. BILDFILTER BUTTON */
+    .btn-filter {
+      background: rgba(79, 70, 229, 0.25);
+      color: #E0E7FF;
+      border: 1.5px solid #6366F1;
+    }
+
+    .btn-filter:hover {
+      background: rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-filter.active-filter {
+      background: linear-gradient(135deg, #4F46E5, #6366F1);
       color: #FFF;
+      border-color: #C7D2FE;
+      box-shadow: 0 3px 10px rgba(79, 70, 229, 0.45);
     }
 
+    /* 5. KAMERA BUTTON */
+    .btn-cam {
+      background: rgba(51, 65, 85, 0.85);
+      color: #F1F5F9;
+      border: 1.5px solid #64748B;
+    }
+
+    .btn-cam:hover {
+      background: rgba(71, 85, 105, 0.95);
+      border-color: #94A3B8;
+    }
+
+    /* 6. MIKROFON TON BUTTON */
+    .btn-mic {
+      background: rgba(51, 65, 85, 0.85);
+      color: #F1F5F9;
+      border: 1.5px solid #64748B;
+    }
+
+    .btn-mic:hover {
+      background: rgba(71, 85, 105, 0.95);
+    }
+
+    .btn-mic.recording {
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+      color: #FFF;
+      border: 2px solid #FECACA;
+      animation: pulse 1s infinite alternate;
+      box-shadow: 0 3px 12px rgba(220, 38, 38, 0.6);
+      font-weight: 900;
+    }
+
+    /* 7. DAUMENKINO DRUCKEN */
+    .btn-print {
+      background: linear-gradient(135deg, #0284C7, #0EA5E9);
+      color: #FFF;
+      border: 1.5px solid #7DD3FC;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+    }
+
+    .btn-print:hover {
+      filter: brightness(1.1);
+    }
+
+    /* 8. NEUER FILM (LÖSCHEN) */
     .btn-danger {
-      background: rgba(239, 68, 68, 0.25);
+      background: rgba(239, 68, 68, 0.15);
       color: #FCA5A5;
-      border: 1.5px solid rgba(239, 68, 68, 0.4);
+      border: 1.5px solid rgba(239, 68, 68, 0.35);
     }
 
     .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.45);
+      background: rgba(239, 68, 68, 0.35);
+      color: #FFF;
+      border-color: #EF4444;
+    }
+
+    /* KAMERA-BLITZ (VISUELLER FLASH EFFEKT) */
+    .camera-flash {
+      position: absolute;
+      inset: 0;
+      background: #FFFFFF;
+      opacity: 0.85;
+      pointer-events: none;
+      z-index: 50;
+      transition: opacity 0.18s ease-out;
     }
 
     /* TIMELINE / FILMSTRIP BAR (IMMER VOLLSTÄNDIG SICHTBAR AM UNTEREN RAND) */
@@ -570,28 +645,34 @@
         height: auto;
         flex-direction: row;
         flex-wrap: wrap;
-        gap: 5px;
-        padding: 5px;
+        gap: 6px;
+        padding: 6px;
         flex-shrink: 0;
         overflow: visible;
       }
       .action-btn {
-        flex: 1 1 calc(33.333% - 5px);
-        padding: 5px 4px;
-        font-size: 0.75rem;
-        min-height: 34px;
+        flex: 1 1 calc(33.333% - 6px);
+        padding: 6px 4px;
+        font-size: 0.78rem;
+        min-height: 38px;
         gap: 4px;
       }
       .btn-shutter {
         flex: 1 1 100%;
+        order: -2;
+        min-height: 48px;
+        font-size: 1rem;
+      }
+      .btn-play {
+        flex: 1 1 100%;
         order: -1;
-        min-height: 40px;
-        font-size: 0.92rem;
+        min-height: 42px;
+        font-size: 0.95rem;
       }
       .trickfilm-filmstrip-bar {
-        height: 70px;
-        min-height: 70px;
-        max-height: 70px;
+        height: 72px;
+        min-height: 72px;
+        max-height: 72px;
       }
       .filmstrip-card {
         flex: 0 0 58px;
@@ -615,19 +696,24 @@
         gap: 5px;
       }
       .trickfilm-action-panel {
-        width: 160px;
-        min-width: 160px;
-        max-width: 160px;
+        width: 175px;
+        min-width: 175px;
+        max-width: 175px;
         padding: 3px 5px;
         gap: 3px;
       }
       .action-btn {
-        padding: 2px 4px;
-        font-size: 0.7rem;
+        padding: 3px 4px;
+        font-size: 0.72rem;
+        min-height: 28px;
         gap: 3px;
       }
       .btn-shutter {
-        font-size: 0.78rem;
+        font-size: 0.84rem;
+        min-height: 36px;
+      }
+      .btn-play {
+        min-height: 32px;
       }
       .trickfilm-filmstrip-bar {
         height: 60px;
@@ -708,28 +794,8 @@
       <!-- SIDE ACTIONS / CONTROL PANEL -->
       <div class="trickfilm-action-panel">
         <button class="action-btn btn-shutter" id="btn-trickfilm-snap" title="Foto Knipsen">
-          <span class="shutter-icon text-lg md:text-xl">📸</span>
+          <span class="shutter-icon">📸</span>
           <span>Foto Knipsen!</span>
-        </button>
-
-        <button class="action-btn btn-secondary" id="btn-trickfilm-cam-switch" title="Kamera wechseln">
-          <span class="btn-icon">🔄</span>
-          <span id="trickfilm-cam-label">Rück-Kamera</span>
-        </button>
-
-        <button class="action-btn btn-filter" id="btn-trickfilm-filter" title="Bildfilter wechseln">
-          <span class="btn-icon">🎨</span>
-          <span id="trickfilm-filter-label">Filter: Normal</span>
-        </button>
-
-        <button class="action-btn btn-secondary active" id="btn-trickfilm-onion" title="Zwiebelhaut Transparenz Umschalten">
-          <span class="btn-icon">👻</span>
-          <span>Zwiebelhaut AN</span>
-        </button>
-
-        <button class="action-btn btn-secondary" id="btn-trickfilm-mic" title="Sprache/Ton Aufnehmen">
-          <span class="btn-icon">🎙️</span>
-          <span>Ton Aufnehmen</span>
         </button>
 
         <button class="action-btn btn-play" id="btn-trickfilm-play" title="Film abspielen">
@@ -737,12 +803,32 @@
           <span>Film Abspielen</span>
         </button>
 
+        <button class="action-btn btn-ghost active" id="btn-trickfilm-onion" title="Geisterbild Transparenz Umschalten">
+          <span class="btn-icon">👻</span>
+          <span>Geisterbild AN</span>
+        </button>
+
+        <button class="action-btn btn-filter" id="btn-trickfilm-filter" title="Bildfilter wechseln">
+          <span class="btn-icon">🎨</span>
+          <span id="trickfilm-filter-label">Filter: Normal</span>
+        </button>
+
+        <button class="action-btn btn-cam" id="btn-trickfilm-cam-switch" title="Kamera wechseln">
+          <span class="btn-icon">🔄</span>
+          <span id="trickfilm-cam-label">Rück-Kamera</span>
+        </button>
+
+        <button class="action-btn btn-mic" id="btn-trickfilm-mic" title="Sprache/Ton Aufnehmen">
+          <span class="btn-icon">🎙️</span>
+          <span>Ton Aufnehmen</span>
+        </button>
+
         <button class="action-btn btn-print" id="btn-trickfilm-print" onclick="printFlipbook(this)" title="Daumenkino Drucken">
           <span class="btn-icon">🖨️</span>
           <span>Daumenkino</span>
         </button>
 
-        <button class="action-btn btn-danger" id="btn-trickfilm-clear" title="Neuen Film starten">
+        <button class="action-btn btn-danger" id="btn-trickfilm-clear" title="Film löschen und neu starten">
           <span class="btn-icon">🧹</span>
           <span>Neuer Film</span>
         </button>
@@ -1022,6 +1108,18 @@
           playShutterSound();
           triggerHaptic(30);
 
+          // Visueller Kamera-Blitz über dem Viewport
+          const viewportCard = document.getElementById('trickfilm-viewport-card');
+          if (viewportCard) {
+            const flash = document.createElement('div');
+            flash.className = 'camera-flash';
+            viewportCard.appendChild(flash);
+            requestAnimationFrame(() => {
+              flash.style.opacity = '0';
+              setTimeout(() => flash.remove(), 220);
+            });
+          }
+
           const canvas = document.createElement('canvas');
           const hasLiveVideo = (video && video.readyState >= 2 && video.videoWidth > 0);
           canvas.width = hasLiveVideo ? video.videoWidth : 800;
@@ -1179,7 +1277,10 @@
           trickfilmAudioBlob = null;
           trickfilmAudioUrl = null;
           if (micStatus) micStatus.classList.add('hidden');
-          if (btnMic) btnMic.classList.remove('recording');
+          if (btnMic) {
+            btnMic.classList.remove('recording');
+            btnMic.innerHTML = '<span class="btn-icon">🎙️</span> <span>Ton Aufnehmen</span>';
+          }
           isRecordingAudio = false;
 
           stopPlayback();
@@ -1207,7 +1308,7 @@
           if (playbackBadge) playbackBadge.classList.remove('hidden');
 
           if (btnPlay) {
-            btnPlay.innerHTML = '<span class="btn-icon">⏹️</span> Film Stoppen';
+            btnPlay.innerHTML = '<span class="btn-icon">⏹️</span> <span>Film Stoppen</span>';
             btnPlay.classList.add('playing');
           }
 
@@ -1255,7 +1356,7 @@
           if (playbackBadge) playbackBadge.classList.add('hidden');
 
           if (btnPlay) {
-            btnPlay.innerHTML = '<span class="btn-icon">▶️</span> Film Abspielen';
+            btnPlay.innerHTML = '<span class="btn-icon">▶️</span> <span>Film Abspielen</span>';
             btnPlay.classList.remove('playing');
           }
 
@@ -1270,7 +1371,10 @@
               trickfilmMediaRecorder.stop();
             }
             isRecordingAudio = false;
-            if (btnMic) btnMic.classList.remove('recording');
+            if (btnMic) {
+              btnMic.classList.remove('recording');
+              btnMic.innerHTML = '<span class="btn-icon">🎙️</span> <span>Ton Aufnehmen</span>';
+            }
             if (micStatus) micStatus.classList.add('hidden');
             playPopSound(600);
           } else {
@@ -1288,7 +1392,10 @@
               };
               trickfilmMediaRecorder.start();
               isRecordingAudio = true;
-              if (btnMic) btnMic.classList.add('recording');
+              if (btnMic) {
+                btnMic.classList.add('recording');
+                btnMic.innerHTML = '<span class="btn-icon">⏹️</span> <span>Ton Stoppen</span>';
+              }
               if (micStatus) micStatus.classList.remove('hidden');
               playPopSound(800);
               triggerHaptic(40);
@@ -1382,7 +1489,7 @@
           btnOnion.addEventListener('click', () => {
             isOnionSkinActive = !isOnionSkinActive;
             btnOnion.classList.toggle('active', isOnionSkinActive);
-            btnOnion.innerHTML = isOnionSkinActive ? '<span class="btn-icon">👻</span> Zwiebelhaut AN' : '<span class="btn-icon">👻</span> Zwiebelhaut AUS';
+            btnOnion.innerHTML = isOnionSkinActive ? '<span class="btn-icon">👻</span> <span>Geisterbild AN</span>' : '<span class="btn-icon">👻</span> <span>Geisterbild AUS</span>';
             drawOnionSkin();
             playPopSound(520);
           });
