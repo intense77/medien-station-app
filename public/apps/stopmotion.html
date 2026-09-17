@@ -872,21 +872,69 @@
       </div>
   </div>
 
-  <!-- HILFE MODAL (EXAKT ANALOG ZU MEDIENSTATION UX) -->
+  <!-- HILFE MODAL (MEDIENPÄDAGOGISCH & KINDGERECHT) -->
   <div id="info-modal" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="window.toggleInfo(event)">
-      <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-          <button onclick="window.toggleInfo(event)" class="absolute top-6 right-6 text-white hover:text-amber-400 text-4xl font-bold transition">✖</button>
-          <h2 class="text-3xl md:text-4xl font-black text-white mb-6 border-b border-slate-600 pb-4 flex items-center gap-4">
-              <span class="text-5xl">🎬</span> ANLEITUNG TRICKFILM
-              <button onclick="window.speakText('Anleitung für das Kita Trickfilmstudio. Erstens: Baue deine Figuren vor der Kamera auf. Zweitens: Wähle optional einen bunten Bildfilter wie Schwarz-Weiß, Sepia oder Neon. Drittens: Tippe auf Foto knipsen. Viertens: Bewege deine Figuren ein kleines Stück. Die Zwiebelhaut zeigt dir transparent das vorherige Bild. Fünftens: Nimm eine Sprach- oder Tonspur mit dem Mikrofon auf. Sechstens: Tippe auf Film Abspielen oder drucke dein Daumenkino aus!', event)" class="ml-auto mr-12 bg-slate-700 hover:bg-slate-600 text-white rounded-full w-10 h-10 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 transition-all text-xl md:text-3xl shrink-0" title="Vorlesen">🔊</button>
+      <div class="bg-slate-800 border-4 border-amber-500 rounded-[2rem] max-w-2xl w-full p-5 sm:p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+          <button onclick="window.toggleInfo(event)" class="absolute top-5 right-5 text-white hover:text-amber-400 text-3xl sm:text-4xl font-bold transition">✖</button>
+          
+          <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 border-b border-slate-600 pb-4 flex items-center gap-3">
+              <span class="text-4xl sm:text-5xl">🎬</span>
+              <span>TRICKFILM STUDIO</span>
+              <button onclick="window.speakText('Willkommen im Trickfilm Studio! Hier bist du die Film-Regisseurin oder der Film-Regisseur und erweckst deine Spielzeuge und Knetfiguren zum Leben! Wie das geht? Ein Film entsteht, wenn du viele Fotos machst und die Figuren dazwischen immer ein kleines Stückchen weiterbewegst. Erstens: Baue deine Figuren auf. Zweitens: Knipse ein Foto mit dem großen roten Knopf. Drittens: Bewege deine Figur ein winziges Stück. Das Geisterbild hilft dir dabei! Viertens: Knipse wieder ein Foto und wiederhole das ganz oft. Fünftens: Nimm Stimmen oder lustige Geräusche mit dem Mikrofon auf. Und sechstens: Tippe auf Film Abspielen und staune, wie sich alles wie durch Zauberei bewegt! Du kannst deinen Film auch als echtes Daumenkino ausdrucken.', event)" class="ml-auto mr-10 sm:mr-12 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-full w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-amber-200 active:scale-95 transition-all text-xl sm:text-2xl md:text-3xl shrink-0" title="Anleitung vorlesen">🔊</button>
           </h2>
-          <div class="text-base md:text-lg text-slate-300 space-y-4">
-              <p>1. <b>🧱 Motiv aufbauen</b>: Stelle deine Gegenstände oder Figuren vor die Kamera.</p>
-              <p>2. <b>🎨 Bildfilter wählen</b>: Probiere Schwarz-Weiß (Krimi), Sepia (Retro), Pop-Art oder Neon aus!</p>
-              <p>3. <b>📸 Foto knipsen</b>: Tippe auf den roten Foto-Button.</p>
-              <p>4. <b>👻 Zwiebelhaut nutzen</b>: Bewege deine Figur ein Stück. Das durchsichtige Geisterbild zeigt dir genau die vorherige Position!</p>
-              <p>5. <b>🎙️ Tonspur aufnehmen</b>: Klicke auf Ton Aufnehmen, um Geräusche oder Stimmen einzusprechen.</p>
-              <p>6. <b>▶️ Film ansehen & 🖨️ Drucken</b>: Spiele deinen Film ab oder drucke ihn als Daumenkino-Bogen aus!</p>
+
+          <!-- ZIEL DER APP (MEDIENPÄDAGOGISCHER EINSTIEG) -->
+          <div class="bg-gradient-to-r from-amber-500/20 to-purple-500/20 border-2 border-amber-400/40 rounded-2xl p-3 sm:p-4 mb-4 text-slate-100">
+              <p class="text-sm sm:text-base md:text-lg font-bold text-amber-300 mb-1 flex items-center gap-2">
+                  <span>✨</span> <b>Das Geheimnis des Trickfilms:</b>
+              </p>
+              <p class="text-xs sm:text-sm md:text-base leading-relaxed text-slate-200">
+                  Du bist die Regisseurin oder der Regisseur! Erwecke deine Spielzeuge, Knete oder Zeichnungen zum Leben. Ein Film entsteht, wenn du <b>viele Einzelfotos</b> machst und deine Figuren dazwischen immer <b>ein winziges Stückchen bewegst</b>. Beim Abspielen läuft alles ganz schnell ab – und deine Figuren bewegen sich wie durch Zauberei! 🪄
+              </p>
+          </div>
+
+          <!-- SCHRITT FÜR SCHRITT ANLEITUNG -->
+          <div class="space-y-2.5 text-xs sm:text-sm md:text-base text-slate-200">
+              <div class="flex items-start gap-3 bg-slate-900/60 p-2.5 sm:p-3 rounded-xl border border-slate-700">
+                  <span class="text-xl sm:text-2xl shrink-0">🧱</span>
+                  <div><b>1. Bühne aufbauen:</b> Stelle deine Figuren oder Gegenstände vor die Kamera.</div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-slate-900/60 p-2.5 sm:p-3 rounded-xl border border-slate-700">
+                  <span class="text-xl sm:text-2xl shrink-0">🎨</span>
+                  <div><b>2. Filter wählen:</b> Wähle optional einen coolen Look wie Schwarz-Weiß, Sepia, Pop-Art oder Neon!</div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-slate-900/60 p-2.5 sm:p-3 rounded-xl border border-slate-700">
+                  <span class="text-xl sm:text-2xl shrink-0">📸</span>
+                  <div><b>3. Foto knipsen:</b> Tippe auf den großen leuchtenden Foto-Knopf.</div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-slate-900/60 p-2.5 sm:p-3 rounded-xl border border-slate-700">
+                  <span class="text-xl sm:text-2xl shrink-0">👻</span>
+                  <div><b>4. Bewegen & Geisterbild:</b> Schiebe deine Figur ein kleines Stück weiter. Das transparente <b>Geisterbild</b> zeigt dir genau, wo sie vorher stand!</div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-slate-900/60 p-2.5 sm:p-3 rounded-xl border border-slate-700">
+                  <span class="text-xl sm:text-2xl shrink-0">🔁</span>
+                  <div><b>5. Ganz viele Fotos machen:</b> Wiederhole das: Foto knipsen, Figur ein Stück bewegen, wieder knipsen! Je mehr Bilder, desto länger dein Film.</div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-slate-900/60 p-2.5 sm:p-3 rounded-xl border border-slate-700">
+                  <span class="text-xl sm:text-2xl shrink-0">🎙️</span>
+                  <div><b>6. Stimmen & Geräusche:</b> Nimm mit dem Mikrofon Stimmen oder lustige Geräusche für deine Geschichte auf.</div>
+              </div>
+
+              <div class="flex items-start gap-3 bg-slate-900/60 p-2.5 sm:p-3 rounded-xl border border-slate-700">
+                  <span class="text-xl sm:text-2xl shrink-0">▶️</span>
+                  <div><b>7. Film abspielen & Daumenkino:</b> Schau dir dein Meisterwerk an oder drucke ihn mit 🖨️ als echtes <b>Daumenkino</b> zum Ausschneiden und Heften aus!</div>
+              </div>
+          </div>
+
+          <!-- PÄDAGOGISCHER TIPP -->
+          <div class="mt-4 p-3 bg-amber-400/10 border border-amber-400/30 rounded-xl text-center">
+              <span class="text-xs sm:text-sm text-amber-300 font-bold">💡 Regie-Tipp:</span>
+              <span class="text-xs sm:text-sm text-slate-300"> Je kleiner deine Bewegungsschritte zwischen den Fotos sind, desto flüssiger und magischer wirkt die Bewegung im fertigen Film!</span>
           </div>
       </div>
   </div>
