@@ -482,6 +482,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
       font-size: 0.72rem;
       line-height: 1;
       flex-shrink: 0;
@@ -501,6 +502,70 @@
     .filmstrip-hint {
       color: var(--text-muted);
       font-size: 0.68rem;
+    }
+
+    /* TIMELINE TEMPO WIDGET (IMMER SICHTBAR) */
+    .trickfilm-tempo-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(251, 191, 36, 0.5);
+      padding: 2px 7px;
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .tempo-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: transform 0.1s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .tempo-btn:active {
+      transform: scale(0.85);
+    }
+
+    .tempo-slider {
+      width: 65px;
+      height: 5px;
+      accent-color: #FBBF24;
+      cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      .tempo-slider {
+        width: 95px;
+        height: 6px;
+      }
+      .trickfilm-tempo-control {
+        gap: 8px;
+        padding: 2px 10px;
+      }
+      .tempo-btn {
+        font-size: 1.15rem;
+      }
+    }
+
+    .tempo-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #FDE047;
+      min-width: 50px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1px 5px;
+      border-radius: 5px;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      white-space: nowrap;
     }
 
     .filmstrip-scroll-container {
@@ -746,14 +811,8 @@
       🎬 TRICKFILM STUDIO
     </h1>
 
-    <!-- HEADER RECHTS: TEMPO & HILFE -->
+    <!-- HEADER RECHTS: HILFE -->
     <div class="flex items-center gap-2 md:gap-3 z-50">
-      <div class="hidden sm:flex items-center gap-2 bg-slate-800 border-2 border-slate-700 px-2.5 py-1 rounded-full shadow">
-        <span class="text-[11px] font-black text-slate-300">🐢 TEMPO:</span>
-        <input type="range" id="trickfilm-fps-slider" min="2" max="10" value="4" step="1" class="w-16 md:w-20 accent-amber-400 cursor-pointer" aria-label="Abspielgeschwindigkeit">
-        <span id="fps-value-text" class="text-[11px] font-black text-amber-400 min-w-[70px]">4 B/SEK 🐇</span>
-      </div>
-
       <button onclick="window.toggleInfo(event)" class="w-9 h-9 md:w-12 md:h-12 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-lg flex items-center justify-center transition-transform active:scale-95 text-base md:text-xl shrink-0 z-50" title="Hilfe">
         ?
       </button>
@@ -839,8 +898,18 @@
     <!-- BOTTOM FILMSTRIP TIMELINE BAR -->
     <div class="trickfilm-filmstrip-bar" id="trickfilm-filmstrip-bar">
       <div class="filmstrip-header">
-        <span class="filmstrip-title">🎞️ Filmstreifen (Bilderleiste):</span>
-        <span class="filmstrip-hint">Tippe auf 🗑️ um ein einzelnes Bild zu löschen</span>
+        <div class="flex items-center gap-2">
+          <span class="filmstrip-title">🎞️ Filmstreifen:</span>
+          <span class="filmstrip-hint hidden sm:inline">Tippe auf 🗑️ zum Löschen</span>
+        </div>
+
+        <!-- TEMPO REGLER IN DER ZEITLEISTE (IMMER 100% SICHTBAR) -->
+        <div class="trickfilm-tempo-control" title="Abspieltempo ändern">
+          <button type="button" class="tempo-btn" id="btn-fps-slower" title="Langsamer (Schildkröte)">🐢</button>
+          <input type="range" id="trickfilm-fps-slider" min="1" max="12" value="4" step="1" class="tempo-slider" aria-label="Abspielgeschwindigkeit">
+          <button type="button" class="tempo-btn" id="btn-fps-faster" title="Schneller (Hase)">🐇</button>
+          <span id="fps-value-text" class="tempo-badge">4 B/s</span>
+        </div>
       </div>
       <div class="filmstrip-scroll-container" id="trickfilm-filmstrip-scroll">
         <div class="filmstrip-empty-text" id="filmstrip-empty-text">
@@ -1075,7 +1144,19 @@
         const btnPlay = document.getElementById('btn-trickfilm-play');
         const fpsSlider = document.getElementById('trickfilm-fps-slider');
         const fpsText = document.getElementById('fps-value-text');
+        const btnFpsSlower = document.getElementById('btn-fps-slower');
+        const btnFpsFaster = document.getElementById('btn-fps-faster');
         const micStatus = document.getElementById('trickfilm-mic-status');
+
+        function setFps(newFps, withFeedback = true) {
+          trickfilmFps = Math.max(1, Math.min(12, parseInt(newFps, 10) || 4));
+          if (fpsSlider) fpsSlider.value = trickfilmFps;
+          if (fpsText) fpsText.textContent = `${trickfilmFps} B/s`;
+          if (withFeedback) {
+            playPopSound(360 + trickfilmFps * 25);
+            triggerHaptic(20);
+          }
+        }
 
         function cycleFilter() {
           currentFilterIdx = (currentFilterIdx + 1) % FILTERS.length;
@@ -1554,10 +1635,13 @@
         if (playbackBadge) playbackBadge.addEventListener('click', stopPlayback);
 
         if (fpsSlider) {
-          fpsSlider.addEventListener('input', (e) => {
-            trickfilmFps = parseInt(e.target.value, 10);
-            if (fpsText) fpsText.textContent = `${trickfilmFps} B/SEK 🐇`;
-          });
+          fpsSlider.addEventListener('input', (e) => setFps(e.target.value, false));
+        }
+        if (btnFpsSlower) {
+          btnFpsSlower.addEventListener('click', () => setFps(trickfilmFps - 1));
+        }
+        if (btnFpsFaster) {
+          btnFpsFaster.addEventListener('click', () => setFps(trickfilmFps + 1));
         }
 
         window.addEventListener('resize', drawOnionSkin);
