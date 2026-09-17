@@ -414,7 +414,20 @@
       font-weight: 900;
     }
 
-    /* 7. DAUMENKINO DRUCKEN */
+    /* 7. SPEICHERN BUTTON */
+    .btn-save {
+      background: linear-gradient(135deg, #D97706, #F59E0B);
+      color: #FFF;
+      border: 1.5px solid #FDE68A;
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+      font-weight: 800;
+    }
+
+    .btn-save:hover {
+      filter: brightness(1.1);
+    }
+
+    /* 8. DAUMENKINO DRUCKEN */
     .btn-print {
       background: linear-gradient(135deg, #0284C7, #0EA5E9);
       color: #FFF;
@@ -426,7 +439,7 @@
       filter: brightness(1.1);
     }
 
-    /* 8. NEUER FILM (LÖSCHEN) */
+    /* 9. NEUER FILM (LÖSCHEN) */
     .btn-danger {
       background: rgba(239, 68, 68, 0.15);
       color: #FCA5A5;
@@ -883,6 +896,11 @@
         <button class="action-btn btn-mic" id="btn-trickfilm-mic" title="Sprache/Ton Aufnehmen">
           <span class="btn-icon">🎙️</span>
           <span>Ton Aufnehmen</span>
+        </button>
+
+        <button class="action-btn btn-save" id="btn-trickfilm-save" onclick="saveFilmToGallery(this)" title="In Galerie der Meisterwerke speichern">
+          <span class="btn-icon">💾</span>
+          <span>Speichern</span>
         </button>
 
         <button class="action-btn btn-print" id="btn-trickfilm-print" onclick="printFlipbook(this)" title="Daumenkino Drucken">
@@ -1552,15 +1570,8 @@
           }
         }
 
-        // Daumenkino Drucken
-        window.printFlipbook = async (btn) => {
-          if (trickfilmFrames.length === 0) {
-            alert("Knipse zuerst ein paar Bilder!");
-            return;
-          }
-
-          if (window.playSound) window.playSound('click');
-
+        // Daumenkino Canvas Daten generieren
+        function generateFlipbookDataUrl() {
           const printCanvas = document.createElement('canvas');
           printCanvas.width = 1800;
           printCanvas.height = 1200;
@@ -1571,7 +1582,7 @@
 
           pCtx.fillStyle = '#0f172a';
           pCtx.font = 'bold 36px sans-serif';
-          pCtx.fillText('🎬 MEIN DAUMENKINO - KITA TRICKFILMSTUDIO', 60, 60);
+          pCtx.fillText('🎬 MEIN TRICKFILM - KITA MEDIENSTATION', 60, 60);
 
           const cols = 3;
           const rows = 3;
@@ -1581,42 +1592,87 @@
           const cellW = (1800 - (2 * marginX) - ((cols - 1) * gap)) / cols;
           const cellH = (1200 - marginY - 60 - ((rows - 1) * gap)) / rows;
 
+          const totalToShow = Math.min(trickfilmFrames.length, 9);
+          for (let i = 0; i < totalToShow; i++) {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            const x = marginX + col * (cellW + gap);
+            const y = marginY + row * (cellH + gap);
+
+            const frameCanvas = trickfilmFrames[i];
+
+            pCtx.save();
+            pCtx.beginPath();
+            pCtx.rect(x, y, cellW, cellH);
+            pCtx.clip();
+
+            pCtx.drawImage(frameCanvas, x, y, cellW, cellH);
+            pCtx.restore();
+
+            pCtx.strokeStyle = '#94a3b8';
+            pCtx.lineWidth = 3;
+            pCtx.setLineDash([8, 8]);
+            pCtx.strokeRect(x, y, cellW, cellH);
+            pCtx.setLineDash([]);
+
+            pCtx.fillStyle = '#FFD166';
+            pCtx.fillRect(x + 10, y + 10, 45, 45);
+            pCtx.fillStyle = '#000000';
+            pCtx.font = 'bold 26px sans-serif';
+            pCtx.textAlign = 'center';
+            pCtx.fillText(`${i + 1}`, x + 32, y + 42);
+            pCtx.textAlign = 'left';
+          }
+
+          return printCanvas.toDataURL('image/jpeg', 0.85);
+        }
+
+        // Film in Galerie der Meisterwerke speichern
+        window.saveFilmToGallery = function(btn) {
+          if (trickfilmFrames.length === 0) {
+            alert("Knipse zuerst ein paar Bilder für deinen Film! 📸");
+            return;
+          }
+
+          if (window.playSound) window.playSound('click');
+
           try {
-            const totalToShow = Math.min(trickfilmFrames.length, 9);
-            for (let i = 0; i < totalToShow; i++) {
-              const col = i % cols;
-              const row = Math.floor(i / cols);
-              const x = marginX + col * (cellW + gap);
-              const y = marginY + row * (cellH + gap);
-
-              const frameCanvas = trickfilmFrames[i];
-
-              pCtx.save();
-              pCtx.beginPath();
-              pCtx.rect(x, y, cellW, cellH);
-              pCtx.clip();
-
-              pCtx.drawImage(frameCanvas, x, y, cellW, cellH);
-              pCtx.restore();
-
-              pCtx.strokeStyle = '#94a3b8';
-              pCtx.lineWidth = 3;
-              pCtx.setLineDash([8, 8]);
-              pCtx.strokeRect(x, y, cellW, cellH);
-              pCtx.setLineDash([]);
-
-              pCtx.fillStyle = '#FFD166';
-              pCtx.fillRect(x + 10, y + 10, 45, 45);
-              pCtx.fillStyle = '#000000';
-              pCtx.font = 'bold 26px sans-serif';
-              pCtx.textAlign = 'center';
-              pCtx.fillText(`${i + 1}`, x + 32, y + 42);
-              pCtx.textAlign = 'left';
+            const dataUrl = generateFlipbookDataUrl();
+            if (window.saveToMeisterwerke) {
+              window.saveToMeisterwerke({
+                type: 'image',
+                appName: 'Trickfilm Studio',
+                title: `Trickfilm (${trickfilmFrames.length} Bilder)`,
+                dataUrl: dataUrl
+              });
             }
 
-            const dataUrl = printCanvas.toDataURL('image/jpeg', 0.9);
+            if (window.playSound) window.playSound('success');
+            if (window.triggerCelebration) window.triggerCelebration();
+
+            if (btn) {
+              const origHtml = btn.innerHTML;
+              btn.innerHTML = '<span>🌟</span> <span>Gespeichert!</span>';
+              setTimeout(() => { btn.innerHTML = origHtml; }, 2200);
+            }
+          } catch (e) {
+            console.error("Fehler beim Speichern in Meisterwerke:", e);
+          }
+        };
+
+        // Daumenkino Drucken
+        window.printFlipbook = async (btn) => {
+          if (trickfilmFrames.length === 0) {
+            alert("Knipse zuerst ein paar Bilder! 📸");
+            return;
+          }
+
+          if (window.playSound) window.playSound('click');
+
+          try {
+            const dataUrl = generateFlipbookDataUrl();
             if (window.saveToMeisterwerke) {
-              window.saveToMeisterwerke({ type: 'image', appName: 'Trickfilm Studio', title: 'Daumenkino', dataUrl: dataUrl });
+              window.saveToMeisterwerke({ type: 'image', appName: 'Trickfilm Studio', title: `Trickfilm (${trickfilmFrames.length} Bilder)`, dataUrl: dataUrl });
             }
             if (window.printImage) {
               window.printImage(dataUrl, 'Daumenkino', btn);
