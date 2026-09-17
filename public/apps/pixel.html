@@ -36,7 +36,7 @@
             touch-action: none; 
         }
         
-        /* Das Gitter - Perfekte quadratische Einpassung auf jedem Bildschirm */
+        /* Das Gitter - Karierte Zeichenfläche */
         .grid-wrapper {
             display: flex;
             align-items: center;
@@ -47,6 +47,7 @@
             width: 100%;
             height: 100%;
             padding: 4px;
+            position: relative;
         }
 
         .pixel-grid { 
@@ -54,17 +55,19 @@
             grid-template-columns: repeat(16, 1fr); 
             grid-template-rows: repeat(16, 1fr); 
             gap: 1.5px; 
-            background: #334155; 
+            background: #475569; 
             border: 4px solid #10b981; 
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7); 
             border-radius: 1.2rem;
             overflow: hidden;
             touch-action: none;
-            aspect-ratio: 1 / 1;
+            user-select: none;
+            -webkit-user-select: none;
+            width: min(80vw, 80vh);
+            height: min(80vw, 80vh);
             max-width: 100%;
             max-height: 100%;
-            width: auto;
-            height: auto;
+            flex-shrink: 0;
         }
 
         @media (min-width: 768px) {
@@ -74,12 +77,15 @@
             }
         }
 
+        /* Karierte Kästchen */
         .cell { 
             background-color: #ffffff; 
             cursor: pointer; 
-            transition: background-color 0.04s ease;
             touch-action: none;
             user-select: none;
+            -webkit-user-select: none;
+            box-shadow: inset 0 0 0 1px rgba(203, 213, 225, 0.6);
+            transition: background-color 0.04s ease;
         }
 
         .cell:active {
@@ -140,7 +146,7 @@
     <!-- HAUPT-BEREICH -->
     <main class="flex-1 flex flex-col md:flex-row landscape:flex-row items-center justify-center gap-2 md:gap-4 min-h-0 min-w-0 w-full max-w-[95rem] mx-auto pb-1">
         
-        <!-- Das Gitter (Container) -->
+        <!-- Das Gitter (Karierte Zeichenfläche) -->
         <div class="grid-wrapper">
             <div id="grid" class="pixel-grid">
                 <!-- 16x16 = 256 Zellen via JS -->
@@ -235,10 +241,31 @@
 
     <script>
         const grid = document.getElementById('grid');
+        const gridWrapper = document.querySelector('.grid-wrapper');
         let currentColor = '#000000';
         let isDrawing = false;
         const historyStack = [];
         const MAX_HISTORY = 20;
+
+        // Pixel-Größe dynamisch an den Bildschirm anpassen
+        function updateGridDimensions() {
+            if (!gridWrapper || !grid) return;
+            const w = gridWrapper.clientWidth - 16;
+            const h = gridWrapper.clientHeight - 16;
+            if (w <= 0 || h <= 0) return;
+            const size = Math.floor(Math.min(w, h));
+            if (size > 50) {
+                grid.style.width = size + 'px';
+                grid.style.height = size + 'px';
+            }
+        }
+
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => updateGridDimensions());
+            ro.observe(gridWrapper);
+        }
+        window.addEventListener('resize', updateGridDimensions);
+        window.addEventListener('orientationchange', () => setTimeout(updateGridDimensions, 100));
 
         // Web Audio Synthesizer für spielerischen 8-Bit-Ton beim Malen
         let audioCtx = null;
@@ -307,32 +334,55 @@
                 cell.className = 'cell';
                 cell.dataset.index = i;
                 cell.style.backgroundColor = '#ffffff';
+
+                // Direkte Listener auf jeder Zelle
+                cell.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    isDrawing = true;
+                    saveSnapshot();
+                    paintCell(cell);
+                });
+                cell.addEventListener('mouseenter', () => {
+                    if (isDrawing) paintCell(cell);
+                });
+
                 frag.appendChild(cell);
             }
             grid.innerHTML = ''; 
             grid.appendChild(frag);
+            updateGridDimensions();
         }
 
-        // Pointer Events für flüssiges Zeichnen mit Maus, Finger & Stift
+        // Pointer & Touch Events am Grid
         grid.addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            saveSnapshot();
             isDrawing = true;
-            const target = document.elementFromPoint(e.clientX, e.clientY);
-            const cell = target ? target.closest('.cell') : null;
-            if (cell) paintCell(cell);
+            saveSnapshot();
+            const target = e.target.closest('.cell') || document.elementFromPoint(e.clientX, e.clientY)?.closest('.cell');
+            if (target) paintCell(target);
         });
 
         grid.addEventListener('pointermove', (e) => {
+            if (!isDrawing && e.buttons !== 1) return;
+            e.preventDefault();
+            const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.cell');
+            if (target) paintCell(target);
+        });
+
+        grid.addEventListener('touchmove', (e) => {
             if (!isDrawing) return;
             e.preventDefault();
-            const target = document.elementFromPoint(e.clientX, e.clientY);
-            const cell = target ? target.closest('.cell') : null;
-            if (cell) paintCell(cell);
-        });
+            const t = e.touches[0];
+            if (t) {
+                const target = document.elementFromPoint(t.clientX, t.clientY)?.closest('.cell');
+                if (target) paintCell(target);
+            }
+        }, { passive: false });
 
         window.addEventListener('pointerup', () => { isDrawing = false; });
         window.addEventListener('pointercancel', () => { isDrawing = false; });
+        window.addEventListener('mouseup', () => { isDrawing = false; });
+        window.addEventListener('touchend', () => { isDrawing = false; });
 
         function setColor(btn) {
             if (window.playSound) window.playSound('click');
@@ -407,6 +457,8 @@
 
         // Initialisierung
         initGrid();
+        setTimeout(updateGridDimensions, 50);
+        setTimeout(updateGridDimensions, 250);
     </script>
 </body>
 </html>
