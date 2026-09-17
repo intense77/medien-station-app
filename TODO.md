@@ -1,7 +1,7 @@
 # 📋 MedienStation – Roadmap, Fachanalyse & TODOs
 
 > **Fachlich-kritische Bestandsaufnahme, Architektur-Analyse und strategische Weiterentwicklung**
-> *Stand: September 2026 (Version v7.6.6)*
+> *Stand: September 2026 (Version v7.7.0)*
 
 ---
 
@@ -27,10 +27,9 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 
 ## 🔍 3. Identifizierte Schwachstellen & Herausforderungen
 
-### ⚠️ 1. Technischer Flaschenhals: `localStorage` (5 MB Limit)
-* **Status:** Die Galerie der Meisterwerke speichert Bilder und Audioaufnahmen als Data-URLs im `localStorage`.
-* **Problem:** Das 5-MB-Speicherlimit des Browsers erfordert starke Bildkompression und verhindert die direkte Speicherung echter Video-Snippets (WebM/MP4).
-* **Ziel:** Migration der Meisterwerke-Speicherung auf **`IndexedDB`**.
+### 🟢 1. Speichersystem: Auf `IndexedDB` migriert (Erledigt in v7.7.0)
+* **Status:** Die Galerie der Meisterwerke speichert Bilder, Audio und Video-Daten in `IndexedDB` (`MedienStationDB`).
+* **Vorteil:** Das 5-MB-Limit von `localStorage` ist aufgehoben, Hunderte Megabyte Speicher für hochauflösende Fotos und Videos sind verfügbar.
 
 ### ⚠️ 2. Performance & Hitzeentwicklung auf Einsteiger-Hardware
 * **Status:** Lokale KI-Segmentierung (*MediaPipe Selfie Segmentation*) und Canvas-Rendering laufen voll auf Client-Hardware.
@@ -51,11 +50,10 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 ## 🚀 4. Actionable TODOs & Entwicklungs-Roadmap
 
 ### 🟢 Phase 1: High Priority (Architektur & Storage)
-- [ ] **Storage-Upgrade auf `IndexedDB`**:
-  - `public/js/common.js`: Meisterwerke-Speichersystem von `localStorage` auf `IndexedDB` migrieren.
-  - Ermöglicht hochauflösende Druckqualität und hunderte Megabyte lokalen Cache ohne Quota-Fehler.
-- [ ] **Echte Video-Wiedergabe in der Galerie**:
-  - Speichern und Abspielen von echten Kurz-Videos aus *Trickfilm Studio* und *Video Loop* direkt im Galerie-Player.
+- [x] **Storage-Upgrade auf `IndexedDB`** (Erledigt in v7.7.0):
+  - `public/js/common.js`: Meisterwerke-Speichersystem von `localStorage` auf `IndexedDB` migriert mit automatischer Datenübernahme & Fallback.
+- [x] **Echte Video-Wiedergabe in der Galerie**:
+  - Video-Snippets und Player in Galerie integriert.
 
 ### 🟡 Phase 2: Medium Priority (Pädagogen-Werkzeuge & Inklusion)
 - [ ] **Pädagogen-Admin-Bereich (PIN-geschützt)**:

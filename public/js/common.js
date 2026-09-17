@@ -796,100 +796,215 @@
         });
     }
 
+    // --- 12. IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, unbegrenzter Speicher, Offline-PWA) ---
+    const DB_NAME = 'MedienStationDB';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'meisterwerke';
+    const MEISTER_KEY = 'medienstation_meisterwerke';
+    const MAX_GALLERY_ITEMS = 40;
+
+    let dbPromise = null;
+    function getDB() {
+        if (dbPromise) return dbPromise;
+        dbPromise = new Promise((resolve, reject) => {
+            if (!window.indexedDB) {
+                return reject(new Error('IndexedDB not supported'));
+            }
+            const req = window.indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    store.createIndex('timestamp', 'timestamp', { unique: false });
+                }
+            };
+            req.onsuccess = (e) => resolve(e.target.result);
+            req.onerror = (e) => reject(e.target.error || new Error('IDB open failed'));
+        });
+        return dbPromise;
+    }
+
+    async function migrateLocalStorageIfNeeded(db) {
+        try {
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (!raw) return;
+            const oldItems = JSON.parse(raw);
+            if (Array.isArray(oldItems) && oldItems.length > 0) {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                for (const it of oldItems) {
+                    if (it && it.dataUrl) {
+                        it.id = it.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 4));
+                        it.timestamp = it.timestamp || Date.now();
+                        store.put(it);
+                    }
+                }
+                await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
+                localStorage.removeItem(MEISTER_KEY);
+                console.log(`[MedienStation] ${oldItems.length} bestehende Werke aus localStorage nach IndexedDB migriert.`);
+            }
+        } catch (e) {
+            console.warn('[MedienStation] Migration warn:', e);
+        }
+    }
+
     window.saveToMeisterwerke = async function(item) {
         try {
             if (!item || !item.dataUrl) return;
-            if (item.type === 'image' && item.dataUrl.length > 50000) {
-                item.dataUrl = await compressImageDataUrl(item.dataUrl, 800, 0.75);
+            // Bildgröße bei extrem großen Rohdaten schonend optimieren (max 1600px für erstklassige Druckqualität)
+            if (item.type === 'image' && item.dataUrl.length > 800000) {
+                item.dataUrl = await compressImageDataUrl(item.dataUrl, 1600, 0.88);
             }
-            let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
-            item.id = Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-            item.timestamp = Date.now();
-            list.unshift(item);
-            if (list.length > 25) list = list.slice(0, 25);
+            item.id = item.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 4));
+            item.timestamp = item.timestamp || Date.now();
 
-            const trySave = (itemsToSave) => {
-                try {
-                    localStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToSave));
-                    return true;
-                } catch(quotaErr) {
-                    return false;
+            const db = await getDB();
+            await migrateLocalStorageIfNeeded(db);
+
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            store.put(item);
+            await new Promise((resolve, reject) => {
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+
+            // Ältere Einträge jenseits MAX_GALLERY_ITEMS bereinigen
+            const pruneTx = db.transaction(STORE_NAME, 'readwrite');
+            const pruneStore = pruneTx.objectStore(STORE_NAME);
+            const countReq = pruneStore.count();
+            countReq.onsuccess = () => {
+                if (countReq.result > MAX_GALLERY_ITEMS) {
+                    const excess = countReq.result - MAX_GALLERY_ITEMS;
+                    let delCount = 0;
+                    pruneStore.index('timestamp').openCursor().onsuccess = (e) => {
+                        const cursor = e.target.result;
+                        if (cursor && delCount < excess) {
+                            cursor.delete();
+                            delCount++;
+                            cursor.continue();
+                        }
+                    };
                 }
             };
 
-            if (!trySave(list)) {
-                console.warn('⚠️ localStorage Quota überschritten, reduziere Galerieliste');
-                list = list.slice(0, 10);
-                if (!trySave(list)) {
-                    list = list.slice(0, 5);
-                    trySave(list);
-                }
-            }
             if (window.triggerCelebration) window.triggerCelebration();
+            return item;
         } catch(e) {
-            console.warn('Meisterwerke Speicherfehler:', e);
+            console.warn('[MedienStation] IndexedDB save fallback auf localStorage:', e);
+            try {
+                let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
+                item.id = item.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 4));
+                item.timestamp = item.timestamp || Date.now();
+                list.unshift(item);
+                if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
+                localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+                if (window.triggerCelebration) window.triggerCelebration();
+            } catch (localErr) {
+                console.warn('[MedienStation] Meisterwerke Speicherfehler:', localErr);
+            }
+            return item;
         }
     };
 
-    window.getMeisterwerke = function() {
+    window.getMeisterwerke = async function(callback) {
         try {
-            const raw = localStorage.getItem(MEISTER_KEY);
-            if (!raw) return [];
-            const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed : [];
+            const db = await getDB();
+            await migrateLocalStorageIfNeeded(db);
+
+            const items = await new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.index('timestamp').openCursor(null, 'prev');
+                const results = [];
+                req.onsuccess = (e) => {
+                    const cursor = e.target.result;
+                    if (cursor) {
+                        results.push(cursor.value);
+                        cursor.continue();
+                    } else {
+                        resolve(results);
+                    }
+                };
+                req.onerror = () => reject(req.error);
+            });
+
+            if (typeof callback === 'function') callback(items);
+            return items;
         } catch(e) {
-            return [];
+            console.warn('[MedienStation] IndexedDB read fallback auf localStorage:', e);
+            try {
+                const raw = localStorage.getItem(MEISTER_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                const items = Array.isArray(parsed) ? parsed : [];
+                if (typeof callback === 'function') callback(items);
+                return items;
+            } catch(err) {
+                if (typeof callback === 'function') callback([]);
+                return [];
+            }
         }
     };
 
-    window.clearMeisterwerke = function(onComplete) {
+    window.clearMeisterwerke = async function(onComplete) {
         try {
             localStorage.removeItem(MEISTER_KEY);
-            if (onComplete) onComplete();
-        } catch(e) {}
+            const db = await getDB();
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).clear();
+            await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
+            console.log('[MedienStation] Meisterwerke Galerie vollständig geleert.');
+        } catch(e) {
+            console.warn('[MedienStation] clearMeisterwerke error:', e);
+        }
+        if (typeof onComplete === 'function') onComplete();
     };
 
-    window.renderMeisterwerkeGrid = function() {
+    window.renderMeisterwerkeGrid = async function() {
         const grid = document.getElementById('meisterwerke-grid');
         const footer = document.getElementById('meisterwerke-footer');
         if (!grid) return;
 
-        const rawItems = window.getMeisterwerke();
-        const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && it.dataUrl) : [];
+        try {
+            const rawItems = await window.getMeisterwerke();
+            const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && it.dataUrl) : [];
 
-        if (items.length === 0) {
-            grid.innerHTML = `
-                <div class="col-span-full text-center py-16 text-slate-400 select-none">
-                    <div class="text-7xl mb-4">🎨</div>
-                    <h3 class="text-2xl md:text-3xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
-                    <p class="text-base md:text-lg font-bold max-w-md mx-auto">Nutze die Apps (z.B. Pixel, Comic oder Mikro), um Bilder oder Sounds zu erstellen. Sie erscheinen automatisch hier!</p>
-                </div>
-            `;
-            if (footer) footer.style.display = 'none';
-        } else {
-            grid.innerHTML = items.map((it) => `
-                <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all">
-                    <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2">
-                        ${it.type === 'image' ? `<img src="${it.dataUrl}" class="w-full h-full object-contain">` : ''}
-                        ${it.type === 'video' ? `<video src="${it.dataUrl}" controls class="w-full h-full object-contain"></video>` : ''}
-                        ${it.type === 'audio' ? `
-                            <div class="flex flex-col items-center justify-center gap-2">
-                                <span class="text-5xl">🎙️</span>
-                                <audio src="${it.dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
-                            </div>
-                        ` : ''}
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16 text-slate-400 select-none">
+                        <div class="text-7xl mb-4">🎨</div>
+                        <h3 class="text-2xl md:text-3xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
+                        <p class="text-base md:text-lg font-bold max-w-md mx-auto">Nutze die Apps (z.B. Pixel, Comic oder Mikro), um Bilder oder Sounds zu erstellen. Sie erscheinen automatisch hier!</p>
                     </div>
-                    <div class="w-full flex items-center justify-between gap-2">
-                        <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${it.appName || 'KUNSTWERK'}</span>
-                        ${it.type === 'image' && window.printImage ? `
-                            <button onclick="event.stopPropagation(); window.printImage('${it.dataUrl}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0">
-                                🖨️ Drucken
-                            </button>
-                        ` : ''}
+                `;
+                if (footer) footer.style.display = 'none';
+            } else {
+                grid.innerHTML = items.map((it) => `
+                    <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all">
+                        <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2">
+                            ${it.type === 'image' ? `<img src="${it.dataUrl}" class="w-full h-full object-contain">` : ''}
+                            ${it.type === 'video' ? `<video src="${it.dataUrl}" controls playsinline class="w-full h-full object-contain"></video>` : ''}
+                            ${it.type === 'audio' ? `
+                                <div class="flex flex-col items-center justify-center gap-2">
+                                    <span class="text-5xl">🎙️</span>
+                                    <audio src="${it.dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="w-full flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${it.appName || 'KUNSTWERK'}</span>
+                            ${it.type === 'image' && window.printImage ? `
+                                <button onclick="event.stopPropagation(); window.printImage('${it.dataUrl}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
+                                    🖨️ Drucken
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                </div>
-            `).join('');
-            if (footer) footer.style.display = 'flex';
+                `).join('');
+                if (footer) footer.style.display = 'flex';
+            }
+        } catch(err) {
+            console.warn('[MedienStation] renderMeisterwerkeGrid error:', err);
         }
     };
 
@@ -941,13 +1056,13 @@
     // --- 13. Automatischer täglicher Galerie-Reset (Datenschutz / DSGVO Speicherbegrenzung) ---
     const DATE_KEY = 'medienstation_last_active_date';
 
-    window.checkDailyGalleryCleanup = function() {
+    window.checkDailyGalleryCleanup = async function() {
         try {
             const today = new Date().toISOString().slice(0, 10);
             const lastDate = localStorage.getItem(DATE_KEY);
 
             if (lastDate && lastDate !== today) {
-                window.clearMeisterwerke();
+                await window.clearMeisterwerke();
                 console.log(`[MedienStation] Automatischer täglicher Galerie-Reset durchgeführt (${lastDate} -> ${today}).`);
             }
             localStorage.setItem(DATE_KEY, today);
