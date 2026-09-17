@@ -236,19 +236,25 @@
     <!-- Meisterwerke Galerie Modal -->
     <div id="meisterwerke-modal" class="hidden fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 999999; display: none;" onclick="window.closeMeisterwerke(event)">
         <div class="bg-slate-800 border-4 border-amber-500 rounded-[2.5rem] max-w-5xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="window.closeMeisterwerke(event)" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition">✖</button>
+            <button onclick="window.closeMeisterwerke(event)" class="absolute top-6 right-6 text-white text-3xl md:text-4xl font-bold hover:text-amber-400 transition cursor-pointer">✖</button>
             <div class="flex items-center gap-4 mb-6 border-b border-slate-700 pb-4">
                 <span class="text-4xl md:text-5xl">🎨</span>
                 <div>
-                    <h2 class="text-3xl md:text-4xl font-black text-white">UNSERE MEISTERWERKE</h2>
-                    <p class="text-slate-400 font-bold text-sm md:text-base">Alle erstellten Bilder & Tonaufnahmen der aktuellen Sitzung (100% lokal im Browser)</p>
+                    <h2 class="text-2xl md:text-3xl font-black text-white">UNSERE MEISTERWERKE</h2>
+                    <p id="meisterwerke-modal-info" class="text-slate-300 font-bold text-xs md:text-sm mt-1">100% lokal im Browser gespeichert (IndexedDB) • Täglicher Auto-Reset um 00:00 Uhr</p>
                 </div>
             </div>
             <div id="meisterwerke-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"></div>
-            <div id="meisterwerke-footer" class="flex justify-end pt-4 border-t border-slate-700">
-                <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => window.renderMeisterwerkeGrid()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-5 rounded-xl border border-red-700 text-sm active:scale-95 transition flex items-center gap-2">
-                    <span>🧹</span> Galerie leeren
-                </button>
+            <div id="meisterwerke-footer" class="flex flex-wrap gap-3 justify-between items-center pt-4 border-t border-slate-700">
+                <span class="text-xs text-slate-400 font-bold">MedienStation Kunstgalerie</span>
+                <div class="flex items-center gap-3">
+                    <button onclick="window.exportAllMeisterwerkeZip()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-xl border border-blue-400 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 cursor-pointer shadow-lg">
+                        <span>📥</span> Alle als ZIP speichern
+                    </button>
+                    <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => window.renderMeisterwerkeGrid()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-4 rounded-xl border border-red-700 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 cursor-pointer">
+                        <span>🧹</span> Galerie leeren
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -275,8 +281,8 @@
     </div>
 
     <!-- Fachkraft- & Admin-Modal -->
-    <div id="admin-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[99999] flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl w-full max-w-xl max-h-[92vh] overflow-y-auto shadow-2xl p-5 sm:p-7 flex flex-col gap-5 text-white no-scrollbar">
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[99999] flex items-center justify-center p-3 sm:p-4" onclick="closeAdmin()">
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl w-full max-w-xl max-h-[92vh] overflow-y-auto shadow-2xl p-5 sm:p-7 flex flex-col gap-5 text-white no-scrollbar" onclick="event.stopPropagation()">
             
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -287,7 +293,9 @@
                         <p class="text-xs text-slate-400 font-bold">Einstellungen & Steuerung für Fachkräfte</p>
                     </div>
                 </div>
-                <button onclick="closeAdmin()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-9 h-9 rounded-full flex items-center justify-center font-bold text-base border border-slate-700 transition active:scale-95 cursor-pointer">✕</button>
+                <button onclick="closeAdmin()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-full flex items-center gap-1.5 font-bold text-xs border border-slate-600 transition active:scale-95 cursor-pointer shadow">
+                    <span>✕</span> <span>SCHLIESSEN</span>
+                </button>
             </div>
 
             <!-- Sektion 1: Datenschutz & Auto-Reset Modus -->
@@ -299,45 +307,59 @@
                     <span id="admin-reset-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">Täglich aktiv</span>
                 </div>
 
-                <div class="grid grid-cols-1 gap-2 text-sm">
+                <div class="grid grid-cols-1 gap-2.5 text-sm">
                     <!-- Option 1: Strenger Tages-Reset -->
-                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition">
+                    <label id="admin-card-daily" class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition-all">
                         <input type="radio" name="admin_reset_mode" value="daily" onchange="onAdminResetModeChange('daily')" class="mt-1 accent-emerald-500 w-4 h-4 cursor-pointer">
                         <div class="flex-1">
-                            <div class="font-extrabold text-white flex items-center gap-1.5">
-                                <span>🟢</span> Strenger Tages-Reset <span class="text-xs text-emerald-400 font-normal">(Standard / DSGVO)</span>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-extrabold text-white flex items-center gap-1.5">
+                                    <span>🟢</span> Strenger Tages-Reset <span class="text-xs text-emerald-400 font-normal">(Standard / DSGVO)</span>
+                                </span>
+                                <span id="badge-daily" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-900/80 text-emerald-300 border border-emerald-500">Aktiv & Gespeichert</span>
                             </div>
-                            <div class="text-xs text-slate-400 mt-0.5">
-                                Alle Werke werden jede Nacht um 00:00 Uhr automatisch gelöscht. Es verbleiben keine Daten über den Tag hinaus auf dem Gerät.
+                            <div class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                Alle Kunstwerke werden jede Nacht um 00:00 Uhr automatisch gelöscht. Es verbleiben keine Daten über den Tag hinaus auf dem Gerät.
                             </div>
                         </div>
                     </label>
 
                     <!-- Option 2: Projekt-Modus 7 Tage -->
-                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition">
+                    <label id="admin-card-project_7d" class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition-all">
                         <input type="radio" name="admin_reset_mode" value="project_7d" onchange="onAdminResetModeChange('project_7d')" class="mt-1 accent-amber-500 w-4 h-4 cursor-pointer">
                         <div class="flex-1">
-                            <div class="font-extrabold text-white flex items-center gap-1.5">
-                                <span>🟡</span> Projekt-Modus <span class="text-xs text-amber-400 font-normal">(7 Tage pausieren)</span>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-extrabold text-white flex items-center gap-1.5">
+                                    <span>🟡</span> Projekt-Modus <span class="text-xs text-amber-400 font-normal">(7 Tage pausieren)</span>
+                                </span>
+                                <span id="badge-project_7d" class="hidden text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-900/80 text-amber-300 border border-amber-500">Aktiv & Gespeichert</span>
                             </div>
-                            <div class="text-xs text-slate-400 mt-0.5" id="admin-project-mode-desc">
+                            <div class="text-xs text-slate-300 mt-1 leading-relaxed" id="admin-project-mode-desc">
                                 Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.
                             </div>
                         </div>
                     </label>
 
                     <!-- Option 3: Dauerhaft behalten -->
-                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition">
+                    <label id="admin-card-never" class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition-all">
                         <input type="radio" name="admin_reset_mode" value="never" onchange="onAdminResetModeChange('never')" class="mt-1 accent-blue-500 w-4 h-4 cursor-pointer">
                         <div class="flex-1">
-                            <div class="font-extrabold text-white flex items-center gap-1.5">
-                                <span>⚪</span> Dauerhaft behalten <span class="text-xs text-slate-400 font-normal">(Kein Auto-Reset)</span>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-extrabold text-white flex items-center gap-1.5">
+                                    <span>⚪</span> Dauerhaft behalten <span class="text-xs text-slate-400 font-normal">(Kein Auto-Reset)</span>
+                                </span>
+                                <span id="badge-never" class="hidden text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-blue-900/80 text-blue-300 border border-blue-500">Aktiv & Gespeichert</span>
                             </div>
-                            <div class="text-xs text-slate-400 mt-0.5">
-                                Werke verbleiben dauerhaft im lokalen Speicher, bis sie manuell gelöscht werden.
+                            <div class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                Werke verbleiben dauerhaft im lokalen IndexedDB-Speicher, bis sie manuell gelöscht werden.
                             </div>
                         </div>
                     </label>
+                </div>
+
+                <!-- Visueller Speicher-Hinweis -->
+                <div id="admin-save-feedback" class="text-xs font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-600/40 py-1.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all">
+                    <span>✓</span> Einstellung ist aktiv und sofort auf diesem Gerät gespeichert.
                 </div>
             </div>
 
@@ -378,12 +400,14 @@
                 </div>
             </div>
 
+            <!-- Großer, unübersehbarer Zurück-Button -->
+            <button onclick="closeAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black py-4 rounded-2xl text-base sm:text-lg shadow-xl active:scale-[0.98] transition flex items-center justify-center gap-3 border-b-4 border-emerald-800 cursor-pointer">
+                <span>🏠</span> <span>ZURÜCK ZUR APP (GESPEICHERT)</span>
+            </button>
+
             <!-- Footer & Info -->
-            <div class="flex items-center justify-between pt-2 text-xs text-slate-500 border-t border-slate-800 font-mono">
-                <span>App Version: 7.8.0 (Build 293)</span>
-                <button onclick="closeAdmin()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-xl text-xs transition cursor-pointer">
-                    Schließen
-                </button>
+            <div class="text-center text-xs text-slate-500 font-mono">
+                App Version: 7.8.0 (Build 293) • AV-Medienzentrale
             </div>
         </div>
     </div>
@@ -469,16 +493,19 @@
             window.playSound('click');
         }
 
+        // --- ADMIN MODAL & PIN VERWALTUNG ---
         function showPinPrompt(onSuccess) {
             let modal = document.getElementById('pin-prompt-modal');
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'pin-prompt-modal';
-                modal.className = 'fixed inset-0 z-[999999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none';
+                modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none';
                 modal.innerHTML = `
-                    <div class="bg-slate-800 border-4 border-blue-500 rounded-[2rem] p-8 text-center max-w-sm w-full shadow-2xl transform scale-90 transition-transform duration-300" id="pin-prompt-content">
-                        <h3 class="text-white text-2xl font-black mb-4 font-sans">PIN eingeben</h3>
-                        <input type="password" id="pin-prompt-input" pattern="[0-9]*" inputmode="numeric" class="w-full padding-3 p-3 rounded-xl border-2 border-blue-500 bg-slate-900 text-white text-3xl text-center font-bold mb-6 focus:outline-none" placeholder="••••" maxlength="8">
+                    <div id="pin-prompt-content" class="bg-slate-800 border-4 border-blue-500 rounded-[2rem] max-w-sm w-full p-6 shadow-2xl text-center transform scale-90 transition-transform duration-300">
+                        <div class="text-4xl mb-3">🔐</div>
+                        <h2 class="text-xl font-black text-white mb-2">Fachkraft PIN</h2>
+                        <p class="text-slate-300 text-xs mb-4 font-bold">Bitte die 4-stellige PIN eingeben:</p>
+                        <input type="password" id="pin-prompt-input" maxlength="8" class="w-full bg-slate-900 border-2 border-blue-500 rounded-xl p-3 text-center text-2xl font-black text-white mb-4 tracking-widest focus:outline-none focus:border-amber-400" placeholder="••••">
                         <div class="flex gap-4">
                             <button id="pin-prompt-cancel" class="flex-1 bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 rounded-xl transition">Abbrechen</button>
                             <button id="pin-prompt-ok" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition">OK</button>
@@ -570,6 +597,9 @@
                 modal.classList.add('hidden'); 
                 modal.classList.remove('flex'); 
             }
+            if (window.updateGalleryInfoText) {
+                window.updateGalleryInfoText();
+            }
         }
 
         function syncAdminResetUI() {
@@ -581,10 +611,37 @@
                 r.checked = (r.value === status.mode);
             });
 
+            // Highlight-Cards & Badges
+            const cardDaily = document.getElementById('admin-card-daily');
+            const cardProj = document.getElementById('admin-card-project_7d');
+            const cardNever = document.getElementById('admin-card-never');
+            const badgeDaily = document.getElementById('badge-daily');
+            const badgeProj = document.getElementById('badge-project_7d');
+            const badgeNever = document.getElementById('badge-never');
+
+            const resetClasses = (el) => {
+                if (!el) return;
+                el.className = 'flex items-start gap-3 p-3.5 rounded-2xl border border-slate-700/80 bg-slate-900/40 hover:border-slate-500 cursor-pointer transition-all opacity-70';
+            };
+            const activeClasses = (el, colorBorder, colorBg) => {
+                if (!el) return;
+                el.className = `flex items-start gap-3 p-3.5 rounded-2xl border-2 ${colorBorder} ${colorBg} cursor-pointer transition-all shadow-md opacity-100`;
+            };
+
+            resetClasses(cardDaily);
+            resetClasses(cardProj);
+            resetClasses(cardNever);
+
+            if (badgeDaily) badgeDaily.classList.add('hidden');
+            if (badgeProj) badgeProj.classList.add('hidden');
+            if (badgeNever) badgeNever.classList.add('hidden');
+
             const badge = document.getElementById('admin-reset-badge');
             const projectDesc = document.getElementById('admin-project-mode-desc');
 
             if (status.mode === 'daily') {
+                activeClasses(cardDaily, 'border-emerald-500', 'bg-emerald-950/40');
+                if (badgeDaily) badgeDaily.classList.remove('hidden');
                 if (badge) {
                     badge.textContent = '🟢 Täglich aktiv';
                     badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700';
@@ -593,6 +650,8 @@
                     projectDesc.textContent = 'Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.';
                 }
             } else if (status.mode === 'project_7d') {
+                activeClasses(cardProj, 'border-amber-500', 'bg-amber-950/40');
+                if (badgeProj) badgeProj.classList.remove('hidden');
                 if (badge) {
                     badge.textContent = `🟡 Projekt (${status.pauseDaysRemaining} Tage verbleibend)`;
                     badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-700';
@@ -601,6 +660,8 @@
                     projectDesc.textContent = `Aktiv: Werke bleiben noch ca. ${status.pauseDaysRemaining} Tag(e) über Nacht erhalten.`;
                 }
             } else if (status.mode === 'never') {
+                activeClasses(cardNever, 'border-blue-500', 'bg-blue-950/40');
+                if (badgeNever) badgeNever.classList.remove('hidden');
                 if (badge) {
                     badge.textContent = '⚪ Kein Auto-Reset';
                     badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-700';
@@ -612,6 +673,16 @@
             if (window.setStorageResetMode) {
                 window.setStorageResetMode(mode);
                 syncAdminResetUI();
+                
+                const feedbackEl = document.getElementById('admin-save-feedback');
+                if (feedbackEl) {
+                    feedbackEl.classList.remove('scale-100');
+                    feedbackEl.classList.add('scale-105', 'bg-emerald-900', 'text-white');
+                    setTimeout(() => {
+                        feedbackEl.classList.remove('scale-105', 'bg-emerald-900', 'text-white');
+                    }, 400);
+                }
+
                 if (window.showCustomAlert) {
                     if (mode === 'daily') window.showCustomAlert('🟢 Strenger Tages-Reset aktiviert (Löscht täglich um 00:00 Uhr).');
                     else if (mode === 'project_7d') window.showCustomAlert('🟡 Projekt-Modus aktiviert (Tages-Reset für 7 Tage pausiert).');

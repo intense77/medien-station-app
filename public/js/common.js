@@ -1003,8 +1003,36 @@
                 `).join('');
                 if (footer) footer.style.display = 'flex';
             }
+            window.updateGalleryInfoText();
         } catch(err) {
             console.warn('[MedienStation] renderMeisterwerkeGrid error:', err);
+        }
+    };
+
+    window.updateGalleryInfoText = function() {
+        try {
+            const status = window.getStorageResetMode ? window.getStorageResetMode() : { mode: 'daily' };
+            let resetHtml = '<span class="text-amber-400 font-extrabold">Datenschutz & Reset:</span> Alle Kunstwerke werden jede Nacht um 00:00 Uhr automatisch gelöscht (DSGVO-konform).';
+            let shortMsg = '100% lokal im Browser gespeichert (IndexedDB) • Täglicher Auto-Reset um 00:00 Uhr';
+
+            if (status.mode === 'project_7d') {
+                resetHtml = `<span class="text-amber-400 font-extrabold">Datenschutz & Speicher:</span> 🟡 Projekt-Modus aktiv: Werke bleiben für laufende Projekte noch ca. ${status.pauseDaysRemaining} Tag(e) über Nacht erhalten.`;
+                shortMsg = `100% lokal gespeichert (IndexedDB) • 🟡 Projekt-Modus aktiv (noch ${status.pauseDaysRemaining} Tage)`;
+            } else if (status.mode === 'never') {
+                resetHtml = '<span class="text-amber-400 font-extrabold">Datenschutz & Speicher:</span> ⚪ Dauerhafter Speicher aktiv: Werke bleiben im lokalen Speicher, bis sie manuell gelöscht werden.';
+                shortMsg = '100% lokal gespeichert (IndexedDB) • ⚪ Dauerhafter Speicher (kein Auto-Reset)';
+            }
+
+            const resetEl = document.getElementById('meisterwerke-reset-info');
+            if (resetEl) {
+                resetEl.innerHTML = resetHtml;
+            }
+            const modalInfoEl = document.getElementById('meisterwerke-modal-info');
+            if (modalInfoEl) {
+                modalInfoEl.textContent = shortMsg;
+            }
+        } catch(e) {
+            console.warn('updateGalleryInfoText error:', e);
         }
     };
 
