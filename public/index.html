@@ -132,7 +132,7 @@
                 <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-3 py-2 sm:px-5 sm:py-3 md:px-6 md:py-4 rounded-full shadow-2xl flex items-center justify-center gap-2 sm:gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all w-auto max-w-full">
                     <img src="assets/logo.png" class="h-8 sm:h-10 md:h-12 w-auto object-contain shrink-0" alt="Logo" onerror="this.style.display='none'">
                     <div class="flex flex-col text-left shrink min-w-0">
-                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.7.0)</span></span>
+                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.8.1)</span></span>
                         <span class="text-[11px] sm:text-sm md:text-base lg:text-lg font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
                     </div>
                 </button>
@@ -245,16 +245,11 @@
                 </div>
             </div>
             <div id="meisterwerke-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"></div>
-            <div id="meisterwerke-footer" class="flex flex-wrap gap-3 justify-between items-center pt-4 border-t border-slate-700">
+            <div id="meisterwerke-footer" class="flex justify-between items-center pt-4 border-t border-slate-700">
                 <span class="text-xs text-slate-400 font-bold">MedienStation Kunstgalerie</span>
-                <div class="flex items-center gap-3">
-                    <button onclick="window.exportAllMeisterwerkeZip()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-xl border border-blue-400 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 cursor-pointer shadow-lg">
-                        <span>📥</span> Alle als ZIP speichern
-                    </button>
-                    <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => window.renderMeisterwerkeGrid()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-4 rounded-xl border border-red-700 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 cursor-pointer">
-                        <span>🧹</span> Galerie leeren
-                    </button>
-                </div>
+                <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => window.renderMeisterwerkeGrid()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-5 rounded-xl border border-red-700 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 cursor-pointer">
+                    <span>🧹</span> Galerie leeren
+                </button>
             </div>
         </div>
     </div>
@@ -407,7 +402,7 @@
 
             <!-- Footer & Info -->
             <div class="text-center text-xs text-slate-500 font-mono">
-                App Version: 7.8.0 (Build 293) • AV-Medienzentrale
+                App Version: 7.8.1 (Build 294) • AV-Medienzentrale
             </div>
         </div>
     </div>

@@ -1,7 +1,7 @@
 # 📋 MedienStation – Roadmap, Fachanalyse & TODOs
 
 > **Fachlich-kritische Bestandsaufnahme, Architektur-Analyse und strategische Weiterentwicklung**
-> *Stand: September 2026 (Version v7.7.0)*
+> *Stand: September 2026 (Version v7.8.1)*
 
 ---
 
@@ -36,10 +36,8 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 * **Problem:** Günstige Android-Tablets oder ältere iPads können bei dauerhafter Nutzung warm werden oder Framerate-Einbrüche verzeichnen.
 * **Ziel:** Automatisches Hardware-Profiling / dynamische Drosselung der Video-Auflösung auf Low-End-Geräten.
 
-### ⚠️ 3. Fehlende Projekt-Persistenz über mehrere Tage
-* **Status:** Der automatische Tages-Reset um 04:00 Uhr schützt die Daten zuverlässig, löscht aber auch begonnene Langzeitprojekte.
-* **Problem:** Mehrtägige Stop-Motion- oder Comic-Projekte in Projektwochen können nicht nahtlos am nächsten Tag fortgesetzt werden.
-* **Ziel:** PIN-geschützte Option für Fachkräfte zum "Projekt sperren / behalten" oder lokaler Export/Import.
+### 🟢 3. Fehlende Projekt-Persistenz gelöst: Fachkraft-Admin-Menü (Erledigt in v7.8.0 / v7.8.1)
+* **Status:** Konfigurierbarer Speicher-Modus (Strenger Tages-Reset vs. 7-Tage-Projektmodus) schützt Daten und ermöglicht gleichzeitig Projektwochen.
 
 ### ⚠️ 4. Feinmotorische Barrieren
 * **Status:** Das Ziehen sehr kleiner Sprechblasen-Griffe (*Comic*) oder winziger Buttons erfordert teils zu hohe Präzision für 3- bis 4-Jährige.
@@ -56,17 +54,18 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
   - Video-Snippets und Player in Galerie integriert.
 
 ### 🟡 Phase 2: Medium Priority (Pädagogen-Werkzeuge & Inklusion)
-- [x] **Pädagogen- & Admin-Bereich (PIN-geschützt)** (Erledigt in v7.8.0):
+- [x] **Pädagogen- & Admin-Bereich (PIN-geschützt)** (Erledigt in v7.8.0 / v7.8.1):
   - Diskreter Zugang (5× Tippen auf "Deine Mission" + PIN `1234`, PIN änderbar).
   - Funktionen:
     - 🔒 Konfigurierbarer Datenschutz: Strenger Tages-Reset (Standard / DSGVO) vs. Projekt-Modus (7 Tage pausieren) vs. Dauerhaft.
     - 📊 Live-Speicherstatus der Meisterwerke.
     - 🧹 Sofortige Galerie-Leerung auf Knopfdruck.
     - 🧹 Cache leeren & Update erzwingen.
-- [x] **Sammel-Export / Portfolio-Download für die Galerie** (Erledigt in v7.8.0):
+    - 🏠 Klare Navigationsrückkehr zur App & visuelle Gespeichert-Badges.
+- [x] **Sammel-Export / Portfolio-Download für Fachkräfte** (Erledigt in v7.8.0 / v7.8.1):
   - **Hintergrund:** Kinder erstellen tolle Werke; Erzieher und Lehrkräfte möchten diese gesammelt auf USB-Stick ziehen oder für Portfolio-Mappen und Elternarbeit sichern.
   - **Funktionen:**
-    - 📥 "Alle Werke herunterladen (ZIP)"-Button im Admin-Menü und direkt in der Meisterwerke-Galerie.
+    - 📥 "Als ZIP herunterladen"-Button **exklusiv im PIN-geschützten Fachkraft-Menü** (zum Schutz vor Fehlbedienung & Download-Spamming im Kinder-Freispiel).
     - Automatische strukturierte Benennung nach Modul, Datum und Uhrzeit (z. B. `01_foto_2026-09-18_14-30.png`, `02_trickfilm_2026-09-18_14-35.webm`).
     - Beiliegende `Uebersicht.txt` mit Auflistung aller Titel, Typen und Erstellungszeiten.
     - 100 % offline-fähig über integriertes JSZip.

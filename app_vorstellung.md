@@ -3,7 +3,7 @@
 ## 1. Übersicht & Steckbrief
 
 * **Projektname**: MedienStation (AV-Medienzentrale Bistum Augsburg)
-* **Aktuelle Version**: v7.8.0 (Build 293)
+* **Aktuelle Version**: v7.8.1 (Build 294)
 * **Zielgruppe**: Kindertagesstätten (Kitas) und Grundschulen (Altersstufe 4–10 Jahre)
 * **Einsatzszenario**: Tablet-Stationen, All-in-One Kiosksysteme, mobile Medienkoffer
 * **Technologie-Stack**: HTML5, CSS3, JavaScript (Vanilla ES6+), Web Audio API, Canvas, Client-Side MediaPipe AI, Service Worker PWA (Offline-First), IndexedDB Storage
