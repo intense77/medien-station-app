@@ -1,7 +1,7 @@
 {
   "name": "medien-station-app",
   "private": true,
-  "version": "7.7.0",
+  "version": "7.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,7 +29,8 @@
     "cordova-plugin-media": "^7.0.0",
     "cordova-plugin-printer": "^0.8.0",
     "cordova-plugin-x-socialsharing": "^6.0.4",
-    "es6-promise-plugin": "^4.2.2"
+    "es6-promise-plugin": "^4.2.2",
+    "jszip": "^3.10.2"
   },
   "description": "",
   "main": "tailwind.config.js",

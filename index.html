@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="cordova.js"></script>
     <script src="js/audio.js"></script>
+    <script src="js/jszip.min.js"></script>
     <script src="js/common.js"></script>
 
     <style>
@@ -273,16 +274,117 @@
         </div>
     </div>
 
-    <!-- Admin Modal -->
-    <div id="admin-modal" class="hidden fixed inset-0 bg-black/90 z-[300] flex items-center justify-center p-4">
-        <div class="bg-slate-800 p-8 rounded-3xl border-2 border-slate-600 w-full max-w-lg">
-            <h2 class="text-3xl font-black text-white mb-6">⚙️ ADMIN MENÜ</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="location.reload()" class="bg-blue-600 text-white font-bold py-4 rounded-xl">🔄 Neu laden</button>
-                <button onclick="hardReset()" class="bg-red-900 hover:bg-red-800 text-white font-bold py-4 rounded-xl">🧹 Update erzwingen</button>
-                <button onclick="closeAdmin()" class="bg-slate-600 text-white font-bold py-4 rounded-xl col-span-2">Zurück</button>
+    <!-- Fachkraft- & Admin-Modal -->
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[99999] flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl w-full max-w-xl max-h-[92vh] overflow-y-auto shadow-2xl p-5 sm:p-7 flex flex-col gap-5 text-white no-scrollbar">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">⚙️</span>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-white">FACHKRAFT- & ADMIN-MENÜ</h2>
+                        <p class="text-xs text-slate-400 font-bold">Einstellungen & Steuerung für Fachkräfte</p>
+                    </div>
+                </div>
+                <button onclick="closeAdmin()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 w-9 h-9 rounded-full flex items-center justify-center font-bold text-base border border-slate-700 transition active:scale-95 cursor-pointer">✕</button>
             </div>
-            <div class="mt-6 text-center text-slate-500 font-mono text-sm">App Version: 7.4.5 (Build 266)</div>
+
+            <!-- Sektion 1: Datenschutz & Auto-Reset Modus -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                        <span>🛡️</span> Datenschutz & Speicher-Reset
+                    </span>
+                    <span id="admin-reset-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">Täglich aktiv</span>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2 text-sm">
+                    <!-- Option 1: Strenger Tages-Reset -->
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition">
+                        <input type="radio" name="admin_reset_mode" value="daily" onchange="onAdminResetModeChange('daily')" class="mt-1 accent-emerald-500 w-4 h-4 cursor-pointer">
+                        <div class="flex-1">
+                            <div class="font-extrabold text-white flex items-center gap-1.5">
+                                <span>🟢</span> Strenger Tages-Reset <span class="text-xs text-emerald-400 font-normal">(Standard / DSGVO)</span>
+                            </div>
+                            <div class="text-xs text-slate-400 mt-0.5">
+                                Alle Werke werden jede Nacht um 00:00 Uhr automatisch gelöscht. Es verbleiben keine Daten über den Tag hinaus auf dem Gerät.
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Projekt-Modus 7 Tage -->
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition">
+                        <input type="radio" name="admin_reset_mode" value="project_7d" onchange="onAdminResetModeChange('project_7d')" class="mt-1 accent-amber-500 w-4 h-4 cursor-pointer">
+                        <div class="flex-1">
+                            <div class="font-extrabold text-white flex items-center gap-1.5">
+                                <span>🟡</span> Projekt-Modus <span class="text-xs text-amber-400 font-normal">(7 Tage pausieren)</span>
+                            </div>
+                            <div class="text-xs text-slate-400 mt-0.5" id="admin-project-mode-desc">
+                                Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Option 3: Dauerhaft behalten -->
+                    <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition">
+                        <input type="radio" name="admin_reset_mode" value="never" onchange="onAdminResetModeChange('never')" class="mt-1 accent-blue-500 w-4 h-4 cursor-pointer">
+                        <div class="flex-1">
+                            <div class="font-extrabold text-white flex items-center gap-1.5">
+                                <span>⚪</span> Dauerhaft behalten <span class="text-xs text-slate-400 font-normal">(Kein Auto-Reset)</span>
+                            </div>
+                            <div class="text-xs text-slate-400 mt-0.5">
+                                Werke verbleiben dauerhaft im lokalen Speicher, bis sie manuell gelöscht werden.
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sektion 2: Meisterwerke-Galerie verwalten & ZIP Export -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
+                        <span>🎨</span> Meisterwerke & Export
+                    </span>
+                    <span id="admin-gallery-count" class="text-xs font-bold text-slate-300">Lade Status...</span>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="adminExportZip()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg border border-blue-400 active:scale-95 transition cursor-pointer">
+                        <span>📥</span> Als ZIP herunterladen
+                    </button>
+                    <button onclick="adminClearGallery()" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm border border-red-700 active:scale-95 transition cursor-pointer">
+                        <span>🧹</span> Galerie jetzt leeren
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sektion 3: Wartung & System -->
+            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                    <span>🛠️</span> System & Wartung
+                </span>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs sm:text-sm border border-slate-600 active:scale-95 transition cursor-pointer">
+                        🔄 Neu laden
+                    </button>
+                    <button onclick="adminChangePin()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs sm:text-sm border border-slate-600 active:scale-95 transition cursor-pointer">
+                        🔐 PIN ändern
+                    </button>
+                    <button onclick="hardReset()" class="bg-red-950 hover:bg-red-900 text-red-300 font-bold py-3 rounded-xl text-xs sm:text-sm border border-red-800 active:scale-95 transition cursor-pointer">
+                        ⚡ Cache leeren
+                    </button>
+                </div>
+            </div>
+
+            <!-- Footer & Info -->
+            <div class="flex items-center justify-between pt-2 text-xs text-slate-500 border-t border-slate-800 font-mono">
+                <span>App Version: 7.8.0 (Build 293)</span>
+                <button onclick="closeAdmin()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-5 rounded-xl text-xs transition cursor-pointer">
+                    Schließen
+                </button>
+            </div>
         </div>
     </div>
 
@@ -401,7 +503,8 @@
 
             const handleOk = () => {
                 if (window.playSound) window.playSound('click');
-                if (input.value === '1234') {
+                const validPin = window.getAdminPin ? window.getAdminPin() : '1234';
+                if (input.value === validPin) {
                     modal.classList.add('opacity-0');
                     modal.classList.add('pointer-events-none');
                     content.classList.remove('scale-100');
@@ -442,14 +545,128 @@
             if (tapCount >= 5) {
                 tapCount = 0;
                 showPinPrompt(() => {
-                    document.getElementById('admin-modal').classList.remove('hidden');
-                    document.getElementById('admin-modal').classList.add('flex');
+                    openAdminModal();
                 });
             }
         }
+
+        async function openAdminModal() {
+            const modal = document.getElementById('admin-modal');
+            if (!modal) return;
+            
+            // 1. Sync Reset-Modus
+            syncAdminResetUI();
+
+            // 2. Sync Galerie-Zähler
+            updateAdminGalleryCount();
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
         function closeAdmin() { 
-            document.getElementById('admin-modal').classList.add('hidden'); 
-            document.getElementById('admin-modal').classList.remove('flex'); 
+            const modal = document.getElementById('admin-modal');
+            if (modal) {
+                modal.classList.add('hidden'); 
+                modal.classList.remove('flex'); 
+            }
+        }
+
+        function syncAdminResetUI() {
+            if (!window.getStorageResetMode) return;
+            const status = window.getStorageResetMode();
+            
+            const radios = document.getElementsByName('admin_reset_mode');
+            radios.forEach(r => {
+                r.checked = (r.value === status.mode);
+            });
+
+            const badge = document.getElementById('admin-reset-badge');
+            const projectDesc = document.getElementById('admin-project-mode-desc');
+
+            if (status.mode === 'daily') {
+                if (badge) {
+                    badge.textContent = '🟢 Täglich aktiv';
+                    badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700';
+                }
+                if (projectDesc) {
+                    projectDesc.textContent = 'Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.';
+                }
+            } else if (status.mode === 'project_7d') {
+                if (badge) {
+                    badge.textContent = `🟡 Projekt (${status.pauseDaysRemaining} Tage verbleibend)`;
+                    badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-700';
+                }
+                if (projectDesc) {
+                    projectDesc.textContent = `Aktiv: Werke bleiben noch ca. ${status.pauseDaysRemaining} Tag(e) über Nacht erhalten.`;
+                }
+            } else if (status.mode === 'never') {
+                if (badge) {
+                    badge.textContent = '⚪ Kein Auto-Reset';
+                    badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-700';
+                }
+            }
+        }
+
+        function onAdminResetModeChange(mode) {
+            if (window.setStorageResetMode) {
+                window.setStorageResetMode(mode);
+                syncAdminResetUI();
+                if (window.showCustomAlert) {
+                    if (mode === 'daily') window.showCustomAlert('🟢 Strenger Tages-Reset aktiviert (Löscht täglich um 00:00 Uhr).');
+                    else if (mode === 'project_7d') window.showCustomAlert('🟡 Projekt-Modus aktiviert (Tages-Reset für 7 Tage pausiert).');
+                    else if (mode === 'never') window.showCustomAlert('⚪ Automatischer Reset deaktiviert (Werke bleiben dauerhaft).');
+                }
+            }
+        }
+
+        async function updateAdminGalleryCount() {
+            const countEl = document.getElementById('admin-gallery-count');
+            if (!countEl) return;
+            try {
+                if (window.getMeisterwerke) {
+                    const items = await window.getMeisterwerke();
+                    const count = items ? items.length : 0;
+                    countEl.textContent = `${count} von 40 Werken im Speicher`;
+                }
+            } catch(e) {
+                countEl.textContent = 'Status unbekannt';
+            }
+        }
+
+        async function adminExportZip() {
+            if (window.exportAllMeisterwerkeZip) {
+                await window.exportAllMeisterwerkeZip();
+            }
+        }
+
+        async function adminClearGallery() {
+            if (window.showConfirm) {
+                window.showConfirm('Möchtest du wirklich alle Meisterwerke sofort und unwiderruflich aus dem Speicher löschen?', async () => {
+                    if (window.clearMeisterwerke) {
+                        await window.clearMeisterwerke();
+                        await updateAdminGalleryCount();
+                        if (window.renderMeisterwerkeGrid) window.renderMeisterwerkeGrid();
+                        if (window.showCustomAlert) window.showCustomAlert('🧹 Galerie wurde erfolgreich geleert.');
+                    }
+                }, '🧹');
+            }
+        }
+
+        function adminChangePin() {
+            const currentPin = window.getAdminPin ? window.getAdminPin() : '1234';
+            const newPin = prompt(`Aktuelle PIN: ${currentPin}\n\nBitte neue 4-stellige PIN eingeben:`);
+            if (newPin === null) return; // Abgebrochen
+            if (newPin.trim().length >= 4) {
+                if (window.setAdminPin) {
+                    window.setAdminPin(newPin.trim());
+                    if (window.showCustomAlert) window.showCustomAlert(`✅ Neue PIN gespeichert: ${newPin.trim()}`);
+                    else alert('Neue PIN gespeichert.');
+                }
+            } else {
+                if (window.showCustomAlert) window.showCustomAlert('❌ Die PIN muss mindestens 4 Zeichen lang sein.');
+                else alert('Die PIN muss mindestens 4 Zeichen lang sein.');
+            }
         }
 
         async function hardReset() {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.7.0-v292';
+const CACHE_NAME = 'medien-station-v7.8.0-v293';
 const ASSETS = [
     './',
     './index.html',
@@ -6,6 +6,7 @@ const ASSETS = [
     './css/style.css',
     './js/common.js',
     './js/audio.js',
+    './js/jszip.min.js',
     './js/print.js',
     './js/selfie_segmentation.js',
     './models/selfie_segmentation.binarypb',

@@ -1053,11 +1053,72 @@
         }
     };
 
-    // --- 13. Automatischer täglicher Galerie-Reset (Datenschutz / DSGVO Speicherbegrenzung) ---
+    // --- 13. Fachkraft-Einstellungen & Automatischer Reset (Datenschutz & DSGVO) ---
     const DATE_KEY = 'medienstation_last_active_date';
+    const RESET_MODE_KEY = 'medienstation_reset_mode';
+    const RESET_PAUSE_UNTIL_KEY = 'medienstation_reset_pause_until';
+    const PIN_KEY = 'medienstation_admin_pin';
+
+    window.getAdminPin = function() {
+        return localStorage.getItem(PIN_KEY) || '1234';
+    };
+
+    window.setAdminPin = function(newPin) {
+        if (!newPin || newPin.trim().length < 4) return false;
+        localStorage.setItem(PIN_KEY, newPin.trim());
+        return true;
+    };
+
+    window.getStorageResetMode = function() {
+        let mode = localStorage.getItem(RESET_MODE_KEY) || 'daily';
+        let pauseUntil = localStorage.getItem(RESET_PAUSE_UNTIL_KEY);
+        let pauseDaysRemaining = 0;
+
+        if (mode === 'project_7d' && pauseUntil) {
+            const msRemaining = parseInt(pauseUntil, 10) - Date.now();
+            if (msRemaining <= 0) {
+                // Frist abgelaufen -> automatisch zurück auf strengen Tages-Reset
+                mode = 'daily';
+                localStorage.setItem(RESET_MODE_KEY, 'daily');
+                localStorage.removeItem(RESET_PAUSE_UNTIL_KEY);
+            } else {
+                pauseDaysRemaining = Math.ceil(msRemaining / (1000 * 60 * 60 * 24));
+            }
+        }
+
+        return {
+            mode: mode,
+            pauseUntil: pauseUntil ? parseInt(pauseUntil, 10) : null,
+            pauseDaysRemaining: pauseDaysRemaining
+        };
+    };
+
+    window.setStorageResetMode = function(mode) {
+        if (mode === 'project_7d') {
+            const pauseUntil = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 Tage
+            localStorage.setItem(RESET_MODE_KEY, 'project_7d');
+            localStorage.setItem(RESET_PAUSE_UNTIL_KEY, pauseUntil.toString());
+        } else if (mode === 'never') {
+            localStorage.setItem(RESET_MODE_KEY, 'never');
+            localStorage.removeItem(RESET_PAUSE_UNTIL_KEY);
+        } else {
+            // Standard: 'daily' (Strenger Tages-Reset)
+            localStorage.setItem(RESET_MODE_KEY, 'daily');
+            localStorage.removeItem(RESET_PAUSE_UNTIL_KEY);
+        }
+        return window.getStorageResetMode();
+    };
 
     window.checkDailyGalleryCleanup = async function() {
         try {
+            const storageStatus = window.getStorageResetMode();
+            
+            // Wenn Projekt-Modus aktiv oder Reset deaktiviert -> kein Auto-Reset
+            if (storageStatus.mode === 'project_7d' || storageStatus.mode === 'never') {
+                return;
+            }
+
+            // Strenger täglicher Reset (Standard, DSGVO-konform: nichts verbleibt länger als für den Tag)
             const today = new Date().toISOString().slice(0, 10);
             const lastDate = localStorage.getItem(DATE_KEY);
 
@@ -1068,6 +1129,81 @@
             localStorage.setItem(DATE_KEY, today);
         } catch(e) {
             console.warn('[MedienStation] Fehler beim täglichen Galerie-Reset:', e);
+        }
+    };
+
+    // --- 14. ZIP-Sammel-Export für alle Meisterwerke (Fotos, Videos, Comics, Audio) ---
+    window.exportAllMeisterwerkeZip = async function() {
+        try {
+            if (typeof JSZip === 'undefined') {
+                if (window.showCustomAlert) {
+                    window.showCustomAlert('ZIP-Bibliothek wird geladen... Bitte einen Moment warten.');
+                }
+                return;
+            }
+
+            const items = await window.getMeisterwerke();
+            if (!items || items.length === 0) {
+                if (window.showCustomAlert) {
+                    window.showCustomAlert('Die Galerie ist aktuell leer. Es gibt keine Werke zum Herunterladen.');
+                } else {
+                    alert('Die Galerie ist aktuell leer.');
+                }
+                return;
+            }
+
+            const zip = new JSZip();
+            const dateStr = new Date().toISOString().slice(0, 10);
+            const folderName = `MedienStation_${dateStr}`;
+            const folder = zip.folder(folderName);
+
+            items.forEach((item, index) => {
+                const num = String(index + 1).padStart(2, '0');
+                const rawType = (item.type || 'werk').toLowerCase().replace(/[^a-z0-9]/g, '_');
+                const safeDate = (item.date || 'datum').replace(/[:. ]/g, '-');
+                
+                let dataUri = item.data;
+                let ext = 'png';
+
+                if (dataUri.startsWith('data:image/jpeg')) ext = 'jpg';
+                else if (dataUri.startsWith('data:image/webp')) ext = 'webp';
+                else if (dataUri.startsWith('data:image/png')) ext = 'png';
+                else if (dataUri.startsWith('data:video/webm')) ext = 'webm';
+                else if (dataUri.startsWith('data:video/mp4')) ext = 'mp4';
+                else if (dataUri.startsWith('data:audio/webm')) ext = 'webm';
+                else if (dataUri.startsWith('data:audio/wav')) ext = 'wav';
+                else if (dataUri.startsWith('data:audio/mp3') || dataUri.startsWith('data:audio/mpeg')) ext = 'mp3';
+
+                const fileName = `${num}_${rawType}_${safeDate}.${ext}`;
+                const base64Data = dataUri.split(',')[1];
+                if (base64Data) {
+                    folder.file(fileName, base64Data, { base64: true });
+                }
+            });
+
+            // Metadaten / Übersichtstext beilegen
+            const metaInfo = `MedienStation - Gesammelte Meisterwerke\nDatum: ${dateStr}\nAnzahl Werke: ${items.length}\n\n` +
+                items.map((it, idx) => `${idx + 1}. [${it.type}] ${it.title || 'Werk'} (${it.date || ''})`).join('\n');
+            folder.file('Uebersicht.txt', metaInfo);
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const downloadUrl = URL.createObjectURL(content);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `MedienStation_Meisterwerke_${dateStr}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 2000);
+
+            if (window.showCustomAlert) {
+                window.showCustomAlert(`✅ ${items.length} Meisterwerke erfolgreich als ZIP heruntergeladen!`);
+            }
+        } catch (err) {
+            console.error('[MedienStation] Fehler beim ZIP-Export:', err);
+            if (window.showCustomAlert) {
+                window.showCustomAlert('Fehler beim Erstellen der ZIP-Datei: ' + err.message);
+            }
         }
     };
 

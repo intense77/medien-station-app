@@ -56,14 +56,15 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
   - Video-Snippets und Player in Galerie integriert.
 
 ### 🟡 Phase 2: Medium Priority (Pädagogen-Werkzeuge & Inklusion)
-- [ ] **Pädagogen-Admin-Bereich (PIN-geschützt)**:
-  - Diskreter Zugang (z. B. 3× Tippen auf das Logo + PIN `1234`).
+- [x] **Pädagogen- & Admin-Bereich (PIN-geschützt)** (Erledigt in v7.8.0):
+  - Diskreter Zugang (5× Tippen auf "Deine Mission" + PIN `1234`, PIN änderbar).
   - Funktionen:
-    - 🔒 Automatischer Tages-Reset für 7 Tage pausieren (für Projektwochen).
-    - 🖨️ Standard-Drucker vorauswählen / Druck-Vorschau anpassen.
-    - 🔊 Maximale Gesamtlautstärke begrenzen.
-- [ ] **Projekt-Export / Backup**:
-  - Einfacher USB- / Offline-Export für fertige Filme und Comics als ZIP/MP4.
+    - 🔒 Konfigurierbarer Datenschutz: Strenger Tages-Reset (Standard / DSGVO) vs. Projekt-Modus (7 Tage pausieren) vs. Dauerhaft.
+    - 📊 Live-Speicherstatus der Meisterwerke.
+    - 🧹 Sofortige Galerie-Leerung auf Knopfdruck.
+    - 🧹 Cache leeren & Update erzwingen.
+- [x] **Projekt-Export / Sammel-Download** (Erledigt in v7.8.0):
+  - 100% Offline-Export aller Meisterwerke (Fotos, Comics, Videos, Audios) als strukturiertes ZIP-Archiv inklusive Inhaltsübersicht.
 
 ### 🔵 Phase 3: Low Priority & Polish (Performance & Accessibility)
 - [ ] **Low-Power-Modus für Zauber Selfie**:
