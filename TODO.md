@@ -63,13 +63,24 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
     - 📊 Live-Speicherstatus der Meisterwerke.
     - 🧹 Sofortige Galerie-Leerung auf Knopfdruck.
     - 🧹 Cache leeren & Update erzwingen.
-- [x] **Projekt-Export / Sammel-Download** (Erledigt in v7.8.0):
-  - 100% Offline-Export aller Meisterwerke (Fotos, Comics, Videos, Audios) als strukturiertes ZIP-Archiv inklusive Inhaltsübersicht.
+- [x] **Sammel-Export / Portfolio-Download für die Galerie** (Erledigt in v7.8.0):
+  - **Hintergrund:** Kinder erstellen tolle Werke; Erzieher und Lehrkräfte möchten diese gesammelt auf USB-Stick ziehen oder für Portfolio-Mappen und Elternarbeit sichern.
+  - **Funktionen:**
+    - 📥 "Alle Werke herunterladen (ZIP)"-Button im Admin-Menü und direkt in der Meisterwerke-Galerie.
+    - Automatische strukturierte Benennung nach Modul, Datum und Uhrzeit (z. B. `01_foto_2026-09-18_14-30.png`, `02_trickfilm_2026-09-18_14-35.webm`).
+    - Beiliegende `Uebersicht.txt` mit Auflistung aller Titel, Typen und Erstellungszeiten.
+    - 100 % offline-fähig über integriertes JSZip.
 
-### 🔵 Phase 3: Low Priority & Polish (Performance & Accessibility)
-- [ ] **Low-Power-Modus für Zauber Selfie**:
-  - Automatische FPS-Überwachung: Wenn unter 20 FPS, Segmentierungsauflösung dynamisch auf 256×256 px skalieren.
-- [ ] **Touch-Area-Vergrößerung im Comic Studio**:
-  - Größere Ziehgriffe (48px+) für Sprechblasen auf Smartphones und kleinen Tablets.
+### 🔵 Phase 3: Low Priority & Polish (UX, Performance & Accessibility)
+- [ ] **UX- & Feinmotorik-Polish für jüngere Kinder (3–4 Jahre)**:
+  - **Hintergrund:** Einige Interaktionen (z. B. das Skalieren von Sprechblasen im Comic Studio) erfordern noch zu hohe Fingerfertigkeit für jüngere Kinder.
+  - **Maßnahmen:**
+    - 🖐️ **Touch-Area-Vergrößerung:** Größere Ziehgriffe (min. 56×56 px) für Sprechblasen, Textboxen & Sticker auf Tablets und Touchscreens.
+    - 📳 **Haptisches Feedback:** Sanfte Vibration (`navigator.vibrate`) bei erfolgreichem Foto-Auslöser, Aufnahme-Start und Stopp auf Touch-Geräten.
+    - 🔔 **Akustisches Feedback:** Klares "Pling"-Bestätigungsgeräusch beim Speichern in der Galerie.
+- [ ] **Low-Power-Modus & Performance für Zauber Selfie**:
+  - **Hintergrund:** Vermeidung von Hitzeentwicklung und Framerate-Einbrüchen auf Einsteiger-Hardware / älteren Tablets.
+  - **Maßnahmen:**
+    - Automatische FPS-Überwachung: Wenn unter 20 FPS, Segmentierungsauflösung dynamisch auf 256×256 px skalieren.
 - [ ] **Erweiterte Inklusions-Hilfen**:
-  - Haptische Vibration bei erfolgreichem Foto-Klick / Sound-Aufnahme auf Android-Geräten.
+  - Visuelle Kontraste für Bedienelemente weiter schärfen und Vorlese-Funktionen für alle Hilfetexte vereinheitlichen.
