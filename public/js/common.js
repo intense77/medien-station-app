@@ -829,8 +829,8 @@
     }
 
     // --- 12. Direkte, Ausfallsichere IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, Offline-PWA) ---
-    const DB_NAME = 'MedienStationDB_v4';
-    const DB_VERSION = 3; // Version 3 stellt sicher, dass der ObjectStore 'meisterwerke' auf allen Geräten konfliktfrei geöffnet & migriert wird
+    const DB_NAME = 'MedienStationDB_v5';
+    const DB_VERSION = 1; // Saubere v1 ohne Schema-Konflikte
     const STORE_NAME = 'meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
 
@@ -1149,10 +1149,27 @@
             });
         };
 
-        // 1. Aus IndexedDB lesen (mit 5000ms Timeout-Sicherung für schwächere Tablets)
+        // 1. ZUERST SOFORT (< 1 ms) aus localStorage & sessionStorage lesen
+        try {
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (raw) {
+                const list = JSON.parse(raw);
+                addItemsToMap(list);
+            }
+        } catch(err) {}
+
+        try {
+            const rawS = sessionStorage.getItem(MEISTER_KEY);
+            if (rawS) {
+                const listS = JSON.parse(rawS);
+                addItemsToMap(listS);
+            }
+        } catch(err) {}
+
+        // 2. Aus IndexedDB MedienStationDB_v5 lesen
         let idbSuccess = false;
         try {
-            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB get Timeout')), 5000));
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB get Timeout')), 3000));
             const db = await Promise.race([getDB(), dbTimeout]);
 
             const idbItems = await new Promise((resolve, reject) => {
@@ -1169,52 +1186,41 @@
             console.warn('[MedienStation] IndexedDB read warning:', e);
         }
 
-        // 1b. Aus älteren DB-Versionen migrieren falls vorhanden (MedienStationDB_v3, MedienStationDB_v2, MedienStationDB)
-        const legacyNames = ['MedienStationDB_v3', 'MedienStationDB_v2', 'MedienStationDB'];
-        for (const legacyName of legacyNames) {
-            try {
-                const legacyItems = await new Promise((res) => {
-                    if (!window.indexedDB) return res([]);
-                    const req = window.indexedDB.open(legacyName);
-                    req.onerror = () => res([]);
-                    req.onsuccess = (ev) => {
-                        const ldb = ev.target.result;
-                        if (!ldb.objectStoreNames || !ldb.objectStoreNames.contains(STORE_NAME)) {
-                            ldb.close();
-                            return res([]);
+        // 3. Sichere Migration aus älteren DBs falls vorhanden (nur wenn sie wirklich existieren)
+        try {
+            if (window.indexedDB && typeof window.indexedDB.databases === 'function') {
+                const existingDBs = await window.indexedDB.databases().catch(() => []);
+                const existingNames = (existingDBs || []).map(d => d.name);
+                const legacyToCheck = ['MedienStationDB_v4', 'MedienStationDB_v3', 'MedienStationDB'].filter(n => existingNames.includes(n));
+                
+                for (const legName of legacyToCheck) {
+                    try {
+                        const legItems = await new Promise((resolve) => {
+                            const t = setTimeout(() => resolve([]), 300);
+                            const req = window.indexedDB.open(legName);
+                            req.onerror = () => { clearTimeout(t); resolve([]); };
+                            req.onsuccess = (ev) => {
+                                clearTimeout(t);
+                                const ldb = ev.target.result;
+                                if (!ldb.objectStoreNames || !ldb.objectStoreNames.contains(STORE_NAME)) {
+                                    ldb.close();
+                                    return resolve([]);
+                                }
+                                try {
+                                    const tx = ldb.transaction(STORE_NAME, 'readonly');
+                                    const gReq = tx.objectStore(STORE_NAME).getAll();
+                                    gReq.onsuccess = (ge) => { ldb.close(); resolve(ge.target.result || []); };
+                                    gReq.onerror = () => { ldb.close(); resolve([]); };
+                                } catch(te) { ldb.close(); resolve([]); }
+                            };
+                        });
+                        if (Array.isArray(legItems) && legItems.length > 0) {
+                            addItemsToMap(legItems);
                         }
-                        try {
-                            const tx = ldb.transaction(STORE_NAME, 'readonly');
-                            const store = tx.objectStore(STORE_NAME);
-                            const gReq = store.getAll();
-                            gReq.onsuccess = (ge) => { ldb.close(); res(ge.target.result || []); };
-                            gReq.onerror = () => { ldb.close(); res([]); };
-                        } catch(te) { ldb.close(); res([]); }
-                    };
-                });
-                if (Array.isArray(legacyItems) && legacyItems.length > 0) {
-                    addItemsToMap(legacyItems);
+                    } catch(le) {}
                 }
-            } catch(e) {}
-        }
-
-        // 2. Aus localStorage ergänzen
-        try {
-            const raw = localStorage.getItem(MEISTER_KEY);
-            if (raw) {
-                const list = JSON.parse(raw);
-                addItemsToMap(list);
             }
-        } catch(err) {}
-
-        // 3. Aus sessionStorage ergänzen
-        try {
-            const rawS = sessionStorage.getItem(MEISTER_KEY);
-            if (rawS) {
-                const listS = JSON.parse(rawS);
-                addItemsToMap(listS);
-            }
-        } catch(err) {}
+        } catch(migErr) {}
 
         items = Array.from(itemMap.values());
         items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -1620,10 +1626,10 @@
             }
 
             if (lastDate !== today) {
-                // Sicherheitsnetz: Werke der letzten 12 Stunden NIEMALS löschen (schützt frische Werke vor versehentlichem Reset)
+                // Sicherheitsnetz: Werke der letzten 24 Stunden NIEMALS löschen (schützt frische Werke vor versehentlichem Reset)
                 const allItems = await window.getMeisterwerke();
-                const twelveHoursAgo = Date.now() - (12 * 60 * 60 * 1000);
-                const itemsToKeep = allItems.filter(it => (it && it.timestamp && it.timestamp > twelveHoursAgo));
+                const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
+                const itemsToKeep = allItems.filter(it => (!it || !it.timestamp || it.timestamp > twentyFourHoursAgo));
 
                 try {
                     const db = await getDB();
@@ -1752,95 +1758,59 @@
             try {
                 zipFile = new File([content], zipFileName, { type: 'application/zip' });
             } catch(fErr) {
-                zipFile = content; // Fallback für ältere Android WebViews
+                zipFile = content;
             }
+
+            const blobUrl = URL.createObjectURL(content);
 
             // Modal aktualisieren: Bereit zum Speichern
             document.getElementById('zip-modal-icon').innerText = '✅';
             document.getElementById('zip-modal-title').innerText = `${items.length} Werke bereit!`;
-            document.getElementById('zip-modal-desc').innerText = `Die Datei "${zipFileName}" wurde erfolgreich gepackt.`;
+            document.getElementById('zip-modal-desc').innerText = `ZIP-Datei "${zipFileName}" ist gepackt.`;
 
             const actionsEl = document.getElementById('zip-modal-actions');
             actionsEl.innerHTML = `
-                <button id="zip-download-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-base md:text-lg shadow-xl active:scale-95 transition border-b-4 border-emerald-800 flex items-center justify-center gap-2 cursor-pointer">
-                    <span>📥</span> <span>AUF TABLET SPEICHERN / TEILEN</span>
+                <a id="zip-download-link" href="${blobUrl}" download="${zipFileName}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 px-4 rounded-2xl text-base sm:text-lg shadow-xl active:scale-95 transition border-b-4 border-emerald-800 flex items-center justify-center gap-2 cursor-pointer no-underline text-center">
+                    <span>📥</span> <span>JETZT AUF TABLET SPEICHERN</span>
+                </a>
+                ${(navigator.canShare && zipFile instanceof File) ? `
+                <button id="zip-share-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition">
+                    <span>📤</span> <span>Teilen / Per App senden</span>
                 </button>
+                ` : ''}
                 <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-sm transition cursor-pointer">
-                    Schließen
+                    ✕ Schließen
                 </button>
             `;
 
-            // Download/Share Handler
-            const triggerDownloadOrShare = async () => {
-                if (window.playSound) window.playSound('click');
-                const btn = document.getElementById('zip-download-btn');
-                if (btn) { btn.innerText = "⏳ Speichere..."; btn.disabled = true; }
+            // Klick-Feedback & Feier-Effekt beim Antippen des Download-Links
+            const dlLink = document.getElementById('zip-download-link');
+            if (dlLink) {
+                dlLink.addEventListener('click', () => {
+                    if (window.playSound) window.playSound('success');
+                    if (window.triggerConfetti) window.triggerConfetti();
+                    if (window.showCustomAlert) window.showCustomAlert('📥 Download wurde gestartet!');
+                });
+            }
 
-                // 1. Web Share API falls unterstützt (Android Share-Sheet für Dateien)
-                if (navigator.canShare && zipFile instanceof File && navigator.canShare({ files: [zipFile] })) {
+            const shareBtn = document.getElementById('zip-share-btn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', async () => {
+                    if (window.playSound) window.playSound('click');
                     try {
                         await navigator.share({
                             files: [zipFile],
                             title: 'MedienStation Meisterwerke',
                             text: `Gesammelte Kunstwerke (${items.length} Dateien)`
                         });
-                        modal.style.display = 'none';
                         if (window.triggerConfetti) window.triggerConfetti();
-                        return;
-                    } catch(shareErr) {
-                        if (shareErr && shareErr.name === 'AbortError') {
-                            if (btn) { btn.innerText = "📥 AUF TABLET SPEICHERN / TEILEN"; btn.disabled = false; }
-                            return;
+                    } catch(shErr) {
+                        if (shErr && shErr.name !== 'AbortError') {
+                            console.warn('Share error:', shErr);
                         }
                     }
-                }
-
-                // 2. Direkter Blob-URL Download
-                try {
-                    const blobUrl = URL.createObjectURL(content);
-                    const link = document.createElement('a');
-                    link.href = blobUrl;
-                    link.download = zipFileName;
-                    document.body.appendChild(link);
-                    link.click();
-                    setTimeout(() => {
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(blobUrl);
-                        modal.style.display = 'none';
-                        if (window.triggerConfetti) window.triggerConfetti();
-                    }, 800);
-                    return;
-                } catch(blobErr) {
-                    console.warn('Blob URL Download fehlgeschlagen, benutze FileReader Data-URL:', blobErr);
-                }
-
-                // 3. FileReader Data-URL Fallback
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    const dataUrl = reader.result;
-                    const link = document.createElement('a');
-                    link.href = dataUrl;
-                    link.download = zipFileName;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    setTimeout(() => {
-                        modal.style.display = 'none';
-                        if (window.triggerConfetti) window.triggerConfetti();
-                    }, 500);
-                };
-                reader.readAsDataURL(content);
-            };
-
-            const downloadBtn = document.getElementById('zip-download-btn');
-            if (downloadBtn) {
-                downloadBtn.onclick = triggerDownloadOrShare;
+                });
             }
-
-            // Auf Desktop/Tablet zusätzlich sofort den Download anstoßen
-            setTimeout(() => {
-                triggerDownloadOrShare().catch(() => {});
-            }, 300);
 
         } catch (err) {
             console.error('[MedienStation] Fehler beim ZIP-Export:', err);
