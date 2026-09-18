@@ -765,33 +765,50 @@
     // --- 12. Lokale Sitzungs-Galerie ("Meisterwerke") ---
     const MEISTER_KEY = 'medienstation_meisterwerke';
 
-    // Hilfsfunktion: Bilder auf max 800px JPEG komprimieren (verhindert 5MB localStorage QuotaExceededError auf Tablets)
+    // Hilfsfunktion: Bilder auf max 800px JPEG komprimieren (~40KB, verhindert Quota-Fehler auf Tablet-WebViews)
     function compressImageDataUrl(dataUrl, maxDim = 800, quality = 0.75) {
         return new Promise((resolve) => {
             if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
                 return resolve(dataUrl);
             }
+            if (dataUrl.startsWith('data:image/gif') || dataUrl.startsWith('data:image/svg')) {
+                return resolve(dataUrl);
+            }
+            // 400ms Notbremse für mobile Tablet-Browser
+            const timer = setTimeout(() => {
+                resolve(dataUrl);
+            }, 400);
+
             const img = new Image();
             img.onload = () => {
-                let width = img.width;
-                let height = img.height;
-                if (width > maxDim || height > maxDim) {
-                    if (width > height) {
-                        height = Math.round((height * maxDim) / width);
-                        width = maxDim;
-                    } else {
-                        width = Math.round((width * maxDim) / height);
-                        height = maxDim;
+                clearTimeout(timer);
+                try {
+                    let width = img.width || 800;
+                    let height = img.height || 600;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
                     }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const compressed = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressed || dataUrl);
+                } catch(e) {
+                    resolve(dataUrl);
                 }
-                const canvas = document.createElement('canvas');
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL('image/jpeg', quality));
             };
-            img.onerror = () => resolve(dataUrl);
+            img.onerror = () => {
+                clearTimeout(timer);
+                resolve(dataUrl);
+            };
             img.src = dataUrl;
         });
     }
@@ -800,7 +817,6 @@
     const DB_NAME = 'MedienStationDB';
     const DB_VERSION = 2; // Erhöht auf Version 2, um Schema-Upgrade garantiert auszulösen
     const STORE_NAME = 'meisterwerke';
-    const MEISTER_KEY = 'medienstation_meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
 
     let dbPromise = null;
@@ -867,22 +883,24 @@
         item.type = item.type || 'image';
         item.appName = item.appName || 'KUNSTWERK';
 
-        // 1. Bilder bei Bedarf auf max 1200px komprimieren, um Speicher zu schonen
+        // 1. Bilder SCHNELL auf max 800px JPEG verkleinern (~40KB), damit sie garantiert in localStorage & IDB passen
         try {
             if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
-                if (item.dataUrl.length > 500000) {
-                    item.dataUrl = await compressImageDataUrl(item.dataUrl, 1200, 0.80);
+                if (item.dataUrl.length > 80000) {
+                    item.dataUrl = await compressImageDataUrl(item.dataUrl, 800, 0.75);
                 }
             }
         } catch (cErr) {
             console.warn('[MedienStation] Komprimierungswarnung:', cErr);
         }
 
-        // 2. Dual-Save: Erst in localStorage schreiben (mit Quota-Schutz & Auto-Pruning)
+        // 2. Triple-Backup: in localStorage UND sessionStorage schreiben (garantiert Schutz des neuen Items)
         try {
             let list = [];
             const raw = localStorage.getItem(MEISTER_KEY);
-            if (raw) list = JSON.parse(raw);
+            if (raw) {
+                try { list = JSON.parse(raw); } catch(e) { list = []; }
+            }
             if (!Array.isArray(list)) list = [];
 
             // Duplikate filtern
@@ -891,20 +909,38 @@
             if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
 
             let savedInLocal = false;
-            while (list.length > 0 && !savedInLocal) {
+            let attempts = 0;
+            while (list.length > 0 && !savedInLocal && attempts < 10) {
+                attempts++;
                 try {
                     localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
                     savedInLocal = true;
                 } catch (quotaErr) {
                     console.warn('[MedienStation] localStorage Quota voll, passe Liste an...');
-                    list.pop();
+                    if (list.length > 1) {
+                        list.pop(); // Entferne ältestes Element am ENDE der Liste (Neues Item bleibt!)
+                    } else {
+                        try {
+                            list[0].dataUrl = await compressImageDataUrl(list[0].dataUrl, 400, 0.50);
+                            localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+                            savedInLocal = true;
+                        } catch(e2) {
+                            break;
+                        }
+                    }
                 }
             }
+
+            // SessionStorage als zusätzliche Not-Ebene
+            try {
+                sessionStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+            } catch(sErr) {}
+
         } catch (localErr) {
             console.warn('[MedienStation] localStorage save error:', localErr);
         }
 
-        // 3. In IndexedDB schreiben (für unbegrenzten Speicher)
+        // 3. In IndexedDB schreiben (für unbegrenzten dauerhaften Speicher)
         try {
             const db = await getDB();
             await migrateLocalStorageIfNeeded(db);
@@ -937,6 +973,9 @@
             console.warn('[MedienStation] IndexedDB save warning (localStorage Backup genutzt):', e);
         }
 
+        if (window.showCustomAlert) {
+            window.showCustomAlert('🎨 In Galerie gespeichert!');
+        }
         if (window.triggerCelebration) window.triggerCelebration();
         return item;
     };
@@ -944,6 +983,7 @@
     window.getMeisterwerke = async function(callback) {
         let idbItems = [];
         let localItems = [];
+        let sessionItems = [];
 
         // 1. Aus localStorage lesen
         try {
@@ -956,9 +996,22 @@
             console.warn('[MedienStation] localStorage read warning:', err);
         }
 
-        // 2. Aus IndexedDB lesen
+        // 2. Aus sessionStorage lesen
         try {
-            const db = await getDB();
+            const rawS = sessionStorage.getItem(MEISTER_KEY);
+            if (rawS) {
+                const parsedS = JSON.parse(rawS);
+                if (Array.isArray(parsedS)) sessionItems = parsedS;
+            }
+        } catch(err) {}
+
+        // 3. Aus IndexedDB lesen (mit 800ms Timeout Notbremse)
+        try {
+            const dbPromiseWithTimeout = Promise.race([
+                getDB(),
+                new Promise((_, rej) => setTimeout(() => rej(new Error('IDB timeout')), 800))
+            ]);
+            const db = await dbPromiseWithTimeout;
             await migrateLocalStorageIfNeeded(db);
 
             idbItems = await new Promise((resolve, reject) => {
@@ -972,7 +1025,7 @@
             console.warn('[MedienStation] IndexedDB read warning:', e);
         }
 
-        // 3. Merging & Deduplizieren beider Quellen
+        // 4. Merging & Deduplizieren aller 3 Quellen
         const itemMap = new Map();
         if (Array.isArray(idbItems)) {
             idbItems.forEach(it => {
@@ -983,6 +1036,16 @@
         }
         if (Array.isArray(localItems)) {
             localItems.forEach(it => {
+                if (it && typeof it === 'object' && it.dataUrl) {
+                    const key = it.id || it.dataUrl;
+                    if (!itemMap.has(key)) {
+                        itemMap.set(key, it);
+                    }
+                }
+            });
+        }
+        if (Array.isArray(sessionItems)) {
+            sessionItems.forEach(it => {
                 if (it && typeof it === 'object' && it.dataUrl) {
                     const key = it.id || it.dataUrl;
                     if (!itemMap.has(key)) {
@@ -1002,6 +1065,9 @@
     window.clearMeisterwerke = async function(onComplete) {
         try {
             localStorage.removeItem(MEISTER_KEY);
+        } catch(e) {}
+        try {
+            sessionStorage.removeItem(MEISTER_KEY);
         } catch(e) {}
         try {
             const db = await getDB();
@@ -1029,7 +1095,10 @@
                     <div class="col-span-full text-center py-16 text-slate-400 select-none">
                         <div class="text-7xl mb-4">🎨</div>
                         <h3 class="text-2xl md:text-3xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
-                        <p class="text-base md:text-lg font-bold max-w-md mx-auto">Nutze die Apps (z.B. Pixel, Comic oder Mikro), um Bilder oder Sounds zu erstellen. Sie erscheinen automatisch hier!</p>
+                        <p class="text-base md:text-lg font-bold max-w-md mx-auto mb-6">Nutze die Apps (z.B. Pixel, Comic oder Mikro), um Bilder oder Sounds zu erstellen. Sie erscheinen automatisch hier!</p>
+                        <button onclick="window.renderMeisterwerkeGrid()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-6 py-3 rounded-full text-sm shadow-xl active:scale-95 transition">
+                            🔄 Galerie aktualisieren
+                        </button>
                     </div>
                 `;
                 if (footer) footer.style.display = 'none';
