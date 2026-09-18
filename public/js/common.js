@@ -464,9 +464,18 @@
     }
 
     // --- 8. Vorlese-Funktion (Text-to-Speech) für Kinder ---
-    window.speakText = function(text, event) {
-        if (event) event.stopPropagation();
-        window.resetIdleTimer();
+    window.speakText = function(text, eventOrBtn) {
+        let btn = null;
+        if (eventOrBtn) {
+            if (eventOrBtn.stopPropagation) {
+                eventOrBtn.stopPropagation();
+                btn = eventOrBtn.currentTarget || eventOrBtn.target;
+            } else if (eventOrBtn.nodeType) {
+                btn = eventOrBtn;
+            }
+        }
+        if (window.resetIdleTimer) window.resetIdleTimer();
+        if (window.triggerHapticFeedback) window.triggerHapticFeedback([30]);
         
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
@@ -481,12 +490,18 @@
                 
                 window.currentUtterance.lang = 'de-DE';
                 window.currentUtterance.rate = 0.9;
-                window.currentUtterance.pitch = 1.2;
+                window.currentUtterance.pitch = 1.1;
+
+                if (btn) btn.classList.add('animate-pulse');
+
+                window.currentUtterance.onend = () => { if (btn) btn.classList.remove('animate-pulse'); };
+                window.currentUtterance.onerror = () => { if (btn) btn.classList.remove('animate-pulse'); };
                 
-                // WICHTIG: KEIN setTimeout! Muss synchron im Klick-Event passieren (User Gesture)
+                // WICHTIG: Synchron im Klick-Event ausführen (User Gesture)
                 window.speechSynthesis.speak(window.currentUtterance);
             } catch (err) {
                 console.error("Fehler beim Vorlesen:", err);
+                if (btn) btn.classList.remove('animate-pulse');
             }
         }
     };

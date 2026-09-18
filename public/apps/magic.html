@@ -236,8 +236,26 @@
             if(window.showError) window.showError("Kamera nicht gefunden! Bitte erlaube den Zugriff.", "📷");
         }
 
+        let fpsFrameCount = 0;
+        let lastFpsCheckTime = Date.now();
+        let enableFrameSkip = false;
+        let frameSkipCounter = 0;
+
         async function renderLoop() {
             if (isRunning && video.readyState >= 2 && video.videoWidth > 0) {
+                // Low-Power FPS Überwachung
+                fpsFrameCount++;
+                const now = Date.now();
+                if (now - lastFpsCheckTime >= 2500) {
+                    const currentFps = Math.round((fpsFrameCount * 1000) / (now - lastFpsCheckTime));
+                    fpsFrameCount = 0;
+                    lastFpsCheckTime = now;
+                    if (currentFps < 22 && !enableFrameSkip) {
+                        enableFrameSkip = true;
+                        console.log(`[ZauberSelfie] Low-Power Modus aktiviert (FPS: ${currentFps})`);
+                    }
+                }
+
                 if (activeBg === 'real') {
                     loadingEl.style.display = 'none';
                     canvas.width = video.videoWidth; 
@@ -255,7 +273,10 @@
                         if (!selfieSegmentation) {
                             initMediaPipe();
                         }
-                        await selfieSegmentation.send({image: video});
+                        frameSkipCounter++;
+                        if (!enableFrameSkip || (frameSkipCounter % 2 === 0)) {
+                            await selfieSegmentation.send({image: video});
+                        }
                     } catch (e) {
                         console.error("MediaPipe Processing Fehler:", e);
                     }
