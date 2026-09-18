@@ -161,9 +161,12 @@
                 }
                 currentStream = stream; 
                 video.srcObject = stream;
-                if (currentFacingMode === 'user') video.style.transform = 'scaleX(-1)';
-                else video.style.transform = 'scaleX(1)';
-            } catch (err) { console.error("Kamera-Fehler: ", err); }
+            } catch (err) {
+                console.error("Kamera-Fehler: ", err);
+                if (window.handleCamError) {
+                    window.handleCamError(err, document.getElementById('tv-container') || video, initCam);
+                }
+            }
         }
         
         window.switchCamera = function() {

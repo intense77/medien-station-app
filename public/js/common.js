@@ -971,11 +971,68 @@
             console.warn('[MedienStation] IndexedDB save warning (Sync-Storage Backup geschützt):', e);
         }
 
+        if (window.triggerHapticFeedback) window.triggerHapticFeedback([30, 50, 30]);
+        try { if (window.playSound) window.playSound('success'); } catch(e) {}
         if (window.showCustomAlert) {
             window.showCustomAlert('🎨 In Galerie gespeichert!');
         }
         if (window.triggerCelebration) window.triggerCelebration();
         return item;
+    };
+
+    // --- Haptisches Feedback (Vibration) für Mobilgeräte & Tablets ---
+    window.triggerHapticFeedback = function(pattern) {
+        try {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(pattern || [40]);
+            }
+        } catch(e) {}
+    };
+
+    // --- Kindgerechtes Kamera-Fehler & Berechtigungs-Overlay ---
+    window.handleCamError = function(err, containerOrVideoEl, retryFn) {
+        console.warn('[MedienStation] Kamera-Fehler:', err);
+        let target = null;
+        if (typeof containerOrVideoEl === 'string') {
+            target = document.getElementById(containerOrVideoEl);
+        } else {
+            target = containerOrVideoEl;
+        }
+        if (!target) return;
+
+        const parent = target.parentElement || target;
+        let overlay = parent.querySelector('.cam-error-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'cam-error-overlay absolute inset-0 bg-slate-900/95 z-50 flex flex-col items-center justify-center p-6 text-center text-white rounded-2xl select-none';
+            parent.style.position = 'relative';
+            parent.appendChild(overlay);
+        }
+
+        const isDenied = err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
+        const title = isDenied ? 'Kamera ist blockiert! 🔒' : 'Kamera nicht gefunden! 📷';
+        const msg = isDenied 
+            ? 'Bitte erlaube den Kamera-Zugriff in den Einstellungen deines Browsers oder Geräts.' 
+            : 'Bitte überprüfe, ob eine Kamera angeschlossen oder in den System-Einstellungen aktiviert ist.';
+
+        overlay.innerHTML = `
+            <div class="text-6xl mb-3 animate-bounce">📷</div>
+            <h3 class="text-xl md:text-2xl font-black text-amber-400 mb-2">${title}</h3>
+            <p class="text-sm md:text-base font-bold text-slate-300 max-w-sm mb-6">${msg}</p>
+            <button class="retry-cam-btn bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-6 py-3 rounded-full text-base shadow-xl active:scale-95 transition cursor-pointer">
+                🔄 Erneut versuchen
+            </button>
+        `;
+
+        const btn = overlay.querySelector('.retry-cam-btn');
+        if (btn) {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                if (window.triggerHapticFeedback) window.triggerHapticFeedback([40]);
+                overlay.remove();
+                if (typeof retryFn === 'function') retryFn();
+            };
+        }
     };
 
     // Lesen aus IndexedDB + Backups + Auto-Migration

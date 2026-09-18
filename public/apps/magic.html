@@ -226,7 +226,12 @@
                     isRunning = true;
                     renderLoop();
                     return;
-                } catch (e) { console.warn("Versuch fehlgeschlagen", e); }
+                } catch (e) {
+                    console.warn("Kamera Versuch fehlgeschlagen", e);
+                    if (window.handleCamError) {
+                        window.handleCamError(e, document.getElementById('canvas-container') || document.body, initCam);
+                    }
+                }
             }
             if(window.showError) window.showError("Kamera nicht gefunden! Bitte erlaube den Zugriff.", "📷");
         }
