@@ -132,7 +132,7 @@
                 <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-3 py-2 sm:px-5 sm:py-3 md:px-6 md:py-4 rounded-full shadow-2xl flex items-center justify-center gap-2 sm:gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all w-auto max-w-full">
                     <img src="assets/logo.png" class="h-8 sm:h-10 md:h-12 w-auto object-contain shrink-0" alt="Logo" onerror="this.style.display='none'">
                     <div class="flex flex-col text-left shrink min-w-0">
-                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.0)</span></span>
+                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.2)</span></span>
                         <span class="text-[11px] sm:text-sm md:text-base lg:text-lg font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
                     </div>
                 </button>
@@ -276,138 +276,136 @@
     </div>
 
     <!-- Fachkraft- & Admin-Modal -->
-    <div id="admin-modal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-[99999] flex items-center justify-center p-3 sm:p-4" onclick="closeAdmin()">
-        <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl w-full max-w-xl max-h-[92vh] overflow-y-auto shadow-2xl p-5 sm:p-7 flex flex-col gap-5 text-white no-scrollbar" onclick="event.stopPropagation()">
+    <div id="admin-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[99999] flex flex-col items-center justify-start overflow-y-auto p-2 sm:p-4" onclick="closeAdmin()">
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl w-full max-w-xl my-auto sm:my-3 shadow-2xl flex flex-col overflow-hidden text-white relative" style="max-height: 94vh;" onclick="event.stopPropagation()">
             
-            <!-- Header -->
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl">⚙️</span>
+            <!-- Sticky Header: Immer ganz oben sichtbar -->
+            <div class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 p-4 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="text-2xl sm:text-3xl">⚙️</span>
                     <div>
-                        <h2 class="text-xl sm:text-2xl font-black text-white">FACHKRAFT- & ADMIN-MENÜ</h2>
-                        <p class="text-xs text-slate-400 font-bold">Einstellungen & Steuerung für Fachkräfte</p>
+                        <h2 class="text-base sm:text-xl font-black text-white leading-tight">FACHKRAFT- & ADMIN-MENÜ</h2>
+                        <p class="text-[11px] sm:text-xs text-slate-400 font-bold">Einstellungen & Steuerung</p>
                     </div>
                 </div>
-                <button onclick="closeAdmin()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-full flex items-center gap-1.5 font-bold text-xs border border-slate-600 transition active:scale-95 cursor-pointer shadow">
+                <button onclick="closeAdmin()" class="bg-red-600 hover:bg-red-500 text-white font-black px-4 py-2 rounded-full text-xs sm:text-sm flex items-center gap-1.5 shadow active:scale-95 cursor-pointer border border-red-400">
                     <span>✕</span> <span>SCHLIESSEN</span>
                 </button>
             </div>
 
-            <!-- Sektion 1: Datenschutz & Auto-Reset Modus -->
-            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                        <span>🛡️</span> Datenschutz & Speicher-Reset
+            <!-- Scrollbarer Hauptbereich -->
+            <div class="overflow-y-auto p-4 sm:p-5 flex flex-col gap-4 flex-1">
+                <!-- Sektion 1: Datenschutz & Auto-Reset Modus -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                            <span>🛡️</span> Datenschutz & Speicher-Reset
+                        </span>
+                        <span id="admin-reset-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">Täglich aktiv</span>
+                    </div>
+
+                    <!-- Status-Banner: Visuelle Bestätigung des aktiven Modus -->
+                    <div id="admin-reset-status-banner" class="p-3 rounded-xl border text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner transition-all">
+                        <span id="admin-reset-status-text">✅ AKTIV GESPEICHERT: Strenger Tages-Reset (00:00 Uhr)</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-2.5 text-sm">
+                        <!-- Option 1: Strenger Tages-Reset -->
+                        <div id="admin-card-daily" onclick="onAdminResetModeChange('daily')" class="flex items-start gap-3 p-3.5 rounded-2xl cursor-pointer transition-all">
+                            <input type="radio" name="admin_reset_mode" value="daily" class="mt-1 accent-emerald-500 w-4 h-4 cursor-pointer">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="font-extrabold text-white flex items-center gap-1.5">
+                                        <span>🟢</span> Strenger Tages-Reset <span class="text-xs text-emerald-400 font-normal">(Standard / DSGVO)</span>
+                                    </span>
+                                    <span id="badge-daily" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md"></span>
+                                </div>
+                                <div class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                    Alle Kunstwerke werden jede Nacht um 00:00 Uhr automatisch gelöscht. Es verbleiben keine Daten über den Tag hinaus auf dem Gerät.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Option 2: Projekt-Modus 7 Tage -->
+                        <div id="admin-card-project_7d" onclick="onAdminResetModeChange('project_7d')" class="flex items-start gap-3 p-3.5 rounded-2xl cursor-pointer transition-all">
+                            <input type="radio" name="admin_reset_mode" value="project_7d" class="mt-1 accent-amber-500 w-4 h-4 cursor-pointer">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="font-extrabold text-white flex items-center gap-1.5">
+                                        <span>🟡</span> Projekt-Modus <span class="text-xs text-amber-400 font-normal">(7 Tage pausieren)</span>
+                                    </span>
+                                    <span id="badge-project_7d" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md"></span>
+                                </div>
+                                <div class="text-xs text-slate-300 mt-1 leading-relaxed" id="admin-project-mode-desc">
+                                    Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Option 3: Dauerhaft behalten -->
+                        <div id="admin-card-never" onclick="onAdminResetModeChange('never')" class="flex items-start gap-3 p-3.5 rounded-2xl cursor-pointer transition-all">
+                            <input type="radio" name="admin_reset_mode" value="never" class="mt-1 accent-blue-500 w-4 h-4 cursor-pointer">
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="font-extrabold text-white flex items-center gap-1.5">
+                                        <span>⚪</span> Dauerhaft behalten <span class="text-xs text-slate-400 font-normal">(Kein Auto-Reset)</span>
+                                    </span>
+                                    <span id="badge-never" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md"></span>
+                                </div>
+                                <div class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                    Werke verbleiben dauerhaft im lokalen IndexedDB-Speicher, bis sie manuell gelöscht werden.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sektion 2: Meisterwerke-Galerie verwalten & ZIP Export -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
+                            <span>🎨</span> Meisterwerke & Export
+                        </span>
+                        <span id="admin-gallery-count" class="text-xs font-bold text-slate-300">Lade Status...</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button onclick="adminExportZip()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg border border-blue-400 active:scale-95 transition cursor-pointer">
+                            <span>📥</span> Als ZIP herunterladen
+                        </button>
+                        <button onclick="adminClearGallery()" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm border border-red-700 active:scale-95 transition cursor-pointer">
+                            <span>🧹</span> Galerie jetzt leeren
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sektion 3: Wartung & System -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                        <span>🛠️</span> System & Wartung
                     </span>
-                    <span id="admin-reset-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">Täglich aktiv</span>
-                </div>
-
-                <!-- Status-Banner: Visuelle Bestätigung des aktiven Modus -->
-                <div id="admin-reset-status-banner" class="p-3 rounded-xl border border-emerald-500/80 bg-emerald-950/90 text-emerald-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner">
-                    <span id="admin-reset-status-text">✅ AKTIV GESPEICHERT: Strenger Tages-Reset (00:00 Uhr)</span>
-                </div>
-
-                <div class="grid grid-cols-1 gap-2.5 text-sm">
-                    <!-- Option 1: Strenger Tages-Reset -->
-                    <label id="admin-card-daily" class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition-all">
-                        <input type="radio" name="admin_reset_mode" value="daily" onchange="onAdminResetModeChange('daily')" class="mt-1 accent-emerald-500 w-4 h-4 cursor-pointer">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="font-extrabold text-white flex items-center gap-1.5">
-                                    <span>🟢</span> Strenger Tages-Reset <span class="text-xs text-emerald-400 font-normal">(Standard / DSGVO)</span>
-                                </span>
-                                <span id="badge-daily" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-900/80 text-emerald-300 border border-emerald-500">Aktiv & Gespeichert</span>
-                            </div>
-                            <div class="text-xs text-slate-300 mt-1 leading-relaxed">
-                                Alle Kunstwerke werden jede Nacht um 00:00 Uhr automatisch gelöscht. Es verbleiben keine Daten über den Tag hinaus auf dem Gerät.
-                            </div>
-                        </div>
-                    </label>
-
-                    <!-- Option 2: Projekt-Modus 7 Tage -->
-                    <label id="admin-card-project_7d" class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition-all">
-                        <input type="radio" name="admin_reset_mode" value="project_7d" onchange="onAdminResetModeChange('project_7d')" class="mt-1 accent-amber-500 w-4 h-4 cursor-pointer">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="font-extrabold text-white flex items-center gap-1.5">
-                                    <span>🟡</span> Projekt-Modus <span class="text-xs text-amber-400 font-normal">(7 Tage pausieren)</span>
-                                </span>
-                                <span id="badge-project_7d" class="hidden text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-900/80 text-amber-300 border border-amber-500">Aktiv & Gespeichert</span>
-                            </div>
-                            <div class="text-xs text-slate-300 mt-1 leading-relaxed" id="admin-project-mode-desc">
-                                Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.
-                            </div>
-                        </div>
-                    </label>
-
-                    <!-- Option 3: Dauerhaft behalten -->
-                    <label id="admin-card-never" class="flex items-start gap-3 p-3.5 rounded-2xl border border-slate-700 bg-slate-900/60 hover:border-slate-500 cursor-pointer transition-all">
-                        <input type="radio" name="admin_reset_mode" value="never" onchange="onAdminResetModeChange('never')" class="mt-1 accent-blue-500 w-4 h-4 cursor-pointer">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="font-extrabold text-white flex items-center gap-1.5">
-                                    <span>⚪</span> Dauerhaft behalten <span class="text-xs text-slate-400 font-normal">(Kein Auto-Reset)</span>
-                                </span>
-                                <span id="badge-never" class="hidden text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-blue-900/80 text-blue-300 border border-blue-500">Aktiv & Gespeichert</span>
-                            </div>
-                            <div class="text-xs text-slate-300 mt-1 leading-relaxed">
-                                Werke verbleiben dauerhaft im lokalen IndexedDB-Speicher, bis sie manuell gelöscht werden.
-                            </div>
-                        </div>
-                    </label>
-                </div>
-
-                <!-- Visueller Speicher-Hinweis -->
-                <div id="admin-save-feedback" class="text-xs font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-600/40 py-1.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all">
-                    <span>✓</span> Einstellung ist aktiv und sofort auf diesem Gerät gespeichert.
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs sm:text-sm border border-slate-600 active:scale-95 transition cursor-pointer">
+                            🔄 Neu laden
+                        </button>
+                        <button onclick="adminChangePin()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs sm:text-sm border border-slate-600 active:scale-95 transition cursor-pointer">
+                            🔐 PIN ändern
+                        </button>
+                        <button onclick="hardReset()" class="bg-red-950 hover:bg-red-900 text-red-300 font-bold py-3 rounded-xl text-xs sm:text-sm border border-red-800 active:scale-95 transition cursor-pointer">
+                            ⚡ Cache leeren
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Sektion 2: Meisterwerke-Galerie verwalten & ZIP Export -->
-            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
-                        <span>🎨</span> Meisterwerke & Export
-                    </span>
-                    <span id="admin-gallery-count" class="text-xs font-bold text-slate-300">Lade Status...</span>
+            <!-- Sticky Footer: Immer unten sichtbar -->
+            <div class="sticky bottom-0 z-30 bg-slate-900/95 backdrop-blur border-t border-slate-800 p-3 sm:p-4 shrink-0 flex flex-col gap-1.5">
+                <button onclick="closeAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black py-3 sm:py-3.5 rounded-2xl text-base sm:text-lg shadow-xl active:scale-[0.98] transition flex items-center justify-center gap-2 border-b-4 border-emerald-800 cursor-pointer">
+                    <span>🏠</span> <span>ZURÜCK ZUR APP (GESPEICHERT)</span>
+                </button>
+                <div class="text-center text-[11px] text-slate-500 font-mono">
+                    App Version: 7.9.2 (Build 307) • AV-Medienzentrale
                 </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button onclick="adminExportZip()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg border border-blue-400 active:scale-95 transition cursor-pointer">
-                        <span>📥</span> Als ZIP herunterladen
-                    </button>
-                    <button onclick="adminClearGallery()" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm border border-red-700 active:scale-95 transition cursor-pointer">
-                        <span>🧹</span> Galerie jetzt leeren
-                    </button>
-                </div>
-            </div>
-
-            <!-- Sektion 3: Wartung & System -->
-            <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
-                <span class="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-2">
-                    <span>🛠️</span> System & Wartung
-                </span>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <button onclick="location.reload()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs sm:text-sm border border-slate-600 active:scale-95 transition cursor-pointer">
-                        🔄 Neu laden
-                    </button>
-                    <button onclick="adminChangePin()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-xs sm:text-sm border border-slate-600 active:scale-95 transition cursor-pointer">
-                        🔐 PIN ändern
-                    </button>
-                    <button onclick="hardReset()" class="bg-red-950 hover:bg-red-900 text-red-300 font-bold py-3 rounded-xl text-xs sm:text-sm border border-red-800 active:scale-95 transition cursor-pointer">
-                        ⚡ Cache leeren
-                    </button>
-                </div>
-            </div>
-
-            <!-- Großer, unübersehbarer Zurück-Button -->
-            <button onclick="closeAdmin()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black py-4 rounded-2xl text-base sm:text-lg shadow-xl active:scale-[0.98] transition flex items-center justify-center gap-3 border-b-4 border-emerald-800 cursor-pointer">
-                <span>🏠</span> <span>ZURÜCK ZUR APP (GESPEICHERT)</span>
-            </button>
-
-            <!-- Footer & Info -->
-            <div class="text-center text-xs text-slate-500 font-mono">
-                App Version: 7.9.0 (Build 305) • AV-Medienzentrale
             </div>
         </div>
     </div>
@@ -588,14 +586,18 @@
             updateAdminGalleryCount();
 
             modal.classList.remove('hidden');
-            modal.classList.add('flex');
+            modal.style.display = 'flex';
+            modal.scrollTop = 0;
+            const scrollBody = modal.querySelector('.overflow-y-auto');
+            if (scrollBody) scrollBody.scrollTop = 0;
+            window.scrollTo(0, 0);
         }
 
         function closeAdmin() { 
             const modal = document.getElementById('admin-modal');
             if (modal) {
                 modal.classList.add('hidden'); 
-                modal.classList.remove('flex'); 
+                modal.style.display = 'none';
             }
             if (window.updateGalleryInfoText) {
                 window.updateGalleryInfoText();
@@ -621,29 +623,31 @@
             const statusBanner = document.getElementById('admin-reset-status-banner');
             const statusText = document.getElementById('admin-reset-status-text');
 
-            const resetClasses = (el) => {
-                if (!el) return;
-                el.className = 'flex items-start gap-3 p-3.5 rounded-2xl border border-slate-700/80 bg-slate-900/40 hover:border-slate-500 cursor-pointer transition-all opacity-70';
-            };
-            const activeClasses = (el, colorBorder, colorBg) => {
-                if (!el) return;
-                el.className = `flex items-start gap-3 p-3.5 rounded-2xl border-2 ${colorBorder} ${colorBg} cursor-pointer transition-all shadow-md opacity-100`;
-            };
+            // Reset all cards with clear default inline style
+            [cardDaily, cardProj, cardNever].forEach(c => {
+                if (c) {
+                    c.style.border = '2px solid #334155';
+                    c.style.backgroundColor = 'rgba(15, 23, 42, 0.7)';
+                    c.style.boxShadow = 'none';
+                    c.style.opacity = '0.65';
+                }
+            });
 
-            resetClasses(cardDaily);
-            resetClasses(cardProj);
-            resetClasses(cardNever);
-
-            if (badgeDaily) badgeDaily.classList.add('hidden');
-            if (badgeProj) badgeProj.classList.add('hidden');
-            if (badgeNever) badgeNever.classList.add('hidden');
+            if (badgeDaily) badgeDaily.innerHTML = '<span class="text-slate-500 font-bold text-[11px]">Nicht aktiv</span>';
+            if (badgeProj) badgeProj.innerHTML = '<span class="text-slate-500 font-bold text-[11px]">Nicht aktiv</span>';
+            if (badgeNever) badgeNever.innerHTML = '<span class="text-slate-500 font-bold text-[11px]">Nicht aktiv</span>';
 
             const badge = document.getElementById('admin-reset-badge');
             const projectDesc = document.getElementById('admin-project-mode-desc');
 
             if (status.mode === 'daily') {
-                activeClasses(cardDaily, 'border-emerald-500', 'bg-emerald-950/40');
-                if (badgeDaily) badgeDaily.classList.remove('hidden');
+                if (cardDaily) {
+                    cardDaily.style.border = '3px solid #10b981';
+                    cardDaily.style.backgroundColor = 'rgba(6, 78, 59, 0.75)';
+                    cardDaily.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.4)';
+                    cardDaily.style.opacity = '1';
+                }
+                if (badgeDaily) badgeDaily.innerHTML = '<span class="bg-emerald-500 text-slate-950 font-black px-2.5 py-1 rounded-full text-xs shadow flex items-center gap-1">✅ AKTIV GESPEICHERT</span>';
                 if (badge) {
                     badge.textContent = '🟢 Täglich aktiv';
                     badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700';
@@ -652,13 +656,18 @@
                     projectDesc.textContent = 'Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.';
                 }
                 if (statusBanner && statusText) {
-                    statusBanner.className = 'p-3 rounded-xl border border-emerald-500/80 bg-emerald-950/90 text-emerald-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner animate-pulse';
-                    statusText.textContent = '✅ AKTIV GESPEICHERT: Strenger Tages-Reset (00:00 Uhr)';
-                    setTimeout(() => statusBanner.classList.remove('animate-pulse'), 1000);
+                    statusBanner.style.backgroundColor = 'rgba(6, 78, 59, 0.9)';
+                    statusBanner.style.border = '2px solid #10b981';
+                    statusText.innerHTML = '🟢 <strong>AKTIV GESPEICHERT:</strong> Strenger Tages-Reset (00:00 Uhr)';
                 }
             } else if (status.mode === 'project_7d') {
-                activeClasses(cardProj, 'border-amber-500', 'bg-amber-950/40');
-                if (badgeProj) badgeProj.classList.remove('hidden');
+                if (cardProj) {
+                    cardProj.style.border = '3px solid #f59e0b';
+                    cardProj.style.backgroundColor = 'rgba(120, 53, 15, 0.75)';
+                    cardProj.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.4)';
+                    cardProj.style.opacity = '1';
+                }
+                if (badgeProj) badgeProj.innerHTML = `<span class="bg-amber-500 text-slate-950 font-black px-2.5 py-1 rounded-full text-xs shadow flex items-center gap-1">✅ AKTIV (noch ${status.pauseDaysRemaining} Tage)</span>`;
                 if (badge) {
                     badge.textContent = `🟡 Projekt (${status.pauseDaysRemaining} Tage verbleibend)`;
                     badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-700';
@@ -667,45 +676,41 @@
                     projectDesc.textContent = `Aktiv: Werke bleiben noch ca. ${status.pauseDaysRemaining} Tag(e) über Nacht erhalten.`;
                 }
                 if (statusBanner && statusText) {
-                    statusBanner.className = 'p-3 rounded-xl border border-amber-500/80 bg-amber-950/90 text-amber-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner animate-pulse';
-                    statusText.textContent = `✅ AKTIV GESPEICHERT: 7-Tage Projekt-Modus (noch ${status.pauseDaysRemaining} Tag(e) pausiert)`;
-                    setTimeout(() => statusBanner.classList.remove('animate-pulse'), 1000);
+                    statusBanner.style.backgroundColor = 'rgba(120, 53, 15, 0.9)';
+                    statusBanner.style.border = '2px solid #f59e0b';
+                    statusText.innerHTML = `🟡 <strong>AKTIV GESPEICHERT:</strong> 7-Tage Projekt-Modus (noch ${status.pauseDaysRemaining} Tag(e) pausiert)`;
                 }
             } else if (status.mode === 'never') {
-                activeClasses(cardNever, 'border-blue-500', 'bg-blue-950/40');
-                if (badgeNever) badgeNever.classList.remove('hidden');
+                if (cardNever) {
+                    cardNever.style.border = '3px solid #3b82f6';
+                    cardNever.style.backgroundColor = 'rgba(30, 58, 138, 0.75)';
+                    cardNever.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.4)';
+                    cardNever.style.opacity = '1';
+                }
+                if (badgeNever) badgeNever.innerHTML = '<span class="bg-blue-500 text-white font-black px-2.5 py-1 rounded-full text-xs shadow flex items-center gap-1">✅ AKTIV GESPEICHERT</span>';
                 if (badge) {
                     badge.textContent = '⚪ Kein Auto-Reset';
                     badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-700';
                 }
                 if (statusBanner && statusText) {
-                    statusBanner.className = 'p-3 rounded-xl border border-blue-500/80 bg-blue-950/90 text-blue-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner animate-pulse';
-                    statusText.textContent = '✅ AKTIV GESPEICHERT: Dauerhaft speichern (Kein automatischer Reset)';
-                    setTimeout(() => statusBanner.classList.remove('animate-pulse'), 1000);
+                    statusBanner.style.backgroundColor = 'rgba(30, 58, 138, 0.9)';
+                    statusBanner.style.border = '2px solid #3b82f6';
+                    statusText.innerHTML = '⚪ <strong>AKTIV GESPEICHERT:</strong> Dauerhaft speichern (Kein Auto-Reset)';
                 }
             }
         }
 
         function onAdminResetModeChange(mode) {
-            if (window.triggerHapticFeedback) window.triggerHapticFeedback([40]);
-            if (window.playSound) window.playSound('click');
+            if (window.triggerHapticFeedback) window.triggerHapticFeedback([40, 40]);
+            if (window.playSound) window.playSound('success');
             if (window.setStorageResetMode) {
                 window.setStorageResetMode(mode);
                 syncAdminResetUI();
                 
-                const feedbackEl = document.getElementById('admin-save-feedback');
-                if (feedbackEl) {
-                    feedbackEl.classList.remove('scale-100');
-                    feedbackEl.classList.add('scale-105', 'bg-emerald-900', 'text-white');
-                    setTimeout(() => {
-                        feedbackEl.classList.remove('scale-105', 'bg-emerald-900', 'text-white');
-                    }, 400);
-                }
-
                 if (window.showCustomAlert) {
-                    if (mode === 'daily') window.showCustomAlert('🟢 Strenger Tages-Reset aktiviert & gespeichert (00:00 Uhr).');
-                    else if (mode === 'project_7d') window.showCustomAlert('🟡 Projekt-Modus aktiviert & gespeichert (7 Tage pausiert).');
-                    else if (mode === 'never') window.showCustomAlert('⚪ Dauerhaft speichern aktiviert & gespeichert (Kein Auto-Reset).');
+                    if (mode === 'daily') window.showCustomAlert('Strenger Tages-Reset aktiviert & gespeichert.', '🟢');
+                    else if (mode === 'project_7d') window.showCustomAlert('7-Tage Projekt-Modus aktiviert & gespeichert.', '🟡');
+                    else if (mode === 'never') window.showCustomAlert('Dauerhaft speichern aktiviert & gespeichert.', '⚪');
                 }
             }
         }

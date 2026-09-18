@@ -73,10 +73,14 @@
         }
         document.addEventListener('DOMContentLoaded', renderPageGrid);
         window.addEventListener('focus', renderPageGrid);
+        window.addEventListener('storage', renderPageGrid);
+        window.addEventListener('meisterwerke-updated', renderPageGrid);
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'visible') renderPageGrid();
         });
         renderPageGrid();
+        // Kurzer Re-Check nach 500ms für IndexedDB-Initialisierung auf langsamen Mobilgeräten
+        setTimeout(renderPageGrid, 500);
     </script>
 </body>
 </html>

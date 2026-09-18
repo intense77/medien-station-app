@@ -830,7 +830,7 @@
 
     // --- 12. Direkte, Ausfallsichere IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, Offline-PWA) ---
     const DB_NAME = 'MedienStationDB_v4';
-    const DB_VERSION = 2; // Version 2 stellt sicher, dass der ObjectStore 'meisterwerke' auf allen Geräten angelegt wird
+    const DB_VERSION = 3; // Version 3 stellt sicher, dass der ObjectStore 'meisterwerke' auf allen Geräten konfliktfrei geöffnet & migriert wird
     const STORE_NAME = 'meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
 
@@ -876,8 +876,7 @@
             };
 
             req.onblocked = () => {
-                console.warn('[MedienStation] DB open blocked');
-                reject(new Error('DB open blocked'));
+                console.warn('[MedienStation] DB open blocked (waiting for older connection to close)...');
             };
 
             req.onerror = (e) => {
@@ -955,7 +954,7 @@
 
         // 3. Dauerhaft in IndexedDB schreiben
         try {
-            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB Timeout')), 1500));
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB Timeout')), 8000));
             const db = await Promise.race([getDB(), dbTimeout]);
 
             const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -986,6 +985,10 @@
             console.warn('[MedienStation] IndexedDB save warning (Sync-Storage Backup geschützt):', e);
         }
 
+        try {
+            window.dispatchEvent(new CustomEvent('meisterwerke-updated', { detail: item }));
+        } catch(evErr) {}
+
         if (window.triggerHapticFeedback) window.triggerHapticFeedback([30, 50, 30]);
         try { if (window.playSound) window.playSound('success'); } catch(e) {}
         if (window.showCustomAlert) {
@@ -993,6 +996,29 @@
         }
         if (window.triggerCelebration) window.triggerCelebration();
         return item;
+    };
+
+    // --- Kindgerechtes / Fachkraft Toast-Alert-System ---
+    window.showCustomAlert = function(msg, icon = 'ℹ️') {
+        try {
+            let box = document.getElementById('custom-alert-box');
+            if (!box) {
+                box = document.createElement('div');
+                box.id = 'custom-alert-box';
+                box.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999999; max-width: 90%; background-color: #1e293b; border: 2px solid #3b82f6; box-shadow: 0 10px 35px rgba(0,0,0,0.85); border-radius: 1rem; padding: 12px 20px; color: white; display: flex; align-items: center; gap: 12px; pointer-events: none; transition: all 0.3s ease; opacity: 0;';
+                document.body.appendChild(box);
+            }
+            box.innerHTML = `<span style="font-size: 26px; line-height: 1;">${icon}</span><span style="font-weight: 800; font-size: 15px;">${msg}</span>`;
+            box.style.opacity = '1';
+            box.style.transform = 'translateX(-50%) translateY(0)';
+            clearTimeout(box._timer);
+            box._timer = setTimeout(() => {
+                box.style.opacity = '0';
+                box.style.transform = 'translateX(-50%) translateY(-20px)';
+            }, 3200);
+        } catch(e) {
+            console.log('[Alert]', msg);
+        }
     };
 
     // --- Haptisches Feedback (Vibration) für Mobilgeräte & Tablets ---
@@ -1141,6 +1167,35 @@
             idbSuccess = true;
         } catch(e) {
             console.warn('[MedienStation] IndexedDB read warning:', e);
+        }
+
+        // 1b. Aus älteren DB-Versionen migrieren falls vorhanden (MedienStationDB_v3, MedienStationDB_v2, MedienStationDB)
+        const legacyNames = ['MedienStationDB_v3', 'MedienStationDB_v2', 'MedienStationDB'];
+        for (const legacyName of legacyNames) {
+            try {
+                const legacyItems = await new Promise((res) => {
+                    if (!window.indexedDB) return res([]);
+                    const req = window.indexedDB.open(legacyName);
+                    req.onerror = () => res([]);
+                    req.onsuccess = (ev) => {
+                        const ldb = ev.target.result;
+                        if (!ldb.objectStoreNames || !ldb.objectStoreNames.contains(STORE_NAME)) {
+                            ldb.close();
+                            return res([]);
+                        }
+                        try {
+                            const tx = ldb.transaction(STORE_NAME, 'readonly');
+                            const store = tx.objectStore(STORE_NAME);
+                            const gReq = store.getAll();
+                            gReq.onsuccess = (ge) => { ldb.close(); res(ge.target.result || []); };
+                            gReq.onerror = () => { ldb.close(); res([]); };
+                        } catch(te) { ldb.close(); res([]); }
+                    };
+                });
+                if (Array.isArray(legacyItems) && legacyItems.length > 0) {
+                    addItemsToMap(legacyItems);
+                }
+            } catch(e) {}
         }
 
         // 2. Aus localStorage ergänzen
@@ -1332,7 +1387,15 @@
 
         try {
             const rawItems = await window.getMeisterwerke();
-            const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && typeof it.dataUrl === 'string' && it.dataUrl.length > 0) : [];
+            const items = Array.isArray(rawItems) ? rawItems.filter(it => {
+                if (!it || typeof it !== 'object') return false;
+                const uri = it.dataUrl || it.data || it.url || it.image || it.src;
+                if (typeof uri === 'string' && uri.length > 0) {
+                    it.dataUrl = uri;
+                    return true;
+                }
+                return false;
+            }) : [];
 
             if (items.length === 0) {
                 grid.innerHTML = `
@@ -1550,11 +1613,34 @@
             const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
             const lastDate = localStorage.getItem(DATE_KEY);
 
-            if (lastDate && lastDate !== today) {
-                await window.clearMeisterwerke();
-                console.log(`[MedienStation] Automatischer täglicher Galerie-Reset durchgeführt (${lastDate} -> ${today}).`);
+            // Wenn noch kein Datum gesetzt war: Heute als Start setzen ohne Löschung!
+            if (!lastDate) {
+                localStorage.setItem(DATE_KEY, today);
+                return;
             }
-            localStorage.setItem(DATE_KEY, today);
+
+            if (lastDate !== today) {
+                // Sicherheitsnetz: Werke der letzten 12 Stunden NIEMALS löschen (schützt frische Werke vor versehentlichem Reset)
+                const allItems = await window.getMeisterwerke();
+                const twelveHoursAgo = Date.now() - (12 * 60 * 60 * 1000);
+                const itemsToKeep = allItems.filter(it => (it && it.timestamp && it.timestamp > twelveHoursAgo));
+
+                try {
+                    const db = await getDB();
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    store.clear();
+                    itemsToKeep.forEach(it => { if (it && it.id) store.put(it); });
+                } catch(dbErr) {}
+
+                try {
+                    localStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToKeep));
+                    sessionStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToKeep));
+                } catch(lsErr) {}
+
+                localStorage.setItem(DATE_KEY, today);
+                console.log(`[MedienStation] Täglicher Galerie-Reset durchgeführt. ${itemsToKeep.length} frische Werke geschützt.`);
+            }
         } catch(e) {
             console.warn('[MedienStation] Fehler beim täglichen Galerie-Reset:', e);
         }
@@ -1563,24 +1649,34 @@
     // --- 14. ZIP-Sammel-Export für alle Meisterwerke (Fotos, Videos, Comics, Audio) ---
     window.exportAllMeisterwerkeZip = async function() {
         try {
+            // Falls JSZip noch nicht geladen ist: Dynamisch nachladen
             if (typeof JSZip === 'undefined') {
-                if (window.showCustomAlert) window.showCustomAlert('ZIP-Bibliothek wird geladen... Bitte einen Moment warten.');
-                return;
+                try {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = isSubApp ? '../js/jszip.min.js' : 'js/jszip.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                } catch(loadErr) {
+                    if (window.showCustomAlert) window.showCustomAlert('ZIP-Bibliothek konnte nicht geladen werden.', '❌');
+                    return;
+                }
             }
 
-            // Lade-Modal anzeigen (z-index: 9999999 für sichere Überlagerung über Admin-Menü auf Tablets)
+            // Lade-Modal anzeigen (z-index: 99999999 garantiert über ALLEM)
             let modal = document.getElementById('zip-export-modal');
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'zip-export-modal';
-                modal.className = 'fixed inset-0 z-[9999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300';
-                modal.style.zIndex = '9999999';
                 document.body.appendChild(modal);
             }
-            modal.style.zIndex = '9999999';
+            modal.style.cssText = 'position: fixed; inset: 0; z-index: 99999999; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px;';
 
             modal.innerHTML = `
-                <div class="bg-slate-800 border-4 border-blue-500 rounded-[2.5rem] max-w-md w-full p-8 shadow-2xl text-center text-white">
+                <div class="bg-slate-800 border-4 border-blue-500 rounded-[2.5rem] max-w-md w-full p-8 shadow-2xl text-center text-white relative">
+                    <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="absolute top-4 right-5 text-2xl text-slate-400 hover:text-white font-black cursor-pointer">✕</button>
                     <div class="text-6xl mb-4 animate-bounce" id="zip-modal-icon">📦</div>
                     <h2 class="text-2xl font-black mb-2" id="zip-modal-title">ZIP-Datei wird erstellt...</h2>
                     <p class="text-slate-300 text-sm font-bold mb-4" id="zip-modal-desc">Bilder und Töne werden verpackt. Bitte einen Moment gedulden.</p>
@@ -1592,7 +1688,6 @@
                     </div>
                 </div>
             `;
-            modal.classList.remove('hidden');
             modal.style.display = 'flex';
 
             const items = await window.getMeisterwerke();
@@ -1643,7 +1738,7 @@
                 items.map((it, idx) => `${idx + 1}. [${it.type || 'werk'}] ${it.title || 'Werk'} (${it.appName || ''})`).join('\n');
             folder.file('Uebersicht.txt', metaInfo);
 
-            // Live-Fortschritt bei der ZIP-Generierung
+            // Live-Fortschritt bei der ZIP-Generierung (0 bis 100%)
             const content = await zip.generateAsync({ type: 'blob' }, (metadata) => {
                 const percent = Math.round(metadata.percent || 0);
                 const progressBar = document.getElementById('zip-progress-bar');
@@ -1653,7 +1748,12 @@
             });
 
             const zipFileName = `MedienStation_Meisterwerke_${dateStr}.zip`;
-            const zipFile = new File([content], zipFileName, { type: 'application/zip' });
+            let zipFile = null;
+            try {
+                zipFile = new File([content], zipFileName, { type: 'application/zip' });
+            } catch(fErr) {
+                zipFile = content; // Fallback für ältere Android WebViews
+            }
 
             // Modal aktualisieren: Bereit zum Speichern
             document.getElementById('zip-modal-icon').innerText = '✅';
@@ -1662,23 +1762,22 @@
 
             const actionsEl = document.getElementById('zip-modal-actions');
             actionsEl.innerHTML = `
-                <button id="zip-download-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-lg shadow-xl active:scale-95 transition border-b-4 border-emerald-800 flex items-center justify-center gap-2 cursor-pointer">
+                <button id="zip-download-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-base md:text-lg shadow-xl active:scale-95 transition border-b-4 border-emerald-800 flex items-center justify-center gap-2 cursor-pointer">
                     <span>📥</span> <span>AUF TABLET SPEICHERN / TEILEN</span>
                 </button>
                 <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-sm transition cursor-pointer">
-                    Abbrechen
+                    Schließen
                 </button>
             `;
 
-            // Klick-Handler auf dem Button führt navigator.share() ODER Download SYNCHRON im Klick-Scope aus!
-            const downloadBtn = document.getElementById('zip-download-btn');
-            downloadBtn.onclick = async () => {
+            // Download/Share Handler
+            const triggerDownloadOrShare = async () => {
                 if (window.playSound) window.playSound('click');
-                downloadBtn.innerText = "⏳ Speichere...";
-                downloadBtn.disabled = true;
+                const btn = document.getElementById('zip-download-btn');
+                if (btn) { btn.innerText = "⏳ Speichere..."; btn.disabled = true; }
 
-                // 1. Versuche Web Share API (im direkten Klick-Scope!)
-                if (navigator.canShare && navigator.canShare({ files: [zipFile] })) {
+                // 1. Web Share API falls unterstützt (Android Share-Sheet für Dateien)
+                if (navigator.canShare && zipFile instanceof File && navigator.canShare({ files: [zipFile] })) {
                     try {
                         await navigator.share({
                             files: [zipFile],
@@ -1690,15 +1789,32 @@
                         return;
                     } catch(shareErr) {
                         if (shareErr && shareErr.name === 'AbortError') {
-                            downloadBtn.innerText = "📥 AUF TABLET SPEICHERN / TEILEN";
-                            downloadBtn.disabled = false;
+                            if (btn) { btn.innerText = "📥 AUF TABLET SPEICHERN / TEILEN"; btn.disabled = false; }
                             return;
                         }
-                        console.warn('Web Share fehlgeschlagen, benutze Data-URL Fallback:', shareErr);
                     }
                 }
 
-                // 2. Data-URL / FileReader Fallback für WebViews & Desktop
+                // 2. Direkter Blob-URL Download
+                try {
+                    const blobUrl = URL.createObjectURL(content);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = zipFileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(blobUrl);
+                        modal.style.display = 'none';
+                        if (window.triggerConfetti) window.triggerConfetti();
+                    }, 800);
+                    return;
+                } catch(blobErr) {
+                    console.warn('Blob URL Download fehlgeschlagen, benutze FileReader Data-URL:', blobErr);
+                }
+
+                // 3. FileReader Data-URL Fallback
                 const reader = new FileReader();
                 reader.onloadend = function() {
                     const dataUrl = reader.result;
@@ -1715,6 +1831,16 @@
                 };
                 reader.readAsDataURL(content);
             };
+
+            const downloadBtn = document.getElementById('zip-download-btn');
+            if (downloadBtn) {
+                downloadBtn.onclick = triggerDownloadOrShare;
+            }
+
+            // Auf Desktop/Tablet zusätzlich sofort den Download anstoßen
+            setTimeout(() => {
+                triggerDownloadOrShare().catch(() => {});
+            }, 300);
 
         } catch (err) {
             console.error('[MedienStation] Fehler beim ZIP-Export:', err);
