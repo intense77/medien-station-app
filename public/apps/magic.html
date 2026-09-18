@@ -669,8 +669,12 @@
                 pCtx.strokeStyle = '#d1d5db'; // light-medium gray
                 pCtx.strokeRect(3, 3, 1194, 1394);
 
-                // 5. Set preview and open overlay
-                document.getElementById('preview-img-display').src = pCanvas.toDataURL('image/png');
+                // 5. Set preview, save to gallery and open overlay
+                const polaroidDataUrl = pCanvas.toDataURL('image/png');
+                document.getElementById('preview-img-display').src = polaroidDataUrl;
+                if (window.saveToMeisterwerke) {
+                    window.saveToMeisterwerke({ type: 'image', appName: 'Zauber Selfie', title: 'Polaroid Selfie', dataUrl: polaroidDataUrl });
+                }
                 const overlay = document.getElementById('preview-overlay');
                 overlay.classList.remove('hidden');
                 overlay.style.display = 'flex';

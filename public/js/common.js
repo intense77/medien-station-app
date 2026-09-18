@@ -765,8 +765,8 @@
     // --- 12. Lokale Sitzungs-Galerie ("Meisterwerke") ---
     const MEISTER_KEY = 'medienstation_meisterwerke';
 
-    // Hilfsfunktion: Bilder auf max 800px JPEG komprimieren (~40KB, verhindert Quota-Fehler auf Tablet-WebViews)
-    function compressImageDataUrl(dataUrl, maxDim = 800, quality = 0.75) {
+    // Hilfsfunktion: Bilder schnell auf max 800px JPEG komprimieren (~35KB, verhindert Quota-Fehler in localStorage & WebViews)
+    function compressImageDataUrlFast(dataUrl, maxDim = 800, quality = 0.75) {
         return new Promise((resolve) => {
             if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
                 return resolve(dataUrl);
@@ -774,10 +774,8 @@
             if (dataUrl.startsWith('data:image/gif') || dataUrl.startsWith('data:image/svg')) {
                 return resolve(dataUrl);
             }
-            // 400ms Notbremse für mobile Tablet-Browser
-            const timer = setTimeout(() => {
-                resolve(dataUrl);
-            }, 400);
+            // Notbremse: Max 300ms Warten auf Mobilgeräten
+            const timer = setTimeout(() => resolve(dataUrl), 300);
 
             const img = new Image();
             img.onload = () => {
@@ -798,9 +796,11 @@
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff'; // Weißer Hintergrund für transparente PNGs
+                    ctx.fillRect(0, 0, width, height);
                     ctx.drawImage(img, 0, 0, width, height);
                     const compressed = canvas.toDataURL('image/jpeg', quality);
-                    resolve(compressed || dataUrl);
+                    resolve((compressed && compressed.length < dataUrl.length) ? compressed : dataUrl);
                 } catch(e) {
                     resolve(dataUrl);
                 }
@@ -814,10 +814,9 @@
     }
 
     // --- 12. Direkte, Deadlock-Freie IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, Offline-PWA) ---
-    const DB_NAME = 'MedienStationDB_v4'; // Neuer DB-Name zur Umgehung alter blockierter Verbindungen
+    const DB_NAME = 'MedienStationDB_v4'; // DB-Name zur Umgehung alter blockierter Verbindungen
     const DB_VERSION = 1;
     const STORE_NAME = 'meisterwerke';
-    const MEISTER_KEY = 'medienstation_meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
 
     let dbPromise = null;
@@ -847,7 +846,6 @@
             req.onsuccess = (e) => {
                 const db = e.target.result;
 
-                // Automatisch schließen, falls ein anderer Tab oder Neustart ein Upgrade durchführt
                 db.onversionchange = () => {
                     db.close();
                     dbPromise = null;
@@ -865,7 +863,6 @@
                 resolve(db);
             };
 
-            // BLOCKING-FIX: Verhindert unendliches Hängenbleiben bei Version-Upgrades
             req.onblocked = () => {
                 console.warn('[MedienStation] DB open blocked');
                 dbPromise = null;
@@ -880,7 +877,7 @@
         return dbPromise;
     }
 
-    // Speichern direkt in IndexedDB (mit Not-Fallback auf localStorage & sessionStorage)
+    // Speichern in Synchron-Storage + IndexedDB (DSGVO-konform & Quota-Safe)
     window.saveToMeisterwerke = async function(item) {
         if (!item || !item.dataUrl) return item;
 
@@ -889,7 +886,18 @@
         item.type = item.type || 'image';
         item.appName = item.appName || 'KUNSTWERK';
 
-        // 1. SOFORTIGE SYNCHRONE SPEICHERUNG in localStorage & sessionStorage (< 1 ms Execution, bevor Seite verknüpft wird!)
+        // 1. ZUERST Bild auf ~35KB komprimieren (verhindert QuotaExceededError in localStorage & WebViews)
+        try {
+            if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
+                if (item.dataUrl.length > 80000) {
+                    item.dataUrl = await compressImageDataUrlFast(item.dataUrl, 800, 0.75);
+                }
+            }
+        } catch (cErr) {
+            console.warn('[MedienStation] Komprimierungswarnung:', cErr);
+        }
+
+        // 2. SOFORTIGE SYNCHRONE SPEICHERUNG in localStorage & sessionStorage (< 2 ms)
         try {
             let list = [];
             const raw = localStorage.getItem(MEISTER_KEY);
@@ -900,21 +908,11 @@
             list.unshift(item);
             if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
 
-            try { localStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
-            try { sessionStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
+            const jsonStr = JSON.stringify(list);
+            try { localStorage.setItem(MEISTER_KEY, jsonStr); } catch(e) { console.warn('localStorage save warning:', e); }
+            try { sessionStorage.setItem(MEISTER_KEY, jsonStr); } catch(e) { console.warn('sessionStorage save warning:', e); }
         } catch(lErr) {
             console.warn('[MedienStation] Sync save error:', lErr);
-        }
-
-        // 2. Schnelle Bildkomprimierung (max 1000px / JPEG 0.80) für schlanken IndexedDB-Speicher
-        try {
-            if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
-                if (item.dataUrl.length > 150000) {
-                    item.dataUrl = await compressImageDataUrl(item.dataUrl, 1000, 0.80);
-                }
-            }
-        } catch (cErr) {
-            console.warn('[MedienStation] Komprimierungswarnung:', cErr);
         }
 
         // 3. Dauerhaft in IndexedDB speichern
@@ -1201,7 +1199,6 @@
         if (mode === 'project_7d' && pauseUntil) {
             const msRemaining = parseInt(pauseUntil, 10) - Date.now();
             if (msRemaining <= 0) {
-                // Frist abgelaufen -> automatisch zurück auf strengen Tages-Reset
                 mode = 'daily';
                 localStorage.setItem(RESET_MODE_KEY, 'daily');
                 localStorage.removeItem(RESET_PAUSE_UNTIL_KEY);
@@ -1219,14 +1216,13 @@
 
     window.setStorageResetMode = function(mode) {
         if (mode === 'project_7d') {
-            const pauseUntil = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 Tage
+            const pauseUntil = Date.now() + (7 * 24 * 60 * 60 * 1000);
             localStorage.setItem(RESET_MODE_KEY, 'project_7d');
             localStorage.setItem(RESET_PAUSE_UNTIL_KEY, pauseUntil.toString());
         } else if (mode === 'never') {
             localStorage.setItem(RESET_MODE_KEY, 'never');
             localStorage.removeItem(RESET_PAUSE_UNTIL_KEY);
         } else {
-            // Standard: 'daily' (Strenger Tages-Reset)
             localStorage.setItem(RESET_MODE_KEY, 'daily');
             localStorage.removeItem(RESET_PAUSE_UNTIL_KEY);
         }
@@ -1237,13 +1233,13 @@
         try {
             const storageStatus = window.getStorageResetMode();
             
-            // Wenn Projekt-Modus aktiv oder Reset deaktiviert -> kein Auto-Reset
             if (storageStatus.mode === 'project_7d' || storageStatus.mode === 'never') {
                 return;
             }
 
-            // Strenger täglicher Reset (Standard, DSGVO-konform: nichts verbleibt länger als für den Tag)
-            const today = new Date().toISOString().slice(0, 10);
+            // Lokales Datum (YYYY-MM-DD) im aktuellen Zeitzonen-Kontext bestimmen
+            const now = new Date();
+            const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
             const lastDate = localStorage.getItem(DATE_KEY);
 
             if (lastDate && lastDate !== today) {
@@ -1286,7 +1282,7 @@
                 const rawType = (item.type || 'werk').toLowerCase().replace(/[^a-z0-9]/g, '_');
                 const safeDate = (item.date || 'datum').replace(/[:. ]/g, '-');
                 
-                let dataUri = item.data;
+                let dataUri = item.dataUrl || item.data || '';
                 let ext = 'png';
 
                 if (dataUri.startsWith('data:image/jpeg')) ext = 'jpg';
@@ -1307,7 +1303,7 @@
 
             // Metadaten / Übersichtstext beilegen
             const metaInfo = `MedienStation - Gesammelte Meisterwerke\nDatum: ${dateStr}\nAnzahl Werke: ${items.length}\n\n` +
-                items.map((it, idx) => `${idx + 1}. [${it.type}] ${it.title || 'Werk'} (${it.date || ''})`).join('\n');
+                items.map((it, idx) => `${idx + 1}. [${it.type}] ${it.title || 'Werk'} (${it.appName || ''})`).join('\n');
             folder.file('Uebersicht.txt', metaInfo);
 
             const content = await zip.generateAsync({ type: 'blob' });

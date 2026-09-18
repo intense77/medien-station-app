@@ -249,6 +249,18 @@
                 recorder.ondataavailable = (e) => { if (e.data.size > 0) pad.chunks.push(e.data); };
                 recorder.onstop = async () => {
                     const blob = new Blob(pad.chunks, chosenMime ? { type: chosenMime } : {});
+                    if (window.saveToMeisterwerke && blob.size > 0) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            window.saveToMeisterwerke({
+                                type: 'audio',
+                                appName: 'Musik Labor',
+                                title: 'Sound Pad ' + (i + 1),
+                                dataUrl: reader.result
+                            });
+                        };
+                        reader.readAsDataURL(blob);
+                    }
                     const arrayBuffer = await blob.arrayBuffer();
                     const processDecoded = (decoded) => {
                         pad.buffer = decoded;

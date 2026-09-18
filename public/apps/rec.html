@@ -447,17 +447,26 @@
             document.getElementById(`action-box-${id}`).classList.add('flex');
             window.playSound('success');
             if (window.triggerCelebration) window.triggerCelebration();
-            if (window.saveToMeisterwerke && t.blob) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
+            if (window.saveToMeisterwerke) {
+                if (t.blob) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        window.saveToMeisterwerke({
+                            type: 'audio',
+                            appName: 'Mikro Check',
+                            title: 'Tonaufnahme ' + (id + 1),
+                            dataUrl: reader.result
+                        });
+                    };
+                    reader.readAsDataURL(t.blob);
+                } else if (t.audioUrl) {
                     window.saveToMeisterwerke({
                         type: 'audio',
                         appName: 'Mikro Check',
                         title: 'Tonaufnahme ' + (id + 1),
-                        dataUrl: reader.result
+                        dataUrl: t.audioUrl
                     });
-                };
-                reader.readAsDataURL(t.blob);
+                }
             }
             
             // Text wieder normal anzeigen
