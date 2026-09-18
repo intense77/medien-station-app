@@ -225,8 +225,9 @@
 
     // --- 4. Initialisierung ---
     function initCommon() {
-        // Automatische Bereinigung temporärer Dateien bei jedem Anwendungsstart
-        try { window.cleanupSessionFiles(); } catch(e) {}
+        try {
+            // Automatische Bereinigung temporärer Dateien bei jedem Anwendungsstart
+            try { window.cleanupSessionFiles(); } catch(e) {}
 
         // Globaler Hardware- & MediaStream Cleanup bei Anwendungsverlassen
         const stopHardwareStreams = () => {
@@ -297,9 +298,9 @@
             window.speechSynthesis.getVoices();
         }
 
-        // --- 6. Service Worker Registration (PWA) ---
-        if ('serviceWorker' in navigator) {
-            const swPath = isSubApp ? '../sw.js' : 'sw.js';
+        // --- 6. Service Worker Registration (PWA, nur im Hauptmenü) ---
+        if (!isSubApp && 'serviceWorker' in navigator) {
+            const swPath = 'sw.js';
             
             let refreshing = false;
             navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -385,7 +386,7 @@
             });
 
             // updateViaCache: 'none' MUSS gesetzt sein, sonst cacht Nginx den Service Worker selbst ewig!
-            navigator.serviceWorker.register(swPath, { scope: isSubApp ? '../' : './', updateViaCache: 'none' })
+            navigator.serviceWorker.register(swPath, { scope: './', updateViaCache: 'none' })
                 .then((registration) => {
                     console.log('✅ Service Worker registriert');
                     
@@ -455,12 +456,17 @@
                 setTimeout(() => { if(SplashScreen) SplashScreen.hide({ fadeDuration: 300, autoHide: true }); }, 200);
             } catch (e) {}
         }
+        } catch(err) {
+            console.warn('[MedienStation] initCommon caught error:', err);
+        }
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCommon);
+        document.addEventListener('DOMContentLoaded', () => {
+            try { initCommon(); } catch(e) { console.warn('initCommon error:', e); }
+        });
     } else {
-        initCommon();
+        try { initCommon(); } catch(e) { console.warn('initCommon error:', e); }
     }
 
     // --- 8. Vorlese-Funktion (Text-to-Speech) für Kinder ---

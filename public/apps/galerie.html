@@ -60,7 +60,7 @@
         <div id="meisterwerke-footer" class="flex justify-between items-center pt-6 border-t border-slate-700/80 mt-6 flex-wrap gap-3">
             <span class="text-xs md:text-sm text-slate-400 font-bold">MedienStation Kunstgalerie</span>
             <div class="flex items-center gap-2.5">
-                <button onclick="window.exportAllMeisterwerkeZip ? window.exportAllMeisterwerkeZip() : alert('Export lädt...')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 md:px-5 rounded-full border border-blue-400 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 shrink-0 cursor-pointer shadow-lg">
+                <button onclick="if (window.exportAllMeisterwerkeZip) { window.exportAllMeisterwerkeZip(); } else { console.warn('exportAllMeisterwerkeZip not found'); }" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 md:px-5 rounded-full border border-blue-400 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 shrink-0 cursor-pointer shadow-lg">
                     <span>📦</span> <span>Alle Werke als ZIP</span>
                 </button>
                 <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => renderPageGrid()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-4 md:px-5 rounded-full border border-red-700 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 shrink-0 cursor-pointer">
