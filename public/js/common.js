@@ -889,7 +889,24 @@
         item.type = item.type || 'image';
         item.appName = item.appName || 'KUNSTWERK';
 
-        // Schnelle Bildkomprimierung (max 1000px / JPEG 0.80) für schlanken Speicher
+        // 1. SOFORTIGE SYNCHRONE SPEICHERUNG in localStorage & sessionStorage (< 1 ms Execution, bevor Seite verknüpft wird!)
+        try {
+            let list = [];
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (raw) { try { list = JSON.parse(raw); } catch(e) { list = []; } }
+            if (!Array.isArray(list)) list = [];
+
+            list = list.filter(it => it && it.id !== item.id && it.dataUrl !== item.dataUrl);
+            list.unshift(item);
+            if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
+
+            try { localStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
+            try { sessionStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
+        } catch(lErr) {
+            console.warn('[MedienStation] Sync save error:', lErr);
+        }
+
+        // 2. Schnelle Bildkomprimierung (max 1000px / JPEG 0.80) für schlanken IndexedDB-Speicher
         try {
             if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
                 if (item.dataUrl.length > 150000) {
@@ -900,8 +917,7 @@
             console.warn('[MedienStation] Komprimierungswarnung:', cErr);
         }
 
-        // 1. In IndexedDB speichern
-        let idbSaved = false;
+        // 3. Dauerhaft in IndexedDB speichern
         try {
             const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB Timeout')), 1000));
             const db = await Promise.race([getDB(), dbTimeout]);
@@ -913,7 +929,6 @@
                 tx.oncomplete = resolve;
                 tx.onerror = () => reject(tx.error || new Error('IDB put failed'));
             });
-            idbSaved = true;
 
             // Ältere Einträge jenseits MAX_GALLERY_ITEMS bereinigen
             try {
@@ -932,23 +947,8 @@
             } catch(pErr) {}
 
         } catch(e) {
-            console.warn('[MedienStation] IndexedDB save warning (Nutze Backup-Speicher):', e);
+            console.warn('[MedienStation] IndexedDB save warning:', e);
         }
-
-        // 2. Backup in localStorage & sessionStorage (für maximale Verlässlichkeit)
-        try {
-            let list = [];
-            const raw = localStorage.getItem(MEISTER_KEY);
-            if (raw) { try { list = JSON.parse(raw); } catch(e) { list = []; } }
-            if (!Array.isArray(list)) list = [];
-
-            list = list.filter(it => it && it.id !== item.id && it.dataUrl !== item.dataUrl);
-            list.unshift(item);
-            if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
-
-            try { localStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
-            try { sessionStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
-        } catch(lErr) {}
 
         if (window.showCustomAlert) {
             window.showCustomAlert('🎨 In Galerie gespeichert!');
