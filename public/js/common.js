@@ -1059,9 +1059,16 @@
             if (!Array.isArray(itemList)) return;
             itemList.forEach(it => {
                 if (it && typeof it === 'object') {
-                    const dataUri = it.dataUrl || it.data || it.url;
-                    if (dataUri) {
+                    const dataUri = typeof it.dataUrl === 'string' ? it.dataUrl : (typeof it.data === 'string' ? it.data : (typeof it.url === 'string' ? it.url : ''));
+                    if (dataUri && dataUri.length > 0) {
                         it.dataUrl = dataUri;
+                        if (!it.id || typeof it.id !== 'string') {
+                            it.id = 'mw_' + (it.timestamp || Date.now()) + '_' + Math.random().toString(36).substr(2, 6);
+                        }
+                        if (typeof it.appName !== 'string') it.appName = 'KUNSTWERK';
+                        if (typeof it.type !== 'string') it.type = 'image';
+                        if (typeof it.timestamp !== 'number') it.timestamp = Date.now();
+
                         // Key für Deduplizierung: id -> (appName + timestamp) -> dataUrl
                         const key = it.id || (it.appName && it.timestamp ? `${it.appName}_${it.timestamp}` : dataUri);
                         if (!itemMap.has(key)) {
@@ -1206,6 +1213,20 @@
         if (typeof onComplete === 'function') onComplete();
     };
 
+    // Sicheres Drucken eines Meisterwerks nach ID (verhindert riesige Base64 Attribute in HTML)
+    window.printMeisterwerk = async function(id) {
+        if (!id) return;
+        try {
+            const items = await window.getMeisterwerke();
+            const item = items.find(it => it.id === id);
+            if (item && item.dataUrl && window.printImage) {
+                window.printImage(item.dataUrl, item.appName);
+            }
+        } catch(e) {
+            console.warn('[MedienStation] printMeisterwerk error:', e);
+        }
+    };
+
     // Fullscreen Lightbox / Großansicht für ein Meisterwerk
     window.viewMeisterwerkDetail = async function(id) {
         const items = await window.getMeisterwerke();
@@ -1221,15 +1242,17 @@
         }
 
         const typeLower = (item.type || '').toLowerCase();
-        const dataUrl = item.dataUrl || '';
+        const dataUrl = typeof item.dataUrl === 'string' ? item.dataUrl : '';
         const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/') || dataUrl.endsWith('.mp4');
         const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/') || dataUrl.endsWith('.mp3') || dataUrl.endsWith('.wav');
         const isImage = !isVideo && !isAudio;
         const appName = item.appName || 'KUNSTWERK';
+        const safeId = String(item.id || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        const safeAppName = String(appName).replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
         modal.innerHTML = `
             <div class="w-full max-w-4xl flex items-center justify-between text-white mb-2">
-                <span class="text-lg md:text-2xl font-black text-amber-400 uppercase tracking-wider">${appName}</span>
+                <span class="text-lg md:text-2xl font-black text-amber-400 uppercase tracking-wider">${safeAppName}</span>
                 <button onclick="document.getElementById('meisterwerk-lightbox-modal').style.display='none'" class="bg-slate-800 hover:bg-slate-700 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold border border-slate-600 active:scale-95 cursor-pointer">
                     ✕
                 </button>
@@ -1246,11 +1269,11 @@
             </div>
             <div class="w-full max-w-4xl flex items-center justify-center gap-4 pt-2">
                 ${isImage && window.printImage ? `
-                    <button onclick="window.printImage('${dataUrl}');" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-blue-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
+                    <button onclick="window.printMeisterwerk('${safeId}');" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-blue-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
                         🖨️ Drucken
                     </button>
                 ` : ''}
-                <button onclick="window.showConfirm('Dieses Kunstwerk löschen?', () => { window.deleteMeisterwerk('${item.id}'); document.getElementById('meisterwerk-lightbox-modal').style.display='none'; }, '🗑️')" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-red-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
+                <button onclick="window.showConfirm('Dieses Kunstwerk löschen?', () => { window.deleteMeisterwerk('${safeId}'); document.getElementById('meisterwerk-lightbox-modal').style.display='none'; }, '🗑️')" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-red-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
                     🗑️ Werk löschen
                 </button>
             </div>
@@ -1265,7 +1288,7 @@
 
         try {
             const rawItems = await window.getMeisterwerke();
-            const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && (it.dataUrl || it.data || it.url)) : [];
+            const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && typeof it.dataUrl === 'string' && it.dataUrl.length > 0) : [];
 
             if (items.length === 0) {
                 grid.innerHTML = `
@@ -1281,39 +1304,49 @@
                 if (footer) footer.style.display = 'none';
             } else {
                 grid.innerHTML = items.map((it) => {
-                    const typeLower = (it.type || '').toLowerCase();
-                    const dataUrl = it.dataUrl || '';
-                    const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/') || dataUrl.endsWith('.mp4');
-                    const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/') || dataUrl.endsWith('.mp3') || dataUrl.endsWith('.wav');
-                    const isImage = !isVideo && !isAudio;
-                    const appName = it.appName || 'KUNSTWERK';
+                    try {
+                        const typeLower = (it.type || '').toLowerCase();
+                        const dataUrl = typeof it.dataUrl === 'string' ? it.dataUrl : '';
+                        if (!dataUrl) return '';
 
-                    return `
-                    <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all relative">
-                        <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2 group/media cursor-pointer" onclick="window.viewMeisterwerkDetail('${it.id}')">
-                            ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain hover:scale-105 transition-transform" alt="${appName}" onerror="this.onerror=null; this.src='../assets/logo.png';">` : ''}
-                            ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain" onclick="event.stopPropagation()"></video>` : ''}
-                            ${isAudio ? `
-                                <div class="flex flex-col items-center justify-center gap-2" onclick="event.stopPropagation()">
-                                    <span class="text-5xl">🎙️</span>
-                                    <audio src="${dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
-                                </div>
-                            ` : ''}
-                            <button onclick="event.stopPropagation(); window.showConfirm('Dieses Kunstwerk löschen?', () => window.deleteMeisterwerk('${it.id}'), '🗑️')" class="absolute top-1.5 right-1.5 bg-red-600/80 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg text-sm transition active:scale-95 cursor-pointer z-10" title="Werk löschen">
-                                🗑️
-                            </button>
-                        </div>
-                        <div class="w-full flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${appName}</span>
-                            ${isImage && window.printImage ? `
-                                <button onclick="event.stopPropagation(); window.printImage('${dataUrl}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
-                                    🖨️ Drucken
+                        const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/') || dataUrl.endsWith('.mp4');
+                        const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/') || dataUrl.endsWith('.mp3') || dataUrl.endsWith('.wav');
+                        const isImage = !isVideo && !isAudio;
+                        const appName = typeof it.appName === 'string' ? it.appName : 'KUNSTWERK';
+                        const safeId = String(it.id || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                        const safeAppName = String(appName).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                        return `
+                        <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all relative">
+                            <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2 group/media cursor-pointer" onclick="window.viewMeisterwerkDetail('${safeId}')">
+                                ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain hover:scale-105 transition-transform" alt="${safeAppName}" onerror="this.onerror=null; this.src='../assets/logo.png';">` : ''}
+                                ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain" onclick="event.stopPropagation()"></video>` : ''}
+                                ${isAudio ? `
+                                    <div class="flex flex-col items-center justify-center gap-2" onclick="event.stopPropagation()">
+                                        <span class="text-5xl">🎙️</span>
+                                        <audio src="${dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
+                                    </div>
+                                ` : ''}
+                                <button onclick="event.stopPropagation(); window.showConfirm('Dieses Kunstwerk löschen?', () => window.deleteMeisterwerk('${safeId}'), '🗑️')" class="absolute top-1.5 right-1.5 bg-red-600/80 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg text-sm transition active:scale-95 cursor-pointer z-10" title="Werk löschen">
+                                    🗑️
                                 </button>
-                            ` : ''}
+                            </div>
+                            <div class="w-full flex items-center justify-between gap-2">
+                                <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${safeAppName}</span>
+                                ${isImage && window.printImage ? `
+                                    <button onclick="event.stopPropagation(); window.printMeisterwerk('${safeId}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
+                                        🖨️ Drucken
+                                    </button>
+                                ` : ''}
+                            </div>
                         </div>
-                    </div>
-                `;
-                }).join('');
+                        `;
+                    } catch(itErr) {
+                        console.warn('[MedienStation] Fehler beim Rendern eines Meisterwerks:', itErr);
+                        return '';
+                    }
+                }).filter(Boolean).join('');
+
                 if (footer) footer.style.display = 'flex';
             }
             window.updateGalleryInfoText();
@@ -1496,8 +1529,8 @@
             if (!items || items.length === 0) {
                 if (window.showCustomAlert) {
                     window.showCustomAlert('Die Galerie ist aktuell leer. Es gibt keine Werke zum Herunterladen.');
-                } else {
-                    alert('Die Galerie ist aktuell leer.');
+                } else if (window.showAlert) {
+                    window.showAlert('Die Galerie ist aktuell leer.');
                 }
                 return;
             }
@@ -1512,9 +1545,10 @@
                 const rawType = (item.type || 'werk').toLowerCase().replace(/[^a-z0-9]/g, '_');
                 const safeDate = (item.date || 'datum').replace(/[:. ]/g, '-');
                 
-                let dataUri = item.dataUrl || item.data || '';
-                let ext = 'png';
+                let dataUri = typeof item.dataUrl === 'string' ? item.dataUrl : (typeof item.data === 'string' ? item.data : '');
+                if (!dataUri) return;
 
+                let ext = 'png';
                 if (dataUri.startsWith('data:image/jpeg')) ext = 'jpg';
                 else if (dataUri.startsWith('data:image/webp')) ext = 'webp';
                 else if (dataUri.startsWith('data:image/png')) ext = 'png';
@@ -1525,22 +1559,44 @@
                 else if (dataUri.startsWith('data:audio/mp3') || dataUri.startsWith('data:audio/mpeg')) ext = 'mp3';
 
                 const fileName = `${num}_${rawType}_${safeDate}.${ext}`;
-                const base64Data = dataUri.split(',')[1];
-                if (base64Data) {
-                    folder.file(fileName, base64Data, { base64: true });
+                const parts = dataUri.split(',');
+                if (parts.length > 1) {
+                    folder.file(fileName, parts[1], { base64: true });
                 }
             });
 
             // Metadaten / Übersichtstext beilegen
             const metaInfo = `MedienStation - Gesammelte Meisterwerke\nDatum: ${dateStr}\nAnzahl Werke: ${items.length}\n\n` +
-                items.map((it, idx) => `${idx + 1}. [${it.type}] ${it.title || 'Werk'} (${it.appName || ''})`).join('\n');
+                items.map((it, idx) => `${idx + 1}. [${it.type || 'werk'}] ${it.title || 'Werk'} (${it.appName || ''})`).join('\n');
             folder.file('Uebersicht.txt', metaInfo);
 
             const content = await zip.generateAsync({ type: 'blob' });
+            const zipFileName = `MedienStation_Meisterwerke_${dateStr}.zip`;
+
+            // Web Share API für Android Tablets & PWAs (stellt meisterwerke.zip nativ bereit)
+            try {
+                const zipFile = new File([content], zipFileName, { type: 'application/zip' });
+                if (navigator.canShare && navigator.canShare({ files: [zipFile] })) {
+                    await navigator.share({
+                        files: [zipFile],
+                        title: 'MedienStation Meisterwerke',
+                        text: `Gesammelte Kunstwerke (${items.length} Dateien)`
+                    });
+                    if (window.showCustomAlert) {
+                        window.showCustomAlert(`✅ ${items.length} Meisterwerke bereitgestellt!`);
+                    }
+                    return;
+                }
+            } catch(shareErr) {
+                if (shareErr && shareErr.name === 'AbortError') return; // Dialog vom Nutzer abgebrochen
+                console.warn('[MedienStation] Web Share fehlgeschlagen, Fallback auf Download:', shareErr);
+            }
+
+            // Fallback: Link-Download für Desktop
             const downloadUrl = URL.createObjectURL(content);
             const link = document.createElement('a');
             link.href = downloadUrl;
-            link.download = `MedienStation_Meisterwerke_${dateStr}.zip`;
+            link.download = zipFileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
