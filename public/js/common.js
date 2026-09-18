@@ -813,9 +813,9 @@
         });
     }
 
-    // --- 12. Direkte IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, unbegrenzter Speicher, Direct DB) ---
-    const DB_NAME = 'MedienStationDB';
-    const DB_VERSION = 3; // Erhöht auf Version 3 für direkte DB-Speicherung
+    // --- 12. Direkte, Deadlock-Freie IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, Offline-PWA) ---
+    const DB_NAME = 'MedienStationDB_v4'; // Neuer DB-Name zur Umgehung alter blockierter Verbindungen
+    const DB_VERSION = 1;
     const STORE_NAME = 'meisterwerke';
     const MEISTER_KEY = 'medienstation_meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
@@ -828,7 +828,14 @@
                 dbPromise = null;
                 return reject(new Error('IndexedDB not supported'));
             }
-            const req = window.indexedDB.open(DB_NAME, DB_VERSION);
+            let req;
+            try {
+                req = window.indexedDB.open(DB_NAME, DB_VERSION);
+            } catch(e) {
+                dbPromise = null;
+                return reject(e);
+            }
+
             req.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -836,8 +843,20 @@
                     store.createIndex('timestamp', 'timestamp', { unique: false });
                 }
             };
+
             req.onsuccess = (e) => {
                 const db = e.target.result;
+
+                // Automatisch schließen, falls ein anderer Tab oder Neustart ein Upgrade durchführt
+                db.onversionchange = () => {
+                    db.close();
+                    dbPromise = null;
+                };
+
+                db.onerror = () => {
+                    dbPromise = null;
+                };
+
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
                     db.close();
                     dbPromise = null;
@@ -845,6 +864,14 @@
                 }
                 resolve(db);
             };
+
+            // BLOCKING-FIX: Verhindert unendliches Hängenbleiben bei Version-Upgrades
+            req.onblocked = () => {
+                console.warn('[MedienStation] DB open blocked');
+                dbPromise = null;
+                reject(new Error('DB open blocked'));
+            };
+
             req.onerror = (e) => {
                 dbPromise = null;
                 reject((e.target ? e.target.error : e) || new Error('IDB open failed'));
@@ -853,7 +880,7 @@
         return dbPromise;
     }
 
-    // Direktes Speichern in die IndexedDB (ohne Umweg über localStorage)
+    // Speichern direkt in IndexedDB (mit Not-Fallback auf localStorage & sessionStorage)
     window.saveToMeisterwerke = async function(item) {
         if (!item || !item.dataUrl) return item;
 
@@ -862,10 +889,10 @@
         item.type = item.type || 'image';
         item.appName = item.appName || 'KUNSTWERK';
 
-        // Komprimierung für schlankere DB-Einträge
+        // Schnelle Bildkomprimierung (max 1000px / JPEG 0.80) für schlanken Speicher
         try {
             if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
-                if (item.dataUrl.length > 200000) {
+                if (item.dataUrl.length > 150000) {
                     item.dataUrl = await compressImageDataUrl(item.dataUrl, 1000, 0.80);
                 }
             }
@@ -873,9 +900,12 @@
             console.warn('[MedienStation] Komprimierungswarnung:', cErr);
         }
 
-        // Direkt in IndexedDB schreiben
+        // 1. In IndexedDB speichern
+        let idbSaved = false;
         try {
-            const db = await getDB();
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB Timeout')), 1000));
+            const db = await Promise.race([getDB(), dbTimeout]);
+
             const tx = db.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
             store.put(item);
@@ -883,6 +913,7 @@
                 tx.oncomplete = resolve;
                 tx.onerror = () => reject(tx.error || new Error('IDB put failed'));
             });
+            idbSaved = true;
 
             // Ältere Einträge jenseits MAX_GALLERY_ITEMS bereinigen
             try {
@@ -901,15 +932,23 @@
             } catch(pErr) {}
 
         } catch(e) {
-            console.warn('[MedienStation] Direct IndexedDB save error:', e);
-            // Notfall-Fallback auf LocalStorage nur falls DB komplett gesperrt ist
-            try {
-                let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
-                list.unshift(item);
-                if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
-                localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
-            } catch(lErr) {}
+            console.warn('[MedienStation] IndexedDB save warning (Nutze Backup-Speicher):', e);
         }
+
+        // 2. Backup in localStorage & sessionStorage (für maximale Verlässlichkeit)
+        try {
+            let list = [];
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (raw) { try { list = JSON.parse(raw); } catch(e) { list = []; } }
+            if (!Array.isArray(list)) list = [];
+
+            list = list.filter(it => it && it.id !== item.id && it.dataUrl !== item.dataUrl);
+            list.unshift(item);
+            if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
+
+            try { localStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
+            try { sessionStorage.setItem(MEISTER_KEY, JSON.stringify(list)); } catch(e) {}
+        } catch(lErr) {}
 
         if (window.showCustomAlert) {
             window.showCustomAlert('🎨 In Galerie gespeichert!');
@@ -918,48 +957,87 @@
         return item;
     };
 
-    // Direktes Lesen aus der IndexedDB
+    // Lesen aus IndexedDB + Backups
     window.getMeisterwerke = async function(callback) {
         let items = [];
+        let itemMap = new Map();
 
+        // 1. Aus IndexedDB lesen (mit 800ms Timeout-Sicherung)
         try {
-            const db = await getDB();
-            items = await new Promise((resolve, reject) => {
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB get Timeout')), 800));
+            const db = await Promise.race([getDB(), dbTimeout]);
+
+            const idbItems = await new Promise((resolve, reject) => {
                 const tx = db.transaction(STORE_NAME, 'readonly');
                 const store = tx.objectStore(STORE_NAME);
                 const req = store.getAll();
                 req.onsuccess = (e) => resolve(e.target.result || []);
                 req.onerror = () => reject(req.error || new Error('store.getAll failed'));
             });
+
+            if (Array.isArray(idbItems)) {
+                idbItems.forEach(it => {
+                    if (it && typeof it === 'object' && it.dataUrl) {
+                        itemMap.set(it.id || it.dataUrl, it);
+                    }
+                });
+            }
         } catch(e) {
-            console.warn('[MedienStation] Direct IndexedDB read warning:', e);
-            // Fallback: Aus localStorage lesen falls DB get fehlschlug
-            try {
-                const raw = localStorage.getItem(MEISTER_KEY);
-                if (raw) items = JSON.parse(raw) || [];
-            } catch(lErr) {}
+            console.warn('[MedienStation] IndexedDB read warning:', e);
         }
 
-        if (!Array.isArray(items)) items = [];
+        // 2. Aus localStorage ergänzen
+        try {
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (raw) {
+                const list = JSON.parse(raw);
+                if (Array.isArray(list)) {
+                    list.forEach(it => {
+                        if (it && typeof it === 'object' && it.dataUrl) {
+                            const key = it.id || it.dataUrl;
+                            if (!itemMap.has(key)) itemMap.set(key, it);
+                        }
+                    });
+                }
+            }
+        } catch(err) {}
+
+        // 3. Aus sessionStorage ergänzen
+        try {
+            const rawS = sessionStorage.getItem(MEISTER_KEY);
+            if (rawS) {
+                const listS = JSON.parse(rawS);
+                if (Array.isArray(listS)) {
+                    listS.forEach(it => {
+                        if (it && typeof it === 'object' && it.dataUrl) {
+                            const key = it.id || it.dataUrl;
+                            if (!itemMap.has(key)) itemMap.set(key, it);
+                        }
+                    });
+                }
+            }
+        } catch(err) {}
+
+        items = Array.from(itemMap.values());
         items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         if (typeof callback === 'function') callback(items);
         return items;
     };
 
-    // Direktes Löschen aus der IndexedDB
+    // Löschen aus IndexedDB + Backups
     window.clearMeisterwerke = async function(onComplete) {
-        try {
-            localStorage.removeItem(MEISTER_KEY);
-            sessionStorage.removeItem(MEISTER_KEY);
-        } catch(e) {}
+        try { localStorage.removeItem(MEISTER_KEY); } catch(e) {}
+        try { sessionStorage.removeItem(MEISTER_KEY); } catch(e) {}
 
         try {
-            const db = await getDB();
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB clear Timeout')), 800));
+            const db = await Promise.race([getDB(), dbTimeout]);
+
             const tx = db.transaction(STORE_NAME, 'readwrite');
             tx.objectStore(STORE_NAME).clear();
             await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
-            console.log('[MedienStation] Meisterwerke Galerie vollständig aus IndexedDB geleert.');
+            console.log('[MedienStation] Galerie geleert.');
         } catch(e) {
             console.warn('[MedienStation] clearMeisterwerke error:', e);
         }
