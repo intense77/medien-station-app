@@ -813,9 +813,9 @@
         });
     }
 
-    // --- 12. Direkte, Deadlock-Freie IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, Offline-PWA) ---
-    const DB_NAME = 'MedienStationDB_v4'; // DB-Name zur Umgehung alter blockierter Verbindungen
-    const DB_VERSION = 1;
+    // --- 12. Direkte, Ausfallsichere IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, Offline-PWA) ---
+    const DB_NAME = 'MedienStationDB_v4';
+    const DB_VERSION = 2; // Version 2 stellt sicher, dass der ObjectStore 'meisterwerke' auf allen Geräten angelegt wird
     const STORE_NAME = 'meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
 
@@ -824,14 +824,12 @@
         if (dbPromise) return dbPromise;
         dbPromise = new Promise((resolve, reject) => {
             if (!window.indexedDB) {
-                dbPromise = null;
                 return reject(new Error('IndexedDB not supported'));
             }
             let req;
             try {
                 req = window.indexedDB.open(DB_NAME, DB_VERSION);
             } catch(e) {
-                dbPromise = null;
                 return reject(e);
             }
 
@@ -857,7 +855,6 @@
 
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
                     db.close();
-                    dbPromise = null;
                     return reject(new Error('ObjectStore meisterwerke missing'));
                 }
                 resolve(db);
@@ -865,59 +862,85 @@
 
             req.onblocked = () => {
                 console.warn('[MedienStation] DB open blocked');
-                dbPromise = null;
                 reject(new Error('DB open blocked'));
             };
 
             req.onerror = (e) => {
-                dbPromise = null;
                 reject((e.target ? e.target.error : e) || new Error('IDB open failed'));
             };
+        }).catch(err => {
+            dbPromise = null;
+            throw err;
         });
         return dbPromise;
     }
 
     // Speichern in Synchron-Storage + IndexedDB (DSGVO-konform & Quota-Safe)
     window.saveToMeisterwerke = async function(item) {
-        if (!item || !item.dataUrl) return item;
+        if (!item) return item;
+        const dataUri = item.dataUrl || item.data || item.url;
+        if (!dataUri) return item;
 
-        item.id = item.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 6));
+        item.id = item.id || ('mw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6));
         item.timestamp = item.timestamp || Date.now();
         item.type = item.type || 'image';
         item.appName = item.appName || 'KUNSTWERK';
+        item.dataUrl = dataUri;
 
-        // 1. ZUERST Bild auf ~35KB komprimieren (verhindert QuotaExceededError in localStorage & WebViews)
+        // 1. SOFORTIGE SYNCHRONE SICHERUNG (< 1 ms) in localStorage & sessionStorage vor jedem await (schützt vor Navigation-Abort beim Verlassen der App)
+        const updateSyncStorage = (currentItem) => {
+            try {
+                let list = [];
+                const raw = localStorage.getItem(MEISTER_KEY);
+                if (raw) { try { list = JSON.parse(raw); } catch(e) { list = []; } }
+                if (!Array.isArray(list)) list = [];
+
+                list = list.filter(it => it && it.id !== currentItem.id && it.dataUrl !== currentItem.dataUrl);
+                list.unshift(currentItem);
+                if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
+
+                let jsonStr = JSON.stringify(list);
+                try {
+                    localStorage.setItem(MEISTER_KEY, jsonStr);
+                } catch(e) {
+                    // Falls Quota in localStorage überschritten wird: Ältere Items im localStorage kürzen
+                    while (list.length > 1) {
+                        list.pop();
+                        try {
+                            jsonStr = JSON.stringify(list);
+                            localStorage.setItem(MEISTER_KEY, jsonStr);
+                            break;
+                        } catch(e2) {}
+                    }
+                }
+                try { sessionStorage.setItem(MEISTER_KEY, jsonStr); } catch(e) {}
+            } catch(lErr) {
+                console.warn('[MedienStation] Sync save warning:', lErr);
+            }
+        };
+
+        // Sofort ausführen noch vor Bild-Komprimierung oder IndexedDB Async-Operationen
+        updateSyncStorage(item);
+
+        // 2. Bild schnell komprimieren (für sparsamen Speicherverbrauch)
         try {
             if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
                 if (item.dataUrl.length > 80000) {
-                    item.dataUrl = await compressImageDataUrlFast(item.dataUrl, 800, 0.75);
+                    const compressed = await compressImageDataUrlFast(item.dataUrl, 800, 0.75);
+                    if (compressed && compressed !== item.dataUrl) {
+                        item.dataUrl = compressed;
+                        // Synchronen Storage mit komprimierter Version aktualisieren
+                        updateSyncStorage(item);
+                    }
                 }
             }
         } catch (cErr) {
             console.warn('[MedienStation] Komprimierungswarnung:', cErr);
         }
 
-        // 2. SOFORTIGE SYNCHRONE SPEICHERUNG in localStorage & sessionStorage (< 2 ms)
+        // 3. Dauerhaft in IndexedDB schreiben
         try {
-            let list = [];
-            const raw = localStorage.getItem(MEISTER_KEY);
-            if (raw) { try { list = JSON.parse(raw); } catch(e) { list = []; } }
-            if (!Array.isArray(list)) list = [];
-
-            list = list.filter(it => it && it.id !== item.id && it.dataUrl !== item.dataUrl);
-            list.unshift(item);
-            if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
-
-            const jsonStr = JSON.stringify(list);
-            try { localStorage.setItem(MEISTER_KEY, jsonStr); } catch(e) { console.warn('localStorage save warning:', e); }
-            try { sessionStorage.setItem(MEISTER_KEY, jsonStr); } catch(e) { console.warn('sessionStorage save warning:', e); }
-        } catch(lErr) {
-            console.warn('[MedienStation] Sync save error:', lErr);
-        }
-
-        // 3. Dauerhaft in IndexedDB speichern
-        try {
-            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB Timeout')), 1000));
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB Timeout')), 1500));
             const db = await Promise.race([getDB(), dbTimeout]);
 
             const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -945,7 +968,7 @@
             } catch(pErr) {}
 
         } catch(e) {
-            console.warn('[MedienStation] IndexedDB save warning:', e);
+            console.warn('[MedienStation] IndexedDB save warning (Sync-Storage Backup geschützt):', e);
         }
 
         if (window.showCustomAlert) {
@@ -955,14 +978,32 @@
         return item;
     };
 
-    // Lesen aus IndexedDB + Backups
+    // Lesen aus IndexedDB + Backups + Auto-Migration
     window.getMeisterwerke = async function(callback) {
         let items = [];
         let itemMap = new Map();
 
-        // 1. Aus IndexedDB lesen (mit 800ms Timeout-Sicherung)
+        const addItemsToMap = (itemList) => {
+            if (!Array.isArray(itemList)) return;
+            itemList.forEach(it => {
+                if (it && typeof it === 'object') {
+                    const dataUri = it.dataUrl || it.data || it.url;
+                    if (dataUri) {
+                        it.dataUrl = dataUri;
+                        // Key für Deduplizierung: id -> (appName + timestamp) -> dataUrl
+                        const key = it.id || (it.appName && it.timestamp ? `${it.appName}_${it.timestamp}` : dataUri);
+                        if (!itemMap.has(key)) {
+                            itemMap.set(key, it);
+                        }
+                    }
+                }
+            });
+        };
+
+        // 1. Aus IndexedDB lesen (mit 1200ms Timeout-Sicherung)
+        let idbSuccess = false;
         try {
-            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB get Timeout')), 800));
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB get Timeout')), 1200));
             const db = await Promise.race([getDB(), dbTimeout]);
 
             const idbItems = await new Promise((resolve, reject) => {
@@ -973,13 +1014,8 @@
                 req.onerror = () => reject(req.error || new Error('store.getAll failed'));
             });
 
-            if (Array.isArray(idbItems)) {
-                idbItems.forEach(it => {
-                    if (it && typeof it === 'object' && it.dataUrl) {
-                        itemMap.set(it.id || it.dataUrl, it);
-                    }
-                });
-            }
+            addItemsToMap(idbItems);
+            idbSuccess = true;
         } catch(e) {
             console.warn('[MedienStation] IndexedDB read warning:', e);
         }
@@ -989,14 +1025,7 @@
             const raw = localStorage.getItem(MEISTER_KEY);
             if (raw) {
                 const list = JSON.parse(raw);
-                if (Array.isArray(list)) {
-                    list.forEach(it => {
-                        if (it && typeof it === 'object' && it.dataUrl) {
-                            const key = it.id || it.dataUrl;
-                            if (!itemMap.has(key)) itemMap.set(key, it);
-                        }
-                    });
-                }
+                addItemsToMap(list);
             }
         } catch(err) {}
 
@@ -1005,31 +1034,94 @@
             const rawS = sessionStorage.getItem(MEISTER_KEY);
             if (rawS) {
                 const listS = JSON.parse(rawS);
-                if (Array.isArray(listS)) {
-                    listS.forEach(it => {
-                        if (it && typeof it === 'object' && it.dataUrl) {
-                            const key = it.id || it.dataUrl;
-                            if (!itemMap.has(key)) itemMap.set(key, it);
-                        }
-                    });
-                }
+                addItemsToMap(listS);
             }
         } catch(err) {}
 
         items = Array.from(itemMap.values());
         items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
+        // Falls IndexedDB erreichbar war, ungespeicherte Items im Hintergrund nach IndexedDB schreiben
+        if (idbSuccess && items.length > 0) {
+            setTimeout(async () => {
+                try {
+                    const db = await getDB();
+                    const tx = db.transaction(STORE_NAME, 'readwrite');
+                    const store = tx.objectStore(STORE_NAME);
+                    items.forEach(it => { if (it.id) store.put(it); });
+                } catch(e) {}
+            }, 300);
+        }
+
         if (typeof callback === 'function') callback(items);
         return items;
     };
 
-    // Löschen aus IndexedDB + Backups
+    // Persistent Storage Anforderung beim Start
+    window.requestPersistentStorage = async function() {
+        try {
+            if (navigator.storage && navigator.storage.persist) {
+                const isPersisted = await navigator.storage.persisted();
+                if (!isPersisted) {
+                    const result = await navigator.storage.persist();
+                    console.log(`[MedienStation] Persistent storage result: ${result}`);
+                }
+            }
+        } catch(e) {
+            console.warn('[MedienStation] Persistent storage request error:', e);
+        }
+    };
+    window.requestPersistentStorage();
+
+    // Einzellöschung eines Meisterwerks
+    window.deleteMeisterwerk = async function(id, onComplete) {
+        if (!id) return;
+        try {
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (raw) {
+                let list = JSON.parse(raw);
+                if (Array.isArray(list)) {
+                    list = list.filter(it => it && it.id !== id);
+                    localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+                }
+            }
+        } catch(e) {}
+
+        try {
+            const rawS = sessionStorage.getItem(MEISTER_KEY);
+            if (rawS) {
+                let listS = JSON.parse(rawS);
+                if (Array.isArray(listS)) {
+                    listS = listS.filter(it => it && it.id !== id);
+                    sessionStorage.setItem(MEISTER_KEY, JSON.stringify(listS));
+                }
+            }
+        } catch(e) {}
+
+        try {
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB delete Timeout')), 1000));
+            const db = await Promise.race([getDB(), dbTimeout]);
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).delete(id);
+            await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
+            console.log(`[MedienStation] Meisterwerk ${id} gelöscht.`);
+        } catch(e) {
+            console.warn('[MedienStation] deleteMeisterwerk error:', e);
+        }
+
+        if (typeof window.renderMeisterwerkeGrid === 'function') {
+            window.renderMeisterwerkeGrid();
+        }
+        if (typeof onComplete === 'function') onComplete();
+    };
+
+    // Löschen aller Meisterwerke (Galerie leeren)
     window.clearMeisterwerke = async function(onComplete) {
         try { localStorage.removeItem(MEISTER_KEY); } catch(e) {}
         try { sessionStorage.removeItem(MEISTER_KEY); } catch(e) {}
 
         try {
-            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB clear Timeout')), 800));
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB clear Timeout')), 1000));
             const db = await Promise.race([getDB(), dbTimeout]);
 
             const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -1042,6 +1134,58 @@
         if (typeof onComplete === 'function') onComplete();
     };
 
+    // Fullscreen Lightbox / Großansicht für ein Meisterwerk
+    window.viewMeisterwerkDetail = async function(id) {
+        const items = await window.getMeisterwerke();
+        const item = items.find(it => it.id === id);
+        if (!item) return;
+
+        let modal = document.getElementById('meisterwerk-lightbox-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'meisterwerk-lightbox-modal';
+            modal.className = 'fixed inset-0 z-[100000] bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-between p-4 md:p-8';
+            document.body.appendChild(modal);
+        }
+
+        const typeLower = (item.type || '').toLowerCase();
+        const dataUrl = item.dataUrl || '';
+        const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/') || dataUrl.endsWith('.mp4');
+        const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/') || dataUrl.endsWith('.mp3') || dataUrl.endsWith('.wav');
+        const isImage = !isVideo && !isAudio;
+        const appName = item.appName || 'KUNSTWERK';
+
+        modal.innerHTML = `
+            <div class="w-full max-w-4xl flex items-center justify-between text-white mb-2">
+                <span class="text-lg md:text-2xl font-black text-amber-400 uppercase tracking-wider">${appName}</span>
+                <button onclick="document.getElementById('meisterwerk-lightbox-modal').style.display='none'" class="bg-slate-800 hover:bg-slate-700 text-white rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold border border-slate-600 active:scale-95 cursor-pointer">
+                    ✕
+                </button>
+            </div>
+            <div class="flex-1 w-full max-w-4xl flex items-center justify-center overflow-hidden my-4 relative">
+                ${isImage ? `<img src="${dataUrl}" class="max-w-full max-h-[72vh] object-contain rounded-2xl shadow-2xl border-2 border-slate-700">` : ''}
+                ${isVideo ? `<video src="${dataUrl}" controls autoplay playsinline class="max-w-full max-h-[72vh] rounded-2xl shadow-2xl"></video>` : ''}
+                ${isAudio ? `
+                    <div class="flex flex-col items-center justify-center gap-6 bg-slate-800/90 border-2 border-slate-700 rounded-3xl p-8 md:p-12 shadow-2xl">
+                        <span class="text-7xl animate-bounce">🎙️</span>
+                        <audio src="${dataUrl}" controls autoplay class="w-64 md:w-96 h-12"></audio>
+                    </div>
+                ` : ''}
+            </div>
+            <div class="w-full max-w-4xl flex items-center justify-center gap-4 pt-2">
+                ${isImage && window.printImage ? `
+                    <button onclick="window.printImage('${dataUrl}');" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-blue-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
+                        🖨️ Drucken
+                    </button>
+                ` : ''}
+                <button onclick="window.showConfirm('Dieses Kunstwerk löschen?', () => { window.deleteMeisterwerk('${item.id}'); document.getElementById('meisterwerk-lightbox-modal').style.display='none'; }, '🗑️')" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-red-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
+                    🗑️ Werk löschen
+                </button>
+            </div>
+        `;
+        modal.style.display = 'flex';
+    };
+
     window.renderMeisterwerkeGrid = async function() {
         const grid = document.getElementById('meisterwerke-grid');
         const footer = document.getElementById('meisterwerke-footer');
@@ -1049,7 +1193,7 @@
 
         try {
             const rawItems = await window.getMeisterwerke();
-            const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && it.dataUrl) : [];
+            const items = Array.isArray(rawItems) ? rawItems.filter(it => it && typeof it === 'object' && (it.dataUrl || it.data || it.url)) : [];
 
             if (items.length === 0) {
                 grid.innerHTML = `
@@ -1073,16 +1217,19 @@
                     const appName = it.appName || 'KUNSTWERK';
 
                     return `
-                    <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all">
-                        <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2">
-                            ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain" alt="${appName}" onerror="this.onerror=null; this.src='../assets/logo.png';">` : ''}
-                            ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain"></video>` : ''}
+                    <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all relative">
+                        <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2 group/media cursor-pointer" onclick="window.viewMeisterwerkDetail('${it.id}')">
+                            ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain hover:scale-105 transition-transform" alt="${appName}" onerror="this.onerror=null; this.src='../assets/logo.png';">` : ''}
+                            ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain" onclick="event.stopPropagation()"></video>` : ''}
                             ${isAudio ? `
-                                <div class="flex flex-col items-center justify-center gap-2">
+                                <div class="flex flex-col items-center justify-center gap-2" onclick="event.stopPropagation()">
                                     <span class="text-5xl">🎙️</span>
                                     <audio src="${dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
                                 </div>
                             ` : ''}
+                            <button onclick="event.stopPropagation(); window.showConfirm('Dieses Kunstwerk löschen?', () => window.deleteMeisterwerk('${it.id}'), '🗑️')" class="absolute top-1.5 right-1.5 bg-red-600/80 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg text-sm transition active:scale-95 cursor-pointer z-10" title="Werk löschen">
+                                🗑️
+                            </button>
                         </div>
                         <div class="w-full flex items-center justify-between gap-2">
                             <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${appName}</span>
@@ -1103,7 +1250,7 @@
         }
     };
 
-    window.updateGalleryInfoText = function() {
+    window.updateGalleryInfoText = async function() {
         try {
             const status = window.getStorageResetMode ? window.getStorageResetMode() : { mode: 'daily' };
             let resetHtml = '<span class="text-amber-400 font-extrabold">Datenschutz & Reset:</span> Alle Kunstwerke werden jede Nacht um 00:00 Uhr automatisch gelöscht (DSGVO-konform).';
@@ -1115,6 +1262,17 @@
             } else if (status.mode === 'never') {
                 resetHtml = '<span class="text-amber-400 font-extrabold">Datenschutz & Speicher:</span> ⚪ Dauerhafter Speicher aktiv: Werke bleiben im lokalen Speicher, bis sie manuell gelöscht werden.';
                 shortMsg = '100% lokal gespeichert (IndexedDB) • ⚪ Dauerhafter Speicher (kein Auto-Reset)';
+            }
+
+            // Storage estimate
+            if (navigator.storage && navigator.storage.estimate) {
+                try {
+                    const est = await navigator.storage.estimate();
+                    if (est && est.usage) {
+                        const mbUsed = (est.usage / (1024 * 1024)).toFixed(1);
+                        shortMsg += ` • 💾 ca. ${mbUsed} MB belegt`;
+                    }
+                } catch(stErr) {}
             }
 
             const resetEl = document.getElementById('meisterwerke-reset-info');

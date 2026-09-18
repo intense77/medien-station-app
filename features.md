@@ -85,13 +85,20 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
 
 ## 🎨 Galerie der Meisterwerke & Speicher-Systematik
 
-Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/galerie.html` und das Galerie-Modal im Hauptmenü) mit **IndexedDB-Speicher** (`MedienStationDB`) für bis zu 40 hochauflösende Werke.
+Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/galerie.html` und das Galerie-Modal im Hauptmenü) mit ausfallsicherem **IndexedDB-Speicher** (`MedienStationDB_v4`) für bis zu 40 hochauflösende Werke.
 
 ### Das transparente Speicher-Prinzip:
 1. **Schnappschuss-Apps (*Zauber Selfie*, *News Studio*, *Mikro Check*)**:
    - Da das Auslösen des Fotos oder das Stoppen der Tonaufnahme direkt das fertige Endprodukt liefert, landen die Werke **automatisch sofort** in der Galerie.
 2. **Kreativ- & Gestaltungs-Apps (*Pixel Labor*, *Comic Story*, *Trickfilm Studio*, *Video Loop*)**:
    - Kinder arbeiten in Etappen. Hier speichern die Kinder ihr Werk nach Fertigstellung ganz bewusst mit dem goldenen **`💾 SPEICHERN`**-Button (mit Konfetti 🎉) oder drucken es direkt mit **`🖨️ DRUCKEN`** aus.
+
+### 🛡️ PWA Speicherschutz & Kindgerechte Galerie-Funktionen:
+- **Navigation-Safe Sync-First Pattern**: Sofortige synchrone Sicherung schützt Werke auch bei plötzlichem App-Wechsel.
+- **PWA Persistent Storage (`navigator.storage.persist()`)**: Markiert die Galerie im OS/Browser als schützenswert vor automatischer Datenlöschung.
+- **Kindgerechtes Einzellöschen (`🗑️`)**: Jedes Werk kann in der Rasteransicht einzeln gelöscht werden, ohne andere Werke zu beeinträchtigen.
+- **🔍 Fullscreen-Lightbox**: Klick auf ein Werk öffnet eine Großansicht mit Zoom, Video- und Audio-Player.
+- **💾 Speicherbelegungs-Anzeige**: Transparente Anzeige des belegten Speicherplatzes in MB.
 
 ### 📥 100% Offline-ZIP-Export:
 - Fachkräfte und Kinder können alle Werke des Tages mit einem Klick (**"📥 Alle als ZIP speichern"**) gebündelt als ZIP-Archiv inklusive Inhaltsübersicht auf USB-Stick oder PC sichern.

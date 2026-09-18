@@ -1,7 +1,7 @@
 # 📋 MedienStation – Roadmap, Fachanalyse & TODOs
 
 > **Fachlich-kritische Bestandsaufnahme, Architektur-Analyse und strategische Weiterentwicklung**
-> *Stand: September 2026 (Version v7.8.1)*
+> *Stand: September 2026 (Version v7.8.9 / Build 302)*
 
 ---
 
@@ -27,9 +27,9 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 
 ## 🔍 3. Identifizierte Schwachstellen & Herausforderungen
 
-### 🟢 1. Speichersystem: Auf `IndexedDB` migriert (Erledigt in v7.7.0)
-* **Status:** Die Galerie der Meisterwerke speichert Bilder, Audio und Video-Daten in `IndexedDB` (`MedienStationDB`).
-* **Vorteil:** Das 5-MB-Limit von `localStorage` ist aufgehoben, Hunderte Megabyte Speicher für hochauflösende Fotos und Videos sind verfügbar.
+### 🟢 1. Speichersystem: Ausfallsicheres `IndexedDB` v4 Engine (Gehärtet in v7.8.9)
+* **Status:** Die Galerie der Meisterwerke speichert Bilder, Audio und Video-Daten in `IndexedDB` (`MedienStationDB_v4`).
+* **Vorteil:** Navigation-Safe Sync-First Pattern schützt vor Abbrüchen bei Seitenwechseln. Automatischer PWA-Speicherschutz (`navigator.storage.persist()`), Einzellöschung (`🗑️`), Fullscreen-Lightbox & Speicher-Auslastungsanzeige.
 
 ### ⚠️ 2. Performance & Hitzeentwicklung auf Einsteiger-Hardware
 * **Status:** Lokale KI-Segmentierung (*MediaPipe Selfie Segmentation*) und Canvas-Rendering laufen voll auf Client-Hardware.
@@ -48,8 +48,8 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 ## 🚀 4. Actionable TODOs & Entwicklungs-Roadmap
 
 ### 🟢 Phase 1: High Priority (Architektur & Storage)
-- [x] **Storage-Upgrade auf `IndexedDB`** (Erledigt in v7.7.0):
-  - `public/js/common.js`: Meisterwerke-Speichersystem von `localStorage` auf `IndexedDB` migriert mit automatischer Datenübernahme & Fallback.
+- [x] **Storage-Upgrade & Härtung auf `IndexedDB`** (Erledigt in v7.8.9):
+  - `public/js/common.js`: Ausfallsicheres `MedienStationDB_v4` v2 Speichersystem mit `navigator.storage.persist()`, Navigation-Safe Sync-First Puffer, Einzellöschen (`deleteMeisterwerk()`), Fullscreen-Lightbox & Speicherbelegungs-Anzeige.
 - [x] **Echte Video-Wiedergabe in der Galerie**:
   - Video-Snippets und Player in Galerie integriert.
 
