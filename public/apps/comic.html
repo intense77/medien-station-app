@@ -102,7 +102,14 @@
             COMIC STUDIO
         </h1>
 
-            <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 shadow-xl text-lg md:text-2xl">?</button>
+        <div class="flex items-center gap-2 md:gap-4 z-50">
+            <button onclick="window.switchCamera()" class="bg-white text-black w-12 h-12 md:w-14 md:h-14 rounded-full text-xl md:text-2xl border-2 md:border-4 border-black shadow-md active:scale-90 flex items-center justify-center cursor-pointer shrink-0" title="Kamera wechseln">🔄</button>
+
+            <div class="cam-preview-box relative w-20 h-12 md:w-28 md:h-16 bg-black rounded-lg border-2 md:border-4 border-black shadow-lg overflow-hidden shrink-0 transform rotate-1">
+                <video id="webcam" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover opacity-90"></video>
+            </div>
+
+            <button onclick="window.toggleInfo()" class="w-12 h-12 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 shadow-xl text-xl md:text-2xl shrink-0 cursor-pointer">?</button>
         </div>
     </div>
 
@@ -160,12 +167,12 @@
     </div>
 
     <script>
-        // Logik bleibt wie in deinem Original, nur Initialisierung und Drag-Fixes
-        const video = document.getElementById('webcam');
         let currentFacingMode = 'user';
         let currentStream;
 
         window.initCam = async function() {
+            const videoEl = document.getElementById('webcam');
+            const camBox = document.querySelector('.cam-preview-box') || document.body;
             try {
                 if (currentStream) currentStream.getTracks().forEach(t => t.stop());
                 try {
@@ -176,13 +183,22 @@
                     console.warn("Kamera Fallback...", e);
                     currentStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 }
-                video.srcObject = currentStream;
-                video.style.transform = currentFacingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
-            } catch (err) { console.error(err); }
-        }
+                if (videoEl) {
+                    videoEl.srcObject = currentStream;
+                    videoEl.style.transform = currentFacingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)';
+                }
+            } catch (err) {
+                console.error("Kamerafehler in Comic:", err);
+                if (window.handleCamError) {
+                    window.handleCamError(err, camBox, () => window.initCam());
+                }
+            }
+        };
 
         window.snap = function(index) {
             if(window.playSound) window.playSound('shutter');
+            const videoEl = document.getElementById('webcam');
+            if (!videoEl) return;
             const panel = document.getElementById('panel-' + index);
             const canvas = panel.querySelector('canvas');
             const ctx = canvas.getContext('2d');
@@ -190,8 +206,8 @@
             const targetH = 720;
             canvas.width = targetW; canvas.height = targetH;
 
-            const vW = video.videoWidth || targetW;
-            const vH = video.videoHeight || targetH;
+            const vW = videoEl.videoWidth || targetW;
+            const vH = videoEl.videoHeight || targetH;
             const vRatio = vW / vH;
             const cRatio = targetW / targetH;
 
@@ -211,14 +227,14 @@
             ctx.save();
             if(currentFacingMode === 'user') {
                 ctx.scale(-1, 1);
-                ctx.drawImage(video, sx, sy, sWidth, sHeight, -targetW, 0, targetW, targetH);
+                ctx.drawImage(videoEl, sx, sy, sWidth, sHeight, -targetW, 0, targetW, targetH);
             } else {
-                ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
+                ctx.drawImage(videoEl, sx, sy, sWidth, sHeight, 0, 0, targetW, targetH);
             }
             ctx.restore();
             panel.classList.add('ring-4', 'ring-yellow-400');
             setTimeout(() => panel.classList.remove('ring-4', 'ring-yellow-400'), 300);
-        }
+        };
 
         // Drag & Drop Logik (für Touch und Maus optimiert)
         let activeDrag = null;
