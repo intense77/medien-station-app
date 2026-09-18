@@ -70,16 +70,16 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
     - Beiliegende `Uebersicht.txt` mit Auflistung aller Titel, Typen und Erstellungszeiten.
     - 100 % offline-fähig über integriertes JSZip.
 
-### 🔵 Phase 3: Low Priority & Polish (UX, Performance & Accessibility)
-- [ ] **UX- & Feinmotorik-Polish für jüngere Kinder (3–4 Jahre)**:
-  - **Hintergrund:** Einige Interaktionen (z. B. das Skalieren von Sprechblasen im Comic Studio) erfordern noch zu hohe Fingerfertigkeit für jüngere Kinder.
-  - **Maßnahmen:**
-    - 🖐️ **Touch-Area-Vergrößerung:** Größere Ziehgriffe (min. 56×56 px) für Sprechblasen, Textboxen & Sticker auf Tablets und Touchscreens.
-    - 📳 **Haptisches Feedback:** Sanfte Vibration (`navigator.vibrate`) bei erfolgreichem Foto-Auslöser, Aufnahme-Start und Stopp auf Touch-Geräten.
-    - 🔔 **Akustisches Feedback:** Klares "Pling"-Bestätigungsgeräusch beim Speichern in der Galerie.
-- [ ] **Low-Power-Modus & Performance für Zauber Selfie**:
-  - **Hintergrund:** Vermeidung von Hitzeentwicklung und Framerate-Einbrüchen auf Einsteiger-Hardware / älteren Tablets.
-  - **Maßnahmen:**
-    - Automatische FPS-Überwachung: Wenn unter 20 FPS, Segmentierungsauflösung dynamisch auf 256×256 px skalieren.
-- [ ] **Erweiterte Inklusions-Hilfen**:
-  - Visuelle Kontraste für Bedienelemente weiter schärfen und Vorlese-Funktionen für alle Hilfetexte vereinheitlichen.
+### 🔵 Phase 3: UX, Performance, Accessibility & Haptische Brücke (Erledigt in v7.8.9)
+- [x] **UX- & Feinmotorik-Polish für jüngere Kinder (3–4 Jahre)** (Erledigt in v7.8.9):
+  - 🖐️ **Touch-Area-Vergrößerung:** Größere Ziehgriffe (min. 56×56 px) für Sprechblasen in `comic.html`.
+  - 📳 **Haptisches Feedback:** Sanfte Vibration (`navigator.vibrate`) bei Auslöser, Aufnahmestart/Stopp und Speichern.
+  - 🔔 **Akustisches Feedback:** Bestätigungssounds beim Speichern in der Galerie.
+  - 📷 **Kamera-Berechtigungs-Overlay:** Kindgerechtes Fehler-Handling bei blockierter oder fehlender Kamera (`handleCamError`).
+- [x] **Low-Power-Modus & Performance für Zauber Selfie** (Erledigt in v7.8.9):
+  - Echtzeit-FPS-Überwachung: Wenn unter 22 FPS, automatisches Frame-Skipping zur Reduktion von Hitzeentwicklung und Akkuverbrauch auf günstigen Tablets.
+- [x] **Erweiterte Inklusions-Hilfen & Vorlese-Animation** (Erledigt in v7.8.9):
+  - `window.speakText` mit visueller Button-Pulsation (`animate-pulse`) und automatischer Emoji-Bereinigung.
+- [x] **Daumenkino-Druckvorlagen-Polish & Bastelanleitung** (Erledigt in v7.8.9):
+  - **Druckbogen:** Gestrichelte Schneidelinien (`✂️`), Heftzone (`📌 HIER TACKERN`), Bildnummerierung (`Bild #1`-`#9`) und Anleitung auf DIN-A4 Ausdruck.
+  - **Pädagogische Erklärung:** Ausführliche Bastelanleitung ("Was ist ein Daumenkino & wie entsteht die Kino-Illusion im Auge?") im Info-Modal des Trickfilm Studios.

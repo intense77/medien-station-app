@@ -52,7 +52,8 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
   - **Großzügige Zeitleiste**: Große Vorschaubilder im Filmstreifen mit direkter Lösch- und Reorganisationsmöglichkeit.
   - **Tonaufnahme**: Vertonung des Films per Mikrofon.
   - **`💾 Speichern`**: Legt die Daumenkino-Collage direkt in der Galerie der Meisterwerke ab.
-  - **`🖨️ Daumenkino Drucken`**: Druckt den gestalteten Ausschneidebogen zum Heften eines echten Daumenkinos aus.
+  - **`🖨️ Daumenkino Drucken`**: Druckt einen optimierten A4-Ausschneidebogen mit gestrichelten Schneidelinien (`✂️`), Heftzone (`📌 HIER TACKERN`), Bildnummern (`Bild #1` bis `#9`) und Kurzanleitung aus.
+  - **📖 Pädagogische Bastelanleitung & Daumenkino-Erklärung**: Integrierte Erklärung im Hilfemenü (*"Was ist ein Daumenkino & wie entsteht die Kino-Illusion im Auge?"*) mit 4-Schritte-Bastelanleitung (Ausdrucken, Ausschneiden, Stapeln, Tackern).
 * **Pädagogischer Mehrwert**: Verständnis von Filmaufbau und Bildfrequenz (Kino-Illusion), Feinmotorik, Raum-Bewegungskonzepte, haptisch-digitales Lernerlebnis.
 
 ### 6. 👾 Pixel Labor (Retro Digitalkunst)

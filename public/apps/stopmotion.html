@@ -1021,6 +1021,30 @@
               </div>
           </div>
 
+          <!-- DAUMENKINO ERKLÄRUNG & BASTELANLEITUNG -->
+          <div class="mt-4 p-4 bg-purple-500/15 border-2 border-purple-400/40 rounded-2xl text-slate-200">
+              <h3 class="text-base sm:text-lg font-black text-amber-400 mb-2 flex items-center gap-2">
+                  <span>📖</span> <b>Was ist ein Daumenkino & wie bastelt man es?</b>
+              </h3>
+              <p class="text-xs sm:text-sm leading-relaxed mb-3 text-slate-300">
+                  Ein <b>Daumenkino</b> ist ein kleines gedrucktes Büchlein aus deinen Filmbildern. Wenn du mit dem Daumen schnell durch die Kärtchen schnippst, entsteht in deinen Augen die magische Bewegung – genau wie vor 100 Jahren beim ersten Kinofilm!
+              </p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold text-slate-200">
+                  <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-700 flex items-center gap-2">
+                      <span class="text-lg">🖨️</span> <span>1. Auf <b>"Daumenkino Drucken"</b> tippen</span>
+                  </div>
+                  <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-700 flex items-center gap-2">
+                      <span class="text-lg">✂️</span> <span>2. Entlang der gestrichelten Linien ausschneiden</span>
+                  </div>
+                  <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-700 flex items-center gap-2">
+                      <span class="text-lg">🔢</span> <span>3. Kärtchen nach Nummern (1, 2, 3...) stapeln</span>
+                  </div>
+                  <div class="bg-slate-900/70 p-2 rounded-lg border border-slate-700 flex items-center gap-2">
+                      <span class="text-lg">📌</span> <span>4. Links an der Heftzone zusammen-tackern</span>
+                  </div>
+              </div>
+          </div>
+
           <!-- PÄDAGOGISCHER TIPP -->
           <div class="mt-4 p-3 bg-amber-400/10 border border-amber-400/30 rounded-xl text-center">
               <span class="text-xs sm:text-sm text-amber-300 font-bold">💡 Regie-Tipp:</span>
@@ -1570,27 +1594,38 @@
           }
         }
 
-        // Daumenkino Canvas Daten generieren
+        // Daumenkino Canvas Daten generieren (Pedagogical A4 Crafting Sheet)
         function generateFlipbookDataUrl() {
           const printCanvas = document.createElement('canvas');
           printCanvas.width = 1800;
           printCanvas.height = 1200;
           const pCtx = printCanvas.getContext('2d');
 
+          // Weißer Hintergrund
           pCtx.fillStyle = '#ffffff';
           pCtx.fillRect(0, 0, 1800, 1200);
 
+          // Titel-Kopfzeile
           pCtx.fillStyle = '#0f172a';
-          pCtx.font = 'bold 36px sans-serif';
-          pCtx.fillText('🎬 MEIN TRICKFILM - KITA MEDIENSTATION', 60, 60);
+          pCtx.font = 'black 34px sans-serif';
+          pCtx.fillText('📖 DAUMENKINO - TRICKFILM BASTELBOGEN', 50, 50);
+
+          pCtx.fillStyle = '#475569';
+          pCtx.font = 'bold 20px sans-serif';
+          pCtx.fillText('Anleitung: 1. Entlang der gestrichelten Linien ✂️ ausschneiden  2. Nach Bildnummern (1-9) stapeln  3. Links an der Heftzone 📌 tackern  4. Daumen schnippen lassen! 🎬', 50, 80);
 
           const cols = 3;
           const rows = 3;
-          const marginX = 60;
-          const marginY = 90;
-          const gap = 30;
-          const cellW = (1800 - (2 * marginX) - ((cols - 1) * gap)) / cols;
-          const cellH = (1200 - marginY - 60 - ((rows - 1) * gap)) / rows;
+          const marginX = 50;
+          const marginY = 100;
+          const gap = 25;
+          const totalW = 1800 - (2 * marginX);
+          const totalH = 1200 - marginY - 50;
+          const cellW = (totalW - ((cols - 1) * gap)) / cols; // ~546px
+          const cellH = (totalH - ((rows - 1) * gap)) / rows; // ~330px
+
+          const stapleZoneW = 75; // 75px linke Heftzone
+          const imageZoneW = cellW - stapleZoneW;
 
           const totalToShow = Math.min(trickfilmFrames.length, 9);
           for (let i = 0; i < totalToShow; i++) {
@@ -1601,28 +1636,63 @@
 
             const frameCanvas = trickfilmFrames[i];
 
-            pCtx.save();
-            pCtx.beginPath();
-            pCtx.rect(x, y, cellW, cellH);
-            pCtx.clip();
+            // 1. Linke Heftzone (Tacker-Bereich)
+            pCtx.fillStyle = '#f1f5f9';
+            pCtx.fillRect(x, y, stapleZoneW, cellH);
 
-            pCtx.drawImage(frameCanvas, x, y, cellW, cellH);
+            pCtx.strokeStyle = '#cbd5e1';
+            pCtx.lineWidth = 2;
+            pCtx.strokeRect(x, y, stapleZoneW, cellH);
+
+            // Tacker Icon & Beschriftung in Heftzone
+            pCtx.save();
+            pCtx.translate(x + 38, y + (cellH / 2));
+            pCtx.rotate(-Math.PI / 2);
+            pCtx.fillStyle = '#64748b';
+            pCtx.font = 'bold 16px sans-serif';
+            pCtx.textAlign = 'center';
+            pCtx.fillText('📌 HIER TACKERN', 0, 5);
             pCtx.restore();
 
-            pCtx.strokeStyle = '#94a3b8';
-            pCtx.lineWidth = 3;
-            pCtx.setLineDash([8, 8]);
+            // 2. Bildbereich (rechts)
+            const imgX = x + stapleZoneW;
+            pCtx.save();
+            pCtx.beginPath();
+            pCtx.rect(imgX, y, imageZoneW, cellH);
+            pCtx.clip();
+            pCtx.drawImage(frameCanvas, imgX, y, imageZoneW, cellH);
+            pCtx.restore();
+
+            // Gestrichelte Schneidelinie (Schneide-Kontur um das gesamte Kärtchen)
+            pCtx.strokeStyle = '#64748b';
+            pCtx.lineWidth = 2;
+            pCtx.setLineDash([8, 6]);
             pCtx.strokeRect(x, y, cellW, cellH);
             pCtx.setLineDash([]);
 
-            pCtx.fillStyle = '#FFD166';
-            pCtx.fillRect(x + 10, y + 10, 45, 45);
-            pCtx.fillStyle = '#000000';
-            pCtx.font = 'bold 26px sans-serif';
+            // Scheren-Icon ✂️ an der oberen Ecke
+            pCtx.fillStyle = '#475569';
+            pCtx.font = '16px sans-serif';
+            pCtx.fillText('✂️', x - 10, y - 4);
+
+            // Bildnummern-Badge
+            pCtx.fillStyle = '#fbbf24';
+            pCtx.fillRect(imgX + 8, y + 8, 85, 34);
+            pCtx.strokeStyle = '#b45309';
+            pCtx.lineWidth = 2;
+            pCtx.strokeRect(imgX + 8, y + 8, 85, 34);
+
+            pCtx.fillStyle = '#0f172a';
+            pCtx.font = 'black 18px sans-serif';
             pCtx.textAlign = 'center';
-            pCtx.fillText(`${i + 1}`, x + 32, y + 42);
+            pCtx.fillText(`Bild #${i + 1}`, imgX + 50, y + 31);
             pCtx.textAlign = 'left';
           }
+
+          // Fußzeile mit Kino-Erklärung
+          pCtx.fillStyle = '#334155';
+          pCtx.font = 'bold 18px sans-serif';
+          pCtx.fillText('💡 Das Geheimnis des Kinos: Wenn du die Kärtchen schnell mit dem Daumen durchschnippst, verschmelzen die Bilder im Auge zu einer Bewegung!', 50, 1175);
 
           return printCanvas.toDataURL('image/jpeg', 0.85);
         }
