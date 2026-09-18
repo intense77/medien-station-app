@@ -1056,28 +1056,67 @@
         let itemMap = new Map();
 
         const addItemsToMap = (itemList) => {
-            if (!Array.isArray(itemList)) return;
-            itemList.forEach(it => {
-                if (it && typeof it === 'object') {
-                    const dataUri = typeof it.dataUrl === 'string' ? it.dataUrl : 
-                                   (typeof it.data === 'string' ? it.data : 
-                                   (typeof it.url === 'string' ? it.url : 
-                                   (typeof it.image === 'string' ? it.image : 
-                                   (typeof it.src === 'string' ? it.src : ''))));
+            if (!itemList) return;
+            let array = [];
+            if (Array.isArray(itemList)) {
+                array = itemList;
+            } else if (typeof itemList === 'object' && itemList !== null) {
+                array = Object.values(itemList);
+            } else if (typeof itemList === 'string') {
+                try {
+                    const parsed = JSON.parse(itemList);
+                    if (Array.isArray(parsed)) array = parsed;
+                    else if (typeof parsed === 'object' && parsed !== null) array = Object.values(parsed);
+                } catch(e) {
+                    if (itemList.startsWith('data:')) {
+                        array = [itemList];
+                    }
+                }
+            }
+
+            array.forEach(it => {
+                let obj = null;
+                if (typeof it === 'string') {
+                    if (it.startsWith('data:')) {
+                        obj = {
+                            id: 'mw_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                            dataUrl: it,
+                            appName: 'KUNSTWERK',
+                            type: it.startsWith('data:audio') ? 'audio' : (it.startsWith('data:video') ? 'video' : 'image'),
+                            timestamp: Date.now()
+                        };
+                    }
+                } else if (it && typeof it === 'object') {
+                    obj = Object.assign({}, it);
+                }
+
+                if (obj && typeof obj === 'object') {
+                    const dataUri = typeof obj.dataUrl === 'string' ? obj.dataUrl : 
+                                   (typeof obj.data === 'string' ? obj.data : 
+                                   (typeof obj.url === 'string' ? obj.url : 
+                                   (typeof obj.image === 'string' ? obj.image : 
+                                   (typeof obj.src === 'string' ? obj.src : 
+                                   (typeof obj.img === 'string' ? obj.img : 
+                                   (typeof obj.file === 'string' ? obj.file : 
+                                   (typeof obj.base64 === 'string' ? obj.base64 : 
+                                   (typeof obj.audioUrl === 'string' ? obj.audioUrl : 
+                                   (typeof obj.videoUrl === 'string' ? obj.videoUrl : '')))))))));
 
                     if (dataUri && dataUri.length > 0) {
-                        it.dataUrl = dataUri;
-                        if (!it.id || typeof it.id !== 'string') {
-                            it.id = 'mw_' + (it.timestamp || Date.now()) + '_' + Math.random().toString(36).substr(2, 6);
+                        obj.dataUrl = dataUri;
+                        if (!obj.id || typeof obj.id !== 'string') {
+                            obj.id = 'mw_' + (obj.timestamp || Date.now()) + '_' + Math.random().toString(36).substr(2, 6);
                         }
-                        if (typeof it.appName !== 'string') it.appName = 'KUNSTWERK';
-                        if (typeof it.type !== 'string') it.type = 'image';
-                        if (typeof it.timestamp !== 'number') it.timestamp = Date.now();
+                        if (typeof obj.appName !== 'string') obj.appName = 'KUNSTWERK';
+                        if (typeof obj.type !== 'string') {
+                            obj.type = dataUri.startsWith('data:audio') ? 'audio' : (dataUri.startsWith('data:video') ? 'video' : 'image');
+                        }
+                        if (typeof obj.timestamp !== 'number') obj.timestamp = Date.now();
 
                         // Key für Deduplizierung: id -> (appName + timestamp) -> dataUrl
-                        const key = it.id || (it.appName && it.timestamp ? `${it.appName}_${it.timestamp}` : dataUri);
+                        const key = obj.id || (obj.appName && obj.timestamp ? `${obj.appName}_${obj.timestamp}` : dataUri);
                         if (!itemMap.has(key)) {
-                            itemMap.set(key, it);
+                            itemMap.set(key, obj);
                         }
                     }
                 }
@@ -1529,24 +1568,27 @@
                 return;
             }
 
-            // Lade-Modal anzeigen
+            // Lade-Modal anzeigen (z-index: 9999999 für sichere Überlagerung über Admin-Menü auf Tablets)
             let modal = document.getElementById('zip-export-modal');
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'zip-export-modal';
-                modal.className = 'fixed inset-0 z-[999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300';
+                modal.className = 'fixed inset-0 z-[9999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300';
+                modal.style.zIndex = '9999999';
                 document.body.appendChild(modal);
             }
+            modal.style.zIndex = '9999999';
 
             modal.innerHTML = `
                 <div class="bg-slate-800 border-4 border-blue-500 rounded-[2.5rem] max-w-md w-full p-8 shadow-2xl text-center text-white">
                     <div class="text-6xl mb-4 animate-bounce" id="zip-modal-icon">📦</div>
                     <h2 class="text-2xl font-black mb-2" id="zip-modal-title">ZIP-Datei wird erstellt...</h2>
-                    <p class="text-slate-300 text-sm font-bold mb-6" id="zip-modal-desc">Bilder und Töne werden verpackt. Bitte einen Moment gedulden.</p>
+                    <p class="text-slate-300 text-sm font-bold mb-4" id="zip-modal-desc">Bilder und Töne werden verpackt. Bitte einen Moment gedulden.</p>
                     <div id="zip-modal-actions" class="flex flex-col gap-3">
-                        <div class="w-full bg-slate-900 rounded-full h-4 overflow-hidden border border-slate-700">
-                            <div class="bg-blue-500 h-full w-2/3 animate-pulse"></div>
+                        <div class="w-full bg-slate-900 rounded-full h-5 overflow-hidden border border-slate-700 p-0.5 relative">
+                            <div id="zip-progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full w-0 transition-all duration-150 rounded-full"></div>
                         </div>
+                        <span id="zip-progress-percent" class="text-xs font-mono font-bold text-amber-400">0%</span>
                     </div>
                 </div>
             `;
@@ -1601,7 +1643,15 @@
                 items.map((it, idx) => `${idx + 1}. [${it.type || 'werk'}] ${it.title || 'Werk'} (${it.appName || ''})`).join('\n');
             folder.file('Uebersicht.txt', metaInfo);
 
-            const content = await zip.generateAsync({ type: 'blob' });
+            // Live-Fortschritt bei der ZIP-Generierung
+            const content = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+                const percent = Math.round(metadata.percent || 0);
+                const progressBar = document.getElementById('zip-progress-bar');
+                const progressText = document.getElementById('zip-progress-percent');
+                if (progressBar) progressBar.style.width = percent + '%';
+                if (progressText) progressText.innerText = `${percent}%`;
+            });
+
             const zipFileName = `MedienStation_Meisterwerke_${dateStr}.zip`;
             const zipFile = new File([content], zipFileName, { type: 'application/zip' });
 

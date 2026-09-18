@@ -132,7 +132,7 @@
                 <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-3 py-2 sm:px-5 sm:py-3 md:px-6 md:py-4 rounded-full shadow-2xl flex items-center justify-center gap-2 sm:gap-4 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all w-auto max-w-full">
                     <img src="assets/logo.png" class="h-8 sm:h-10 md:h-12 w-auto object-contain shrink-0" alt="Logo" onerror="this.style.display='none'">
                     <div class="flex flex-col text-left shrink min-w-0">
-                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.8.9)</span></span>
+                        <span class="text-[8px] sm:text-[10px] md:text-xs text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.0)</span></span>
                         <span class="text-[11px] sm:text-sm md:text-base lg:text-lg font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
                     </div>
                 </button>
@@ -302,6 +302,11 @@
                     <span id="admin-reset-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">Täglich aktiv</span>
                 </div>
 
+                <!-- Status-Banner: Visuelle Bestätigung des aktiven Modus -->
+                <div id="admin-reset-status-banner" class="p-3 rounded-xl border border-emerald-500/80 bg-emerald-950/90 text-emerald-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner">
+                    <span id="admin-reset-status-text">✅ AKTIV GESPEICHERT: Strenger Tages-Reset (00:00 Uhr)</span>
+                </div>
+
                 <div class="grid grid-cols-1 gap-2.5 text-sm">
                     <!-- Option 1: Strenger Tages-Reset -->
                     <label id="admin-card-daily" class="flex items-start gap-3 p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-950/30 cursor-pointer transition-all">
@@ -402,7 +407,7 @@
 
             <!-- Footer & Info -->
             <div class="text-center text-xs text-slate-500 font-mono">
-                App Version: 7.8.9 (Build 302) • AV-Medienzentrale
+                App Version: 7.9.0 (Build 305) • AV-Medienzentrale
             </div>
         </div>
     </div>
@@ -613,6 +618,8 @@
             const badgeDaily = document.getElementById('badge-daily');
             const badgeProj = document.getElementById('badge-project_7d');
             const badgeNever = document.getElementById('badge-never');
+            const statusBanner = document.getElementById('admin-reset-status-banner');
+            const statusText = document.getElementById('admin-reset-status-text');
 
             const resetClasses = (el) => {
                 if (!el) return;
@@ -644,6 +651,11 @@
                 if (projectDesc) {
                     projectDesc.textContent = 'Werke bleiben für mehrtägige Stop-Motion- & Comic-Projekte 7 Tage erhalten. Danach greift automatisch wieder der Tages-Reset.';
                 }
+                if (statusBanner && statusText) {
+                    statusBanner.className = 'p-3 rounded-xl border border-emerald-500/80 bg-emerald-950/90 text-emerald-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner animate-pulse';
+                    statusText.textContent = '✅ AKTIV GESPEICHERT: Strenger Tages-Reset (00:00 Uhr)';
+                    setTimeout(() => statusBanner.classList.remove('animate-pulse'), 1000);
+                }
             } else if (status.mode === 'project_7d') {
                 activeClasses(cardProj, 'border-amber-500', 'bg-amber-950/40');
                 if (badgeProj) badgeProj.classList.remove('hidden');
@@ -654,6 +666,11 @@
                 if (projectDesc) {
                     projectDesc.textContent = `Aktiv: Werke bleiben noch ca. ${status.pauseDaysRemaining} Tag(e) über Nacht erhalten.`;
                 }
+                if (statusBanner && statusText) {
+                    statusBanner.className = 'p-3 rounded-xl border border-amber-500/80 bg-amber-950/90 text-amber-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner animate-pulse';
+                    statusText.textContent = `✅ AKTIV GESPEICHERT: 7-Tage Projekt-Modus (noch ${status.pauseDaysRemaining} Tag(e) pausiert)`;
+                    setTimeout(() => statusBanner.classList.remove('animate-pulse'), 1000);
+                }
             } else if (status.mode === 'never') {
                 activeClasses(cardNever, 'border-blue-500', 'bg-blue-950/40');
                 if (badgeNever) badgeNever.classList.remove('hidden');
@@ -661,10 +678,17 @@
                     badge.textContent = '⚪ Kein Auto-Reset';
                     badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-blue-950 text-blue-300 border border-blue-700';
                 }
+                if (statusBanner && statusText) {
+                    statusBanner.className = 'p-3 rounded-xl border border-blue-500/80 bg-blue-950/90 text-blue-200 text-xs font-extrabold flex items-center justify-between gap-2 shadow-inner animate-pulse';
+                    statusText.textContent = '✅ AKTIV GESPEICHERT: Dauerhaft speichern (Kein automatischer Reset)';
+                    setTimeout(() => statusBanner.classList.remove('animate-pulse'), 1000);
+                }
             }
         }
 
         function onAdminResetModeChange(mode) {
+            if (window.triggerHapticFeedback) window.triggerHapticFeedback([40]);
+            if (window.playSound) window.playSound('click');
             if (window.setStorageResetMode) {
                 window.setStorageResetMode(mode);
                 syncAdminResetUI();
@@ -679,9 +703,9 @@
                 }
 
                 if (window.showCustomAlert) {
-                    if (mode === 'daily') window.showCustomAlert('🟢 Strenger Tages-Reset aktiviert (Löscht täglich um 00:00 Uhr).');
-                    else if (mode === 'project_7d') window.showCustomAlert('🟡 Projekt-Modus aktiviert (Tages-Reset für 7 Tage pausiert).');
-                    else if (mode === 'never') window.showCustomAlert('⚪ Automatischer Reset deaktiviert (Werke bleiben dauerhaft).');
+                    if (mode === 'daily') window.showCustomAlert('🟢 Strenger Tages-Reset aktiviert & gespeichert (00:00 Uhr).');
+                    else if (mode === 'project_7d') window.showCustomAlert('🟡 Projekt-Modus aktiviert & gespeichert (7 Tage pausiert).');
+                    else if (mode === 'never') window.showCustomAlert('⚪ Dauerhaft speichern aktiviert & gespeichert (Kein Auto-Reset).');
                 }
             }
         }
