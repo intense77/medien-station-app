@@ -1,5 +1,5 @@
-const CACHE_NAME = 'medien-station-v7.9.4-v309';
-const ASSETS = [
+const CACHE_NAME = 'medien-station-v7.9.5-v310';
+const CORE_ASSETS = [
     './',
     './index.html',
     './entdecker_karten.html',
@@ -8,44 +8,6 @@ const ASSETS = [
     './js/audio.js',
     './js/jszip.min.js',
     './js/print.js',
-    './js/selfie_segmentation.js',
-    './models/selfie_segmentation.binarypb',
-    './models/selfie_segmentation.tflite',
-    './models/selfie_segmentation_landscape.tflite',
-    './models/selfie_segmentation_solution_simd_wasm_bin.js',
-    './models/selfie_segmentation_solution_simd_wasm_bin.wasm',
-    './models/selfie_segmentation_solution_wasm_bin.js',
-    './models/selfie_segmentation_solution_wasm_bin.wasm',
-    './assets/logo.png',
-    './assets/apple-touch-icon.png',
-    './assets/qr.png',
-    './assets/news.jpg',
-    './assets/ozean.jpg',
-    './assets/weltraum.jpg',
-    './assets/paris.jpg',
-    './assets/dschungel.jpg',
-    './assets/unterwasser.jpg',
-    './assets/wolken.jpg',
-    './assets/schloss.jpg',
-    './assets/dino.jpg',
-    './assets/stadion.jpg',
-    './assets/sounds/click.mp3',
-    './assets/sounds/shutter.mp3',
-    './assets/sounds/success.mp3',
-    './assets/sounds/FALSCH.mp3',
-    './assets/sounds/RICHTIG.mp3',
-    './assets/sounds/brick.mp3',
-    './assets/sounds/fail.mp3',
-    './assets/sounds/paddle.mp3',
-    './assets/sounds/wall.mp3',
-    './assets/icons/icon-48.webp',
-    './assets/icons/icon-72.webp',
-    './assets/icons/icon-96.webp',
-    './assets/icons/icon-128.webp',
-    './assets/icons/icon-192.webp',
-    './assets/icons/icon-256.webp',
-    './assets/icons/icon-512.webp',
-    './manifest.json',
     './apps/comic.html',
     './apps/sound.html',
     './apps/rec.html',
@@ -56,11 +18,9 @@ const ASSETS = [
     './apps/stopmotion.html',
     './apps/galerie.html',
     './apps/info.html',
-    './cordova.js',
-    './cordova_plugins.js',
-    './plugins/cordova-plugin-printer/www/printer.js',
-    './plugins/cordova-plugin-x-socialsharing/www/SocialSharing.js',
-    './plugins/es6-promise-plugin/www/promise.js'
+    './manifest.json',
+    './assets/logo.png',
+    './assets/apple-touch-icon.png'
 ];
 
 // --- Broadcast Nachrichten an offene App ---
@@ -82,53 +42,35 @@ self.addEventListener('message', (event) => {
 });
 
 self.addEventListener('install', (event) => {
+    // Sofort aktivieren ohne auf vorherigen Tab-Schluss zu warten
+    self.skipWaiting();
+
     event.waitUntil(
         caches.open(CACHE_NAME).then(async (cache) => {
-            const total = ASSETS.length;
+            const total = CORE_ASSETS.length;
             let count = 0;
             
             await broadcastProgress({ type: 'CACHE_START', total });
             
-            for (const url of ASSETS) {
+            for (const url of CORE_ASSETS) {
                 try {
-                    let response;
-                    for (let attempt = 1; attempt <= 2; attempt++) {
-                        try {
-                            const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
-                            response = await new Promise((resolve, reject) => {
-                                const timer = setTimeout(() => reject(new Error('Timeout')), 15000);
-                                fetch(fetchUrl).then(res => { clearTimeout(timer); resolve(res); }).catch(e => { clearTimeout(timer); reject(e); });
-                            });
-                            break;
-                        } catch (e) {
-                            if (attempt === 2) throw new Error('Download hängt bei: ' + url);
-                            console.warn('Hänger erkannt, Retry für:', url);
-                        }
-                    }
-                    
-                    if (response.ok) {
+                    const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+                    const response = await fetch(fetchUrl, { cache: 'no-cache' });
+                    if (response && response.ok) {
                         await cache.put(new Request(url), response.clone());
                         if (response.redirected) {
                             const cleanRedirectUrl = response.url.split('?cb=')[0].split('&cb=')[0];
                             await cache.put(new Request(cleanRedirectUrl), response.clone());
                         }
-                    } else {
-                        console.warn('HTTP Fehler beim Cachen (wird ignoriert):', url, response.status);
-                        if (response.status === 429 || response.status >= 500) {
-                            throw new Error('Server überlastet bei ' + url);
-                        }
                     }
                 } catch (err) {
-                    console.error('Netzwerkfehler beim Cachen von:', url, err);
-                    await broadcastProgress({ type: 'CACHE_ERROR', message: err.message });
-                    throw err; 
+                    console.warn('[SW] Core-Asset konnte nicht im Voraus gecacht werden (wird bei Bedarf geladen):', url, err);
                 }
                 count++;
                 await broadcastProgress({ type: 'CACHE_PROGRESS', count, total, url });
             }
             
             await broadcastProgress({ type: 'CACHE_DONE' });
-            self.skipWaiting();
         })
     );
 });

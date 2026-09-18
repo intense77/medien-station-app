@@ -5,7 +5,7 @@
     <title>Galerie der Meisterwerke</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json?v=7.9.5">
     <link rel="icon" href="/assets/apple-touch-icon.png?v=2">
     <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png?v=2">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,10 +13,10 @@
     
     <link rel="stylesheet" href="../css/style.css">
     <script src="../cordova.js"></script>
-    <script src="../js/audio.js"></script>
-    <script src="../js/jszip.min.js"></script>
-    <script src="../js/common.js"></script>
-    <script src="../js/print.js"></script>
+    <script src="../js/audio.js?v=7.9.5"></script>
+    <script src="../js/jszip.min.js?v=7.9.5"></script>
+    <script src="../js/common.js?v=7.9.5"></script>
+    <script src="../js/print.js?v=7.9.5"></script>
 
     <style>
         html, body { 
@@ -31,7 +31,7 @@
 
     <!-- HEADER ZEILE -->
     <div class="header-area h-16 md:h-20 flex-none shrink-0 flex justify-between items-center z-50 mb-4 px-1 relative max-w-7xl w-full mx-auto">
-        <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2.5 md:px-6 md:py-3 rounded-full text-sm md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 cursor-pointer shrink-0">
+        <button onclick="window.goHome ? window.goHome() : (window.location.href='../index.html?skip_splash=1')" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2.5 md:px-6 md:py-3 rounded-full text-sm md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 cursor-pointer shrink-0">
             🏠 <span>HAUPTMENÜ</span>
         </button>
 
@@ -55,27 +55,309 @@
             </div>
 
             <!-- Grid für Kunstwerke -->
-            <div id="meisterwerke-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
+            <div id="meisterwerke-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 min-h-[160px]">
+                <div class="col-span-full text-center py-12 text-slate-400">
+                    <div class="text-5xl mb-3 animate-spin">⏳</div>
+                    <p class="font-bold">Lade Galerie der Meisterwerke...</p>
+                </div>
+            </div>
         </div>
+
         <div id="meisterwerke-footer" class="flex justify-between items-center pt-6 border-t border-slate-700/80 mt-6 flex-wrap gap-3">
-            <span class="text-xs md:text-sm text-slate-400 font-bold">MedienStation Kunstgalerie</span>
+            <span class="text-xs md:text-sm text-slate-400 font-bold" id="gallery-count-badge">MedienStation Kunstgalerie</span>
             <div class="flex items-center gap-2.5">
-                <button onclick="if (window.exportAllMeisterwerkeZip) { window.exportAllMeisterwerkeZip(); } else { console.warn('exportAllMeisterwerkeZip not found'); }" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 md:px-5 rounded-full border border-blue-400 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 shrink-0 cursor-pointer shadow-lg">
+                <button id="gallery-zip-btn" onclick="triggerGalleryZipExport()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 md:px-5 rounded-full border border-blue-400 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 shrink-0 cursor-pointer shadow-lg">
                     <span>📦</span> <span>Alle Werke als ZIP</span>
                 </button>
-                <button onclick="window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { window.clearMeisterwerke(() => renderPageGrid()); }, '🧹')" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-4 md:px-5 rounded-full border border-red-700 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 shrink-0 cursor-pointer">
+                <button onclick="if(window.showConfirm) { window.showConfirm('Alle Meisterwerke aus dem Speicher löschen?', () => { if(window.clearMeisterwerke) window.clearMeisterwerke(() => renderPageGrid()); else { localStorage.removeItem('medienstation_meisterwerke'); renderPageGrid(); } }, '🧹'); } else if(confirm('Alle Meisterwerke löschen?')) { localStorage.removeItem('medienstation_meisterwerke'); renderPageGrid(); }" class="bg-red-900/80 hover:bg-red-800 text-red-200 font-bold py-2 px-4 md:px-5 rounded-full border border-red-700 text-xs md:text-sm active:scale-95 transition flex items-center gap-2 shrink-0 cursor-pointer">
                     <span>🧹</span> Galerie leeren
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- EINGEBETTETES SICHERHEITS- UND EXPORT-ENGINE -->
     <script>
-        function renderPageGrid() {
-            if (window.renderMeisterwerkeGrid) {
-                window.renderMeisterwerkeGrid();
+        const STORE_KEY = 'medienstation_meisterwerke';
+
+        // 1. Unabhängige Daten-Lade-Funktion (Sync-First + Fallback)
+        async function loadGalleryItemsSafely() {
+            if (typeof window.getMeisterwerke === 'function') {
+                try {
+                    const items = await window.getMeisterwerke();
+                    if (Array.isArray(items) && items.length > 0) return items;
+                } catch(e) {
+                    console.warn('getMeisterwerke error, using fallback:', e);
+                }
+            }
+
+            // Unmittelbarer Fallback aus localStorage & sessionStorage
+            const itemMap = new Map();
+            const collect = (raw) => {
+                if (!raw) return;
+                try {
+                    const list = JSON.parse(raw);
+                    if (Array.isArray(list)) {
+                        list.forEach(it => {
+                            if (it && typeof it === 'object') {
+                                const uri = it.dataUrl || it.data || it.url || it.image;
+                                if (uri && typeof uri === 'string') {
+                                    it.dataUrl = uri;
+                                    const key = it.id || uri;
+                                    if (!itemMap.has(key)) itemMap.set(key, it);
+                                }
+                            }
+                        });
+                    }
+                } catch(err) {}
+            };
+
+            collect(localStorage.getItem(STORE_KEY));
+            collect(sessionStorage.getItem(STORE_KEY));
+
+            // Optional: Direkter Check in IndexedDB MedienStationDB_v5
+            try {
+                if (window.indexedDB) {
+                    const dbItems = await new Promise((resolve) => {
+                        const to = setTimeout(() => resolve([]), 600);
+                        const req = window.indexedDB.open('MedienStationDB_v5', 1);
+                        req.onerror = () => { clearTimeout(to); resolve([]); };
+                        req.onsuccess = (ev) => {
+                            const db = ev.target.result;
+                            if (!db.objectStoreNames.contains('meisterwerke')) {
+                                db.close();
+                                clearTimeout(to);
+                                return resolve([]);
+                            }
+                            const tx = db.transaction('meisterwerke', 'readonly');
+                            const g = tx.objectStore('meisterwerke').getAll();
+                            g.onsuccess = (ge) => { db.close(); clearTimeout(to); resolve(ge.target.result || []); };
+                            g.onerror = () => { db.close(); clearTimeout(to); resolve([]); };
+                        };
+                    });
+                    if (Array.isArray(dbItems)) {
+                        dbItems.forEach(it => {
+                            if (it && it.dataUrl && !itemMap.has(it.id || it.dataUrl)) {
+                                itemMap.set(it.id || it.dataUrl, it);
+                            }
+                        });
+                    }
+                }
+            } catch(idbE) {}
+
+            const result = Array.from(itemMap.values());
+            result.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            return result;
+        }
+
+        // 2. Unabhängiger Grid-Renderer
+        async function renderPageGrid() {
+            if (typeof window.renderMeisterwerkeGrid === 'function') {
+                try {
+                    await window.renderMeisterwerkeGrid();
+                    return;
+                } catch(e) {
+                    console.warn('window.renderMeisterwerkeGrid failed, using local renderer:', e);
+                }
+            }
+
+            const grid = document.getElementById('meisterwerke-grid');
+            const countBadge = document.getElementById('gallery-count-badge');
+            if (!grid) return;
+
+            const items = await loadGalleryItemsSafely();
+
+            if (countBadge) {
+                countBadge.textContent = `MedienStation Kunstgalerie (${items.length} ${items.length === 1 ? 'Werk' : 'Werke'})`;
+            }
+
+            if (items.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-16 text-slate-400 select-none">
+                        <div class="text-7xl mb-4">🎨</div>
+                        <h3 class="text-2xl md:text-3xl font-black text-white mb-2">Noch keine Kunstwerke!</h3>
+                        <p class="text-base md:text-lg font-bold max-w-md mx-auto mb-6">Nutze die Apps (z.B. Pixel, Comic oder Mikro), um Bilder oder Sounds zu erstellen. Sie erscheinen automatisch hier!</p>
+                        <button onclick="renderPageGrid()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-6 py-3 rounded-full text-sm shadow-xl active:scale-95 transition cursor-pointer">
+                            🔄 Galerie aktualisieren
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = items.map((it) => {
+                const dataUrl = it.dataUrl || '';
+                if (!dataUrl) return '';
+                const typeLower = (it.type || '').toLowerCase();
+                const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/');
+                const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/');
+                const isImage = !isVideo && !isAudio;
+                const appName = it.appName || 'KUNSTWERK';
+                const safeId = String(it.id || Date.now()).replace(/'/g, "\\'");
+                const safeAppName = String(appName).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                return `
+                <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all relative">
+                    <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2 group/media cursor-pointer" onclick="if(window.viewMeisterwerkDetail) window.viewMeisterwerkDetail('${safeId}')">
+                        ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain hover:scale-105 transition-transform" alt="${safeAppName}">` : ''}
+                        ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain" onclick="event.stopPropagation()"></video>` : ''}
+                        ${isAudio ? `
+                            <div class="flex flex-col items-center justify-center gap-2" onclick="event.stopPropagation()">
+                                <span class="text-5xl">🎙️</span>
+                                <audio src="${dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
+                            </div>
+                        ` : ''}
+                        <button onclick="event.stopPropagation(); deleteGalleryItem('${safeId}')" class="absolute top-1.5 right-1.5 bg-red-600/80 hover:bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg text-sm transition active:scale-95 cursor-pointer z-10" title="Werk löschen">
+                            🗑️
+                        </button>
+                    </div>
+                    <div class="w-full flex items-center justify-between gap-2">
+                        <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${safeAppName}</span>
+                        ${isImage && window.printImage ? `
+                            <button onclick="event.stopPropagation(); if(window.printMeisterwerk) window.printMeisterwerk('${safeId}'); else window.printImage('${dataUrl}', '${safeAppName}');" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
+                                🖨️ Drucken
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+                `;
+            }).filter(Boolean).join('');
+        }
+
+        async function deleteGalleryItem(id) {
+            if (window.deleteMeisterwerk) {
+                await window.deleteMeisterwerk(id, () => renderPageGrid());
+            } else {
+                try {
+                    const raw = localStorage.getItem(STORE_KEY);
+                    if (raw) {
+                        let list = JSON.parse(raw);
+                        list = list.filter(it => it.id !== id);
+                        localStorage.setItem(STORE_KEY, JSON.stringify(list));
+                    }
+                } catch(e) {}
+                renderPageGrid();
             }
         }
+
+        // 3. Unabhängiger, robuster ZIP-Export (funktioniert IMMER)
+        async function triggerGalleryZipExport() {
+            if (typeof window.exportAllMeisterwerkeZip === 'function') {
+                try {
+                    await window.exportAllMeisterwerkeZip();
+                    return;
+                } catch(e) {
+                    console.warn('window.exportAllMeisterwerkeZip failed, running embedded zip exporter:', e);
+                }
+            }
+
+            // Dynamisches Laden von JSZip falls noch nicht vorhanden
+            if (typeof JSZip === 'undefined') {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = '../js/jszip.min.js?v=7.9.5';
+                        s.onload = resolve;
+                        s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                } catch(err) {
+                    alert('Fehler: ZIP-Bibliothek jszip.min.js konnte nicht geladen werden.');
+                    return;
+                }
+            }
+
+            // Modal erstellen / anzeigen
+            let modal = document.getElementById('zip-export-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'zip-export-modal';
+                document.body.appendChild(modal);
+            }
+            modal.style.cssText = 'position: fixed; inset: 0; z-index: 99999999; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 16px;';
+
+            modal.innerHTML = `
+                <div class="bg-slate-800 border-4 border-blue-500 rounded-[2.5rem] max-w-md w-full p-8 shadow-2xl text-center text-white relative">
+                    <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="absolute top-4 right-5 text-2xl text-slate-400 hover:text-white font-black cursor-pointer">✕</button>
+                    <div class="text-6xl mb-4 animate-bounce" id="zip-modal-icon">📦</div>
+                    <h2 class="text-2xl font-black mb-2" id="zip-modal-title">ZIP-Datei wird erstellt...</h2>
+                    <p class="text-slate-300 text-sm font-bold mb-4" id="zip-modal-desc">Bilder und Töne werden verpackt.</p>
+                    <div id="zip-modal-actions" class="flex flex-col gap-3">
+                        <div class="w-full bg-slate-900 rounded-full h-5 overflow-hidden border border-slate-700 p-0.5 relative">
+                            <div id="zip-progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full w-0 transition-all duration-150 rounded-full"></div>
+                        </div>
+                        <span id="zip-progress-percent" class="text-xs font-mono font-bold text-amber-400">0%</span>
+                    </div>
+                </div>
+            `;
+            modal.style.display = 'flex';
+
+            const items = await loadGalleryItemsSafely();
+            if (!items || items.length === 0) {
+                document.getElementById('zip-modal-icon').innerText = '🎨';
+                document.getElementById('zip-modal-title').innerText = 'Galerie ist leer';
+                document.getElementById('zip-modal-desc').innerText = 'Es gibt aktuell noch keine Werke zum Exportieren.';
+                document.getElementById('zip-modal-actions').innerHTML = `
+                    <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl cursor-pointer">
+                        SCHLIESSEN
+                    </button>
+                `;
+                return;
+            }
+
+            const zip = new JSZip();
+            const dateStr = new Date().toISOString().slice(0, 10);
+            const folderName = `MedienStation_${dateStr}`;
+            const folder = zip.folder(folderName);
+
+            items.forEach((item, index) => {
+                const num = String(index + 1).padStart(2, '0');
+                const rawType = (item.type || 'werk').toLowerCase().replace(/[^a-z0-9]/g, '_');
+                const safeDate = (item.date || 'datum').replace(/[:. ]/g, '-');
+                const dataUri = item.dataUrl || item.data || '';
+                if (!dataUri || !dataUri.includes(',')) return;
+
+                let ext = 'png';
+                if (dataUri.startsWith('data:image/jpeg')) ext = 'jpg';
+                else if (dataUri.startsWith('data:image/webp')) ext = 'webp';
+                else if (dataUri.startsWith('data:image/png')) ext = 'png';
+                else if (dataUri.startsWith('data:video/webm')) ext = 'webm';
+                else if (dataUri.startsWith('data:video/mp4')) ext = 'mp4';
+                else if (dataUri.startsWith('data:audio/webm')) ext = 'webm';
+                else if (dataUri.startsWith('data:audio/wav')) ext = 'wav';
+                else if (dataUri.startsWith('data:audio/mp3') || dataUri.startsWith('data:audio/mpeg')) ext = 'mp3';
+
+                const fileName = `${num}_${rawType}_${safeDate}.${ext}`;
+                folder.file(fileName, dataUri.split(',')[1], { base64: true });
+            });
+
+            folder.file('Uebersicht.txt', `MedienStation Kunstwerke Export\nDatum: ${dateStr}\nAnzahl: ${items.length}`);
+
+            const content = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+                const percent = Math.round(metadata.percent || 0);
+                const progressBar = document.getElementById('zip-progress-bar');
+                const progressText = document.getElementById('zip-progress-percent');
+                if (progressBar) progressBar.style.width = percent + '%';
+                if (progressText) progressText.innerText = percent + '%';
+            });
+
+            const zipFileName = `MedienStation_Meisterwerke_${dateStr}.zip`;
+            const blobUrl = URL.createObjectURL(content);
+
+            document.getElementById('zip-modal-icon').innerText = '✅';
+            document.getElementById('zip-modal-title').innerText = `${items.length} Werke verpackt!`;
+            document.getElementById('zip-modal-desc').innerText = `ZIP-Datei "${zipFileName}" ist bereit.`;
+
+            document.getElementById('zip-modal-actions').innerHTML = `
+                <a id="zip-dl-link" href="${blobUrl}" download="${zipFileName}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 px-4 rounded-2xl text-base sm:text-lg shadow-xl active:scale-95 transition border-b-4 border-emerald-800 flex items-center justify-center gap-2 cursor-pointer no-underline text-center">
+                    <span>📥</span> <span>JETZT AUF TABLET SPEICHERN</span>
+                </a>
+                <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-sm transition cursor-pointer">
+                    ✕ Schließen
+                </button>
+            `;
+        }
+
         document.addEventListener('DOMContentLoaded', renderPageGrid);
         window.addEventListener('focus', renderPageGrid);
         window.addEventListener('storage', renderPageGrid);
@@ -84,8 +366,8 @@
             if (document.visibilityState === 'visible') renderPageGrid();
         });
         renderPageGrid();
-        // Kurzer Re-Check nach 500ms für IndexedDB-Initialisierung auf langsamen Mobilgeräten
         setTimeout(renderPageGrid, 500);
+        setTimeout(renderPageGrid, 1500);
     </script>
 </body>
 </html>
