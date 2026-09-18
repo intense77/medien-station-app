@@ -72,6 +72,10 @@
             }
         }
         document.addEventListener('DOMContentLoaded', renderPageGrid);
+        window.addEventListener('focus', renderPageGrid);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') renderPageGrid();
+        });
         renderPageGrid();
     </script>
 </body>

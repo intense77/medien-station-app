@@ -185,7 +185,7 @@
                 <button onclick="undo()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-100 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-slate-900 active:border-b-0 flex items-center justify-center gap-1.5" title="Schritt zurück">
                     <span class="text-sm md:text-lg">↩️</span> <span>ZURÜCK</span>
                 </button>
-                <button onclick="saveArt()" class="flex-1 bg-amber-400 text-slate-950 hover:bg-amber-300 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-amber-600 active:border-b-0 flex items-center justify-center gap-1.5" title="In Galerie speichern">
+                <button onclick="saveArt(this)" class="flex-1 bg-amber-400 text-slate-950 hover:bg-amber-300 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-amber-600 active:border-b-0 flex items-center justify-center gap-1.5" title="In Galerie speichern">
                     <span class="text-sm md:text-lg">💾</span> <span>SPEICHERN</span>
                 </button>
                 <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-100 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-gray-300 active:border-b-0 flex items-center justify-center gap-1.5" title="Pixel Bild ausdrucken">
@@ -423,7 +423,7 @@
             return canvas;
         }
 
-        function saveArt() {
+        function saveArt(btn) {
             if (window.playSound) window.playSound('click');
             const canvas = generateCanvas();
             const dataUrl = canvas.toDataURL('image/png');
@@ -434,8 +434,14 @@
                     title: 'Pixel Bild',
                     dataUrl: dataUrl
                 });
-            } else if (window.triggerCelebration) {
-                window.triggerCelebration();
+            }
+            if (window.playSound) window.playSound('success');
+            if (window.triggerCelebration) window.triggerCelebration();
+
+            if (btn) {
+                const origHtml = btn.innerHTML;
+                btn.innerHTML = '<span>🌟</span> <span>GESPEICHERT!</span>';
+                setTimeout(() => { btn.innerHTML = origHtml; }, 2200);
             }
         }
 

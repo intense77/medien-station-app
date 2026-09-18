@@ -796,9 +796,9 @@
         });
     }
 
-    // --- 12. IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, unbegrenzter Speicher, Offline-PWA) ---
+    // --- 12. IndexedDB & LocalStorage Storage Engine für Meisterwerke (DSGVO-konform, unbegrenzter Speicher, Offline-PWA) ---
     const DB_NAME = 'MedienStationDB';
-    const DB_VERSION = 1;
+    const DB_VERSION = 2; // Erhöht auf Version 2, um Schema-Upgrade garantiert auszulösen
     const STORE_NAME = 'meisterwerke';
     const MEISTER_KEY = 'medienstation_meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
@@ -819,7 +819,15 @@
                     store.createIndex('timestamp', 'timestamp', { unique: false });
                 }
             };
-            req.onsuccess = (e) => resolve(e.target.result);
+            req.onsuccess = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.close();
+                    dbPromise = null;
+                    return reject(new Error('ObjectStore meisterwerke missing'));
+                }
+                resolve(db);
+            };
             req.onerror = (e) => {
                 dbPromise = null;
                 reject((e.target ? e.target.error : e) || new Error('IDB open failed'));
@@ -844,8 +852,7 @@
                     }
                 }
                 await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
-                localStorage.removeItem(MEISTER_KEY);
-                console.log(`[MedienStation] ${oldItems.length} bestehende Werke aus localStorage nach IndexedDB migriert.`);
+                console.log(`[MedienStation] ${oldItems.length} bestehende Werke aus localStorage synchronisiert.`);
             }
         } catch (e) {
             console.warn('[MedienStation] Migration warn:', e);
@@ -853,15 +860,52 @@
     }
 
     window.saveToMeisterwerke = async function(item) {
-        try {
-            if (!item || !item.dataUrl) return;
-            // Bildgröße bei extrem großen Rohdaten schonend optimieren (max 1600px für erstklassige Druckqualität)
-            if (item.type === 'image' && item.dataUrl.length > 800000) {
-                item.dataUrl = await compressImageDataUrl(item.dataUrl, 1600, 0.88);
-            }
-            item.id = item.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 4));
-            item.timestamp = item.timestamp || Date.now();
+        if (!item || !item.dataUrl) return item;
 
+        item.id = item.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 6));
+        item.timestamp = item.timestamp || Date.now();
+        item.type = item.type || 'image';
+        item.appName = item.appName || 'KUNSTWERK';
+
+        // 1. Bilder bei Bedarf auf max 1200px komprimieren, um Speicher zu schonen
+        try {
+            if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
+                if (item.dataUrl.length > 500000) {
+                    item.dataUrl = await compressImageDataUrl(item.dataUrl, 1200, 0.80);
+                }
+            }
+        } catch (cErr) {
+            console.warn('[MedienStation] Komprimierungswarnung:', cErr);
+        }
+
+        // 2. Dual-Save: Erst in localStorage schreiben (mit Quota-Schutz & Auto-Pruning)
+        try {
+            let list = [];
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (raw) list = JSON.parse(raw);
+            if (!Array.isArray(list)) list = [];
+
+            // Duplikate filtern
+            list = list.filter(it => it && it.id !== item.id && it.dataUrl !== item.dataUrl);
+            list.unshift(item);
+            if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
+
+            let savedInLocal = false;
+            while (list.length > 0 && !savedInLocal) {
+                try {
+                    localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+                    savedInLocal = true;
+                } catch (quotaErr) {
+                    console.warn('[MedienStation] localStorage Quota voll, passe Liste an...');
+                    list.pop();
+                }
+            }
+        } catch (localErr) {
+            console.warn('[MedienStation] localStorage save error:', localErr);
+        }
+
+        // 3. In IndexedDB schreiben (für unbegrenzten Speicher)
+        try {
             const db = await getDB();
             await migrateLocalStorageIfNeeded(db);
 
@@ -870,93 +914,96 @@
             store.put(item);
             await new Promise((resolve, reject) => {
                 tx.oncomplete = resolve;
-                tx.onerror = () => reject(tx.error);
+                tx.onerror = () => reject(tx.error || new Error('IDB put transaction failed'));
             });
 
-            // Ältere Einträge jenseits MAX_GALLERY_ITEMS bereinigen
+            // Ältere Einträge bereinigen
             try {
                 const pruneTx = db.transaction(STORE_NAME, 'readwrite');
                 const pruneStore = pruneTx.objectStore(STORE_NAME);
-                const countReq = pruneStore.count();
-                countReq.onsuccess = () => {
-                    if (countReq.result > MAX_GALLERY_ITEMS) {
-                        const excess = countReq.result - MAX_GALLERY_ITEMS;
-                        let delCount = 0;
-                        pruneStore.getAll().onsuccess = (e) => {
-                            const all = e.target.result || [];
-                            all.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                            for (let i = 0; i < excess && i < all.length; i++) {
-                                pruneStore.delete(all[i].id);
-                            }
-                        };
+                pruneStore.getAll().onsuccess = (e) => {
+                    const all = e.target.result || [];
+                    if (all.length > MAX_GALLERY_ITEMS) {
+                        all.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                        const excess = all.length - MAX_GALLERY_ITEMS;
+                        for (let i = 0; i < excess; i++) {
+                            pruneStore.delete(all[i].id);
+                        }
                     }
                 };
-            } catch(pruneErr) {
-                console.warn('[MedienStation] Prune warning:', pruneErr);
-            }
+            } catch(pErr) {}
 
-            if (window.triggerCelebration) window.triggerCelebration();
-            return item;
         } catch(e) {
-            console.warn('[MedienStation] IndexedDB save fallback auf localStorage:', e);
-            try {
-                let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
-                item.id = item.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 4));
-                item.timestamp = item.timestamp || Date.now();
-                list.unshift(item);
-                if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
-                localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
-                if (window.triggerCelebration) window.triggerCelebration();
-            } catch (localErr) {
-                console.warn('[MedienStation] Meisterwerke Speicherfehler:', localErr);
-            }
-            return item;
+            console.warn('[MedienStation] IndexedDB save warning (localStorage Backup genutzt):', e);
         }
+
+        if (window.triggerCelebration) window.triggerCelebration();
+        return item;
     };
 
     window.getMeisterwerke = async function(callback) {
-        let items = [];
+        let idbItems = [];
+        let localItems = [];
+
+        // 1. Aus localStorage lesen
+        try {
+            const raw = localStorage.getItem(MEISTER_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) localItems = parsed;
+            }
+        } catch(err) {
+            console.warn('[MedienStation] localStorage read warning:', err);
+        }
+
+        // 2. Aus IndexedDB lesen
         try {
             const db = await getDB();
             await migrateLocalStorageIfNeeded(db);
 
-            items = await new Promise((resolve, reject) => {
+            idbItems = await new Promise((resolve, reject) => {
                 const tx = db.transaction(STORE_NAME, 'readonly');
                 const store = tx.objectStore(STORE_NAME);
                 const req = store.getAll();
-                req.onsuccess = (e) => {
-                    const res = e.target.result || [];
-                    res.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                    resolve(res);
-                };
+                req.onsuccess = (e) => resolve(e.target.result || []);
                 req.onerror = () => reject(req.error || new Error('store.getAll failed'));
             });
         } catch(e) {
             console.warn('[MedienStation] IndexedDB read warning:', e);
         }
 
-        // Duplikatsicheres Merging mit evtl. in localStorage vorhandenen Werken
-        try {
-            const raw = localStorage.getItem(MEISTER_KEY);
-            const localItems = raw ? JSON.parse(raw) : [];
-            if (Array.isArray(localItems) && localItems.length > 0) {
-                const itemMap = new Map();
-                items.forEach(it => { if (it && (it.id || it.dataUrl)) itemMap.set(it.id || it.dataUrl, it); });
-                localItems.forEach(it => { if (it && (it.id || it.dataUrl) && !itemMap.has(it.id || it.dataUrl)) itemMap.set(it.id || it.dataUrl, it); });
-                items = Array.from(itemMap.values());
-                items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            }
-        } catch(err) {
-            console.warn('[MedienStation] localStorage merge error:', err);
+        // 3. Merging & Deduplizieren beider Quellen
+        const itemMap = new Map();
+        if (Array.isArray(idbItems)) {
+            idbItems.forEach(it => {
+                if (it && typeof it === 'object' && it.dataUrl) {
+                    itemMap.set(it.id || it.dataUrl, it);
+                }
+            });
+        }
+        if (Array.isArray(localItems)) {
+            localItems.forEach(it => {
+                if (it && typeof it === 'object' && it.dataUrl) {
+                    const key = it.id || it.dataUrl;
+                    if (!itemMap.has(key)) {
+                        itemMap.set(key, it);
+                    }
+                }
+            });
         }
 
-        if (typeof callback === 'function') callback(items);
-        return items;
+        const mergedItems = Array.from(itemMap.values());
+        mergedItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        if (typeof callback === 'function') callback(mergedItems);
+        return mergedItems;
     };
 
     window.clearMeisterwerke = async function(onComplete) {
         try {
             localStorage.removeItem(MEISTER_KEY);
+        } catch(e) {}
+        try {
             const db = await getDB();
             const tx = db.transaction(STORE_NAME, 'readwrite');
             tx.objectStore(STORE_NAME).clear();
@@ -990,14 +1037,15 @@
                 grid.innerHTML = items.map((it) => {
                     const typeLower = (it.type || '').toLowerCase();
                     const dataUrl = it.dataUrl || '';
-                    const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/');
-                    const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/');
+                    const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/') || dataUrl.endsWith('.mp4');
+                    const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/') || dataUrl.endsWith('.mp3') || dataUrl.endsWith('.wav');
                     const isImage = !isVideo && !isAudio;
+                    const appName = it.appName || 'KUNSTWERK';
 
                     return `
                     <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all">
                         <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2">
-                            ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain">` : ''}
+                            ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain" alt="${appName}" onerror="this.onerror=null; this.src='../assets/logo.png';">` : ''}
                             ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain"></video>` : ''}
                             ${isAudio ? `
                                 <div class="flex flex-col items-center justify-center gap-2">
@@ -1007,7 +1055,7 @@
                             ` : ''}
                         </div>
                         <div class="w-full flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${it.appName || 'KUNSTWERK'}</span>
+                            <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${appName}</span>
                             ${isImage && window.printImage ? `
                                 <button onclick="event.stopPropagation(); window.printImage('${dataUrl}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
                                     🖨️ Drucken
