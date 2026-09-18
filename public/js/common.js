@@ -808,6 +808,7 @@
         if (dbPromise) return dbPromise;
         dbPromise = new Promise((resolve, reject) => {
             if (!window.indexedDB) {
+                dbPromise = null;
                 return reject(new Error('IndexedDB not supported'));
             }
             const req = window.indexedDB.open(DB_NAME, DB_VERSION);
@@ -819,7 +820,10 @@
                 }
             };
             req.onsuccess = (e) => resolve(e.target.result);
-            req.onerror = (e) => reject(e.target.error || new Error('IDB open failed'));
+            req.onerror = (e) => {
+                dbPromise = null;
+                reject((e.target ? e.target.error : e) || new Error('IDB open failed'));
+            };
         });
         return dbPromise;
     }
@@ -870,23 +874,26 @@
             });
 
             // Ältere Einträge jenseits MAX_GALLERY_ITEMS bereinigen
-            const pruneTx = db.transaction(STORE_NAME, 'readwrite');
-            const pruneStore = pruneTx.objectStore(STORE_NAME);
-            const countReq = pruneStore.count();
-            countReq.onsuccess = () => {
-                if (countReq.result > MAX_GALLERY_ITEMS) {
-                    const excess = countReq.result - MAX_GALLERY_ITEMS;
-                    let delCount = 0;
-                    pruneStore.index('timestamp').openCursor().onsuccess = (e) => {
-                        const cursor = e.target.result;
-                        if (cursor && delCount < excess) {
-                            cursor.delete();
-                            delCount++;
-                            cursor.continue();
-                        }
-                    };
-                }
-            };
+            try {
+                const pruneTx = db.transaction(STORE_NAME, 'readwrite');
+                const pruneStore = pruneTx.objectStore(STORE_NAME);
+                const countReq = pruneStore.count();
+                countReq.onsuccess = () => {
+                    if (countReq.result > MAX_GALLERY_ITEMS) {
+                        const excess = countReq.result - MAX_GALLERY_ITEMS;
+                        let delCount = 0;
+                        pruneStore.getAll().onsuccess = (e) => {
+                            const all = e.target.result || [];
+                            all.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                            for (let i = 0; i < excess && i < all.length; i++) {
+                                pruneStore.delete(all[i].id);
+                            }
+                        };
+                    }
+                };
+            } catch(pruneErr) {
+                console.warn('[MedienStation] Prune warning:', pruneErr);
+            }
 
             if (window.triggerCelebration) window.triggerCelebration();
             return item;
@@ -908,42 +915,43 @@
     };
 
     window.getMeisterwerke = async function(callback) {
+        let items = [];
         try {
             const db = await getDB();
             await migrateLocalStorageIfNeeded(db);
 
-            const items = await new Promise((resolve, reject) => {
+            items = await new Promise((resolve, reject) => {
                 const tx = db.transaction(STORE_NAME, 'readonly');
                 const store = tx.objectStore(STORE_NAME);
-                const req = store.index('timestamp').openCursor(null, 'prev');
-                const results = [];
+                const req = store.getAll();
                 req.onsuccess = (e) => {
-                    const cursor = e.target.result;
-                    if (cursor) {
-                        results.push(cursor.value);
-                        cursor.continue();
-                    } else {
-                        resolve(results);
-                    }
+                    const res = e.target.result || [];
+                    res.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    resolve(res);
                 };
-                req.onerror = () => reject(req.error);
+                req.onerror = () => reject(req.error || new Error('store.getAll failed'));
             });
-
-            if (typeof callback === 'function') callback(items);
-            return items;
         } catch(e) {
-            console.warn('[MedienStation] IndexedDB read fallback auf localStorage:', e);
-            try {
-                const raw = localStorage.getItem(MEISTER_KEY);
-                const parsed = raw ? JSON.parse(raw) : [];
-                const items = Array.isArray(parsed) ? parsed : [];
-                if (typeof callback === 'function') callback(items);
-                return items;
-            } catch(err) {
-                if (typeof callback === 'function') callback([]);
-                return [];
-            }
+            console.warn('[MedienStation] IndexedDB read warning:', e);
         }
+
+        // Duplikatsicheres Merging mit evtl. in localStorage vorhandenen Werken
+        try {
+            const raw = localStorage.getItem(MEISTER_KEY);
+            const localItems = raw ? JSON.parse(raw) : [];
+            if (Array.isArray(localItems) && localItems.length > 0) {
+                const itemMap = new Map();
+                items.forEach(it => { if (it && (it.id || it.dataUrl)) itemMap.set(it.id || it.dataUrl, it); });
+                localItems.forEach(it => { if (it && (it.id || it.dataUrl) && !itemMap.has(it.id || it.dataUrl)) itemMap.set(it.id || it.dataUrl, it); });
+                items = Array.from(itemMap.values());
+                items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            }
+        } catch(err) {
+            console.warn('[MedienStation] localStorage merge error:', err);
+        }
+
+        if (typeof callback === 'function') callback(items);
+        return items;
     };
 
     window.clearMeisterwerke = async function(onComplete) {
@@ -979,28 +987,36 @@
                 `;
                 if (footer) footer.style.display = 'none';
             } else {
-                grid.innerHTML = items.map((it) => `
+                grid.innerHTML = items.map((it) => {
+                    const typeLower = (it.type || '').toLowerCase();
+                    const dataUrl = it.dataUrl || '';
+                    const isVideo = typeLower === 'video' || dataUrl.startsWith('data:video/');
+                    const isAudio = typeLower === 'audio' || dataUrl.startsWith('data:audio/');
+                    const isImage = !isVideo && !isAudio;
+
+                    return `
                     <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all">
                         <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2">
-                            ${it.type === 'image' ? `<img src="${it.dataUrl}" class="w-full h-full object-contain">` : ''}
-                            ${it.type === 'video' ? `<video src="${it.dataUrl}" controls playsinline class="w-full h-full object-contain"></video>` : ''}
-                            ${it.type === 'audio' ? `
+                            ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain">` : ''}
+                            ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain"></video>` : ''}
+                            ${isAudio ? `
                                 <div class="flex flex-col items-center justify-center gap-2">
                                     <span class="text-5xl">🎙️</span>
-                                    <audio src="${it.dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
+                                    <audio src="${dataUrl}" controls class="w-[90%] max-w-[200px] h-8"></audio>
                                 </div>
                             ` : ''}
                         </div>
                         <div class="w-full flex items-center justify-between gap-2">
                             <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${it.appName || 'KUNSTWERK'}</span>
-                            ${it.type === 'image' && window.printImage ? `
-                                <button onclick="event.stopPropagation(); window.printImage('${it.dataUrl}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
+                            ${isImage && window.printImage ? `
+                                <button onclick="event.stopPropagation(); window.printImage('${dataUrl}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
                                     🖨️ Drucken
                                 </button>
                             ` : ''}
                         </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
                 if (footer) footer.style.display = 'flex';
             }
             window.updateGalleryInfoText();
