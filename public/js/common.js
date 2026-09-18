@@ -813,10 +813,11 @@
         });
     }
 
-    // --- 12. IndexedDB & LocalStorage Storage Engine für Meisterwerke (DSGVO-konform, unbegrenzter Speicher, Offline-PWA) ---
+    // --- 12. Direkte IndexedDB Storage Engine für Meisterwerke (DSGVO-konform, unbegrenzter Speicher, Direct DB) ---
     const DB_NAME = 'MedienStationDB';
-    const DB_VERSION = 2; // Erhöht auf Version 2, um Schema-Upgrade garantiert auszulösen
+    const DB_VERSION = 3; // Erhöht auf Version 3 für direkte DB-Speicherung
     const STORE_NAME = 'meisterwerke';
+    const MEISTER_KEY = 'medienstation_meisterwerke';
     const MAX_GALLERY_ITEMS = 40;
 
     let dbPromise = null;
@@ -852,29 +853,7 @@
         return dbPromise;
     }
 
-    async function migrateLocalStorageIfNeeded(db) {
-        try {
-            const raw = localStorage.getItem(MEISTER_KEY);
-            if (!raw) return;
-            const oldItems = JSON.parse(raw);
-            if (Array.isArray(oldItems) && oldItems.length > 0) {
-                const tx = db.transaction(STORE_NAME, 'readwrite');
-                const store = tx.objectStore(STORE_NAME);
-                for (const it of oldItems) {
-                    if (it && it.dataUrl) {
-                        it.id = it.id || (Date.now() + '_' + Math.random().toString(36).substr(2, 4));
-                        it.timestamp = it.timestamp || Date.now();
-                        store.put(it);
-                    }
-                }
-                await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
-                console.log(`[MedienStation] ${oldItems.length} bestehende Werke aus localStorage synchronisiert.`);
-            }
-        } catch (e) {
-            console.warn('[MedienStation] Migration warn:', e);
-        }
-    }
-
+    // Direktes Speichern in die IndexedDB (ohne Umweg über localStorage)
     window.saveToMeisterwerke = async function(item) {
         if (!item || !item.dataUrl) return item;
 
@@ -883,77 +862,29 @@
         item.type = item.type || 'image';
         item.appName = item.appName || 'KUNSTWERK';
 
-        // 1. Bilder SCHNELL auf max 800px JPEG verkleinern (~40KB), damit sie garantiert in localStorage & IDB passen
+        // Komprimierung für schlankere DB-Einträge
         try {
             if (item.type === 'image' || (item.dataUrl && item.dataUrl.startsWith('data:image'))) {
-                if (item.dataUrl.length > 80000) {
-                    item.dataUrl = await compressImageDataUrl(item.dataUrl, 800, 0.75);
+                if (item.dataUrl.length > 200000) {
+                    item.dataUrl = await compressImageDataUrl(item.dataUrl, 1000, 0.80);
                 }
             }
         } catch (cErr) {
             console.warn('[MedienStation] Komprimierungswarnung:', cErr);
         }
 
-        // 2. Triple-Backup: in localStorage UND sessionStorage schreiben (garantiert Schutz des neuen Items)
-        try {
-            let list = [];
-            const raw = localStorage.getItem(MEISTER_KEY);
-            if (raw) {
-                try { list = JSON.parse(raw); } catch(e) { list = []; }
-            }
-            if (!Array.isArray(list)) list = [];
-
-            // Duplikate filtern
-            list = list.filter(it => it && it.id !== item.id && it.dataUrl !== item.dataUrl);
-            list.unshift(item);
-            if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
-
-            let savedInLocal = false;
-            let attempts = 0;
-            while (list.length > 0 && !savedInLocal && attempts < 10) {
-                attempts++;
-                try {
-                    localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
-                    savedInLocal = true;
-                } catch (quotaErr) {
-                    console.warn('[MedienStation] localStorage Quota voll, passe Liste an...');
-                    if (list.length > 1) {
-                        list.pop(); // Entferne ältestes Element am ENDE der Liste (Neues Item bleibt!)
-                    } else {
-                        try {
-                            list[0].dataUrl = await compressImageDataUrl(list[0].dataUrl, 400, 0.50);
-                            localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
-                            savedInLocal = true;
-                        } catch(e2) {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // SessionStorage als zusätzliche Not-Ebene
-            try {
-                sessionStorage.setItem(MEISTER_KEY, JSON.stringify(list));
-            } catch(sErr) {}
-
-        } catch (localErr) {
-            console.warn('[MedienStation] localStorage save error:', localErr);
-        }
-
-        // 3. In IndexedDB schreiben (für unbegrenzten dauerhaften Speicher)
+        // Direkt in IndexedDB schreiben
         try {
             const db = await getDB();
-            await migrateLocalStorageIfNeeded(db);
-
             const tx = db.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
             store.put(item);
             await new Promise((resolve, reject) => {
                 tx.oncomplete = resolve;
-                tx.onerror = () => reject(tx.error || new Error('IDB put transaction failed'));
+                tx.onerror = () => reject(tx.error || new Error('IDB put failed'));
             });
 
-            // Ältere Einträge bereinigen
+            // Ältere Einträge jenseits MAX_GALLERY_ITEMS bereinigen
             try {
                 const pruneTx = db.transaction(STORE_NAME, 'readwrite');
                 const pruneStore = pruneTx.objectStore(STORE_NAME);
@@ -970,7 +901,14 @@
             } catch(pErr) {}
 
         } catch(e) {
-            console.warn('[MedienStation] IndexedDB save warning (localStorage Backup genutzt):', e);
+            console.warn('[MedienStation] Direct IndexedDB save error:', e);
+            // Notfall-Fallback auf LocalStorage nur falls DB komplett gesperrt ist
+            try {
+                let list = JSON.parse(localStorage.getItem(MEISTER_KEY) || '[]');
+                list.unshift(item);
+                if (list.length > MAX_GALLERY_ITEMS) list = list.slice(0, MAX_GALLERY_ITEMS);
+                localStorage.setItem(MEISTER_KEY, JSON.stringify(list));
+            } catch(lErr) {}
         }
 
         if (window.showCustomAlert) {
@@ -980,41 +918,13 @@
         return item;
     };
 
+    // Direktes Lesen aus der IndexedDB
     window.getMeisterwerke = async function(callback) {
-        let idbItems = [];
-        let localItems = [];
-        let sessionItems = [];
+        let items = [];
 
-        // 1. Aus localStorage lesen
         try {
-            const raw = localStorage.getItem(MEISTER_KEY);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed)) localItems = parsed;
-            }
-        } catch(err) {
-            console.warn('[MedienStation] localStorage read warning:', err);
-        }
-
-        // 2. Aus sessionStorage lesen
-        try {
-            const rawS = sessionStorage.getItem(MEISTER_KEY);
-            if (rawS) {
-                const parsedS = JSON.parse(rawS);
-                if (Array.isArray(parsedS)) sessionItems = parsedS;
-            }
-        } catch(err) {}
-
-        // 3. Aus IndexedDB lesen (mit 800ms Timeout Notbremse)
-        try {
-            const dbPromiseWithTimeout = Promise.race([
-                getDB(),
-                new Promise((_, rej) => setTimeout(() => rej(new Error('IDB timeout')), 800))
-            ]);
-            const db = await dbPromiseWithTimeout;
-            await migrateLocalStorageIfNeeded(db);
-
-            idbItems = await new Promise((resolve, reject) => {
+            const db = await getDB();
+            items = await new Promise((resolve, reject) => {
                 const tx = db.transaction(STORE_NAME, 'readonly');
                 const store = tx.objectStore(STORE_NAME);
                 const req = store.getAll();
@@ -1022,59 +932,34 @@
                 req.onerror = () => reject(req.error || new Error('store.getAll failed'));
             });
         } catch(e) {
-            console.warn('[MedienStation] IndexedDB read warning:', e);
+            console.warn('[MedienStation] Direct IndexedDB read warning:', e);
+            // Fallback: Aus localStorage lesen falls DB get fehlschlug
+            try {
+                const raw = localStorage.getItem(MEISTER_KEY);
+                if (raw) items = JSON.parse(raw) || [];
+            } catch(lErr) {}
         }
 
-        // 4. Merging & Deduplizieren aller 3 Quellen
-        const itemMap = new Map();
-        if (Array.isArray(idbItems)) {
-            idbItems.forEach(it => {
-                if (it && typeof it === 'object' && it.dataUrl) {
-                    itemMap.set(it.id || it.dataUrl, it);
-                }
-            });
-        }
-        if (Array.isArray(localItems)) {
-            localItems.forEach(it => {
-                if (it && typeof it === 'object' && it.dataUrl) {
-                    const key = it.id || it.dataUrl;
-                    if (!itemMap.has(key)) {
-                        itemMap.set(key, it);
-                    }
-                }
-            });
-        }
-        if (Array.isArray(sessionItems)) {
-            sessionItems.forEach(it => {
-                if (it && typeof it === 'object' && it.dataUrl) {
-                    const key = it.id || it.dataUrl;
-                    if (!itemMap.has(key)) {
-                        itemMap.set(key, it);
-                    }
-                }
-            });
-        }
+        if (!Array.isArray(items)) items = [];
+        items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-        const mergedItems = Array.from(itemMap.values());
-        mergedItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-        if (typeof callback === 'function') callback(mergedItems);
-        return mergedItems;
+        if (typeof callback === 'function') callback(items);
+        return items;
     };
 
+    // Direktes Löschen aus der IndexedDB
     window.clearMeisterwerke = async function(onComplete) {
         try {
             localStorage.removeItem(MEISTER_KEY);
-        } catch(e) {}
-        try {
             sessionStorage.removeItem(MEISTER_KEY);
         } catch(e) {}
+
         try {
             const db = await getDB();
             const tx = db.transaction(STORE_NAME, 'readwrite');
             tx.objectStore(STORE_NAME).clear();
             await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
-            console.log('[MedienStation] Meisterwerke Galerie vollständig geleert.');
+            console.log('[MedienStation] Meisterwerke Galerie vollständig aus IndexedDB geleert.');
         } catch(e) {
             console.warn('[MedienStation] clearMeisterwerke error:', e);
         }
