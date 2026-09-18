@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.9.5-v310';
+const CACHE_NAME = 'medien-station-v7.9.6-v311';
 const CORE_ASSETS = [
     './',
     './index.html',
@@ -21,6 +21,49 @@ const CORE_ASSETS = [
     './manifest.json',
     './assets/logo.png',
     './assets/apple-touch-icon.png'
+];
+
+const MEDIA_ASSETS = [
+    './js/selfie_segmentation.js',
+    './models/selfie_segmentation.binarypb',
+    './models/selfie_segmentation.tflite',
+    './models/selfie_segmentation_landscape.tflite',
+    './models/selfie_segmentation_solution_simd_wasm_bin.js',
+    './models/selfie_segmentation_solution_simd_wasm_bin.wasm',
+    './models/selfie_segmentation_solution_wasm_bin.js',
+    './models/selfie_segmentation_solution_wasm_bin.wasm',
+    './assets/qr.png',
+    './assets/news.jpg',
+    './assets/ozean.jpg',
+    './assets/weltraum.jpg',
+    './assets/paris.jpg',
+    './assets/dschungel.jpg',
+    './assets/unterwasser.jpg',
+    './assets/wolken.jpg',
+    './assets/schloss.jpg',
+    './assets/dino.jpg',
+    './assets/stadion.jpg',
+    './assets/sounds/click.mp3',
+    './assets/sounds/shutter.mp3',
+    './assets/sounds/success.mp3',
+    './assets/sounds/FALSCH.mp3',
+    './assets/sounds/RICHTIG.mp3',
+    './assets/sounds/brick.mp3',
+    './assets/sounds/fail.mp3',
+    './assets/sounds/paddle.mp3',
+    './assets/sounds/wall.mp3',
+    './assets/icons/icon-48.webp',
+    './assets/icons/icon-72.webp',
+    './assets/icons/icon-96.webp',
+    './assets/icons/icon-128.webp',
+    './assets/icons/icon-192.webp',
+    './assets/icons/icon-256.webp',
+    './assets/icons/icon-512.webp',
+    './cordova.js',
+    './cordova_plugins.js',
+    './plugins/cordova-plugin-printer/www/printer.js',
+    './plugins/cordova-plugin-x-socialsharing/www/SocialSharing.js',
+    './plugins/es6-promise-plugin/www/promise.js'
 ];
 
 // --- Broadcast Nachrichten an offene App ---
@@ -47,11 +90,12 @@ self.addEventListener('install', (event) => {
 
     event.waitUntil(
         caches.open(CACHE_NAME).then(async (cache) => {
-            const total = CORE_ASSETS.length;
+            const total = CORE_ASSETS.length + MEDIA_ASSETS.length;
             let count = 0;
             
             await broadcastProgress({ type: 'CACHE_START', total });
             
+            // 1. Zuerst sofort die unverzichtbaren Kern-Assets (HTML, CSS, JS) cachen (< 2s)
             for (const url of CORE_ASSETS) {
                 try {
                     const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
@@ -64,7 +108,22 @@ self.addEventListener('install', (event) => {
                         }
                     }
                 } catch (err) {
-                    console.warn('[SW] Core-Asset konnte nicht im Voraus gecacht werden (wird bei Bedarf geladen):', url, err);
+                    console.warn('[SW] Core-Asset konnte nicht geladen werden:', url, err);
+                }
+                count++;
+                await broadcastProgress({ type: 'CACHE_PROGRESS', count, total, url });
+            }
+
+            // 2. Anschließend im Hintergrund alle Medien-Assets (Sounds, Bilder, KI-Modelle) für 100% Offline-Betrieb cachen
+            for (const url of MEDIA_ASSETS) {
+                try {
+                    const fetchUrl = url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+                    const response = await fetch(fetchUrl, { cache: 'no-cache' });
+                    if (response && response.ok) {
+                        await cache.put(new Request(url), response.clone());
+                    }
+                } catch (err) {
+                    console.warn('[SW] Medien-Asset wird bei erstem Offline-Aufruf nachgeladen:', url);
                 }
                 count++;
                 await broadcastProgress({ type: 'CACHE_PROGRESS', count, total, url });

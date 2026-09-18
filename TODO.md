@@ -1,7 +1,7 @@
 # 📋 MedienStation – Roadmap, Fachanalyse & TODOs
 
 > **Fachlich-kritische Bestandsaufnahme, Architektur-Analyse und strategische Weiterentwicklung**
-> *Stand: September 2026 (Version v7.9.5 / Build 310)*
+> *Stand: September 2026 (Version v7.9.6 / Build 311)*
 
 ---
 
