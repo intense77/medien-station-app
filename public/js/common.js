@@ -1059,7 +1059,12 @@
             if (!Array.isArray(itemList)) return;
             itemList.forEach(it => {
                 if (it && typeof it === 'object') {
-                    const dataUri = typeof it.dataUrl === 'string' ? it.dataUrl : (typeof it.data === 'string' ? it.data : (typeof it.url === 'string' ? it.url : ''));
+                    const dataUri = typeof it.dataUrl === 'string' ? it.dataUrl : 
+                                   (typeof it.data === 'string' ? it.data : 
+                                   (typeof it.url === 'string' ? it.url : 
+                                   (typeof it.image === 'string' ? it.image : 
+                                   (typeof it.src === 'string' ? it.src : ''))));
+
                     if (dataUri && dataUri.length > 0) {
                         it.dataUrl = dataUri;
                         if (!it.id || typeof it.id !== 'string') {
@@ -1079,10 +1084,10 @@
             });
         };
 
-        // 1. Aus IndexedDB lesen (mit 1200ms Timeout-Sicherung)
+        // 1. Aus IndexedDB lesen (mit 5000ms Timeout-Sicherung für schwächere Tablets)
         let idbSuccess = false;
         try {
-            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB get Timeout')), 1200));
+            const dbTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('IDB get Timeout')), 5000));
             const db = await Promise.race([getDB(), dbTimeout]);
 
             const idbItems = await new Promise((resolve, reject) => {
@@ -1303,6 +1308,7 @@
                 `;
                 if (footer) footer.style.display = 'none';
             } else {
+                const fallbackLogo = isSubApp ? '../assets/logo.png' : 'assets/logo.png';
                 grid.innerHTML = items.map((it) => {
                     try {
                         const typeLower = (it.type || '').toLowerCase();
@@ -1319,7 +1325,7 @@
                         return `
                         <div class="bg-slate-700/80 border-2 border-slate-600 rounded-2xl p-3 flex flex-col items-center justify-between shadow-lg overflow-hidden group hover:border-amber-400 transition-all relative">
                             <div class="w-full h-36 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center relative mb-2 group/media cursor-pointer" onclick="window.viewMeisterwerkDetail('${safeId}')">
-                                ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain hover:scale-105 transition-transform" alt="${safeAppName}" onerror="this.onerror=null; this.src='../assets/logo.png';">` : ''}
+                                ${isImage ? `<img src="${dataUrl}" class="w-full h-full object-contain hover:scale-105 transition-transform" alt="${safeAppName}" onerror="this.onerror=null; this.src='${fallbackLogo}';">` : ''}
                                 ${isVideo ? `<video src="${dataUrl}" controls playsinline class="w-full h-full object-contain" onclick="event.stopPropagation()"></video>` : ''}
                                 ${isAudio ? `
                                     <div class="flex flex-col items-center justify-center gap-2" onclick="event.stopPropagation()">
@@ -1519,19 +1525,44 @@
     window.exportAllMeisterwerkeZip = async function() {
         try {
             if (typeof JSZip === 'undefined') {
-                if (window.showCustomAlert) {
-                    window.showCustomAlert('ZIP-Bibliothek wird geladen... Bitte einen Moment warten.');
-                }
+                if (window.showCustomAlert) window.showCustomAlert('ZIP-Bibliothek wird geladen... Bitte einen Moment warten.');
                 return;
             }
 
+            // Lade-Modal anzeigen
+            let modal = document.getElementById('zip-export-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'zip-export-modal';
+                modal.className = 'fixed inset-0 z-[999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-300';
+                document.body.appendChild(modal);
+            }
+
+            modal.innerHTML = `
+                <div class="bg-slate-800 border-4 border-blue-500 rounded-[2.5rem] max-w-md w-full p-8 shadow-2xl text-center text-white">
+                    <div class="text-6xl mb-4 animate-bounce" id="zip-modal-icon">📦</div>
+                    <h2 class="text-2xl font-black mb-2" id="zip-modal-title">ZIP-Datei wird erstellt...</h2>
+                    <p class="text-slate-300 text-sm font-bold mb-6" id="zip-modal-desc">Bilder und Töne werden verpackt. Bitte einen Moment gedulden.</p>
+                    <div id="zip-modal-actions" class="flex flex-col gap-3">
+                        <div class="w-full bg-slate-900 rounded-full h-4 overflow-hidden border border-slate-700">
+                            <div class="bg-blue-500 h-full w-2/3 animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+
             const items = await window.getMeisterwerke();
             if (!items || items.length === 0) {
-                if (window.showCustomAlert) {
-                    window.showCustomAlert('Die Galerie ist aktuell leer. Es gibt keine Werke zum Herunterladen.');
-                } else if (window.showAlert) {
-                    window.showAlert('Die Galerie ist aktuell leer.');
-                }
+                document.getElementById('zip-modal-icon').innerText = '🎨';
+                document.getElementById('zip-modal-title').innerText = 'Galerie ist leer';
+                document.getElementById('zip-modal-desc').innerText = 'Es gibt aktuell keine Meisterwerke zum Exportieren.';
+                document.getElementById('zip-modal-actions').innerHTML = `
+                    <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl cursor-pointer">
+                        SCHLIESSEN
+                    </button>
+                `;
                 return;
             }
 
@@ -1544,7 +1575,7 @@
                 const num = String(index + 1).padStart(2, '0');
                 const rawType = (item.type || 'werk').toLowerCase().replace(/[^a-z0-9]/g, '_');
                 const safeDate = (item.date || 'datum').replace(/[:. ]/g, '-');
-                
+
                 let dataUri = typeof item.dataUrl === 'string' ? item.dataUrl : (typeof item.data === 'string' ? item.data : '');
                 if (!dataUri) return;
 
@@ -1572,43 +1603,81 @@
 
             const content = await zip.generateAsync({ type: 'blob' });
             const zipFileName = `MedienStation_Meisterwerke_${dateStr}.zip`;
+            const zipFile = new File([content], zipFileName, { type: 'application/zip' });
 
-            // Web Share API für Android Tablets & PWAs (stellt meisterwerke.zip nativ bereit)
-            try {
-                const zipFile = new File([content], zipFileName, { type: 'application/zip' });
+            // Modal aktualisieren: Bereit zum Speichern
+            document.getElementById('zip-modal-icon').innerText = '✅';
+            document.getElementById('zip-modal-title').innerText = `${items.length} Werke bereit!`;
+            document.getElementById('zip-modal-desc').innerText = `Die Datei "${zipFileName}" wurde erfolgreich gepackt.`;
+
+            const actionsEl = document.getElementById('zip-modal-actions');
+            actionsEl.innerHTML = `
+                <button id="zip-download-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-lg shadow-xl active:scale-95 transition border-b-4 border-emerald-800 flex items-center justify-center gap-2 cursor-pointer">
+                    <span>📥</span> <span>AUF TABLET SPEICHERN / TEILEN</span>
+                </button>
+                <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-sm transition cursor-pointer">
+                    Abbrechen
+                </button>
+            `;
+
+            // Klick-Handler auf dem Button führt navigator.share() ODER Download SYNCHRON im Klick-Scope aus!
+            const downloadBtn = document.getElementById('zip-download-btn');
+            downloadBtn.onclick = async () => {
+                if (window.playSound) window.playSound('click');
+                downloadBtn.innerText = "⏳ Speichere...";
+                downloadBtn.disabled = true;
+
+                // 1. Versuche Web Share API (im direkten Klick-Scope!)
                 if (navigator.canShare && navigator.canShare({ files: [zipFile] })) {
-                    await navigator.share({
-                        files: [zipFile],
-                        title: 'MedienStation Meisterwerke',
-                        text: `Gesammelte Kunstwerke (${items.length} Dateien)`
-                    });
-                    if (window.showCustomAlert) {
-                        window.showCustomAlert(`✅ ${items.length} Meisterwerke bereitgestellt!`);
+                    try {
+                        await navigator.share({
+                            files: [zipFile],
+                            title: 'MedienStation Meisterwerke',
+                            text: `Gesammelte Kunstwerke (${items.length} Dateien)`
+                        });
+                        modal.style.display = 'none';
+                        if (window.triggerConfetti) window.triggerConfetti();
+                        return;
+                    } catch(shareErr) {
+                        if (shareErr && shareErr.name === 'AbortError') {
+                            downloadBtn.innerText = "📥 AUF TABLET SPEICHERN / TEILEN";
+                            downloadBtn.disabled = false;
+                            return;
+                        }
+                        console.warn('Web Share fehlgeschlagen, benutze Data-URL Fallback:', shareErr);
                     }
-                    return;
                 }
-            } catch(shareErr) {
-                if (shareErr && shareErr.name === 'AbortError') return; // Dialog vom Nutzer abgebrochen
-                console.warn('[MedienStation] Web Share fehlgeschlagen, Fallback auf Download:', shareErr);
-            }
 
-            // Fallback: Link-Download für Desktop
-            const downloadUrl = URL.createObjectURL(content);
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = zipFileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(downloadUrl), 2000);
+                // 2. Data-URL / FileReader Fallback für WebViews & Desktop
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    const dataUrl = reader.result;
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = zipFileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                        if (window.triggerConfetti) window.triggerConfetti();
+                    }, 500);
+                };
+                reader.readAsDataURL(content);
+            };
 
-            if (window.showCustomAlert) {
-                window.showCustomAlert(`✅ ${items.length} Meisterwerke erfolgreich als ZIP heruntergeladen!`);
-            }
         } catch (err) {
             console.error('[MedienStation] Fehler beim ZIP-Export:', err);
-            if (window.showCustomAlert) {
-                window.showCustomAlert('Fehler beim Erstellen der ZIP-Datei: ' + err.message);
+            const modal = document.getElementById('zip-export-modal');
+            if (modal) {
+                document.getElementById('zip-modal-icon').innerText = '❌';
+                document.getElementById('zip-modal-title').innerText = 'Fehler beim Packen';
+                document.getElementById('zip-modal-desc').innerText = err.message || 'Die ZIP-Datei konnte nicht erstellt werden.';
+                document.getElementById('zip-modal-actions').innerHTML = `
+                    <button onclick="document.getElementById('zip-export-modal').style.display='none'" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl cursor-pointer">
+                        SCHLIESSEN
+                    </button>
+                `;
             }
         }
     };
