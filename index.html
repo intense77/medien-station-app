@@ -116,12 +116,12 @@
                     </div>
                 </div>
 
-                <!-- Oben rechts: Medienzentrale Logo (kompakt, am rechten Rand) -->
-                <button onclick="toggleQR()" class="bg-slate-900/90 hover:bg-slate-700 border border-slate-600 hover:border-slate-400 text-white px-3 py-1.5 rounded-full font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer shrink-0" title="AV-Medienzentrale &amp; QR-Code">
-                    <img src="assets/logo.png" alt="AV-Medienzentrale" style="height: 22px; max-height: 24px; width: auto; max-width: 95px; object-fit: contain;" class="shrink-0" onerror="this.style.display='none'">
+                <!-- Oben rechts: Medienzentrale Logo (etwas größer, am rechten Rand) -->
+                <button onclick="toggleQR()" class="bg-slate-900/90 hover:bg-slate-700 border border-slate-600 hover:border-slate-400 text-white px-3.5 py-1.5 rounded-full font-bold flex items-center gap-2.5 transition-all shadow-md active:scale-95 cursor-pointer shrink-0" title="AV-Medienzentrale &amp; QR-Code">
+                    <img src="assets/logo.png" alt="AV-Medienzentrale" style="height: 28px; max-height: 30px; width: auto; max-width: 120px; object-fit: contain;" class="shrink-0" onerror="this.style.display='none'">
                     <div class="flex flex-col text-left shrink min-w-0">
-                        <span class="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-0.5 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.6)</span></span>
-                        <span class="text-xs sm:text-sm font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
+                        <span class="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-0.5 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.6)</span></span>
+                        <span class="text-xs sm:text-sm md:text-base font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
                     </div>
                 </button>
             </div>
@@ -129,7 +129,7 @@
             <!-- Untere Zeile: Würfeln & Galerie links, Info & Einstellungen rechts (ALLE 4 BUTTONS AUF EXAKT DER GLEICHEN HÖHE) -->
             <div class="flex items-center justify-between gap-3 w-full z-10 mt-auto">
                 <!-- Links: Würfeln & Galerie -->
-                <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                <div class="flex items-center gap-4 sm:gap-5 md:gap-6 shrink-0">
                     <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs sm:text-sm md:text-base py-2 px-3.5 sm:py-2.5 sm:px-5 rounded-full shadow-lg active:translate-y-0.5 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2 whitespace-nowrap border-2 border-yellow-300 cursor-pointer">
                         <span class="text-base sm:text-lg">🎲</span> <span>WÜRFELN</span>
                     </button>
@@ -139,7 +139,7 @@
                 </div>
 
                 <!-- Rechts: Info & Einstellungen nebeneinander (Größe von Info vorgegeben, exakt gleiche Höhe) -->
-                <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                <div class="flex items-center gap-4 sm:gap-5 md:gap-6 shrink-0">
                     <button onclick="openApp('apps/info.html', 'Info')" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm md:text-base py-2 px-3.5 sm:py-2.5 sm:px-5 rounded-full shadow-lg active:translate-y-0.5 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2 whitespace-nowrap border-2 border-blue-400 cursor-pointer" title="Info &amp; Handreichung">
                         <span class="text-base sm:text-lg">💡</span> <span>INFO</span>
                     </button>

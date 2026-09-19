@@ -2659,6 +2659,10 @@ video {
   font-size: 8rem;
 }
 
+.text-\[9px\] {
+  font-size: 9px;
+}
+
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
@@ -3648,6 +3652,10 @@ canvas, video, .pixel-grid, .touch-none {
     gap: 0.75rem;
   }
 
+  .sm\:gap-5 {
+    gap: 1.25rem;
+  }
+
   .sm\:p-3 {
     padding: 0.75rem;
   }
@@ -3708,8 +3716,8 @@ canvas, video, .pixel-grid, .touch-none {
     line-height: 1;
   }
 
-  .sm\:text-\[9px\] {
-    font-size: 9px;
+  .sm\:text-\[10px\] {
+    font-size: 10px;
   }
 
   .sm\:text-base {
