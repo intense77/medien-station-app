@@ -11,10 +11,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=7.9.6">
     <script src="../cordova.js"></script>
     <script src="../js/audio.js"></script>
-    <script src="../js/common.js?v=7.9.5"></script>
+    <script src="../js/common.js?v=7.9.6"></script>
     <script src="../js/print.js"></script>
 
     <style>
@@ -110,6 +110,20 @@
             z-index: 10;
         }
 
+        /* Verlässliche Farben für Farb-Buttons (Fallback unabhängig von CSS-Caches) */
+        .color-btn[data-color="#000000"] { background-color: #000000 !important; border-color: #475569 !important; }
+        .color-btn[data-color="#ffffff"]:not([data-eraser]) { background-color: #ffffff !important; border-color: #94a3b8 !important; }
+        .color-btn[data-color="#ef4444"] { background-color: #ef4444 !important; border-color: #b91c1c !important; }
+        .color-btn[data-color="#f97316"] { background-color: #f97316 !important; border-color: #c2410c !important; }
+        .color-btn[data-color="#facc15"] { background-color: #facc15 !important; border-color: #ca8a04 !important; }
+        .color-btn[data-color="#10b981"] { background-color: #10b981 !important; border-color: #047857 !important; }
+        .color-btn[data-color="#06b6d4"] { background-color: #06b6d4 !important; border-color: #0891b2 !important; }
+        .color-btn[data-color="#3b82f6"] { background-color: #3b82f6 !important; border-color: #1d4ed8 !important; }
+        .color-btn[data-color="#a855f7"] { background-color: #a855f7 !important; border-color: #7e22ce !important; }
+        .color-btn[data-color="#ec4899"] { background-color: #ec4899 !important; border-color: #be185d !important; }
+        .color-btn[data-color="#78350f"] { background-color: #78350f !important; border-color: #451a03 !important; }
+        .color-btn[data-eraser] { background-color: #334155 !important; border-color: #64748b !important; }
+
         @media print {
             body * { visibility: hidden; }
             #print-container, #print-container * { visibility: visible; }
@@ -159,22 +173,22 @@
             <!-- Farb-Palette (12 kindgerechte Farben inkl. Radierer) -->
             <div class="grid grid-cols-6 md:grid-cols-3 landscape:grid-cols-4 md:landscape:grid-cols-3 gap-1.5 sm:gap-2 md:gap-3 justify-items-center items-center w-full shrink-0" id="palette">
                 <!-- Schwarz & Weiß -->
-                <div class="color-btn active-color shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-black border-2 border-slate-600 shadow-md" data-color="#000000" onclick="setColor(this)" title="Schwarz"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-white border-2 border-slate-400 shadow-md" data-color="#ffffff" onclick="setColor(this)" title="Weiß"></div>
+                <div class="color-btn active-color shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-black border-2 border-slate-600 shadow-md" style="background-color: #000000; border-color: #475569;" data-color="#000000" onclick="setColor(this)" title="Schwarz"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-white border-2 border-slate-400 shadow-md" style="background-color: #ffffff; border-color: #94a3b8;" data-color="#ffffff" onclick="setColor(this)" title="Weiß"></div>
                 
                 <!-- Bunte Farben -->
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-red-500 border-2 border-red-700 shadow-md" data-color="#ef4444" onclick="setColor(this)" title="Rot"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-orange-500 border-2 border-orange-700 shadow-md" data-color="#f97316" onclick="setColor(this)" title="Orange"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-yellow-400 border-2 border-yellow-600 shadow-md" data-color="#facc15" onclick="setColor(this)" title="Gelb"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-emerald-500 border-2 border-emerald-700 shadow-md" data-color="#10b981" onclick="setColor(this)" title="Grün"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-cyan-400 border-2 border-cyan-600 shadow-md" data-color="#06b6d4" onclick="setColor(this)" title="Cyan / Türkis"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-blue-500 border-2 border-blue-700 shadow-md" data-color="#3b82f6" onclick="setColor(this)" title="Blau"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-purple-500 border-2 border-purple-700 shadow-md" data-color="#a855f7" onclick="setColor(this)" title="Lila"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-pink-500 border-2 border-pink-700 shadow-md" data-color="#ec4899" onclick="setColor(this)" title="Pink"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-amber-800 border-2 border-amber-950 shadow-md" data-color="#78350f" onclick="setColor(this)" title="Braun"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-red-500 border-2 border-red-700 shadow-md" style="background-color: #ef4444; border-color: #b91c1c;" data-color="#ef4444" onclick="setColor(this)" title="Rot"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-orange-500 border-2 border-orange-700 shadow-md" style="background-color: #f97316; border-color: #c2410c;" data-color="#f97316" onclick="setColor(this)" title="Orange"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-yellow-400 border-2 border-yellow-600 shadow-md" style="background-color: #facc15; border-color: #ca8a04;" data-color="#facc15" onclick="setColor(this)" title="Gelb"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-emerald-500 border-2 border-emerald-700 shadow-md" style="background-color: #10b981; border-color: #047857;" data-color="#10b981" onclick="setColor(this)" title="Grün"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-cyan-400 border-2 border-cyan-600 shadow-md" style="background-color: #06b6d4; border-color: #0891b2;" data-color="#06b6d4" onclick="setColor(this)" title="Cyan / Türkis"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-blue-500 border-2 border-blue-700 shadow-md" style="background-color: #3b82f6; border-color: #1d4ed8;" data-color="#3b82f6" onclick="setColor(this)" title="Blau"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-purple-500 border-2 border-purple-700 shadow-md" style="background-color: #a855f7; border-color: #7e22ce;" data-color="#a855f7" onclick="setColor(this)" title="Lila"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-pink-500 border-2 border-pink-700 shadow-md" style="background-color: #ec4899; border-color: #be185d;" data-color="#ec4899" onclick="setColor(this)" title="Pink"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-amber-800 border-2 border-amber-950 shadow-md" style="background-color: #78350f; border-color: #451a03;" data-color="#78350f" onclick="setColor(this)" title="Braun"></div>
                 
                 <!-- Radierer -->
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-slate-700 border-2 border-slate-500 flex items-center justify-center text-sm sm:text-base md:text-2xl shadow-md" data-color="#ffffff" onclick="setColor(this)" title="Radierer">🧽</div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-slate-700 border-2 border-slate-500 flex items-center justify-center text-sm sm:text-base md:text-2xl shadow-md" style="background-color: #334155; border-color: #64748b;" data-color="#ffffff" data-eraser="true" onclick="setColor(this)" title="Radierer">🧽</div>
             </div>
 
             <!-- Trenner -->
@@ -461,7 +475,19 @@
             }
         }
 
+        function initPaletteColors() {
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                if (btn.hasAttribute('data-eraser')) {
+                    btn.style.backgroundColor = '#334155';
+                    btn.style.borderColor = '#64748b';
+                } else if (btn.getAttribute('data-color')) {
+                    btn.style.backgroundColor = btn.getAttribute('data-color');
+                }
+            });
+        }
+
         // Initialisierung
+        initPaletteColors();
         initGrid();
         setTimeout(updateGridDimensions, 50);
         setTimeout(updateGridDimensions, 250);
