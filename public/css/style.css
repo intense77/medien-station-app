@@ -1464,10 +1464,6 @@ video {
   margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
 }
 
-.self-stretch {
-  align-self: stretch;
-}
-
 .overflow-hidden {
   overflow: hidden;
 }
@@ -3627,10 +3623,6 @@ canvas, video, .pixel-grid, .touch-none {
     width: 3rem;
   }
 
-  .sm\:w-auto {
-    width: auto;
-  }
-
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3649,6 +3641,10 @@ canvas, video, .pixel-grid, .touch-none {
 
   .sm\:gap-3 {
     gap: 0.75rem;
+  }
+
+  .sm\:gap-3\.5 {
+    gap: 0.875rem;
   }
 
   .sm\:gap-4 {
@@ -3827,10 +3823,6 @@ canvas, video, .pixel-grid, .touch-none {
     margin-right: 4rem;
   }
 
-  .md\:mr-2 {
-    margin-right: 0.5rem;
-  }
-
   .md\:mt-6 {
     margin-top: 1.5rem;
   }
@@ -3975,10 +3967,6 @@ canvas, video, .pixel-grid, .touch-none {
     align-items: flex-start;
   }
 
-  .md\:items-end {
-    align-items: flex-end;
-  }
-
   .md\:items-center {
     align-items: center;
   }
@@ -3989,10 +3977,6 @@ canvas, video, .pixel-grid, .touch-none {
 
   .md\:justify-end {
     justify-content: flex-end;
-  }
-
-  .md\:justify-between {
-    justify-content: space-between;
   }
 
   .md\:gap-12 {
@@ -4261,10 +4245,6 @@ canvas, video, .pixel-grid, .touch-none {
 }
 
 @media (min-width: 1024px) {
-  .lg\:mr-3 {
-    margin-right: 0.75rem;
-  }
-
   .lg\:min-h-\[160px\] {
     min-height: 160px;
   }
