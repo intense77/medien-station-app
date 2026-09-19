@@ -56,22 +56,35 @@
         }
     }
 
+    function getVolumeMultiplier() {
+        if (typeof window.getVolumeMultiplier === 'function') {
+            return window.getVolumeMultiplier();
+        }
+        const lvl = localStorage.getItem('medienstation_volume_level') || 'normal';
+        if (lvl === 'mute') return 0.0;
+        if (lvl === 'quiet') return 0.35;
+        return 1.0;
+    }
+
     // 3. Globale Play Funktion
     window.playSound = function(name) {
+        const mult = getVolumeMultiplier();
+        if (mult <= 0.0) return; // Stumm / Ruhezeit aktiv
+
         // Optimierung: Klick-Sound aus Pool nehmen
         if (name === 'click' && clickPool.length > 0) {
             const sound = clickPool[clickPoolIndex];
             clickPoolIndex = (clickPoolIndex + 1) % clickPool.length;
             sound.currentTime = 0;
+            sound.volume = Math.max(0, Math.min(1, 0.5 * mult));
             sound.play().catch(() => {}); // Fehler ignorieren
             return;
         }
 
         const sound = audioStore[name];
         if (sound) {
-            // console.log(`▶️ Spiele: ${name}`);
             const clone = sound.cloneNode();
-            clone.volume = sound.volume;
+            clone.volume = Math.max(0, Math.min(1, (sound.volume || 0.8) * mult));
             
             const promise = clone.play();
             if (promise !== undefined) {

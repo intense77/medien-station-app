@@ -3,7 +3,7 @@
 ## 1. Übersicht & Steckbrief
 
 * **Projektname**: MedienStation (AV-Medienzentrale Bistum Augsburg)
-* **Aktuelle Version**: v7.8.1 (Build 294)
+* **Aktuelle Version**: v7.9.6 (Build 316)
 * **Zielgruppe**: Kindertagesstätten (Kitas) und Grundschulen (Altersstufe 4–10 Jahre)
 * **Einsatzszenario**: Tablet-Stationen, All-in-One Kiosksysteme, mobile Medienkoffer
 * **Technologie-Stack**: HTML5, CSS3, JavaScript (Vanilla ES6+), Web Audio API, Canvas, Client-Side MediaPipe AI, Service Worker PWA (Offline-First), IndexedDB Storage
@@ -57,11 +57,31 @@ Die MedienStation erfüllt höchste Datenschutzstandards für den Einsatz in Bil
 * **Schnappschuss-Apps (*Zauber Selfie*, *News Studio*, *Mikro Check*)**: Speichern automatisch beim Auslösen / Stoppen direkt in die Galerie.
 * **Kreativprozess-Apps (*Pixel Labor*, *Comic Story*, *Trickfilm Studio*, *Video Loop*)**: Speichern gezielt über den einheitlichen **`💾 SPEICHERN`**-Button.
 * **Automatischer Tages-Reset (DSGVO-Speicherbegrenzung)**: Zu Beginn eines neuen Tages (beim ersten Start oder Aufwachen des Tablets an einem neuen Datum) wird die Galerie automatisch und vollständig zurückgesetzt (Art. 5 Abs. 1 lit. e DSGVO).
-* **Manuelle Bereinigung**: Fachkräfte können die Galerie jederzeit mit *"🧹 Galerie leeren"* (mit kindgerechtem Bestätigungs-Dialog) leeren.
+* **Manuelle Bereinigung**: Fachkräfte können die Galerie jederzeit im Admin-Menü leeren.
 
 ---
 
-## 5. Kiosktauglichkeit & PWA-Auto-Update
+## 5. Fachkraft-Menü & Pädagogische Schutzfunktionen
+
+Über den dezidierten Button **„⚙️ Einstellungen“** in der Kopfzeile erhalten Fachkräfte nach PIN-Eingabe (über ein kindersicheres Touch-Zahlenfeld) Zugriff auf zentrale Steuerungsfunktionen für den Kita-Alltag:
+
+1. 🔊 **Master-Lautstärke & Ruhemodus**:
+   - **Normal (100%)**: Standard für aktiven Gruppenbetrieb.
+   - **Flüstern (35%)**: Gedämpfter Pegel zur Vermeidung von Reizüberflutung bei lauter Gruppenraumsituation.
+   - **Stumm (0%)**: Komplett geräuschlos für Mittagsruhe und Schlafräume.
+2. 📷 **Foto- & Kamera-Datenschutz (Freispiel-Schutz)**:
+   - Sperrt mit einem Klick alle 5 Kamera-Apps (*Zauber Selfie*, *Video Loop*, *Nachrichten*, *Trickfilm*, *Comic*).
+   - Schützt Kinder, für die keine elterliche Fotoeinwilligung vorliegt, während nicht-kamerabasierte Module (*Pixel Labor*, *Musik Labor*, *Mikro Check*) weiterhin uneingeschränkt bespielbar bleiben.
+3. 🩺 **Hardware- & Sensor-Diagnose**:
+   - Sofortige Statusprüfung von Kamera, Mikrofon, IndexedDB-Speicher und WLAN-Anbindung.
+4. 🛡️ **Speicher-Modus & Portfolio-Export**:
+   - Umschaltung zwischen strengem Tages-Reset, 7-Tage-Projektmodus und Dauerhaft; 1-Klick-ZIP-Export aller Werke des Tages.
+5. ⚡ **Sicheres System-Update**:
+   - Cache-Bereinigung und Update-Erzwingung mit WLAN-Verbindungsprüfung.
+
+---
+
+## 6. Kiosktauglichkeit & PWA-Auto-Update
 
 * **Robustes Kiosk-Design**: Deaktivierte Textauswahl, Touch-Optimierung (min. 48×48px Touch-Targets), kindgerechte Modals (`window.showConfirm`) und Inaktivitäts-Timer verhindern Fehlbedienungen im Freispiel.
 * **Netzwerk-First Auto-Update**: Sobald die Station mit dem Internet verbunden ist, prüft ein intelligenter Service Worker im Hintergrund auf Aktualisierungen und installiert diese beim nächsten Start automatisch. Offline bleibt die Station ohne Einschränkung einsatzbereit.

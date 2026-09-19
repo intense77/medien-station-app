@@ -483,6 +483,9 @@
         if (window.resetIdleTimer) window.resetIdleTimer();
         if (window.triggerHapticFeedback) window.triggerHapticFeedback([30]);
         
+        const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
+        if (mult <= 0.0) return; // Stumm / Ruhezeit aktiv
+
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
             if (window.speechSynthesis.resume) window.speechSynthesis.resume(); // Android Warteschlange aufwecken
@@ -493,6 +496,7 @@
             try {
                 // Globale Referenz, damit der Garbage Collector die Sprachausgabe nicht abbricht
                 window.currentUtterance = new SpeechSynthesisUtterance(cleanText);
+                window.currentUtterance.volume = Math.max(0, Math.min(1, mult));
                 
                 window.currentUtterance.lang = 'de-DE';
                 window.currentUtterance.rate = 0.9;
@@ -1563,6 +1567,46 @@
     const RESET_MODE_KEY = 'medienstation_reset_mode';
     const RESET_PAUSE_UNTIL_KEY = 'medienstation_reset_pause_until';
     const PIN_KEY = 'medienstation_admin_pin';
+    const VOLUME_KEY = 'medienstation_volume_level';
+    const CAMERA_RESTRICT_KEY = 'medienstation_camera_restricted';
+
+    // Lautstärkeregelung für Fachkräfte (Normal, Flüster-Modus, Stumm/Ruhezeit)
+    window.getVolumeLevel = function() {
+        return localStorage.getItem(VOLUME_KEY) || 'normal';
+    };
+
+    window.setVolumeLevel = function(level) {
+        const valid = ['normal', 'quiet', 'mute'];
+        const val = valid.includes(level) ? level : 'normal';
+        localStorage.setItem(VOLUME_KEY, val);
+        return val;
+    };
+
+    window.getVolumeMultiplier = function() {
+        const lvl = window.getVolumeLevel();
+        if (lvl === 'mute') return 0.0;
+        if (lvl === 'quiet') return 0.35;
+        return 1.0;
+    };
+
+    // Foto-/Kamera-Apps für Freispiel pausieren (Kinderschutz ohne Fotoerlaubnis)
+    window.isCameraRestricted = function() {
+        return localStorage.getItem(CAMERA_RESTRICT_KEY) === 'true';
+    };
+
+    window.setCameraRestricted = function(restricted) {
+        localStorage.setItem(CAMERA_RESTRICT_KEY, restricted ? 'true' : 'false');
+        if (typeof window.applyCameraRestrictionsUI === 'function') {
+            window.applyCameraRestrictionsUI();
+        }
+        return window.isCameraRestricted();
+    };
+
+    window.isCameraApp = function(urlOrPath) {
+        if (!urlOrPath) return false;
+        const cameraApps = ['magic.html', 'gif.html', 'news.html', 'comic.html', 'stopmotion.html'];
+        return cameraApps.some(app => urlOrPath.includes(app));
+    };
 
     window.getAdminPin = function() {
         return localStorage.getItem(PIN_KEY) || '1234';

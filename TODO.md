@@ -53,22 +53,25 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 - [x] **Echte Video-Wiedergabe in der Galerie**:
   - Video-Snippets und Player in Galerie integriert.
 
-### 🟡 Phase 2: Medium Priority (Pädagogen-Werkzeuge & Inklusion)
-- [x] **Pädagogen- & Admin-Bereich (PIN-geschützt)** (Erledigt in v7.8.0 / v7.8.1):
-  - Diskreter Zugang (5× Tippen auf "Deine Mission" + PIN `1234`, PIN änderbar).
-  - Funktionen:
-    - 🔒 Konfigurierbarer Datenschutz: Strenger Tages-Reset (Standard / DSGVO) vs. Projekt-Modus (7 Tage pausieren) vs. Dauerhaft.
-    - 📊 Live-Speicherstatus der Meisterwerke.
-    - 🧹 Sofortige Galerie-Leerung auf Knopfdruck.
-    - 🧹 Cache leeren & Update erzwingen.
-    - 🏠 Klare Navigationsrückkehr zur App & visuelle Gespeichert-Badges.
-- [x] **Sammel-Export / Portfolio-Download für Fachkräfte** (Erledigt in v7.8.0 / v7.8.1):
-  - **Hintergrund:** Kinder erstellen tolle Werke; Erzieher und Lehrkräfte möchten diese gesammelt auf USB-Stick ziehen oder für Portfolio-Mappen und Elternarbeit sichern.
+### 🟡 Phase 2: Medium Priority (Pädagogen-Werkzeuge, Schutz & Inklusion)
+- [x] **Pädagogen- & Fachkraft-Menü (PIN-geschützt)** (Vollständig ausgebaut in v7.9.6):
+  - **Zugang:** Dezidierter Header-Button *"⚙️ Einstellungen"* (sowie diskreter Notfall-Zugang über 5× Tippen auf *"Deine Mission"*).
+  - **Tablet-Touch-Numpad:** Großes Touch-Zahlenfeld für 4-stellige PIN-Eingabe und PIN-Änderung (ersetzt störende Browser-`prompt()`-Dialoge).
   - **Funktionen:**
-    - 📥 "Als ZIP herunterladen"-Button **exklusiv im PIN-geschützten Fachkraft-Menü** (zum Schutz vor Fehlbedienung & Download-Spamming im Kinder-Freispiel).
-    - Automatische strukturierte Benennung nach Modul, Datum und Uhrzeit (z. B. `01_foto_2026-09-18_14-30.png`, `02_trickfilm_2026-09-18_14-35.webm`).
-    - Beiliegende `Uebersicht.txt` mit Auflistung aller Titel, Typen und Erstellungszeiten.
-    - 100 % offline-fähig über integriertes JSZip.
+    - 🔊 **Master-Lautstärke & Ruhemodus:**
+      - Normal (100% Lautstärke für aktiven Gruppenraum).
+      - Flüstermodus (35% Lautstärke zur akustischen Entlastung der Erzieher/innen).
+      - Stumm (0% Lautstärke für Mittagsruhe / Schlafräume – Töne & Sprachausgabe pausiert).
+    - 📷 **Foto- & Kamera-Datenschutz (Freispiel-Schutz):**
+      - 1-Klick-Pausierung aller 5 Kamera-Apps (*Zauber Selfie*, *Video Loop*, *Nachrichten*, *Trickfilm*, *Comic*).
+      - Schutz für Gruppen, in denen Kinder ohne elterliche Fotoerlaubnis am Freispiel teilnehmen.
+      - Kindgerechte visuelle Sperr-Badges (*"🔒 PAUSIERT"*) und freundliche Sprach-/Text-Meldung.
+    - 🩺 **Hardware- & Sensor-Diagnose:**
+      - Live-Statuscheck für Kamera, Mikrofon, lokalen IndexedDB-Speicher (MB-Belegung) und WLAN/Netzwerk.
+    - 🔒 **Datenschutz & Auto-Reset:** Strenger Tages-Reset (Standard / DSGVO) vs. Projekt-Modus (7 Tage pausieren) vs. Dauerhaft.
+    - 📊 **Live-Speicherstatus & Galerie-Verwaltung:** Sofortige Galerie-Leerung und Speicherüberwachung.
+    - 📥 **Portfolio- & Sammel-Export:** ZIP-Download aller Werke inklusive `Uebersicht.txt` exklusiv im Fachkraft-Menü.
+    - ⚡ **Sicheres Cache leeren & Update erzwingen:** Mit integrierter `navigator.onLine`-Prüfung gegen versehentliches Löschen im Offline-Zustand.
 
 ### 🔵 Phase 3: UX, Performance, Accessibility & Haptische Brücke (Erledigt in v7.8.9)
 - [x] **UX- & Feinmotorik-Polish für jüngere Kinder (3–4 Jahre)** (Erledigt in v7.8.9):

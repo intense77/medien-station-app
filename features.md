@@ -127,10 +127,23 @@ Das MedienStation Hub erfüllt höchste Anforderungen an den Datenschutz und die
 
 ## ⚙️ Fachkraft- & Admin-Menü (PIN-geschützt)
 
-Durch **5× Antippen des Titels „Deine Mission“** und Eingabe der PIN (`1234`) öffnet sich das Fachkraft-Dashboard:
-* 🛡️ **Datenschutz & Auto-Reset steuern**: Strenger Tages-Reset (Standard) vs. Projektwochen-Pause (7 Tage) vs. Dauerhaft.
-* 🎨 **Galerie verwalten**: Speicherbelegung einsehen, alle Werke als ZIP exportieren oder Galerie sofort leeren.
-* 🛠️ **System & Wartung**: App neu laden, PIN ändern und Update erzwingen / Cache leeren.
+Das PIN-geschützte Fachkraft-Dashboard ist über den Button **„⚙️ Einstellungen“** in der Kopfzeile oder diskret durch **5× Antippen des Titels „Deine Mission“** erreichbar. Die PIN-Eingabe erfolgt komfortabel über ein großes Touch-Zahlenfeld direkt auf dem Tablet (Standard-PIN: `1234`, jederzeit änderbar):
+
+* 🔊 **Master-Lautstärke & Ruhezeit-Modus**:
+  - **Normal (100%)**: Volle Lautstärke für den regulären Gruppenraum-Betrieb.
+  - **Flüstern (35%)**: Gedämpfte Klangwiedergabe bei lauter Gruppenatmosphäre zur Entlastung des pädagogischen Personals.
+  - **Stumm / Mittagsruhe (0%)**: Schaltet sämtliche Klick-, Effekt- und Sprachausgaben stumm, damit die Station auch in Ruhephasen oder Schlafraumnähe betrieben werden kann.
+* 📷 **Foto- & Kamera-Datenschutz (Freispiel-Schutz)**:
+  - Mit einem Klick können alle 5 Kamera-Apps (*Zauber Selfie*, *Video Loop*, *Nachrichten*, *Trickfilm*, *Comic*) pausiert werden.
+  - Ermöglicht das freie Spielen an der Station auch in Gruppen mit Kindern, deren Erziehungsberechtigte keine Fotoerlaubnis erteilt haben. Gesperrte Apps werden mit einem deutlichen *"🔒 PAUSIERT"*-Badge versehen.
+* 🩺 **Hardware- & Sensor-Diagnose**:
+  - Schneller Live-Check für Kamera, Mikrofon, lokalen IndexedDB-Speicherplatz (MB-Auslastung) und WLAN-Verbindung.
+* 🛡️ **Datenschutz & Auto-Reset**:
+  - Strenger Tages-Reset um 00:00 Uhr (Standard / DSGVO) vs. 7-Tage-Projektmodus (für mehrtägige Stop-Motion- & Comic-Projekte) vs. Dauerhaft behalten.
+* 🎨 **Meisterwerke & Portfolio-ZIP-Export**:
+  - Live-Zähler der gespeicherten Werke, 1-Klick-Download aller Kunstwerke als strukturiertes ZIP-Archiv inklusive `Uebersicht.txt` für Elternarbeit und Dokumentation, sowie vollständiges Leeren der Galerie.
+* 🛠️ **System & Wartung**:
+  - Station neu laden, PIN ändern und sicheres **„⚡ Cache leeren / Update“** (gesichert mit automatischer WLAN-Prüfung).
 
 ---
 
