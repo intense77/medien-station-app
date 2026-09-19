@@ -97,50 +97,56 @@
     </div>
 
     <div id="main-grid" class="grid-cols-2 sm:grid-cols-4 md:grid-cols-12 md:grid-rows-11 gap-2 md:gap-3 max-w-7xl mx-auto h-full w-full pb-8 md:pb-0" style="display: none;">
-             <!-- Mission Header (3 Rows) -->
-        <div class="col-span-2 sm:col-span-4 md:col-span-12 md:row-span-3 bg-slate-800 rounded-3xl p-4 md:p-6 flex flex-col md:flex-row justify-between items-center shadow-lg border border-slate-700 relative overflow-visible group min-h-[120px] lg:min-h-[160px] gap-4 md:gap-6 text-center md:text-left">
+        <!-- Mission Header (3 Rows) -->
+        <div class="col-span-2 sm:col-span-4 md:col-span-12 md:row-span-3 bg-slate-800/95 backdrop-blur rounded-3xl p-3 sm:p-4 md:p-4 flex flex-col justify-between shadow-xl border border-slate-700 relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-32 h-32 md:w-64 md:h-64 bg-yellow-400 rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none"></div>
             
-            <!-- Linker Bereich: Mission, Würfel & Info -->
-            <div class="flex flex-col items-center md:items-start justify-center gap-3 z-10 flex-1 w-full">
-                <!-- Mission Text -->
-                <div class="w-full max-w-2xl flex items-center justify-between md:justify-start gap-4">
-                    <div class="select-none flex-1" onclick="triggerAdmin()">
-                        <h3 class="text-slate-400 text-xs md:text-sm font-bold tracking-widest uppercase mb-1 cursor-pointer">Deine Mission</h3>
-                        <div id="mission-text" class="text-lg md:text-2xl lg:text-3xl font-black text-white leading-snug transition-all duration-300">Wähle eine App! 👉</div>
-                    </div>
-                    <button onclick="readMission(event)" class="bg-slate-700/90 hover:bg-slate-600 text-white rounded-full w-12 h-12 md:w-14 md:h-14 flex items-center justify-center shadow-lg border-2 border-slate-500 active:scale-95 hover:scale-105 transition-all shrink-0 text-xl md:text-3xl cursor-pointer" title="Mission vorlesen" aria-label="Mission vorlesen">
-                        🔊
-                    </button>
+            <!-- Obere Zeile: 'Deine Mission' Label links (5x tippen = Admin), Utility-Badges rechts -->
+            <div class="flex items-center justify-between gap-2 z-10 w-full">
+                <div class="flex items-center gap-1.5 select-none cursor-pointer group/title" onclick="triggerAdmin()" title="Tippen für Fachkraft-Menü">
+                    <span class="text-amber-400 text-xs sm:text-sm">🎯</span>
+                    <span class="text-slate-400 group-hover/title:text-slate-200 text-[10px] sm:text-xs font-black tracking-widest uppercase transition-colors">Deine Mission</span>
                 </div>
-                <!-- Aktions-Buttons: Würfeln, Galerie, Info -->
-                <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 w-full sm:w-auto">
-                    <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-yellow-300">
-                        <span class="text-xl md:text-2xl">🎲</span> <span>WÜRFELN</span>
+                
+                <!-- Utility-Badges: Medienzentrale & Einstellungen (kompakt & dezent) -->
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <button onclick="toggleQR()" class="bg-slate-900/80 hover:bg-slate-700/90 border border-slate-600 hover:border-slate-400 text-slate-300 hover:text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer shrink-0" title="AV-Medienzentrale &amp; QR-Code">
+                        <img src="assets/logo.png" alt="AV" style="height: 14px; max-height: 14px; width: auto; max-width: 50px; object-fit: contain;" class="shrink-0" onerror="this.style.display='none'">
+                        <span class="text-[10px] sm:text-xs font-extrabold tracking-wide hidden sm:inline">Medienzentrale</span>
+                        <span class="text-[9px] text-amber-400 font-mono hidden md:inline">v7.9.6</span>
                     </button>
-                    <button onclick="openApp('apps/galerie.html', 'Galerie')" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-purple-400" title="Galerie der Kunstwerke">
-                        <span class="text-xl md:text-2xl">🎨</span> <span>GALERIE</span>
-                    </button>
-                    <button onclick="openApp('apps/info.html', 'Info')" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-base md:text-xl py-3.5 px-6 sm:px-8 rounded-full shadow-xl active:translate-y-1 transition-all transform hover:scale-105 shrink-0 flex items-center gap-2.5 whitespace-nowrap border-2 border-blue-400" title="Info &amp; Handreichung">
-                        <span class="text-xl md:text-2xl">💡</span> <span>INFO</span>
+
+                    <button onclick="openSettings()" class="bg-slate-900/80 hover:bg-slate-700/90 border border-slate-600 hover:border-amber-400 text-slate-300 hover:text-amber-300 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer shrink-0" title="Fachkraft-Menü &amp; Einstellungen (PIN-geschützt)">
+                        <span class="text-xs sm:text-sm">⚙️</span>
+                        <span class="text-[10px] sm:text-xs font-black tracking-wide">Einstellungen</span>
                     </button>
                 </div>
             </div>
-            
-            <!-- Rechter Bereich: AV-Medienzentrale QR Button & Einstellungen -->
-            <div class="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-3 z-10 shrink-0 w-full md:w-auto">
-                <button onclick="toggleQR()" class="bg-slate-800/90 backdrop-blur border border-slate-600 px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-3.5 rounded-full shadow-2xl flex items-center justify-center gap-2 sm:gap-3 hover:bg-slate-700 hover:scale-105 hover:border-white transition-all w-auto max-w-full cursor-pointer" title="AV-Medienzentrale &amp; QR-Code">
-                    <img src="assets/logo.png" class="h-7 sm:h-9 md:h-10 w-auto object-contain shrink-0" alt="Logo" onerror="this.style.display='none'">
-                    <div class="flex flex-col text-left shrink min-w-0">
-                        <span class="text-[8px] sm:text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.6)</span></span>
-                        <span class="text-[10px] sm:text-xs md:text-sm lg:text-base font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
-                    </div>
-                </button>
 
-                <button onclick="openSettings()" class="bg-slate-800/90 backdrop-blur border border-slate-600 hover:border-amber-400 hover:text-amber-300 text-slate-200 px-3.5 py-2.5 sm:px-4 sm:py-3 md:px-5 md:py-3.5 rounded-full shadow-2xl flex items-center justify-center gap-2 hover:bg-slate-700 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0" title="Einstellungen (PIN-geschützt)">
-                    <span class="text-base sm:text-xl">⚙️</span>
-                    <span class="text-xs sm:text-sm md:text-base font-black tracking-wide">Einstellungen</span>
-                </button>
+            <!-- Untere Hauptzeile: Mission-Text + Vorlesen links, Kinder-Aktionsbuttons rechts -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 z-10 w-full flex-1 mt-1 sm:mt-0">
+                <!-- Missionstext + Lautsprecher -->
+                <div class="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 w-full sm:w-auto justify-center sm:justify-start">
+                    <div id="mission-text" class="text-base sm:text-xl md:text-2xl lg:text-3xl font-black text-white leading-tight truncate select-none">
+                        Wähle eine App! 👉
+                    </div>
+                    <button onclick="readMission(event)" class="bg-slate-700/90 hover:bg-slate-600 active:scale-95 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shadow-lg border border-slate-500 hover:border-slate-300 transition shrink-0 text-sm sm:text-base md:text-xl cursor-pointer" title="Mission vorlesen" aria-label="Mission vorlesen">
+                        🔊
+                    </button>
+                </div>
+
+                <!-- Aktions-Buttons: Würfeln, Galerie, Info -->
+                <div class="flex items-center gap-2 sm:gap-2.5 shrink-0 w-full sm:w-auto justify-center sm:justify-end">
+                    <button onclick="window.playSound('click'); newMission()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black text-xs sm:text-sm md:text-base py-2 px-3.5 sm:px-4 md:px-5 rounded-full shadow-lg active:translate-y-0.5 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 whitespace-nowrap border-2 border-yellow-300 cursor-pointer">
+                        <span class="text-base sm:text-xl">🎲</span> <span>WÜRFELN</span>
+                    </button>
+                    <button onclick="openApp('apps/galerie.html', 'Galerie')" class="bg-purple-600 hover:bg-purple-500 text-white font-black text-xs sm:text-sm md:text-base py-2 px-3.5 sm:px-4 md:px-5 rounded-full shadow-lg active:translate-y-0.5 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 whitespace-nowrap border-2 border-purple-400 cursor-pointer" title="Galerie der Kunstwerke">
+                        <span class="text-base sm:text-xl">🎨</span> <span>GALERIE</span>
+                    </button>
+                    <button onclick="openApp('apps/info.html', 'Info')" class="bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm md:text-base py-2 px-3.5 sm:px-4 md:px-5 rounded-full shadow-lg active:translate-y-0.5 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 whitespace-nowrap border-2 border-blue-400 cursor-pointer" title="Info &amp; Handreichung">
+                        <span class="text-base sm:text-xl">💡</span> <span>INFO</span>
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -264,6 +270,7 @@
         <div onclick="event.stopPropagation()" 
              style="width: 90%; max-width: 400px; background: white; padding: 40px; border-radius: 30px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
             
+            <img src="assets/logo.png" alt="AV-Medienzentrale" style="max-height: 42px; max-width: 220px; width: auto; margin: 0 auto 15px auto; object-fit: contain;" onerror="this.style.display='none'">
             <h3 style="color: #0f172a; font-size: 24px; font-weight: 900; text-transform: uppercase; margin: 0 0 20px 0;">Besuche uns!</h3>
             
             <div style="width: 250px; height: 250px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center;">
