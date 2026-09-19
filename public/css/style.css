@@ -1630,10 +1630,6 @@ video {
   border-color: rgb(245 158 11 / 0.5);
 }
 
-.border-amber-500\/80 {
-  border-color: rgb(245 158 11 / 0.8);
-}
-
 .border-amber-600 {
   --tw-border-opacity: 1;
   border-color: rgb(217 119 6 / var(--tw-border-opacity, 1));
@@ -3377,9 +3373,9 @@ canvas, video, .pixel-grid, .touch-none {
   background-color: rgb(250 204 21 / var(--tw-bg-opacity, 1));
 }
 
-.hover\:text-amber-200:hover {
+.hover\:text-amber-300:hover {
   --tw-text-opacity: 1;
-  color: rgb(253 230 138 / var(--tw-text-opacity, 1));
+  color: rgb(252 211 77 / var(--tw-text-opacity, 1));
 }
 
 .hover\:text-amber-400:hover {
@@ -3655,8 +3651,8 @@ canvas, video, .pixel-grid, .touch-none {
     gap: 0.75rem;
   }
 
-  .sm\:gap-3\.5 {
-    gap: 0.875rem;
+  .sm\:gap-4 {
+    gap: 1rem;
   }
 
   .sm\:p-3 {
@@ -3684,11 +3680,6 @@ canvas, video, .pixel-grid, .touch-none {
     padding-right: 1.25rem;
   }
 
-  .sm\:px-6 {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
   .sm\:px-8 {
     padding-left: 2rem;
     padding-right: 2rem;
@@ -3699,9 +3690,9 @@ canvas, video, .pixel-grid, .touch-none {
     padding-bottom: 0.5rem;
   }
 
-  .sm\:py-3 {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+  .sm\:py-2\.5 {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
   }
 
   .sm\:py-3\.5 {
@@ -3994,6 +3985,10 @@ canvas, video, .pixel-grid, .touch-none {
 
   .md\:justify-start {
     justify-content: flex-start;
+  }
+
+  .md\:justify-end {
+    justify-content: flex-end;
   }
 
   .md\:justify-between {
