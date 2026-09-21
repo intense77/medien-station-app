@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Handreichung & Funktionsübersicht</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --bg: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        .no-print-header {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.35rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.45rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-action {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-home {
+            background: #475569;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .doc-subtitle {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #60a5fa;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .module-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .module-card:hover {
+            border-color: var(--accent);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .module-icon {
+            font-size: 2rem;
+        }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .module-desc {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .module-list {
+            padding-left: 1.25rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .module-list li {
+            margin-bottom: 0.35rem;
+        }
+
+        .pedagogy-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 0.75rem 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-top: 0.75rem;
+            font-size: 0.88rem;
+            color: #a7f3d0;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 2.5rem 0;
+        }
+
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, .module-title { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div { color: #1e293b !important; }
+            .module-card { background: #f8fafc !important; border: 1px solid #ccc !important; }
+            .pedagogy-box { background: #f0fdf4 !important; border-left: 4px solid #16a34a !important; color: #14532d !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation Bar -->
+    <header class="no-print-header">
+        <a href="../index.html" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation Dokus</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="app_vorstellung.html" class="nav-btn">📘 Konzept & Handbuch</a>
+            <a href="features.html" class="nav-btn active">🎨 Funktionsübersicht</a>
+            <a href="security.html" class="nav-btn">🛡️ Datenschutz & Security</a>
+            <a href="todo.html" class="nav-btn">📋 Roadmap & TODOs</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="../index.html" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <article class="doc-card">
+            <h1>Handreichung & Funktionsübersicht: MedienStation</h1>
+            <div class="doc-subtitle">Informationen für das pädagogische Personal, Fachkräfte und Aufsichtspersonen</div>
+
+            <p>Das <strong>MedienStation Hub</strong> ist eine interaktive Kiosk-Anwendung für Kinder im Kita- und Grundschulalter (4–10 Jahre). Sie lädt zum spielerischen Erkunden, Gestalten, Aufnehmen und Experimentieren mit digitalen Medien im Sinne einer aktiven, handlungsorientierten Medienpädagogik ein.</p>
+
+            <hr>
+
+            <h2>🎨 Übersicht der 8 Medien-Module</h2>
+
+            <div class="module-grid">
+
+                <!-- 1. Zauber Selfie -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">🧙‍♂️</span>
+                        <div class="module-title">1. Zauber Selfie (Magie & Fotostudio)</div>
+                    </div>
+                    <div class="module-desc">KI-gestütztes Fotostudio ohne physikalischen Green-Screen. Medienverarbeitung über lokales Machine Learning (MediaPipe Selfie Segmentation).</div>
+                    <ul class="module-list">
+                        <li><strong>Möglichkeiten:</strong> Auswahl verschiedener Hintergründe (Weltraum, Dschungel, Unterwasser, Paris, Schloss, Dino, Stadion).</li>
+                        <li><strong>Kreativfilter:</strong> S/W, Sepia, Warm, Kalt.</li>
+                        <li><strong>Modi:</strong> Einzelbild, Polaroid-Optik oder 4er-Collage-Modus mit Galerie-Ablage.</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Visuelle Gestaltung, Hintergrund-Erkundung, Selbstdarstellung und Medienkompetenz.
+                    </div>
+                </div>
+
+                <!-- 2. Mikro Check -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">🎤</span>
+                        <div class="module-title">2. Mikro Check (Audio-Labor & Interview)</div>
+                    </div>
+                    <div class="module-desc">Interaktiver Stimmen- und Audiorekorder mit unabhängigen Tonspuren und Wellenformanzeige.</div>
+                    <ul class="module-list">
+                        <li><strong>Möglichkeiten:</strong> Zufalls-Fragen-Generator für Interviews und spontanes Antworten.</li>
+                        <li><strong>Effekte:</strong> Stimmverfremdung in Echtzeit (Monster 🧟, Normal 🙂, Maus 🐭).</li>
+                        <li><strong>Audio-Player:</strong> Integrierte Wiedergabe in den Meisterwerken.</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Sprachförderung, Hörverstehen, Medien-Experimente mit Akustik.
+                    </div>
+                </div>
+
+                <!-- 3. Musik Labor -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">🎹</span>
+                        <div class="module-title">3. Musik Labor (Soundboard & Rhythmus)</div>
+                    </div>
+                    <div class="module-desc">Digitales Touch-Soundboard zur Erstellung eigener Rhythmen und Klangcollagen.</div>
+                    <ul class="module-list">
+                        <li><strong>Möglichkeiten:</strong> Aufnehmen eigener Töne auf 12 interaktive Sound-Pads.</li>
+                        <li><strong>Loop-Modus:</strong> Endlose Schleifen und Beats für das Freispiel.</li>
+                        <li><strong>Live-Visualizer:</strong> Wellenform-Anzeige und Stimm-Filter.</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Musikalische Früherziehung, Taktgefühl, Eigenkreation von Musik.
+                    </div>
+                </div>
+
+                <!-- 4. News Studio -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">📺</span>
+                        <div class="module-title">4. News Studio (Reporter-Station)</div>
+                    </div>
+                    <div class="module-desc">Erstellen eigener Nachrichten-Sendungen im Fernseh-Studio-Look.</div>
+                    <ul class="module-list">
+                        <li><strong>Möglichkeiten:</strong> Live-Kamerabild in einem "Breaking News" TV-Frame.</li>
+                        <li><strong>Touch-Edit:</strong> Schlagzeile und animierter Ticker-Lauftext per Touch-Tastatur anpassbar.</li>
+                        <li><strong>Ausdruck:</strong> Sofortiges Speichern und Ausgeben als Nachrichten-Foto.</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Verstehen von Nachrichtenformaten, Journalismus, Freies Formulieren.
+                    </div>
+                </div>
+
+                <!-- 5. Trickfilm Studio -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">🎬</span>
+                        <div class="module-title">5. Trickfilm Studio (Stop-Motion Werkstatt)</div>
+                    </div>
+                    <div class="module-desc">Stop-Motion Animationen, Daumenkinos und Tonfilme erstellen.</div>
+                    <ul class="module-list">
+                        <li><strong>Geisterbild (Onion Skinning):</strong> Transparente Überlagerung des vorherigen Frames.</li>
+                        <li><strong>Tempo-Steuerung:</strong> 1 bis 12 FPS mit Schildkröte 🐢 und Hase 🐇.</li>
+                        <li><strong>Daumenkino-Druck:</strong> A4-Ausschneidebogen mit Schneidelinien (✂️), Heftzone (📌 HIER TACKERN) und Bildnummern.</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Filmaufbau, Bildfrequenz-Illusion, Feinmotorik, haptisch-digitales Lernerlebnis.
+                    </div>
+                </div>
+
+                <!-- 6. Pixel Labor -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">👾</span>
+                        <div class="module-title">6. Pixel Labor (Retro Digitalkunst)</div>
+                    </div>
+                    <div class="module-desc">Digitaler Zeichenbereich in 16×16 Raster-Optik (Kästchen-Papier).</div>
+                    <ul class="module-list">
+                        <li><strong>Features:</strong> 12 Kindgerechte Farben, Radierer, Undo (↩️ ZURÜCK).</li>
+                        <li><strong>Feedback:</strong> 8-Bit Retro-Soundeffekt beim Zeichnen für direktes taktiles Feedback.</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Abstraktionsvermögen, Feinmotorik, digitales Rasterverständnis.
+                    </div>
+                </div>
+
+                <!-- 7. Comic Story -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">📸</span>
+                        <div class="module-title">7. Comic Story (Fotogeschichten)</div>
+                    </div>
+                    <div class="module-desc">3-Panel-Comic-Werkstatt mit Fotos und verschiebbaren Sprechblasen.</div>
+                    <ul class="module-list">
+                        <li><strong>Features:</strong> 3 Bildrahmen mit separaten Auslösern & Ziehgriffen für Sprechblasen.</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Sequentielles Erzählen (Anfang – Mitte – Ende), Sprachbildung.
+                    </div>
+                </div>
+
+                <!-- 8. Video Loop -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <span class="module-icon">🔄</span>
+                        <div class="module-title">8. Video Loop (Zeitschleife / GIF)</div>
+                    </div>
+                    <div class="module-desc">2-Sekunden-Video-Endlosschleife mit Geschwindigkeitsregler.</div>
+                    <ul class="module-list">
+                        <li><strong>Features:</strong> Vor- und Rückwärts-Loop in 3 Geschwindigkeiten (Langsam, Normal, Rakete).</li>
+                    </ul>
+                    <div class="pedagogy-box">
+                        <strong>🎯 Pädagogischer Mehrwert:</strong> Mimik, Gestik, Kausalität und Bewegungsabläufe.
+                    </div>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <h2>🎨 Galerie der Meisterwerke & Speicher-Systematik</h2>
+            <p>Die Station verfügt über eine zentrale <strong>Galerie der Meisterwerke</strong> (<code>apps/galerie.html</code> und das Galerie-Modal im Hauptmenü) mit ausfallsicherem <strong>IndexedDB-Speicher</strong> (<code>MedienStationDB_v5</code>) für bis zu 40 hochauflösende Werke.</p>
+
+            <ul>
+                <li><strong>Schnappschuss-Apps:</strong> Speichern automatisch sofort beim Auslösen.</li>
+                <li><strong>Kreativprozess-Apps:</strong> Speichern gezielt über den goldenen <strong><code>💾 SPEICHERN</code></strong>-Button.</li>
+                <li><strong>100% Offline-ZIP-Export:</strong> 1-Klick-Download aller Werke als ZIP-Archiv inklusive Inhaltsübersicht für die Elternarbeit.</li>
+            </ul>
+
+        </article>
+    </main>
+
+</body>
+</html>

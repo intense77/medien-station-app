@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Roadmap & TODOs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0f172a; --accent: #8b5cf6; --bg: #0b1329; --card-bg: #1e293b; --text-main: #f8fafc; --border: #334155; --success: #10b981; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding-bottom: 3rem; }
+        .no-print-header { background-color: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 1000; padding: 0.85rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: white; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.35rem; }
+        .brand-icon { font-size: 1.8rem; background: linear-gradient(135deg, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-btn { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; padding: 0.45rem 0.9rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 700; text-decoration: none; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.4rem; }
+        .nav-btn:hover, .nav-btn.active { background: var(--accent); color: #ffffff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+        .action-btns { display: flex; align-items: center; gap: 0.6rem; }
+        .btn-action { background: #2563eb; color: white; border: none; padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
+        .btn-action:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .btn-action.btn-home { background: #475569; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
+        .doc-card { background-color: var(--card-bg); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem 3rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+        h1, h2, h3 { font-family: 'Outfit', sans-serif; color: #ffffff; line-height: 1.25; }
+        h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 0.5rem; background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+        .doc-subtitle { color: var(--accent); font-weight: 700; font-size: 1.1rem; margin-bottom: 2rem; }
+        h2 { font-size: 1.5rem; font-weight: 800; margin-top: 2.5rem; margin-bottom: 1rem; color: #a78bfa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+        .todo-item { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem 1.25rem; margin-bottom: 0.75rem; display: flex; align-items: flex-start; gap: 0.75rem; }
+        .todo-check { color: var(--success); font-size: 1.2rem; font-weight: 900; }
+        .todo-content { font-size: 0.95rem; color: #cbd5e1; }
+        .todo-title { font-weight: 800; color: #ffffff; margin-bottom: 0.25rem; }
+        hr { border: 0; height: 1px; background: var(--border); margin: 2.5rem 0; }
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, .todo-title { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div { color: #1e293b !important; }
+            .todo-item { background: #f8fafc !important; border: 1px solid #ccc !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="no-print-header">
+        <a href="index.html" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation Dokus</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="app_vorstellung.html" class="nav-btn">📘 Konzept & Handbuch</a>
+            <a href="features.html" class="nav-btn">🎨 Funktionsübersicht</a>
+            <a href="security.html" class="nav-btn">🛡️ Datenschutz & Security</a>
+            <a href="todo.html" class="nav-btn active">📋 Roadmap & TODOs</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="index.html" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <article class="doc-card">
+            <h1>Roadmap, Entwicklungsstand & TODOs</h1>
+            <div class="doc-subtitle">Stand: September 2026 (Version v7.9.6 / Build 316)</div>
+
+            <p>Die MedienStation löst ein massives Kernproblem im Bildungsbereich: <strong>Sie ermöglicht aktive Medienproduktion im Kita- und Grundschul-Freispiel ohne IT-Verwaltungsaufwand, ohne Nutzerkonten und zu 100 % DSGVO-konform.</strong></p>
+
+            <hr>
+
+            <h2>🚀 Erledigte Meilensteine (Stand v7.9.6)</h2>
+
+            <div class="todo-item">
+                <span class="todo-check">✅</span>
+                <div class="todo-content">
+                    <div class="todo-title">Ausfallsichere IndexedDB v5 Storage Engine</div>
+                    Navigation-Safe Sync-First Pattern schützt vor Abbrüchen bei Seitenwechseln. Automatischer PWA-Speicherschutz (<code>navigator.storage.persist()</code>), Fullscreen-Lightbox & Speicher-Auslastungsanzeige.
+                </div>
+            </div>
+
+            <div class="todo-item">
+                <span class="todo-check">✅</span>
+                <div class="todo-content">
+                    <div class="todo-title">PIN-Geschütztes Fachkraft-Menü ("⚙️ Einstellungen")</div>
+                    Master-Lautstärkeregelung (Normal / Flüstern / Stumm), Foto- & Kamera-Datenschutz-Sperre für Kinder ohne Fotofreigabe, Hardware-Diagnose, 1-Klick-ZIP-Export aller Meisterwerke.
+                </div>
+            </div>
+
+            <div class="todo-item">
+                <span class="todo-check">✅</span>
+                <div class="todo-content">
+                    <div class="todo-title">UX- & Feinmotorik-Polish für 3- bis 4-Jährige</div>
+                    Vergrößerte Touch-Targets (min. 56px), haptisches Vibrations-Feedback beim Auslösen, Daumenkino-Druckbogen mit Schneidelinien und Heftzone.
+                </div>
+            </div>
+
+            <div class="todo-item">
+                <span class="todo-check">✅</span>
+                <div class="todo-content">
+                    <div class="todo-title">100% Offline PWA & Auto-Update</div>
+                    Präzises Pre-Caching aller AI-Modelle, Sounds und Hintergründe. Automatische Hintergrund-Updates bei WLAN-Verbindung.
+                </div>
+            </div>
+
+        </article>
+    </main>
+
+</body>
+</html>

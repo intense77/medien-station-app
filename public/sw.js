@@ -1,4 +1,4 @@
-const CACHE_NAME = 'medien-station-v7.9.6-v328';
+const CACHE_NAME = 'medien-station-v7.9.7-v330';
 const CORE_ASSETS = [
     './',
     './index.html',
@@ -18,6 +18,10 @@ const CORE_ASSETS = [
     './apps/stopmotion.html',
     './apps/galerie.html',
     './apps/info.html',
+    './docs/app_vorstellung.html',
+    './docs/features.html',
+    './docs/security.html',
+    './docs/todo.html',
     './manifest.json',
     './assets/logo.png',
     './assets/apple-touch-icon.png'

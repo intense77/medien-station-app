@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Konzept, Fachbewertung & Dokumentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #f59e0b;
+            --accent-hover: #d97706;
+            --bg: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        .no-print-header {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.35rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.45rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #0f172a;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-action {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-home {
+            background: #475569;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .doc-subtitle {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: #cbd5e1;
+            font-size: 1rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        strong {
+            color: #ffffff;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 2.5rem 0;
+        }
+
+        .fact-sheet {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .fact-item { display: flex; flex-direction: column; }
+        .fact-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 0.2rem; }
+        .fact-value { font-size: 0.95rem; font-weight: 600; color: #f1f5f9; }
+
+        .callout {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid var(--accent);
+            border-radius: 0.5rem;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .callout-title { font-weight: 800; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .table-responsive { overflow-x: auto; margin: 2rem 0; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background-color: #0f172a; color: var(--accent); padding: 0.85rem 1rem; font-weight: 800; border-bottom: 2px solid var(--border); }
+        td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); color: #cbd5e1; }
+        tr:nth-child(even) td { background-color: rgba(15, 23, 42, 0.3); }
+
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; }
+
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, h4, strong { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, td { color: #1e293b !important; }
+            h1 { border-bottom: 2px solid #000 !important; }
+            h2 { border-bottom: 1px solid #ccc !important; color: #000 !important; }
+            .fact-sheet { background: #f8fafc !important; border: 1px solid #ccc !important; }
+            .fact-label { color: #000 !important; }
+            .fact-value { color: #333 !important; }
+            .callout { background: #fffbebfb !important; border-left: 4px solid #d97706 !important; color: #000 !important; }
+            th { background: #f1f5f9 !important; color: black !important; border-bottom: 2px solid #000 !important; }
+            td { border-bottom: 1px solid #ddd !important; }
+            .doc-subtitle { color: #475569 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="no-print-header">
+        <a href="index.html" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation Dokus</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="app_vorstellung.html" class="nav-btn active">📘 Konzept & Handbuch</a>
+            <a href="features.html" class="nav-btn">🎨 Funktionsübersicht</a>
+            <a href="security.html" class="nav-btn">🛡️ Datenschutz & Security</a>
+            <a href="todo.html" class="nav-btn">📋 Roadmap & TODOs</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="index.html" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <article class="doc-card">
+            
+            <h1>MedienStation – Konzept, Fachbewertung & Dokumentation</h1>
+            <div class="doc-subtitle">Handbuch für Fachkräfte, Kita-Leitungen & Medienpädagogen</div>
+
+            <div class="fact-sheet">
+                <div class="fact-item">
+                    <span class="fact-label">Projektname</span>
+                    <span class="fact-value">MedienStation (AV-Medienzentrale Bistum Augsburg)</span>
+                </div>
+                <div class="fact-item">
+                    <span class="fact-label">Aktuelle Version</span>
+                    <span class="fact-value">v7.9.6 (Build 316)</span>
+                </div>
+                <div class="fact-item">
+                    <span class="fact-label">Zielgruppe</span>
+                    <span class="fact-value">Kindertagesstätten (Kitas) & Grundschulen (4–10 Jahre)</span>
+                </div>
+                <div class="fact-item">
+                    <span class="fact-label">Einsatzszenario</span>
+                    <span class="fact-value">Tablet-Stationen, All-in-One Kiosksysteme, Medienkoffer</span>
+                </div>
+                <div class="fact-item">
+                    <span class="fact-label">Technologie-Stack</span>
+                    <span class="fact-value">HTML5, ES6+, Web Audio API, MediaPipe AI, Service Worker PWA</span>
+                </div>
+                <div class="fact-item">
+                    <span class="fact-label">Datenschutz Standard</span>
+                    <span class="fact-value">100% Offline-First / No-Cloud / DSGVO-Konform</span>
+                </div>
+            </div>
+
+            <h2>1. Übersicht & Zielsetzung</h2>
+            <p>Die <strong>MedienStation</strong> ist eine interaktive, offlinefähige Kiosk-Webanwendung, die speziell für Kinder im Alter von 4 bis 10 Jahren in Kindertagesstätten und Grundschulen entwickelt wurde. Sie verwandelt Tablet-Bildschirme in eine selbsterklärende Medienwerkstatt, die Kinder zum selbstbestimmten Erforschen, Gestalten und Aufnehmen von Sprache, Musik, Zeichnungen, Fotos und Stop-Motion-Filmen einlädt.</p>
+
+            <hr>
+
+            <h2>2. Pädagogische Ansätze & Fachbegründung</h2>
+            <p>Die MedienStation folgt konsequent den Grundsätzen der <strong>aktiven, handlungsorientierten Medienpädagogik (u. a. nach Dieter Baacke)</strong>: Kinder treten aus der passiven Konsumentenrolle heraus und werden zu aktiven Gestaltern ihrer eigenen digitalen Lebenswelt.</p>
+
+            <div class="callout">
+                <div class="callout-title">🎯 Warum aktive Medienarbeit im Kita-Alter so wichtig ist:</div>
+                <p style="margin-bottom: 0;">Medien gehören zur Realität von Kindern. Das Ziel der frühkindlichen Medienbildung ist nicht, Bildschirmzeiten zu maximieren, sondern Kindern <strong>Medien als Werkzeug für Selbstwirksamkeit, Sprache und Kreativität</strong> näherzubringen. Statt durch Belohnungssysteme oder Gamification an den Bildschirm gebunden zu werden, nutzen Kinder die MedienStation wie einen digitalen Malkasten oder ein Musikinstrument.</p>
+            </div>
+
+            <h3>💡 Verfolgte medienpädagogische Kernansätze:</h3>
+            <ol>
+                <li><strong>Produzenten-Orientierung statt passivem Konsum:</strong> Kinder schauen nicht nur Bilder oder Videos an, sondern nehmen eigene Stimmen auf, fotografieren sich in neuen Welten, komponieren Sounds und drehen eigene Stop-Motion-Filme.</li>
+                <li><strong>Konstruktivistisches Lernen & Fehlerfreie Selbstwirksamkeit:</strong> Es gibt keine Punkte, Sterne, Timer oder Verlierszenarien. Kinder lernen durch Versuch und Irrtum (<em>Trial and Error</em>). Sofortiges optisches und akustisches Feedback stärkt das Selbstbewusstsein.</li>
+                <li><strong>Sprachförderung & Kommunikationsanlass:</strong> Das gemeinsame Erstellen von Hörbeispielen (<em>Mikro Check</em>) oder Fotogeschichten (<em>Comic Story</em>) regt den sprachlichen Austausch zwischen Kindern an. Beim Präsentieren der Ergebnisse am Nachmittag gegenüber Eltern entstehen wertvolle Anlässe zum Erzählen.</li>
+                <li><strong>Haptisch-digitale Verknüpfung:</strong> Medien bleiben nicht virtuell gefangen: Digitale Kunstwerke (Comics, Pixel-Bilder, Daumenkinos) können über angebundene Fotodrucker ausgedruckt, angefasst und mit nach Hause genommen werden.</li>
+                <li><strong>Niedrigerschwelliger Kiosk-Zugang für Leseanfänger:</strong> Emojis, Farbleitsysteme und Sprachausgabe (<code>Text-to-Speech</code>) ermöglichen auch 3- bis 6-jährigen Nichtlesern eine völlig eigenständige Nutzung im Freispiel.</li>
+            </ol>
+
+            <hr>
+
+            <h2>3. Die 8 Medien-Module im Detail</h2>
+            <ul>
+                <li><strong>🎹 Musik Labor:</strong> Experimentieren mit Tönen, Beats, Tonhöhen-Verfremdung und Soundpads.</li>
+                <li><strong>🎙️ Mikro Check:</strong> Sprachaufnahmen machen, Stimm-Effekte testen und Sprachförderung mit visueller Audio-Wellenform erleben.</li>
+                <li><strong>📹 Video Loop:</strong> Bewegungs- und Mimikabläufe in 2-Sekunden-Endlosschleifen analysieren (mit Fotostreifen-Speicherung).</li>
+                <li><strong>✨ Zauber Selfie:</strong> KI-gestützte Segmentierung (Green-Screen-Effekt ohne grüne Wand) für kreative Fotohintergründe und Collagen.</li>
+                <li><strong>👾 Pixel Labor:</strong> Rasterbasiertes Zeichnen mit 16×16 Bausteinen, Karomuster, Farbpalette, Retro-Sounds und Undo-Funktion.</li>
+                <li><strong>📰 Nachrichten Studio:</strong> Rollenspiele und Präsentationstechniken vor der TV-Kamera mit Live-Bauchbinde erproben.</li>
+                <li><strong>📸 Comic Story:</strong> Multi-Panel-Bildgeschichten mit verschiebbaren Sprechblasen strukturieren, speichern und ausdrucken.</li>
+                <li><strong>🎬 Trickfilm Studio:</strong> Stop-Motion-Filme erstellen mit Geisterbild-Überlagerung (Onion-Skinning), Zeitleisten-Geschwindigkeitsregler (🐢/🐇), Vertonung, Daumenkino-Druck und Galerie-Ablage.</li>
+            </ul>
+
+            <hr>
+
+            <h2>4. Datenschutz, Speicher- & Löschkonzept ("Meisterwerke")</h2>
+            <p>Die MedienStation erfüllt höchste Datenschutzstandards für den Einsatz in Bildungseinrichtungen:</p>
+            <ul>
+                <li><strong>100% Lokale Datenverarbeitung:</strong> Alle Berechnungen (Audioverarbeitung, KI-Hintergrundtrennung, Bildgenerierung) finden ausschließlich auf dem Endgerät im Browser statt.</li>
+                <li><strong>Keine Cloud-Abhängigkeit:</strong> Es werden keine Daten an externe Server gesendet.</li>
+                <li><strong>Tracking- & Werbefrei:</strong> Keine Logins, keine Cookies, keine Analytics.</li>
+            </ul>
+
+            <h3>ℹ️ Speicher-Systematik der Galerie:</h3>
+            <ul>
+                <li><strong>Schnappschuss-Apps (<em>Zauber Selfie</em>, <em>News Studio</em>, <em>Mikro Check</em>):</strong> Speichern automatisch beim Auslösen / Stoppen direkt in die Galerie.</li>
+                <li><strong>Kreativprozess-Apps (<em>Pixel Labor</em>, <em>Comic Story</em>, <em>Trickfilm Studio</em>, <em>Video Loop</em>):</strong> Speichern gezielt über den einheitlichen <strong><code>💾 SPEICHERN</code></strong>-Button.</li>
+                <li><strong>Automatischer Tages-Reset (DSGVO-Speicherbegrenzung):</strong> Zu Beginn eines neuen Tages (beim ersten Start oder Aufwachen des Tablets an einem neuen Datum) wird die Galerie automatisch und vollständig zurückgesetzt (Art. 5 Abs. 1 lit. e DSGVO).</li>
+                <li><strong>Manuelle Bereinigung:</strong> Fachkräfte können die Galerie jederzeit im Admin-Menü leeren.</li>
+            </ul>
+
+            <hr>
+
+            <h2>5. Fachkraft-Menü & Pädagogische Schutzfunktionen</h2>
+            <p>Über den dezidierten Button <strong>„⚙️ Einstellungen“</strong> in der Kopfzeile erhalten Fachkräfte nach PIN-Eingabe (über ein kindersicheres Touch-Zahlenfeld) Zugriff auf zentrale Steuerungsfunktionen für den Kita-Alltag:</p>
+
+            <ol>
+                <li>
+                    <strong>🔊 Master-Lautstärke & Ruhemodus:</strong>
+                    <ul>
+                        <li><strong>Normal (100%):</strong> Standard für aktiven Gruppenbetrieb.</li>
+                        <li><strong>Flüstern (35%):</strong> Gedämpfter Pegel zur Vermeidung von Reizüberflutung bei lauter Gruppenraumsituation.</li>
+                        <li><strong>Stumm (0%):</strong> Komplett geräuschlos für Mittagsruhe und Schlafräume.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>📷 Foto- & Kamera-Datenschutz (Freispiel-Schutz):</strong>
+                    <ul>
+                        <li>Sperrt mit einem Klick alle 5 Kamera-Apps (<em>Zauber Selfie</em>, <em>Video Loop</em>, <em>Nachrichten</em>, <em>Trickfilm</em>, <em>Comic</em>).</li>
+                        <li>Schützt Kinder, für die keine elterliche Fotoeinwilligung vorliegt, während nicht-kamerabasierte Module (<em>Pixel Labor</em>, <em>Musik Labor</em>, <em>Mikro Check</em>) weiterhin uneingeschränkt bespielbar bleiben.</li>
+                    </ul>
+                </li>
+                <li><strong>🩺 Hardware- & Sensor-Diagnose:</strong> Sofortige Statusprüfung von Kamera, Mikrofon, IndexedDB-Speicher und WLAN-Anbindung.</li>
+                <li><strong>🛡️ Speicher-Modus & Portfolio-Export:</strong> Umschaltung zwischen strengem Tages-Reset, 7-Tage-Projektmodus und Dauerhaft; 1-Klick-ZIP-Export aller Werke des Tages.</li>
+                <li><strong>⚡ Sicheres System-Update:</strong> Cache-Bereinigung und Update-Erzwingung mit WLAN-Verbindungsprüfung.</li>
+            </ol>
+
+            <hr>
+
+            <h2>6. Fachliche Bewertung & Marktvergleich</h2>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kriterium</th>
+                            <th>MedienStation</th>
+                            <th>Einzel-Apps (z.B. Book Creator)</th>
+                            <th>Schul-Webplattformen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Datenschutz / DSGVO</strong></td>
+                            <td><span class="badge badge-success">🥇 100% lokal / Kein Tracking</span></td>
+                            <td><span class="badge badge-warning">⚠️ Cloud- / Accountpflicht</span></td>
+                            <td><span class="badge badge-warning">⚠️ Registrierung erforderlich</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kosten & Lizenzen</strong></td>
+                            <td><span class="badge badge-success">🥇 Kostenfrei / Open Source</span></td>
+                            <td><span class="badge badge-danger">❌ Abos / Kauflizenzen</span></td>
+                            <td><span class="badge badge-danger">❌ Schullizenzen</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Offline-Fähigkeit</strong></td>
+                            <td><span class="badge badge-success">🥇 100% Offline PWA</span></td>
+                            <td><span class="badge badge-success">🟢 Teils offline</span></td>
+                            <td><span class="badge badge-danger">❌ Internet zwingend</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kita-Freispiel-Eignung (3–6 J.)</strong></td>
+                            <td><span class="badge badge-success">🥇 Sehr hoch (selbsterklärend)</span></td>
+                            <td><span class="badge badge-warning">🟡 Mittel (ab Grundschule)</span></td>
+                            <td><span class="badge badge-danger">🔴 Niedrig (Lernsoftware)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kiosk-Schutz & Auto-Update</strong></td>
+                            <td><span class="badge badge-success">🥇 Integriert & Automatisch</span></td>
+                            <td><span class="badge badge-danger">❌ MDM-Setup nötig</span></td>
+                            <td><span class="badge badge-danger">❌ Browser-Abhängig</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </article>
+    </main>
+
+</body>
+</html>
