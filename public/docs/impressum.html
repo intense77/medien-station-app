@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Impressum</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #f59e0b;
+            --accent-hover: #d97706;
+            --bg: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        .no-print-header {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.35rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #0f172a;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-action {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-home {
+            background: #475569;
+        }
+
+        .btn-action.btn-home:hover {
+            background: #334155;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .doc-subtitle {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #f59e0b;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.4rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        ul {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+        }
+
+        li { margin-bottom: 0.4rem; }
+
+        strong { color: #ffffff; }
+
+        .info-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent);
+            margin-bottom: 0.2rem;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: #f1f5f9;
+        }
+
+        .info-value a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0;
+        }
+
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, strong { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div { color: #1e293b !important; }
+            .info-box { background: #f8fafc !important; border: 1px solid #ccc !important; }
+            .info-label { color: #000 !important; }
+            .info-value, .info-value a { color: #333 !important; }
+            .doc-subtitle { color: #475569 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation Bar -->
+    <header class="no-print-header">
+        <a href="../index.html" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a>
+            <a href="features.html" class="nav-btn">🎨 Module</a>
+            <a href="security.html" class="nav-btn">🛡️ Security</a>
+            <a href="todo.html" class="nav-btn">📋 Roadmap</a>
+            <a href="impressum.html" class="nav-btn active">🏛️ Impressum</a>
+            <a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a>
+            <a href="lizenzen.html" class="nav-btn">📜 Lizenzen</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="../index.html" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <article class="doc-card">
+            <h1>Impressum & Anbieterkennzeichnung</h1>
+            <div class="doc-subtitle">Angaben gemäß § 5 Digitale-Dienste-Gesetz (DDG)</div>
+
+            <div class="info-box">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Dienstanbieter</span>
+                        <span class="info-value"><strong>AV-Medienzentrale Bistum Augsburg</strong><br>Diözese Augsburg (Körperschaft des öffentlichen Rechts)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Anschrift</span>
+                        <span class="info-value">Peutingerstraße 5<br>86152 Augsburg<br>Deutschland</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ansprechpartner & Leitung</span>
+                        <span class="info-value"><strong>Norbert Harner</strong><br>AV-Medienzentrale</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Kontakt</span>
+                        <span class="info-value">
+                            Telefon: <a href="tel:+4982131662272">0821-31662272</a><br>
+                            E-Mail: <a href="mailto:norbert.harner@bistum-augsburg.de">norbert.harner@bistum-augsburg.de</a><br>
+                            Web: <a href="https://bistum-augsburg.de" target="_blank" rel="noopener">bistum-augsburg.de</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Vertretungsberechtigte</h2>
+            <p>Die Diözese Augsburg ist eine Körperschaft des öffentlichen Rechts (KdöR). Sie wird gesetzlich vertreten durch den Bischof von Augsburg, <strong>Dr. Bertram Meier</strong>, bzw. durch den Generalvikar <strong>Dr. Wolfgang Hacker</strong>.</p>
+
+            <h2>Verantwortlich für den redaktionellen & technischen Inhalt</h2>
+            <p>Nach § 18 Abs. 2 Medienstaatsvertrag (MStV):<br>
+            <strong>Norbert Harner</strong><br>
+            AV-Medienzentrale Bistum Augsburg<br>
+            Peutingerstraße 5, 86152 Augsburg</p>
+
+            <hr>
+
+            <h2>Zweck und Ausrichtung der MedienStation</h2>
+            <p>Die MedienStation ist ein medienpädagogisches, nicht-kommerzielles Bildungsangebot der AV-Medienzentrale Bistum Augsburg zur Förderung der aktiven Medienkompetenz und Sprachbildung in Kindertagesstätten, Horten und Grundschulen.</p>
+
+            <h2>Haftung für Inhalte</h2>
+            <p>Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Die Inhalte dieser Anwendung wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.</p>
+
+            <h2>Haftung für Links</h2>
+            <p>Unser Angebot enthält ggf. Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+
+            <h2>Urheberrecht & Lizenzen</h2>
+            <p>Die durch die Betreiber erstellten Inhalte, Texte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Verwendete Programmbibliotheken von Drittanbietern stehen unter anerkannten Open-Source-Lizenzen (u. a. MIT, Apache 2.0). Eine detaillierte Übersicht aller verwendeten Lizenzen und Bibliotheken finden Sie auf unserer <a href="lizenzen.html" style="color: #60a5fa; text-decoration: underline;">Lizenzseite</a>.</p>
+
+        </article>
+    </main>
+
+</body>
+</html>

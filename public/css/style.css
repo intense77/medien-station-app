@@ -873,6 +873,10 @@ video {
   margin-top: 3rem;
 }
 
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
 .mt-3 {
   margin-top: 0.75rem;
 }
@@ -1386,10 +1390,6 @@ video {
   justify-content: flex-start;
 }
 
-.justify-end {
-  justify-content: flex-end;
-}
-
 .justify-center {
   justify-content: center;
 }
@@ -1829,6 +1829,10 @@ video {
   border-color: rgb(14 165 233 / var(--tw-border-opacity, 1));
 }
 
+.border-sky-500\/30 {
+  border-color: rgb(14 165 233 / 0.3);
+}
+
 .border-sky-700 {
   --tw-border-opacity: 1;
   border-color: rgb(3 105 161 / var(--tw-border-opacity, 1));
@@ -1883,6 +1887,10 @@ video {
 .border-slate-900 {
   --tw-border-opacity: 1;
   border-color: rgb(15 23 42 / var(--tw-border-opacity, 1));
+}
+
+.border-teal-500\/30 {
+  border-color: rgb(20 184 166 / 0.3);
 }
 
 .border-teal-700 {
@@ -2484,11 +2492,6 @@ video {
   padding-right: 1.5rem;
 }
 
-.px-8 {
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-
 .py-0\.5 {
   padding-top: 0.125rem;
   padding-bottom: 0.125rem;
@@ -2527,11 +2530,6 @@ video {
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-}
-
-.py-3\.5 {
-  padding-top: 0.875rem;
-  padding-bottom: 0.875rem;
 }
 
 .py-4 {
@@ -2851,6 +2849,11 @@ video {
   color: rgb(251 113 133 / var(--tw-text-opacity, 1));
 }
 
+.text-sky-300 {
+  --tw-text-opacity: 1;
+  color: rgb(125 211 252 / var(--tw-text-opacity, 1));
+}
+
 .text-sky-400 {
   --tw-text-opacity: 1;
   color: rgb(56 189 248 / var(--tw-text-opacity, 1));
@@ -2931,8 +2934,16 @@ video {
   color: rgb(250 204 21 / var(--tw-text-opacity, 1));
 }
 
+.underline {
+  text-decoration-line: underline;
+}
+
 .no-underline {
   text-decoration-line: none;
+}
+
+.underline-offset-2 {
+  text-underline-offset: 2px;
 }
 
 .accent-amber-500 {
@@ -2957,6 +2968,10 @@ video {
 
 .opacity-30 {
   opacity: 0.3;
+}
+
+.opacity-50 {
+  opacity: 0.5;
 }
 
 .opacity-60 {
@@ -3639,6 +3654,14 @@ canvas, video, .pixel-grid, .touch-none {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .sm\:flex-row {
+    flex-direction: row;
+  }
+
+  .sm\:justify-start {
+    justify-content: flex-start;
+  }
+
   .sm\:gap-2 {
     gap: 0.5rem;
   }
@@ -4153,6 +4176,11 @@ canvas, video, .pixel-grid, .touch-none {
     padding-bottom: 0.75rem;
   }
 
+  .md\:py-3\.5 {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+  }
+
   .md\:py-4 {
     padding-top: 1rem;
     padding-bottom: 1rem;
@@ -4424,5 +4452,11 @@ canvas, video, .pixel-grid, .touch-none {
       font-size: 3.75rem;
       line-height: 1;
     }
+  }
+}
+
+@media print {
+  .print\:hidden {
+    display: none;
   }
 }

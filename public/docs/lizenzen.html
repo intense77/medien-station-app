@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Lizenzen & Danksagung</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #a855f7;
+            --accent-hover: #9333ea;
+            --bg: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        .no-print-header {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.35rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-action {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-home {
+            background: #475569;
+        }
+
+        .btn-action.btn-home:hover {
+            background: #334155;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .doc-subtitle {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #c084fc;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.4rem;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        ul {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+        }
+
+        li { margin-bottom: 0.4rem; }
+
+        strong { color: #ffffff; }
+
+        .license-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .license-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .license-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #ffffff;
+        }
+
+        .badge-license {
+            background: rgba(168, 85, 247, 0.2);
+            color: #d8b4fe;
+            border: 1px solid #9333ea;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+        }
+
+        pre {
+            background: #0f172a;
+            color: #94a3b8;
+            font-family: monospace;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin-top: 0.5rem;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0;
+        }
+
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, strong, .license-title { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div { color: #1e293b !important; }
+            .license-card { background: #f8fafc !important; border: 1px solid #ccc !important; }
+            pre { background: #f1f5f9 !important; color: #333 !important; border: 1px solid #ccc !important; }
+            .doc-subtitle { color: #475569 !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation Bar -->
+    <header class="no-print-header">
+        <a href="../index.html" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a>
+            <a href="features.html" class="nav-btn">🎨 Module</a>
+            <a href="security.html" class="nav-btn">🛡️ Security</a>
+            <a href="todo.html" class="nav-btn">📋 Roadmap</a>
+            <a href="impressum.html" class="nav-btn">🏛️ Impressum</a>
+            <a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a>
+            <a href="lizenzen.html" class="nav-btn active">📜 Lizenzen</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="../index.html" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <article class="doc-card">
+            <h1>Open-Source-Lizenzen & Danksagung</h1>
+            <div class="doc-subtitle">Verwendete Third-Party-Bibliotheken, Frameworks und Lizenzen</div>
+
+            <p>Die <strong>MedienStation</strong> ist ein nicht-kommerzielles Open-Source-Bildungsprojekt der <strong>AV-Medienzentrale Bistum Augsburg</strong>. Wir danken der weltweiten Open-Source-Community für die Bereitstellung exzellenter Technologien, die es ermöglichen, modernste Medienbildung barrierefrei und datenschutzkonform in Kitas und Schulen zu bringen.</p>
+
+            <hr>
+
+            <h2>Verwendete Komponenten & Drittanbieter-Lizenzen</h2>
+
+            <!-- MediaPipe -->
+            <div class="license-card">
+                <div class="license-header">
+                    <span class="license-title">Google MediaPipe (Selfie Segmentation)</span>
+                    <span class="badge-license">Apache 2.0 License</span>
+                </div>
+                <p>Ermöglicht die lokale, clientseitige Personensegmentierung für den Green-Screen-Effekt im Zauber Selfie ohne Cloud-Server.</p>
+                <p class="text-xs text-slate-400">Copyright © Google LLC. Licensed under the Apache License, Version 2.0.</p>
+            </div>
+
+            <!-- TailwindCSS -->
+            <div class="license-card">
+                <div class="license-header">
+                    <span class="license-title">Tailwind CSS</span>
+                    <span class="badge-license">MIT License</span>
+                </div>
+                <p>Utility-First CSS-Framework für das responsive Styling und das Kiosk-Interface.</p>
+                <p class="text-xs text-slate-400">Copyright © Tailwind Labs, Inc. Released under the MIT License.</p>
+            </div>
+
+            <!-- JSZip -->
+            <div class="license-card">
+                <div class="license-header">
+                    <span class="license-title">JSZip</span>
+                    <span class="badge-license">MIT License</span>
+                </div>
+                <p>Clientseitige Erstellung von komprimierten ZIP-Archiven für den Portfolio-Download der Kinderkunstwerke.</p>
+                <p class="text-xs text-slate-400">Copyright © Stuart Knightley, David Duponchel, Franz Buchinger, António Afonso. Released under the MIT License.</p>
+            </div>
+
+            <!-- Vite -->
+            <div class="license-card">
+                <div class="license-header">
+                    <span class="license-title">Vite Build Tool</span>
+                    <span class="badge-license">MIT License</span>
+                </div>
+                <p>Frontend-Tooling und Bundler für die schnelle und optimierte Bereitstellung der App-Assets.</p>
+                <p class="text-xs text-slate-400">Copyright © 2019-present, Evan You and Vite contributors. Released under the MIT License.</p>
+            </div>
+
+            <!-- Google Fonts -->
+            <div class="license-card">
+                <div class="license-header">
+                    <span class="license-title">Google Fonts (Outfit & Plus Jakarta Sans)</span>
+                    <span class="badge-license">SIL Open Font License 1.1</span>
+                </div>
+                <p>Barrierefreie und lesefreundliche Schriftarten für Kinder und Erwachsene.</p>
+                <p class="text-xs text-slate-400">Copyright © Rodrigo Fuenzalida (Outfit) / Gumpita Rahayu (Plus Jakarta Sans). Licensed under the SIL Open Font License, Version 1.1.</p>
+            </div>
+
+            <!-- Capacitor & Cordova -->
+            <div class="license-card">
+                <div class="license-header">
+                    <span class="license-title">Apache Cordova & Ionic Capacitor</span>
+                    <span class="badge-license">Apache 2.0 / MIT</span>
+                </div>
+                <p>Hardware-Schnittstellen für native Android-Kiosksysteme (Drucken, Dateisystem, Audio).</p>
+            </div>
+
+            <hr>
+
+            <h2>MIT License (Standard-Text)</h2>
+            <pre>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+
+        </article>
+    </main>
+
+</body>
+</html>

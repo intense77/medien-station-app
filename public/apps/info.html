@@ -87,8 +87,16 @@
             </div>
         </div>
 
-        <div class="flex justify-end pt-8 border-t border-slate-700 mt-10">
-            <button onclick="window.goHome()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black py-3.5 px-8 rounded-full shadow-lg active:scale-95 transition border-2 border-yellow-300 flex items-center gap-2 text-lg cursor-pointer">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-8 border-t border-slate-700 mt-10">
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-xs md:text-sm text-slate-400">
+                <span class="font-bold text-slate-300">Rechtliches & Impressum:</span>
+                <a href="../docs/impressum.html" target="_blank" class="text-blue-400 hover:text-amber-300 underline font-semibold transition">Impressum</a>
+                <span class="opacity-50">•</span>
+                <a href="../docs/datenschutz.html" target="_blank" class="text-blue-400 hover:text-amber-300 underline font-semibold transition">Datenschutz</a>
+                <span class="opacity-50">•</span>
+                <a href="../docs/lizenzen.html" target="_blank" class="text-blue-400 hover:text-amber-300 underline font-semibold transition">Lizenzen</a>
+            </div>
+            <button onclick="window.goHome()" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black py-3 px-6 md:py-3.5 md:px-8 rounded-full shadow-lg active:scale-95 transition border-2 border-yellow-300 flex items-center gap-2 text-base md:text-lg cursor-pointer shrink-0">
                 <span>👈</span> Zurück zum Hauptmenü
             </button>
         </div>
