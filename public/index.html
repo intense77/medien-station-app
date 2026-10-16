@@ -132,21 +132,21 @@
                 </div>
             </div>
 
-            <!-- Rechte Karte: Station Hub & Portale (ca. 40% Breite) -->
-            <div class="md:w-5/12 lg:w-5/12 bg-slate-900/60 border border-slate-700/80 rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between gap-2.5 relative overflow-hidden">
+            <!-- Rechte Karte: Station Hub & Portale (erweiterter Raum nach links) -->
+            <div class="md:w-1/2 lg:w-[48%] bg-slate-900/60 border border-slate-700/80 rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between gap-2.5 relative overflow-hidden shrink-0">
                 <!-- Obere Zeile: Logo links/mitte, Fachkraft-Einstellungen rechts -->
-                <div class="flex items-center justify-between gap-2 w-full z-10">
+                <div class="flex items-center justify-between gap-2.5 sm:gap-3 w-full z-10">
                     <!-- Medienzentrale Logo -->
-                    <button onclick="toggleQR()" class="bg-slate-800/90 hover:bg-slate-700 border border-slate-600 hover:border-slate-400 text-white px-3 py-1.5 rounded-full font-bold flex items-center gap-2 transition-all shadow-sm active:scale-95 cursor-pointer shrink-0" title="AV-Medienzentrale &amp; QR-Code">
+                    <button onclick="toggleQR()" class="bg-slate-800/90 hover:bg-slate-700 border border-slate-600 hover:border-slate-400 text-white px-3 sm:px-3.5 py-1.5 rounded-full font-bold flex items-center gap-2 sm:gap-2.5 transition-all shadow-sm active:scale-95 cursor-pointer shrink min-w-0" title="AV-Medienzentrale &amp; QR-Code">
                         <img src="assets/logo.png" alt="AV-Medienzentrale" style="height: 26px; max-height: 28px; width: auto; max-width: 105px; object-fit: contain;" class="shrink-0" onerror="this.style.display='none'">
                         <div class="flex flex-col text-left shrink min-w-0">
-                            <span class="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-0.5 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.6)</span></span>
+                            <span class="text-[8px] sm:text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-0.5 truncate">AV-Medienzentrale <span class="text-amber-400 font-mono">(v7.9.8)</span></span>
                             <span class="text-xs sm:text-sm font-black text-white leading-none tracking-wide truncate">AV-MEDIENZENTRALE</span>
                         </div>
                     </button>
 
                     <!-- Fachkraft-Einstellungen -->
-                    <button onclick="openSettings()" class="bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm py-1.5 px-3 sm:px-3.5 rounded-full shadow-sm active:translate-y-0.5 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 border border-slate-600 hover:border-amber-400 cursor-pointer" title="Einstellungen (PIN-geschützt)">
+                    <button onclick="openSettings()" class="bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm py-1.5 px-3 sm:px-4 rounded-full shadow-sm active:translate-y-0.5 transition-all transform hover:scale-105 shrink-0 flex items-center gap-1.5 border border-slate-600 hover:border-amber-400 cursor-pointer whitespace-nowrap" title="Einstellungen (PIN-geschützt)">
                         <span class="text-sm sm:text-base">⚙️</span> <span class="hidden sm:inline">EINSTELLUNGEN</span>
                     </button>
                 </div>

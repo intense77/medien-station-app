@@ -3666,6 +3666,10 @@ canvas, video, .pixel-grid, .touch-none {
     gap: 0.5rem;
   }
 
+  .sm\:gap-2\.5 {
+    gap: 0.625rem;
+  }
+
   .sm\:gap-3 {
     gap: 0.75rem;
   }
@@ -3915,6 +3919,10 @@ canvas, video, .pixel-grid, .touch-none {
     min-height: 0px;
   }
 
+  .md\:w-1\/2 {
+    width: 50%;
+  }
+
   .md\:w-12 {
     width: 3rem;
   }
@@ -3945,10 +3953,6 @@ canvas, video, .pixel-grid, .touch-none {
 
   .md\:w-36 {
     width: 9rem;
-  }
-
-  .md\:w-5\/12 {
-    width: 41.666667%;
   }
 
   .md\:w-56 {
@@ -4278,12 +4282,12 @@ canvas, video, .pixel-grid, .touch-none {
 }
 
 @media (min-width: 1024px) {
-  .lg\:w-5\/12 {
-    width: 41.666667%;
-  }
-
   .lg\:w-64 {
     width: 16rem;
+  }
+
+  .lg\:w-\[48\%\] {
+    width: 48%;
   }
 
   .lg\:max-w-\[80\%\] {
