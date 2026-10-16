@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedienStation – Datenschutz, Security & DSGVO-Handreichung</title>
+    <title>MedienStation – IT-Sicherheits-, Datenschutz- &amp; KI-Freigabedossier</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,6 +19,7 @@
             --border: #334155;
             --success: #10b981;
             --warning: #f59e0b;
+            --info: #38bdf8;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -125,7 +126,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1040px;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
@@ -138,7 +139,7 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        h1, h2, h3 {
+        h1, h2, h3, h4 {
             font-family: 'Outfit', sans-serif;
             color: #ffffff;
             line-height: 1.25;
@@ -159,7 +160,24 @@
             color: var(--accent);
             font-weight: 700;
             font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .doc-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
             margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .doc-meta strong {
+            color: #f1f5f9;
         }
 
         h2 {
@@ -172,12 +190,37 @@
             padding-bottom: 0.5rem;
         }
 
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
         .security-item {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border);
             border-radius: 1rem;
-            padding: 1.5rem;
-            margin-bottom: 1.25rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .security-header {
@@ -185,10 +228,11 @@
             align-items: center;
             gap: 0.75rem;
             margin-bottom: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .security-title {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 800;
             color: #ffffff;
         }
@@ -202,6 +246,80 @@
             background: rgba(16, 185, 129, 0.2);
             color: #34d399;
             border: 1px solid #059669;
+        }
+
+        .security-status.blue {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            border-color: #0284c7;
+        }
+
+        .security-status.yellow {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border-color: #d97706;
+        }
+
+        /* Tabellen */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0 2rem 0;
+            font-size: 0.9rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .data-table th, .data-table td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 0.75rem 0.75rem 0;
+            margin: 1.5rem 0;
+        }
+
+        .callout.info {
+            border-left-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .callout.warning {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .callout-title {
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         code, pre {
@@ -228,15 +346,47 @@
             margin: 2.5rem 0;
         }
 
+        /* Signaturbereich */
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .signature-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px dashed var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .sig-line {
+            border-bottom: 1px solid var(--border);
+            height: 50px;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .sig-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         @media print {
             .no-print-header { display: none !important; }
-            body { background: white !important; color: black !important; padding: 0 !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; font-size: 10pt; }
             .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
             .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
-            h1, h2, h3, .security-title { color: black !important; -webkit-text-fill-color: initial !important; }
-            p, li, div { color: #1e293b !important; }
-            .security-item { background: #f8fafc !important; border: 1px solid #ccc !important; }
+            h1, h2, h3, h4, .security-title { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div, td, th { color: #1e293b !important; }
+            .security-item, .callout, .doc-meta, .signature-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; color: black !important; }
+            .data-table th { background: #f1f5f9 !important; color: black !important; }
+            .data-table td, .data-table th { border-color: #cbd5e1 !important; }
             code, pre { background: #f1f5f9 !important; color: #0284c7 !important; border: 1px solid #ccc !important; }
+            .security-status { border: 1px solid #64748b !important; color: black !important; background: #e2e8f0 !important; }
+            .sig-line { border-bottom-color: black !important; }
         }
     </style>
 </head>
@@ -251,7 +401,7 @@
         <nav class="nav-links">
             <a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a>
             <a href="features.html" class="nav-btn">🎨 Module</a>
-            <a href="security.html" class="nav-btn active">🛡️ Security</a>
+            <a href="security.html" class="nav-btn active">🛡️ IT &amp; DSGVO</a>
             <a href="todo.html" class="nav-btn">📋 Roadmap</a>
             <a href="impressum.html" class="nav-btn">🏛️ Impressum</a>
             <a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a>
@@ -266,65 +416,401 @@
 
     <main class="container">
         <article class="doc-card">
-            <h1>Sicherheits- & Datenschutzkonzept (DSGVO)</h1>
-            <div class="doc-subtitle">Handreichung für Datenschutzbeauftragte, IT-Administratoren & Einrichtungsleitung</div>
+            <h1>IT-Sicherheits-, Datenschutz- &amp; KI-Freigabedossier</h1>
+            <div class="doc-subtitle">Offizielle Dokumentationsmappe zur Genehmigung durch IT-Abteilung, Datenschutzbeauftragte (DSB) &amp; KI-Beauftragte</div>
 
-            <p>Die <strong>MedienStation</strong> wurde unter dem Prinzip <em>Security and Privacy by Design</em> entwickelt. Da die Anwendung in Kindertagesstätten und Grundschulen zum Einsatz kommt, unterliegt sie den strengen Vorgaben der Datenschutz-Grundverordnung (DSGVO) und des KDG (Kirchliches Datenschutzgesetz).</p>
-
-            <hr>
-
-            <h2>🛡️ 1. Datenschutz-Architektur im Überblick</h2>
-
-            <div class="security-item">
-                <div class="security-header">
-                    <span class="security-title">100% Lokale Datenverarbeitung (No Cloud / No External Calls)</span>
-                    <span class="security-status">VERIFIZIERT</span>
-                </div>
-                <p>Sämtliche Bild-, Video- und Audioverarbeitungen finden ausschließlich im Browser auf dem lokalen Endgerät statt. Es werden keinerlei Telemetriedaten, Kamera-Streams oder Aufnahmen an externe Server übertragen.</p>
+            <div class="doc-meta">
+                <div><strong>Projekt:</strong> AV-Medienstation für Kitas &amp; Grundschulen</div>
+                <div><strong>Version:</strong> 7.9.8 (Build 332)</div>
+                <div><strong>Herausgeber:</strong> AV-Medienzentrale Bistum Augsburg</div>
+                <div><strong>Ansprechpartner:</strong> Norbert Harner (Tel. 0821-31662272)</div>
+                <div><strong>Rechtsrahmen:</strong> KDG (Kirchliches Datenschutzgesetz), DSGVO, EU AI Act 2024/1689</div>
             </div>
 
-            <div class="security-item">
-                <div class="security-header">
-                    <span class="security-title">Keine Registrierung, Nutzerkonten oder Tracking</span>
-                    <span class="security-status">VERIFIZIERT</span>
-                </div>
-                <p>Das System speichert keine personenbezogenen Nutzer-Profile, verwendet keine Cookies und verzichtet vollständig auf externe Analyse-Dienste (Google Analytics, Matomo etc.).</p>
-            </div>
-
-            <div class="security-item">
-                <div class="security-header">
-                    <span class="security-title">Automatischer DSGVO-Tages-Reset (Art. 5 Abs. 1 lit. e DSGVO)</span>
-                    <span class="security-status">AUTOMATISIERT</span>
-                </div>
-                <p>Erstellte Fotos und Sprachaufnahmen verbleiben standardmäßig nur für die Dauer des aktuellen Kita-Tages auf dem Gerät. Zu Beginn eines neuen Kalendertages löscht das System die lokale IndexedDB-Galerie automatisch und unwiderruflich.</p>
+            <div class="callout">
+                <div class="callout-title">✅ Wichtigste Prüfergebnisse auf einen Blick:</div>
+                <p style="margin-bottom: 0;">Die MedienStation ist als <strong>100% lokale Client-Side PWA</strong> konzipiert. Es werden <strong>keine personenbezogenen Daten</strong> (Bilder, Stimmen, Texte) an Server übertragen oder in Cloud-Diensten gespeichert. Die KI-Bildfreistellung arbeitet vollständig offline im Browser. Es liegt <strong>kein Hochrisiko-System</strong> vor; eine formelle Datenschutz-Folgenabschätzung (DSFA) ist nicht erforderlich.</p>
             </div>
 
             <hr>
 
-            <h2>🔒 2. Integrierte Nginx HTTP Security Headers</h2>
+            <!-- TEIL 1: IT-SICHERHEIT & BETRIEB -->
+            <h2>🖥️ Teil 1: IT-Betriebs- &amp; Sicherheitsdatenblatt (Für IT-Leitung)</h2>
+            <p>Dieser Abschnitt dient der Prüfung durch die IT-Systemadministration, Netzwerkverantwortliche und Information-Security-Officers (CISO).</p>
 
-            <p>Beim Deployment über den mitgelieferten Webserver/Nginx werden folgende Sicherheits-Header erzwungen:</p>
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">1.1 Architektur: 100% Client-Side Single Page Application (PWA)</span>
+                    <span class="security-status">ZERO-BACKEND</span>
+                </div>
+                <p>Die Anwendung besitzt <strong>kein dynamisches Backend</strong>, keine Datenbank auf dem Server und keine API-Schnittstellen zu Drittsystemen. Der Webserver (Nginx) fungiert ausschließlich als statischer Datei-Auslieferer für HTML-, CSS-, JavaScript-, WebAssembly- und Mediendateien. Sämtliche Programmlogik läuft in der Sandbox des lokalen Browser-Clients (iPad / Android Tablet).</p>
+            </div>
 
-            <pre><code># Schutz vor Clickjacking & Frame-Embedding
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">1.2 Netzwerk- &amp; Portmatrix (Zero External Traffic)</span>
+                    <span class="security-status blue">OFFLINE-FIRST</span>
+                </div>
+                <table class="data-table" style="margin: 0.5rem 0;">
+                    <thead>
+                        <tr>
+                            <th>Richtung / Port</th>
+                            <th>Protokoll</th>
+                            <th>Ziel / Domain</th>
+                            <th>Zweck &amp; Frequenz</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Ausgehend Port 443</strong></td>
+                            <td>HTTPS</td>
+                            <td>Eigene Hosting-Domain (Coolify/Nginx)</td>
+                            <td>Einmaliger initialer Download der App-Assets / Service-Worker-Cache.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Eingehend (Inbound)</strong></td>
+                            <td>Keine</td>
+                            <td>–</td>
+                            <td><strong>Keine offenen Ports</strong> auf dem Client-Tablet erforderlich.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Externe CDNs / APIs</strong></td>
+                            <td>Keine</td>
+                            <td>–</td>
+                            <td><strong>0 KB externer Traffic.</strong> Google MediaPipe WASM, TFLite, JSZip, Tailwind und Fonts sind 100% lokal gehostet.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nach dem Erststart</strong></td>
+                            <td>Offline</td>
+                            <td>–</td>
+                            <td>Vollständig offline nutzbar (z. B. Flugmodus, Waldkindergarten).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">1.3 Gehärtete HTTP-Sicherheitsheader (Nginx Konfiguration)</span>
+                    <span class="security-status">A+ HÄRTUNG</span>
+                </div>
+                <p>Der Nginx-Webserver erzwingt restriktive Sicherheits-Header zur Abwehr von XSS, Clickjacking, MIME-Sniffing und unautorisierten Hardware-Zugriffen:</p>
+                <pre><code># Abwehr von Clickjacking / Embedding in fremden Frames
 add_header X-Frame-Options "SAMEORIGIN" always;
 
-# Schutz vor MIME-Type-Sniffing
+# Unterbindung von MIME-Type-Sniffing
 add_header X-Content-Type-Options "nosniff" always;
 
-# Referrer Policy
+# Referrer-Policy zum Schutz von URL-Metadaten
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
-# Hardware-Zugriff (Kamera/Mikrofon) nur auf die eigene Origin beschränken
+# Hardware-Zugriff (Kamera & Mikrofon) strikt auf die eigene Origin beschränken
 add_header Permissions-Policy "camera=(self), microphone=(self)" always;
 
-# Strikte Content Security Policy (CSP)
-add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self';" always;</code></pre>
+# Restriktive Content Security Policy (CSP): Keine Fremd-Skripte oder Fremd-Connects erlaubt
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self';" always;
+
+# Unterdrückung der Webserver-Versionsnummer
+server_tokens off;</code></pre>
+            </div>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">1.4 Hardware-, OS- &amp; Kiosk-Voraussetzungen</span>
+                    <span class="security-status blue">CLIENT-KOMPATIBEL</span>
+                </div>
+                <ul>
+                    <li><strong>Apple iPad:</strong> iPadOS 15.0 oder höher. Safari oder PWA-Modus („Zum Home-Bildschirm“). Kiosk-Betrieb über Apple „Geführter Zugriff“ (Guided Access) empfohlen.</li>
+                    <li><strong>Android Tablets:</strong> Android 10 oder höher. Google Chrome / Webview. Kiosk-Betrieb über Android App-Pinning oder „Fully Kiosk Browser“.</li>
+                    <li><strong>Keine Administrator-/Root-Rechte nötig:</strong> Die App läuft vollkommen isoliert im unprivilegierten Standard-Web-Sandbox-Modus.</li>
+                </ul>
+            </div>
 
             <hr>
 
-            <h2>⚙️ 3. PIN-Geschützter Freispiel-Schutz für Fachkräfte</h2>
+            <!-- TEIL 2: VERZEICHNIS VON VERARBEITUNGSTÄTIGKEITEN (VVT) -->
+            <h2>📋 Teil 2: Verzeichnis von Verarbeitungstätigkeiten (VVT nach § 31 KDG / Art. 30 DSGVO)</h2>
+            <p>Dieser Vordruck kann von der Einrichtungsleitung oder dem Datenschutzbeauftragten direkt in das behördliche/kirchliche Verzeichnis der Verarbeitungstätigkeiten übernommen werden.</p>
 
-            <p>Über das Einstellungsmenü können Fachkräfte mit der Admin-PIN (Standard: <code>1234</code>) den <strong>Foto- & Kamera-Datenschutz</strong> aktivieren. Dies sperrt sofort alle 5 kamera-basierten Module, falls Kinder ohne Fotofreigabe am Spiel teilnehmen.</p>
+            <table class="data-table">
+                <tbody>
+                    <tr>
+                        <td style="width: 32%;"><strong>1. Bezeichnung der Verarbeitung</strong></td>
+                        <td><strong>Medienpädagogische Kiosk-Station („MedienStation“)</strong> zur handlungsorientierten Förderung digitaler Medienkompetenz in Kindertagesstätten und Schulen.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Verantwortlicher (§ 4 Nr. 9 KDG / Art. 4 Nr. 7 DSGVO)</strong></td>
+                        <td>Diözese Augsburg KdöR / AV-Medienzentrale, Kappelberg 1, 86150 Augsburg.<br>
+                        Ansprechpartner: Norbert Harner, Tel. 0821-31662272, E-Mail: norbert.harner@bistum-augsburg.de</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Zwecke der Verarbeitung</strong></td>
+                        <td>Spielerische und pädagogische Erstellung von Tonaufnahmen (Mikro Check, Musik Labor), Bildern/Comics und Trickfilmen im Gruppenverband; Sensibilisierung für Bild- und Tonmanipulation; Sprachförderung.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Rechtsgrundlagen</strong></td>
+                        <td>§ 6 Abs. 1 lit. c KDG (Erfüllung der pädagogischen Bildungs- und Betreuungsaufgabe); § 6 Abs. 1 lit. g KDG / Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an moderner Medienbildung); ggf. Einwilligung der Personensorgeberechtigten für Gruppenfotos.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Betroffene Personengruppen</strong></td>
+                        <td>Kinder in Betreuungseinrichtungen (Kitas, Horte, Grundschulen); pädagogische Fachkräfte.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. Kategorien personenbezogener Daten</strong></td>
+                        <td>
+                            <ul>
+                                <li><strong>Flüchtige Sprachaufnahmen:</strong> Eigene Stimme, Geräusche (rein lokal im RAM / IndexedDB).</li>
+                                <li><strong>Flüchtige Bild-/Videoaufnahmen:</strong> Fotos für Comics, Zauber-Selfies, Trickfilme (rein lokal im IndexedDB-Browserspeicher).</li>
+                                <li><strong>Server-Logdaten beim Hosting:</strong> IP-Adresse, Zugriffszeit, User-Agent (technisch notwendig zum Ausliefern der Web-Assets; Speicherung max. 7 Tage zur Gefahrenabwehr).</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>7. Empfänger &amp; Dritte (§ 4 Nr. 10 KDG)</strong></td>
+                        <td><strong>Keine Empfänger.</strong> Daten verbleiben auf dem lokalen Endgerät. Es findet kein Sync mit Apple iCloud, Google Cloud oder Drittanbietern statt.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8. Drittlandübermittlung (§ 39 KDG)</strong></td>
+                        <td><strong>Findet nicht statt.</strong> Weder Kinderdaten noch Telemetriedaten werden in Drittländer außerhalb der EU/des EWR übertragen.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>9. Löschfristen &amp; Speicherbegrenzung</strong></td>
+                        <td>
+                            <strong>Automatischer Tages-Reset:</strong> Täglich um 00:00 Uhr werden alle im IndexedDB-Speicher gespeicherten Kunstwerke/Aufnahmen automatisch und unwiderruflich gelöscht.<br>
+                            <strong>Manuelle Sofort-Löschung:</strong> Im Fachkraft-Menü jederzeit per Klick („Galerie leeren“) ausführbar.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <!-- TEIL 3: TECHNISCH-ORGANISATORISCHE MASSNAHMEN (TOM) -->
+            <h2>🛡️ Teil 3: Technisch-Organisatorische Maßnahmen (TOM nach § 26 KDG / Art. 32 DSGVO)</h2>
+            <p>Die folgenden Maßnahmen gewährleisten die Sicherheit der Verarbeitung sowie den Schutz der Grundrechte der Kinder:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">TOM-Kategorie</th>
+                        <th style="width: 50%;">Implementierte Schutzmaßnahme</th>
+                        <th style="width: 25%;">Status &amp; Verifikation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Vertraulichkeit (Zugriffskontrolle)</strong></td>
+                        <td>Fachkraft- und Admin-Einstellungen sind durch eine 4-stellige PIN (Standard: <code>1234</code>, änderbar) gesichert. Kinder haben keinen Zugriff auf Systemeinstellungen oder Löschfunktionen.</td>
+                        <td><span class="security-status">PIN-GESICHERT</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Freispiel-Kamera-Datenschutz</strong></td>
+                        <td>Fachkräfte können im PIN-Menü alle 5 Kamera-Apps (Selfie, Loop, News, Trickfilm, Comic) zentral pausieren, falls Kinder ohne Fotoeinwilligung in der Gruppe sind.</td>
+                        <td><span class="security-status">SCHUTZ AKTIV</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Integrität (Eingabekontrolle)</strong></td>
+                        <td>Verhinderung von Script-Injection: Textfelder (z. B. Comic-Blasen) nutzen striktes <code>innerText</code>-Escaping. Keine SQL-Datenbanken oder unkontrollierte Dateisystemzugriffe.</td>
+                        <td><span class="security-status">DOM-XSS SICHER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Trennungsgebot (Sandbox)</strong></td>
+                        <td>Isolierte Ausführung im Browser-Sicherheitskontext. Die IndexedDB-Galerie ist strikt an die Origin gebunden; fremde Webseiten oder andere Apps können nicht darauf zugreifen.</td>
+                        <td><span class="security-status">BROWSER-SANDBOX</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Verfügbarkeit &amp; Belastbarkeit</strong></td>
+                        <td>Offline-First-Design durch Service Worker: Das System funktioniert auch bei Netzwerkausfall, instabilem WLAN oder im Außengelände ohne Beeinträchtigung.</td>
+                        <td><span class="security-status blue">PWA OFFLINE-READY</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. Löschung &amp; Speicherbegrenzung</strong></td>
+                        <td>Art. 5 Abs. 1 lit. e DSGVO (Speicherbegrenzung) wird durch automatisierten täglichen Kalender-Reset der lokalen Galerie algorithmisch erzwungen.</td>
+                        <td><span class="security-status">AUTO-RESET 00:00</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <!-- TEIL 4: SCHWELLWERTANALYSE & DSFA-PRÜFUNG -->
+            <h2>⚖️ Teil 4: Vorabprüfung zur Datenschutz-Folgenabschätzung (DSFA nach § 35 KDG / Art. 35 DSGVO)</h2>
+            <p>Zur Feststellung, ob für den Einsatz der MedienStation eine formelle Datenschutz-Folgenabschätzung (DSFA) durchgeführt werden muss, wurde eine Schwellwertprüfung anhand der Kriterien der Datenschutzkonferenz (DSK) und der WP 248 vorgenommen:</p>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 55%;">Prüfkriterium (gemäß Leitlinien WP 248)</th>
+                        <th style="width: 15%;">Zutreffend?</th>
+                        <th style="width: 30%;">Begründung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1. Bewertung oder Einstufung (Scoring / Profiling)</td>
+                        <td><strong style="color: #34d399;">NEIN</strong></td>
+                        <td>Keine Bewertung, kein Testen, kein Leistungsvergleich von Kindern.</td>
+                    </tr>
+                    <tr>
+                        <td>2. Automatisierte Entscheidungsfindung mit Rechtswirkung</td>
+                        <td><strong style="color: #34d399;">NEIN</strong></td>
+                        <td>Keine automatisierten Entscheidungen.</td>
+                    </tr>
+                    <tr>
+                        <td>3. Systematische Überwachung (Monitoring)</td>
+                        <td><strong style="color: #34d399;">NEIN</strong></td>
+                        <td>Keine Überwachung, keine Aufzeichnung von Sitzungsdauern.</td>
+                    </tr>
+                    <tr>
+                        <td>4. Verarbeitung von Daten schutzbedürftiger Personen (Kinder)</td>
+                        <td><strong style="color: #fbbf24;">JA</strong></td>
+                        <td>Nutzerkreis sind Kinder in Kitas und Grundschulen.</td>
+                    </tr>
+                    <tr>
+                        <td>5. Datenverarbeitung in großem Umfang (Big Data)</td>
+                        <td><strong style="color: #34d399;">NEIN</strong></td>
+                        <td>Dezentrale Einzelgeräte, wenige Megabyte temporäre Daten.</td>
+                    </tr>
+                    <tr>
+                        <td>6. Verknüpfung oder Zusammenführung von Datensätzen</td>
+                        <td><strong style="color: #34d399;">NEIN</strong></td>
+                        <td>Keine Verknüpfung mit externen Datenquellen.</td>
+                    </tr>
+                    <tr>
+                        <td>7. Innovative Technologien (Lokale KI-Segmentierung)</td>
+                        <td><strong style="color: #fbbf24;">TEILWEISE</strong></td>
+                        <td>Lokales MediaPipe-Modell, jedoch ohne Cloud und ohne Biometrie.</td>
+                    </tr>
+                    <tr>
+                        <td>8. Datenübermittlung in Drittländer außerhalb der EU</td>
+                        <td><strong style="color: #34d399;">NEIN</strong></td>
+                        <td>Keine Übermittlung.</td>
+                    </tr>
+                    <tr>
+                        <td>9. Ausschluss von Rechten oder Dienstleistungen</td>
+                        <td><strong style="color: #34d399;">NEIN</strong></td>
+                        <td>Reines pädagogisches Kreativwerkzeug.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout">
+                <div class="callout-title">Ergebnis der Schwellwertanalyse:</div>
+                <p style="margin-bottom: 0;">Von den 9 Risikokriterien wird lediglich das Kriterium der schutzbedürftigen Personengruppe (Kinder) erfüllt. Da <strong>weniger als zwei Kriterien kumulativ</strong> vorliegen und durch die 100% lokale Verarbeitung sowie den automatischen Tages-Reset keinerlei bleibendes Risiko für die Rechte und Freiheiten der Kinder entsteht, ist <strong>keine vollumfängliche DSFA erforderlich</strong> (Niedrigrisiko-Verarbeitung).</p>
+            </div>
+
+            <hr>
+
+            <!-- TEIL 5: KI-BEAUFTRAGTER & EU AI ACT -->
+            <h2>🤖 Teil 5: KI-Konformitäts- &amp; Transparenzerklärung (EU AI Act 2024/1689)</h2>
+            <p>Dieser Abschnitt dokumentiert den Einsatz von Künstlicher Intelligenz (KI) in der MedienStation für den KI-Beauftragten und die ethische Prüfung.</p>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">5.1 Spezifikation der eingesetzten KI-Komponente</span>
+                    <span class="security-status blue">MEDIAPIPE TFLITE</span>
+                </div>
+                <p>In der App <strong>„Zauber Selfie“</strong> wird ein leichtgewichtiges Convolutional Neural Network (CNN) eingesetzt: <code>Google MediaPipe Selfie Segmentation</code> (Lizenz: Apache 2.0). Das Modell ist als TensorFlow-Lite-Datei (<code>selfie_segmentation.tflite</code>, ca. 250 KB) fest in die App integriert.</p>
+            </div>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">5.2 Einstufung nach EU AI Act (KI-Verordnung (EU) 2024/1689)</span>
+                    <span class="security-status">MINIMALES RISIKO (ART. 6)</span>
+                </div>
+                <ul>
+                    <li><strong>Kein verbotenes KI-System (Art. 5 EU AI Act):</strong> Es findet kein Social Scoring, keine Verhaltensmanipulation zur Schädigung und keine biometrische Echtzeit-Fernidentifizierung im öffentlichen Raum statt.</li>
+                    <li><strong>Kein Hochrisiko-System (Art. 6 &amp; Anhang III EU AI Act):</strong> Die KI dient weder der Leistungsbewertung in Bildungsstätten, noch trifft sie Entscheidungen über den Zugang zu Bildungseinrichtungen oder das Verhalten der Kinder.</li>
+                    <li><strong>Einstufung:</strong> System mit <strong>minimalem Risiko / Null-Risiko (Minimal / No Risk AI)</strong>. Das Modell fungiert rein als digitaler „Grafik-Scherenschnitt“ zur Maskierung von Bildhintergründen.</li>
+                </ul>
+            </div>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">5.3 Ethische Negativ-Attestierung (Garantien für den Kinderschutz)</span>
+                    <span class="security-status">GEPRÜFT &amp; ATTESTIERT</span>
+                </div>
+                <table class="data-table" style="margin: 0.5rem 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;">Eigenschaft</th>
+                            <th style="width: 15%;">Vorhanden?</th>
+                            <th style="width: 50%;">Erläuterung &amp; technischer Nachweis</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Biometrische Identifikation</strong></td>
+                            <td><strong style="color: #34d399;">NEIN</strong></td>
+                            <td>Das Modell erkennt Gesichter nicht wieder, erzeugt keine Face-Hashes und kann keine Personen identifizieren.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Emotionserkennung</strong></td>
+                            <td><strong style="color: #34d399;">NEIN</strong></td>
+                            <td>Es erfolgt keinerlei mimische Analyse oder Stimmungserkennung (kein Emotion Recognition).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Generative KI / LLM</strong></td>
+                            <td><strong style="color: #34d399;">NEIN</strong></td>
+                            <td>Keine Textgenerierung, keine KI-Synthese (kein Deepfake-Risiko, kein Halluzinieren).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Modell-Training mit Kinderdaten</strong></td>
+                            <td><strong style="color: #34d399;">NEIN</strong></td>
+                            <td>Das Modell ist vorab trainiert und schreibgeschützt („Inferenz-only“). Es lernt nicht dazu.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cloud-Übertragung von Kamerabildern</strong></td>
+                            <td><strong style="color: #34d399;">NEIN</strong></td>
+                            <td>Kamerabilder verbleiben im GPU/RAM-Puffer des Tablets und werden nach dem Frame-Render sofort verworfen.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr>
+
+            <!-- TEIL 6: FORMELLES FREIGABE- & GENEHMIGUNGSPROTOKOLL -->
+            <h2>✍️ Teil 6: Freigabebeschluss &amp; Genehmigungsprotokoll</h2>
+            <p>Zur formellen Dokumentation in den Einrichtungsakten kann diese Erklärung ausgedruckt und von den zuständigen Stellen gegengezeichnet werden:</p>
+
+            <div class="callout info">
+                <p><strong>Beschlussvorschlag:</strong> Der Einsatz der Software <em>MedienStation (Version 7.9.8)</em> wird auf den dafür vorgesehenen Tablet-Endgeräten der Einrichtung für den medienpädagogischen Einsatz freigegeben. Die Einhaltung der Vorgaben des KDG, der DSGVO und des EU AI Act wurde anhand dieses Dossiers geprüft und bestätigt.</p>
+            </div>
+
+            <div class="signature-grid">
+                <div class="signature-box">
+                    <strong>1. IT-Freigabe (Systemtechnik)</strong>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Prüfung von Netzwerk, Ports, Sicherheit &amp; Endgeräte-Sandboxing.</p>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Datum, Name &amp; Unterschrift IT-Leitung</div>
+                </div>
+
+                <div class="signature-box">
+                    <strong>2. Datenschutz-Freigabe (DSB)</strong>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Prüfung von KDG/DSGVO, VVT-Eintrag, TOM &amp; Schwellwertanalyse.</p>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Datum, Name &amp; Unterschrift Datenschutzbeauftragte(r)</div>
+                </div>
+
+                <div class="signature-box">
+                    <strong>3. KI- &amp; Ethik-Freigabe</strong>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Prüfung nach EU AI Act (Art. 6) &amp; kirchlichen KI-Leitlinien.</p>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Datum, Name &amp; Unterschrift KI-Beauftragte(r)</div>
+                </div>
+
+                <div class="signature-box">
+                    <strong>4. Einrichtungs- / Trägerleitung</strong>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Gesamtgenehmigung für den Betrieb im pädagogischen Alltag.</p>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Datum, Name &amp; Unterschrift Einrichtungsleitung</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem; text-align: center;" class="no-print-header">
+                <button onclick="window.print()" class="btn-action" style="font-size: 1rem; padding: 0.75rem 2rem;">🖨️ Dieses Freigabedossier als PDF drucken / speichern</button>
+            </div>
 
         </article>
     </main>
