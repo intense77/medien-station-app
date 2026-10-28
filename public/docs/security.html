@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+
         :root {
             --primary: #0f172a;
             --accent: #10b981;
@@ -20,6 +21,7 @@
             --success: #10b981;
             --warning: #f59e0b;
             --info: #38bdf8;
+            --danger: #ef4444;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -68,7 +70,7 @@
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             flex-wrap: wrap;
         }
 
@@ -76,15 +78,15 @@
             background: #1e293b;
             color: #cbd5e1;
             border: 1px solid #334155;
-            padding: 0.45rem 0.9rem;
+            padding: 0.4rem 0.85rem;
             border-radius: 9999px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 700;
             text-decoration: none;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.35rem;
         }
 
         .nav-btn:hover, .nav-btn.active {
@@ -125,8 +127,12 @@
             background: #475569;
         }
 
+        .btn-action.btn-home:hover {
+            background: #334155;
+        }
+
         .container {
-            max-width: 1040px;
+            max-width: 1060px;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
@@ -260,7 +266,6 @@
             border-color: #d97706;
         }
 
-        /* Tabellen */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -346,7 +351,6 @@
             margin: 2.5rem 0;
         }
 
-        /* Signaturbereich */
         .signature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -388,9 +392,11 @@
             .security-status { border: 1px solid #64748b !important; color: black !important; background: #e2e8f0 !important; }
             .sig-line { border-bottom-color: black !important; }
         }
+
     </style>
 </head>
 <body>
+
 
     <header class="no-print-header">
         <a href="../index.html?skip_splash=1" class="brand">
@@ -399,13 +405,7 @@
         </a>
 
         <nav class="nav-links">
-            <a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a>
-            <a href="features.html" class="nav-btn">🎨 Module</a>
-            <a href="security.html" class="nav-btn active">🛡️ IT &amp; DSGVO</a>
-            <a href="todo.html" class="nav-btn">📋 Roadmap</a>
-            <a href="impressum.html" class="nav-btn">🏛️ Impressum</a>
-            <a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a>
-            <a href="lizenzen.html" class="nav-btn">📜 Lizenzen</a>
+            <a href="docs.html" class="nav-btn">📚 Übersicht</a><a href="security.html" class="nav-btn active">🛡️ IT & DSGVO</a><a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a><a href="features.html" class="nav-btn">🎨 Module</a><a href="todo.html" class="nav-btn">📋 Roadmap</a><a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a><a href="impressum.html" class="nav-btn">🏛️ Impressum</a><a href="lizenzen.html" class="nav-btn">📜 Lizenzen</a>
         </nav>
 
         <div class="action-btns">
@@ -413,6 +413,7 @@
             <a href="../index.html?skip_splash=1" class="btn-action btn-home">🏠 Zur App</a>
         </div>
     </header>
+
 
     <main class="container">
         <article class="doc-card">
@@ -422,14 +423,168 @@
             <div class="doc-meta">
                 <div><strong>Projekt:</strong> AV-Medienstation für Kitas &amp; Grundschulen</div>
                 <div><strong>Version:</strong> 7.9.8 (Build 332)</div>
-                <div><strong>Herausgeber:</strong> AV-Medienzentrale Bistum Augsburg</div>
+                <div><strong>Stand:</strong> Oktober 2026</div>
+                <div><strong>Herausgeber:</strong> AV-Medienzentrale Bistum Augsburg (KdöR)</div>
                 <div><strong>Ansprechpartner:</strong> Norbert Harner (Tel. 0821-31662272)</div>
-                <div><strong>Rechtsrahmen:</strong> KDG (Kirchliches Datenschutzgesetz), DSGVO, EU AI Act 2024/1689</div>
+                <div><strong>Rechtsrahmen:</strong> KDG (Kirchliches Datenschutzgesetz), DSGVO, EU AI Act (2024/1689)</div>
             </div>
 
             <div class="callout">
                 <div class="callout-title">✅ Wichtigste Prüfergebnisse auf einen Blick:</div>
                 <p style="margin-bottom: 0;">Die MedienStation ist als <strong>100% lokale Client-Side PWA</strong> konzipiert. Es werden <strong>keine personenbezogenen Daten</strong> (Bilder, Stimmen, Texte) an Server übertragen oder in Cloud-Diensten gespeichert. Die KI-Bildfreistellung arbeitet vollständig offline im Browser. Es liegt <strong>kein Hochrisiko-System</strong> vor; eine formelle Datenschutz-Folgenabschätzung (DSFA) ist nicht erforderlich.</p>
+            </div>
+
+            <!-- TEIL 0: VORANGESTELLTE KURZBESCHREIBUNG DES PROJEKTS -->
+            <h2>📌 Teil 0: Vorangestellte Kurzbeschreibung des Projekts (Executive Summary)</h2>
+            <p>Dieser Abschnitt bietet der IT-Leitung, Datenschutzbeauftragten, Trägern und Leitungen eine kompakte Gesamtschau über Anlass, Funktionsweise und Schutzarchitektur der MedienStation.</p>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">0.1 Anlass, didaktischer Vermittlungsauftrag &amp; Zielgruppe</span>
+                    <span class="security-status blue">BILDUNGSAUFTRAG</span>
+                </div>
+                <p>Die <strong>MedienStation</strong> ist ein medienpädagogisches, nicht-kommerzielles Bildungsangebot der <strong>AV-Medienzentrale des Bistums Augsburg (KdöR)</strong>. Sie wurde gezielt für den Einsatz in <strong>Kindertagesstätten (Kitas), Horten und Grundschulen</strong> konzipiert und richtet sich an Kinder im Alter von <strong>4 bis 10 Jahren</strong> (inklusive Leseanfänger und Nichtleser).</p>
+                <ul>
+                    <li><strong>Pädagogischer Leitgedanke:</strong> Gemäß den Grundsätzen der aktiven, handlungsorientierten Medienpädagogik (nach Dieter Baacke) treten Kinder aus der passiven Konsumentenrolle heraus und werden zu <strong>aktiven Gestaltern ihrer Medienwelt</strong>. Medien fungieren wie ein digitaler Malkasten oder ein Musikinstrument ohne Gamification- oder Suchtanreize.</li>
+                    <li><strong>Sprachförderung &amp; Inklusion:</strong> Hörbeispiele (Mikro Check) und Fotogeschichten (Comic Story) fördern die sprachliche Interaktion unter den Kindern und bieten wertvolle Anlässe zum Erzählen beim Abholen durch Eltern.</li>
+                    <li><strong>Einsatzformen:</strong> Stationäre Tablet-Stationen im Gruppenraum, Kiosk-Systeme sowie mobile Medienkoffer zum Verleih an Bildungseinrichtungen.</li>
+                </ul>
+            </div>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">0.2 Funktionsweise &amp; Technischer Workflow der 8 Kreativ-Module</span>
+                    <span class="security-status">8 KREATIV-MODULE</span>
+                </div>
+                <p>Die Station fasst acht kindgerechte Module zusammen, die rein lokal im Browser auf dem Endgerät arbeiten:</p>
+                <table class="data-table" style="margin: 0.5rem 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Modul</th>
+                            <th style="width: 25%;">Kreativ-Werkzeug</th>
+                            <th style="width: 32%;">Funktionsweise &amp; Datenfluss</th>
+                            <th style="width: 18%;">Speicherung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>🧙‍♂️ Zauber Selfie</strong></td>
+                            <td>Magisches Fotostudio</td>
+                            <td>Lokale KI-Personenfreistellung (Green-Screen ohne Tuch), Themenhintergründe &amp; Filter.</td>
+                            <td>Schnappschuss &rarr; Auto Galerie</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🎤 Mikro Check</strong></td>
+                            <td>Audio-Labor &amp; Interview</td>
+                            <td>Sprachaufnahme, Oszilloskop-Visualisierung, 3 Stimmfilter (Maus, Normal, Monster).</td>
+                            <td>Schnappschuss &rarr; Auto Galerie</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🎹 Musik Labor</strong></td>
+                            <td>Touch-Soundboard</td>
+                            <td>12 Soundpads, eigene Töne aufnehmen, Beat-Loop-Funktion, Rhythmusmuster.</td>
+                            <td>Flüchtig im RAM</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📺 News Studio</strong></td>
+                            <td>TV-Reporterstation</td>
+                            <td>Live-Kamera mit Breaking-News TV-Grafik und Touch-Schlagzeilenlaufband.</td>
+                            <td>Schnappschuss &rarr; Auto Galerie</td>
+                        </tr>
+                        <tr>
+                            <td><strong>🎬 Trickfilm Studio</strong></td>
+                            <td>Stop-Motion Werkstatt</td>
+                            <td>Geisterbild (Onion Skinning), 1–12 FPS Temporegler, Tonaufnahme, A4-Daumenkino-Druck.</td>
+                            <td>Manuell: <code>💾</code> / <code>🖨️</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>👾 Pixel Labor</strong></td>
+                            <td>Retro Digitalkunst</td>
+                            <td>16&times;16 Rasterfläche mit 12 Farbtönen, Stift-/Touch-Erkennung, Undo &amp; 8-Bit Feedback.</td>
+                            <td>Manuell: <code>💾</code> / <code>🖨️</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>📸 Comic Story</strong></td>
+                            <td>Fotogeschichten</td>
+                            <td>3-Panel-Comic, eigene Fotos, bewegliche Sprechblasen mit XSS-geschütztem Text.</td>
+                            <td>Manuell: <code>💾</code> / <code>🖨️</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>🔄 Video Loop</strong></td>
+                            <td>Zeitschleife / GIF</td>
+                            <td>2-Sekunden-Endlosschleife, 3 Geschwindigkeiten (Vor- &amp; Rücklauf), Fotostreifen.</td>
+                            <td>Manuell: <code>💾</code> / <code>🖨️</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="security-item">
+                <div class="security-header">
+                    <span class="security-title">0.3 Kompakte IT- &amp; Datenschutz-Matrix auf einen Blick</span>
+                    <span class="security-status">ÜBERSICHTSMATRIX</span>
+                </div>
+                <table class="data-table" style="margin: 0.5rem 0;">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Prüffeld</th>
+                            <th style="width: 25%;">Status / Realisierung</th>
+                            <th style="width: 50%;">Sicherheits- &amp; Datenschutz-Garantie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Architektur</strong></td>
+                            <td><span class="security-status">100% CLIENT-SIDE</span></td>
+                            <td>Zero-Backend: Keine Datenbank, keine APIs, keine Benutzerkonten.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Netzwerk &amp; Ports</strong></td>
+                            <td><span class="security-status blue">OFFLINE-FIRST (PWA)</span></td>
+                            <td>Nach initialem Download autark ohne Internet nutzbar. Keine offenen Inbound-Ports.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Externer Traffic</strong></td>
+                            <td><span class="security-status">0 KB FREMD-TRAFFIC</span></td>
+                            <td>Keine externen CDNs, keine Cloud-Abrufe, keine Tracking-Dienste oder Werbe-Cookies.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>KI-Komponente</strong></td>
+                            <td><span class="security-status blue">LOKALE INFERENZ</span></td>
+                            <td>MediaPipe TFLite Modell (250 KB) läuft lokal im WebAssembly-Sandbox. Keine Cloud-KI.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Biometrie &amp; Tracking</strong></td>
+                            <td><span class="security-status">AUSGESCHLOSSEN</span></td>
+                            <td>Keine Gesichtserkennung, kein Profiling, keine Emotionserkennung, kein Modell-Nachtraining.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Speicherbegrenzung</strong></td>
+                            <td><span class="security-status">AUTO-RESET 00:00</span></td>
+                            <td>Täglich um 00:00 Uhr wird der lokale Speicher (IndexedDB) automatisch gelöscht (Art. 5 DSGVO).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Freispiel-Schutz</strong></td>
+                            <td><span class="security-status">1-KLICK KAMERA-STOPP</span></td>
+                            <td>Fachkräfte können im PIN-Menü alle 5 Kamera-Apps sperren (Schutz ohne Fotoerlaubnis).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Admin-Schutz</strong></td>
+                            <td><span class="security-status">PIN-GESICHERT</span></td>
+                            <td>Einstellungen (Lautstärke, Speicher, Diagnose, Reset) sind durch eine 4-stellige Touch-PIN gesichert.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>EU AI Act Einstufung</strong></td>
+                            <td><span class="security-status">MINIMAL RISK (ART. 6)</span></td>
+                            <td>Minimales Risiko nach KI-Verordnung (EU) 2024/1689. Kein Hochrisiko-System.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DSFA-Erfordernis</strong></td>
+                            <td><span class="security-status">NICHT ERFORDERLICH</span></td>
+                            <td>Schwellwertanalyse nach § 35 KDG / Art. 35 DSGVO ergibt: Niedrigrisiko-Verarbeitung.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <hr>
@@ -540,7 +695,7 @@ server_tokens off;</code></pre>
                     </tr>
                     <tr>
                         <td><strong>2. Verantwortlicher (§ 4 Nr. 9 KDG / Art. 4 Nr. 7 DSGVO)</strong></td>
-                        <td>Diözese Augsburg KdöR / AV-Medienzentrale, Kappelberg 1, 86150 Augsburg.<br>
+                        <td>Diözese Augsburg KdöR / AV-Medienzentrale, Peutingerstraße 5, 86152 Augsburg.<br>
                         Ansprechpartner: Norbert Harner, Tel. 0821-31662272, E-Mail: norbert.harner@bistum-augsburg.de</td>
                     </tr>
                     <tr>

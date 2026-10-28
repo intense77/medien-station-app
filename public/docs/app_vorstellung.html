@@ -31,7 +31,6 @@
             padding-bottom: 3rem;
         }
 
-        /* Top Navigation Header */
         .no-print-header {
             background-color: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(12px);
@@ -126,18 +125,12 @@
             background: #475569;
         }
 
-        .btn-action.btn-home:hover {
-            background: #334155;
-        }
-
-        /* Container */
         .container {
             max-width: 1000px;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
 
-        /* Paper Document Styling */
         .doc-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
@@ -218,7 +211,6 @@
             margin: 2.5rem 0;
         }
 
-        /* Fact Sheet / Grid */
         .fact-sheet {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid var(--border);
@@ -230,27 +222,10 @@
             margin-bottom: 2rem;
         }
 
-        .fact-item {
-            display: flex;
-            flex-direction: column;
-        }
+        .fact-item { display: flex; flex-direction: column; }
+        .fact-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 0.2rem; }
+        .fact-value { font-size: 0.95rem; font-weight: 600; color: #f1f5f9; }
 
-        .fact-label {
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--accent);
-            margin-bottom: 0.2rem;
-        }
-
-        .fact-value {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #f1f5f9;
-        }
-
-        /* Callout Box */
         .callout {
             background: rgba(245, 158, 11, 0.1);
             border-left: 4px solid var(--accent);
@@ -259,72 +234,24 @@
             margin: 1.5rem 0;
         }
 
-        .callout-title {
-            font-weight: 800;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        .callout-title { font-weight: 800; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
 
-        /* Table Styling */
-        .table-responsive {
-            overflow-x: auto;
-            margin: 2rem 0;
-        }
+        .table-responsive { overflow-x: auto; margin: 2rem 0; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background-color: #0f172a; color: var(--accent); padding: 0.85rem 1rem; font-weight: 800; border-bottom: 2px solid var(--border); }
+        td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); color: #cbd5e1; }
+        tr:nth-child(even) td { background-color: rgba(15, 23, 42, 0.3); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.9rem;
-        }
-
-        th {
-            background-color: #0f172a;
-            color: var(--accent);
-            padding: 0.85rem 1rem;
-            font-weight: 800;
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 0.85rem 1rem;
-            border-bottom: 1px solid var(--border);
-            color: #cbd5e1;
-        }
-
-        tr:nth-child(even) td {
-            background-color: rgba(15, 23, 42, 0.3);
-        }
-
-        /* Badges */
-        .badge {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
         .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
         .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; }
 
-        /* Print Media Styles */
         @media print {
             .no-print-header { display: none !important; }
             body { background: white !important; color: black !important; padding: 0 !important; }
             .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-            .doc-card {
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                background: white !important;
-                color: black !important;
-            }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
             h1, h2, h3, h4, strong { color: black !important; -webkit-text-fill-color: initial !important; }
             p, li, td { color: #1e293b !important; }
             h1 { border-bottom: 2px solid #000 !important; }
@@ -336,13 +263,11 @@
             th { background: #f1f5f9 !important; color: black !important; border-bottom: 2px solid #000 !important; }
             td { border-bottom: 1px solid #ddd !important; }
             .doc-subtitle { color: #475569 !important; }
-            a { text-decoration: none !important; color: black !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation Bar -->
     <header class="no-print-header">
         <a href="../index.html?skip_splash=1" class="brand">
             <span class="brand-icon">🎨</span>
@@ -350,13 +275,10 @@
         </a>
 
         <nav class="nav-links">
-            <a href="app_vorstellung.html" class="nav-btn active">📘 Konzept</a>
-            <a href="features.html" class="nav-btn">🎨 Module</a>
-            <a href="security.html" class="nav-btn">🛡️ Security</a>
-            <a href="todo.html" class="nav-btn">📋 Roadmap</a>
-            <a href="impressum.html" class="nav-btn">🏛️ Impressum</a>
-            <a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a>
-            <a href="lizenzen.html" class="nav-btn">📜 Lizenzen</a>
+            <a href="app_vorstellung.html" class="nav-btn active">📘 Konzept & Handbuch</a>
+            <a href="features.html" class="nav-btn">🎨 Funktionsübersicht</a>
+            <a href="security.html" class="nav-btn">🛡️ Datenschutz & Security</a>
+            <a href="todo.html" class="nav-btn">📋 Roadmap & TODOs</a>
         </nav>
 
         <div class="action-btns">
@@ -365,14 +287,12 @@
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="container">
         <article class="doc-card">
             
             <h1>MedienStation – Konzept, Fachbewertung & Dokumentation</h1>
             <div class="doc-subtitle">Handbuch für Fachkräfte, Kita-Leitungen & Medienpädagogen</div>
 
-            <!-- Fact Sheet -->
             <div class="fact-sheet">
                 <div class="fact-item">
                     <span class="fact-label">Projektname</span>
@@ -380,7 +300,7 @@
                 </div>
                 <div class="fact-item">
                     <span class="fact-label">Aktuelle Version</span>
-                    <span class="fact-value">v7.9.6 (Build 316)</span>
+                    <span class="fact-value">v7.9.8 (Build 332)</span>
                 </div>
                 <div class="fact-item">
                     <span class="fact-label">Zielgruppe</span>
@@ -400,13 +320,11 @@
                 </div>
             </div>
 
-            <!-- Section 1 -->
             <h2>1. Übersicht & Zielsetzung</h2>
             <p>Die <strong>MedienStation</strong> ist eine interaktive, offlinefähige Kiosk-Webanwendung, die speziell für Kinder im Alter von 4 bis 10 Jahren in Kindertagesstätten und Grundschulen entwickelt wurde. Sie verwandelt Tablet-Bildschirme in eine selbsterklärende Medienwerkstatt, die Kinder zum selbstbestimmten Erforschen, Gestalten und Aufnehmen von Sprache, Musik, Zeichnungen, Fotos und Stop-Motion-Filmen einlädt.</p>
 
             <hr>
 
-            <!-- Section 2 -->
             <h2>2. Pädagogische Ansätze & Fachbegründung</h2>
             <p>Die MedienStation folgt konsequent den Grundsätzen der <strong>aktiven, handlungsorientierten Medienpädagogik (u. a. nach Dieter Baacke)</strong>: Kinder treten aus der passiven Konsumentenrolle heraus und werden zu aktiven Gestaltern ihrer eigenen digitalen Lebenswelt.</p>
 
@@ -426,7 +344,6 @@
 
             <hr>
 
-            <!-- Section 3 -->
             <h2>3. Die 8 Medien-Module im Detail</h2>
             <ul>
                 <li><strong>🎹 Musik Labor:</strong> Experimentieren mit Tönen, Beats, Tonhöhen-Verfremdung und Soundpads.</li>
@@ -441,7 +358,6 @@
 
             <hr>
 
-            <!-- Section 4 -->
             <h2>4. Datenschutz, Speicher- & Löschkonzept ("Meisterwerke")</h2>
             <p>Die MedienStation erfüllt höchste Datenschutzstandards für den Einsatz in Bildungseinrichtungen:</p>
             <ul>
@@ -460,7 +376,6 @@
 
             <hr>
 
-            <!-- Section 5 -->
             <h2>5. Fachkraft-Menü & Pädagogische Schutzfunktionen</h2>
             <p>Über den dezidierten Button <strong>„⚙️ Einstellungen“</strong> in der Kopfzeile erhalten Fachkräfte nach PIN-Eingabe (über ein kindersicheres Touch-Zahlenfeld) Zugriff auf zentrale Steuerungsfunktionen für den Kita-Alltag:</p>
 
@@ -487,7 +402,6 @@
 
             <hr>
 
-            <!-- Section 6 -->
             <h2>6. Fachliche Bewertung & Marktvergleich</h2>
             <div class="table-responsive">
                 <table>

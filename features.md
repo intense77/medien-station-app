@@ -1,6 +1,7 @@
 # 📖 Handreichung & Funktionsübersicht: MedienStation Hub
 
-> **Informationen für das pädagogische Personal, Ausstellungsbetreuung, Fachkräfte und Aufsichtspersonen**
+> **Informationen für das pädagogische Personal, Ausstellungsbetreuung, Fachkräfte und Aufsichtspersonen**  
+> *Projekt: MedienStation (Version v7.9.8 / Build 332) – AV-Medienzentrale Bistum Augsburg*
 
 Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell für Kinder im Kita- und Grundschulalter (4–10 Jahre) entwickelt wurde. Sie lädt zum spielerischen Erkunden, Gestalten, Aufnehmen und Experimentieren mit digitalen Medien im Sinne einer aktiven, handlungsorientierten Medienpädagogik ein.
 

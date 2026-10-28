@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Dokumentations-Portal &amp; Weitergabe-Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+
+        :root {
+            --primary: #0f172a;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --bg: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #38bdf8;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        .no-print-header {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.35rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #0f172a;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-action {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-home {
+            background: #475569;
+        }
+
+        .btn-action.btn-home:hover {
+            background: #334155;
+        }
+
+        .container {
+            max-width: 1060px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .doc-subtitle {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .doc-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .doc-meta strong {
+            color: #f1f5f9;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #34d399;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        .security-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .security-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .security-status {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid #059669;
+        }
+
+        .security-status.blue {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            border-color: #0284c7;
+        }
+
+        .security-status.yellow {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border-color: #d97706;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0 2rem 0;
+            font-size: 0.9rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .data-table th, .data-table td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 0.75rem 0.75rem 0;
+            margin: 1.5rem 0;
+        }
+
+        .callout.info {
+            border-left-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .callout.warning {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .callout-title {
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        code, pre {
+            background: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        pre {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 2.5rem 0;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .signature-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px dashed var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .sig-line {
+            border-bottom: 1px solid var(--border);
+            height: 50px;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .sig-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; font-size: 10pt; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, h4, .security-title { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div, td, th { color: #1e293b !important; }
+            .security-item, .callout, .doc-meta, .signature-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; color: black !important; }
+            .data-table th { background: #f1f5f9 !important; color: black !important; }
+            .data-table td, .data-table th { border-color: #cbd5e1 !important; }
+            code, pre { background: #f1f5f9 !important; color: #0284c7 !important; border: 1px solid #ccc !important; }
+            .security-status { border: 1px solid #64748b !important; color: black !important; background: #e2e8f0 !important; }
+            .sig-line { border-bottom-color: black !important; }
+        }
+
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .hub-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+        }
+        .hub-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .hub-card-icon {
+            font-size: 2.2rem;
+            margin-bottom: 0.75rem;
+        }
+        .hub-card-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.4rem;
+        }
+        .hub-card-desc {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            flex-grow: 1;
+            margin-bottom: 1.25rem;
+        }
+        .hub-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            margin-bottom: 0.75rem;
+            width: fit-content;
+        }
+        .hub-badge.green { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
+        .hub-badge.blue { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #0284c7; }
+        .hub-badge.purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #9333ea; }
+        .hub-badge.amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
+        .hub-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+
+    <header class="no-print-header">
+        <a href="../index.html?skip_splash=1" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation Dokus</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="docs.html" class="nav-btn active">📚 Übersicht</a><a href="security.html" class="nav-btn">🛡️ IT & DSGVO</a><a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a><a href="features.html" class="nav-btn">🎨 Module</a><a href="todo.html" class="nav-btn">📋 Roadmap</a><a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a><a href="impressum.html" class="nav-btn">🏛️ Impressum</a><a href="lizenzen.html" class="nav-btn">📜 Lizenzen</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="../index.html?skip_splash=1" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+
+    <main class="container">
+        <article class="doc-card">
+            <h1>MedienStation Dokumentations-Portal</h1>
+            <div class="doc-subtitle">Zentrales Dossier- &amp; Freigabeverzeichnis für IT, Datenschutz, Träger &amp; Fachkräfte</div>
+
+            <div class="doc-meta">
+                <div><strong>Projekt:</strong> MedienStation (AV-Medienzentrale Bistum Augsburg)</div>
+                <div><strong>Aktuelle Version:</strong> 7.9.8 (Build 332)</div>
+                <div><strong>Stand:</strong> Oktober 2026</div>
+                <div><strong>Rechtsrahmen:</strong> KDG, DSGVO, EU AI Act</div>
+                <div><strong>Zielgruppe:</strong> Kitas, Horte &amp; Grundschulen (4–10 Jahre)</div>
+            </div>
+
+            <div class="callout">
+                <div class="callout-title">📂 Alle Dokumente zur Weitergabe und Prüfung bereit:</div>
+                <p style="margin-bottom: 0;">Sämtliche Unterlagen stehen sowohl als <strong>digitale HTML-Dossiers</strong> zur Weiterleitung per E-Mail/USB als auch als <strong>DIN-A4 druckfertige PDFs</strong> zur Verfügung. Klicken Sie auf ein Dokument, um es zu öffnen oder mit <code>🖨️ Drucken / PDF</code> abzuspeichern.</p>
+            </div>
+
+            <div class="hub-grid">
+                
+                <!-- Card 1: IT & Datenschutz Freigabe -->
+                <div class="hub-card" style="border-color: #10b981;">
+                    <div class="hub-badge green">Priorität: IT &amp; DSB</div>
+                    <div class="hub-card-icon">🛡️</div>
+                    <div class="hub-card-title">IT- &amp; Datenschutz-Freigabe</div>
+                    <div class="hub-card-desc">
+                        Vollständiges Freigabedossier: <strong>Vorangestellte Projekt-Kurzbeschreibung</strong>, IT-Sicherheitsblatt, VVT nach § 31 KDG, TOMs nach § 26 KDG, DSFA-Vorabprüfung, EU AI Act Einstufung (Minimal Risk) und 4-fach Unterschriften-Genehmigungsprotokoll.
+                    </div>
+                    <div class="hub-actions">
+                        <a href="FREIGABE_IT_DATENSCHUTZ.html" class="btn-action" style="background: #10b981; color: #0f172a;">Öffnen &rarr;</a>
+                        <a href="FREIGABE_IT_DATENSCHUTZ.html" onclick="window.open(this.href).print(); return false;" class="btn-action btn-home">🖨️ PDF</a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Pädagogisches Konzept -->
+                <div class="hub-card">
+                    <div class="hub-badge blue">Leitung &amp; Pädagogik</div>
+                    <div class="hub-card-icon">📘</div>
+                    <div class="hub-card-title">Pädagogisches Konzept</div>
+                    <div class="hub-card-desc">
+                        Fachbegründung nach Dieter Baacke, Mehrwert aktiver Medienbildung im Freispiel (3–10 J.), 8 Kreativ-Module im Überblick und Vergleich mit kommerziellen Apps.
+                    </div>
+                    <div class="hub-actions">
+                        <a href="app_vorstellung.html" class="btn-action">Öffnen &rarr;</a>
+                        <a href="app_vorstellung.html" onclick="window.open(this.href).print(); return false;" class="btn-action btn-home">🖨️ PDF</a>
+                    </div>
+                </div>
+
+                <!-- Card 3: Module & Praxishandbuch -->
+                <div class="hub-card">
+                    <div class="hub-badge amber">Praxis &amp; Fachkräfte</div>
+                    <div class="hub-card-icon">🎨</div>
+                    <div class="hub-card-title">Module &amp; Handreichung</div>
+                    <div class="hub-card-desc">
+                        Praxisanleitung aller 8 Kreativwerkzeuge, Daumenkino-Druckbogen &amp; Bastelanleitung, IndexedDB v4 Galerie, PIN-geschütztes Fachkraft-Menü mit Kameraschutz.
+                    </div>
+                    <div class="hub-actions">
+                        <a href="features.html" class="btn-action">Öffnen &rarr;</a>
+                        <a href="features.html" onclick="window.open(this.href).print(); return false;" class="btn-action btn-home">🖨️ PDF</a>
+                    </div>
+                </div>
+
+                <!-- Card 4: Roadmap & Qualitätssicherung -->
+                <div class="hub-card">
+                    <div class="hub-badge purple">Technik &amp; Entwicklung</div>
+                    <div class="hub-card-icon">📋</div>
+                    <div class="hub-card-title">Roadmap &amp; Analyse</div>
+                    <div class="hub-card-desc">
+                        Detaillierte Bestandsaufnahme, Architektur-Analyse, Storage Engine Gehärtet, Inklusionsmaßnahmen, Low-Power Optimierung und künftige Meilensteine.
+                    </div>
+                    <div class="hub-actions">
+                        <a href="todo.html" class="btn-action">Öffnen &rarr;</a>
+                        <a href="todo.html" onclick="window.open(this.href).print(); return false;" class="btn-action btn-home">🖨️ PDF</a>
+                    </div>
+                </div>
+
+                <!-- Card 5: Datenschutzerklärung -->
+                <div class="hub-card">
+                    <div class="hub-badge green">Recht &amp; KDG</div>
+                    <div class="hub-card-icon">🔒</div>
+                    <div class="hub-card-title">Datenschutzerklärung</div>
+                    <div class="hub-card-desc">
+                        Offizielle Datenschutzerklärung nach KDG und DSGVO mit Erläuterung des automatischen täglichen Galerie-Resets und Betroffenenrechten.
+                    </div>
+                    <div class="hub-actions">
+                        <a href="datenschutz.html" class="btn-action">Öffnen &rarr;</a>
+                        <a href="datenschutz.html" onclick="window.open(this.href).print(); return false;" class="btn-action btn-home">🖨️ PDF</a>
+                    </div>
+                </div>
+
+                <!-- Card 6: Impressum & Lizenzen -->
+                <div class="hub-card">
+                    <div class="hub-badge blue">Rechtliches &amp; Lizenzen</div>
+                    <div class="hub-card-icon">🏛️</div>
+                    <div class="hub-card-title">Impressum &amp; Lizenzen</div>
+                    <div class="hub-card-desc">
+                        Anbieterkennzeichnung gemäß § 5 DDG, Vertretungsberechtigte der Diözese Augsburg KdöR und Nachweise aller Open-Source-Lizenzen (MediaPipe, Tailwind, JSZip, Vite).
+                    </div>
+                    <div class="hub-actions">
+                        <a href="impressum.html" class="btn-action">Impressum</a>
+                        <a href="lizenzen.html" class="btn-action btn-home">Lizenzen</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <h2>🖨️ Anleitung zum PDF-Export für die Akten</h2>
+            <ol>
+                <li>Öffnen Sie das gewünschte Dokument über die Schaltfläche <strong>„Öffnen“</strong>.</li>
+                <li>Klicken Sie oben rechts auf die Schaltfläche <strong>„🖨️ Drucken / PDF“</strong> (oder drücken Sie <code>Strg + P</code> bzw. <code>Cmd + P</code>).</li>
+                <li>Wählen Sie im Druckdialog Ihres Browsers als Ziel <strong>„Als PDF speichern“</strong> aus.</li>
+                <li>Die Kopf- und Navigationszeilen werden im Druckmodus automatisch ausgeblendet; das Layout formatiert sich exakt auf DIN-A4 mit sauberen Seitenumbrüchen.</li>
+            </ol>
+
+        </article>
+    </main>
+
+</body>
+</html>

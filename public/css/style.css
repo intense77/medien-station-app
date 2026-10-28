@@ -1695,6 +1695,10 @@ video {
   border-color: rgb(16 185 129 / var(--tw-border-opacity, 1));
 }
 
+.border-emerald-500\/50 {
+  border-color: rgb(16 185 129 / 0.5);
+}
+
 .border-emerald-700 {
   --tw-border-opacity: 1;
   border-color: rgb(4 120 87 / var(--tw-border-opacity, 1));
@@ -2062,6 +2066,10 @@ video {
 .bg-emerald-950 {
   --tw-bg-opacity: 1;
   background-color: rgb(2 44 34 / var(--tw-bg-opacity, 1));
+}
+
+.bg-emerald-950\/80 {
+  background-color: rgb(2 44 34 / 0.8);
 }
 
 .bg-green-500 {
@@ -2775,6 +2783,11 @@ video {
   color: rgb(96 165 250 / var(--tw-text-opacity, 1));
 }
 
+.text-emerald-200 {
+  --tw-text-opacity: 1;
+  color: rgb(167 243 208 / var(--tw-text-opacity, 1));
+}
+
 .text-emerald-300 {
   --tw-text-opacity: 1;
   color: rgb(110 231 183 / var(--tw-text-opacity, 1));
@@ -3306,6 +3319,11 @@ canvas, video, .pixel-grid, .touch-none {
   background-color: rgb(16 185 129 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:bg-emerald-900:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(6 78 59 / var(--tw-bg-opacity, 1));
+}
+
 .hover\:bg-gray-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
@@ -3427,6 +3445,10 @@ canvas, video, .pixel-grid, .touch-none {
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
+}
+
+.hover\:underline:hover {
+  text-decoration-line: underline;
 }
 
 .hover\:shadow-2xl:hover {
