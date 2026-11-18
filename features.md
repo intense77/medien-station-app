@@ -87,7 +87,7 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
 
 ## 🎨 Galerie der Meisterwerke & Speicher-Systematik
 
-Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/galerie.html` und das Galerie-Modal im Hauptmenü) mit ausfallsicherem **IndexedDB-Speicher** (`MedienStationDB_v4`) für bis zu 40 hochauflösende Werke.
+Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/galerie.html` und das Galerie-Modal im Hauptmenü) mit ausfallsicherem **IndexedDB-Speicher** (`MedienStationDB_v5`) für bis zu 40 hochauflösende Werke.
 
 ### Das transparente Speicher-Prinzip:
 1. **Schnappschuss-Apps (*Zauber Selfie*, *News Studio*, *Mikro Check*)**:

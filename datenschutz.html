@@ -301,16 +301,9 @@
                 <li>Fachkräfte können die Werke vorab gesammelt als ZIP-Datei auf einen USB-Stick oder Computer herunterladen.</li>
             </ul>
 
-            <h2>5. Bereitstellung der Webanwendung & Server-Logfiles</h2>
-            <p>Wenn die MedienStation über das Internet (Coolify/Nginx-Server) aufgerufen wird, erfasst der Webserver aus technischen Gründen automatisch diejenigen Daten, die Ihr Browser übermittelt (Server-Logfiles):</p>
-            <ul>
-                <li>IP-Adresse des anfragenden Geräts</li>
-                <li>Datum und Uhrzeit des Zugriffs</li>
-                <li>Abgerufene Datei/URL</li>
-                <li>Übertragene Datenmenge und HTTP-Statuscode</li>
-                <li>Browsertyp, Version und Betriebssystem (User-Agent)</li>
-            </ul>
-            <p><strong>Rechtsgrundlage:</strong> Die Verarbeitung dieser Daten erfolgt auf Grundlage unseres berechtigten Interesses an der technisch fehlerfreien Bereitstellung, Systemsicherheit und Stabilität des Webangebots (Art. 6 Abs. 1 lit. f DSGVO / § 6 Abs. 1 lit. g KDG). Diese Daten werden nicht mit anderen Datenquellen zusammengeführt und nach Ablauf der gesetzlichen Fristen automatisch gelöscht.</p>
+            <h2>5. Bereitstellung der Webanwendung &amp; Datensparsamkeit beim Hosting</h2>
+            <p>Der ausliefernde Nginx-Webserver der MedienStation ist strikt datensparsam konfiguriert (<code>access_log off;</code>): Auf Anwendungsebene werden <strong>keine dauerhaften IP-Zugriffsprotokolle (Access-Logs)</strong> angelegt. Beim einmaligen Abruf der statischen App-Dateien über HTTPS fallen lediglich technisch unvermeidbare, flüchtige Transportdaten zur Auslieferung an. Nach dem initialen Laden arbeitet die MedienStation als Offline-PWA vollständig ohne Serververbindung.</p>
+            <p><strong>Rechtsgrundlage:</strong> Die rein technische Auslieferung der Webanwendung erfolgt auf Grundlage unseres berechtigten Interesses an einem sicheren, datensparsamen Bildungsangebot (Art. 6 Abs. 1 lit. f DSGVO / § 6 Abs. 1 lit. g KDG).</p>
 
             <h2>6. Offline-Funktion (Service Worker & PWA)</h2>
             <p>Die MedienStation nutzt Service Worker-Technologien, um HTML-, CSS- und Scriptdateien sowie Bild- und Toneffekte im lokalen Browserspeicher (Cache Storage) vorzuhalten. Dies ermöglicht den Betrieb auch an Orten ohne stabile Internetverbindung. Es werden hierbei keinerlei Nutzerdaten gespeichert.</p>

@@ -1,7 +1,7 @@
 # 🔒 Datenschutzerklärung der MedienStation
 
 > **Informationen zum Datenschutz nach dem Gesetz über den Kirchlichen Datenschutz (KDG) und der Datenschutz-Grundverordnung (DSGVO)**  
-> *Stand: Version v7.9.8 (Build 332)*  
+> *Stand: Version v7.9.8 (Build 335)*  
 > *Herausgeber: AV-Medienzentrale Bistum Augsburg (KdöR)*  
 
 ---
@@ -38,16 +38,16 @@ Peutingerstraße 5, 86152 Augsburg, Deutschland
   * Erst bei bewusstem Klick auf `💾 SPEICHERN` oder beim Schnappschuss-Auslösen wird das Werk im lokalen Browser-Speicher (`IndexedDB`) des Geräts abgelegt.
 * **Mikrofon-Module** (*Mikro Check, Musik Labor*):
   * Sprachaufnahmen und Töne werden lokal im Arbeitsspeicher/IndexedDB verarbeitet.
-* **Speicherort**: Ausschließlich in der lokalen IndexedDB-Datenbank des verwendeten Browsers (`MedienStationDB_v4`).
+* **Speicherort**: Ausschließlich in der lokalen IndexedDB-Datenbank des verwendeten Browsers (`MedienStationDB_v5`).
 * **Löschkonzept**:
-  * **Automatischer Tages-Reset**: Um Mitternacht (00:00 Uhr) werden alle Werke in der Galerie automatisch und unwiderruflich gelöscht.
+  * **Automatischer Tages-Reset**: Bei jedem Tageswechsel (ab 00:00 Uhr beim ersten Start am Folgetag) werden alle Werke vom Vortag in der Galerie automatisch und unwiderruflich gelöscht.
   * **Manuelle Löschung**: Fachkräfte können die Galerie im PIN-geschützten Einstellungsmenü jederzeit sofort leeren.
 
 ### B. Freispiel-Schutz für Gruppen ohne Foto-Einwilligung
-Fachkräfte können im PIN-Menü mit einem Klick alle 5 Kamera-Apps sperren. Dadurch können Kinder, für die keine elterliche Fotoeinwilligung vorliegt, gefahrlos an der Station mit den verbleibenden Modulen (Musik, Pixel, Audio) spielen.
+Fachkräfte können im PIN-Menü mit einem Klick alle 5 Kamera-Apps sperren (inklusive Direktaufruf-Schutz). Dadurch können Kinder, für die keine elterliche Fotoeinwilligung vorliegt, gefahrlos an der Station mit den verbleibenden Modulen (Musik, Pixel, Audio) spielen.
 
 ### C. Server-Logdateien beim Webseiten-Hosting
-Beim Aufruf der Webanwendung über den Server erfasst der Webserver rein technisch notwendige Verbindungsdaten (IP-Adresse, Datum/Uhrzeit, abgerufene Datei, Browser-Typ/User-Agent). Diese Daten dienen ausschließlich der Gewährleistung des sicheren Serverbetriebs und werden nach spätestens 7 Tagen automatisch gelöscht.
+Der ausliefernde Nginx-Webserver ist strikt datensparsam konfiguriert (`access_log off;`): Es werden auf Anwendungsebene **keine dauerhaften IP-Zugriffsprotokolle (Access-Logs)** gespeichert. Lediglich beim initialen Abruf über die Infrastruktur fallen technisch unvermeidbare, flüchtige Transportdaten zur sicheren Auslieferung an; im anschließenden Offline-PWA-Betrieb findet überhaupt kein Serverkontakt statt.
 
 ---
 

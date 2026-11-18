@@ -28,7 +28,7 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 ## 🔍 3. Identifizierte Schwachstellen & Herausforderungen
 
 ### 🟢 1. Speichersystem: Ausfallsicheres `IndexedDB` v4 Engine (Gehärtet in v7.8.9)
-* **Status:** Die Galerie der Meisterwerke speichert Bilder, Audio und Video-Daten in `IndexedDB` (`MedienStationDB_v4`).
+* **Status:** Die Galerie der Meisterwerke speichert Bilder, Audio und Video-Daten in `IndexedDB` (`MedienStationDB_v5`).
 * **Vorteil:** Navigation-Safe Sync-First Pattern schützt vor Abbrüchen bei Seitenwechseln. Automatischer PWA-Speicherschutz (`navigator.storage.persist()`), Einzellöschung (`🗑️`), Fullscreen-Lightbox & Speicher-Auslastungsanzeige.
 
 ### ⚠️ 2. Performance & Hitzeentwicklung auf Einsteiger-Hardware

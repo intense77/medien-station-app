@@ -419,7 +419,7 @@
 
             <div class="doc-meta">
                 <div><strong>Projekt:</strong> AV-Medienstation für Kitas &amp; Grundschulen</div>
-                <div><strong>Version:</strong> 7.9.8 (Build 332)</div>
+                <div><strong>Version:</strong> 7.9.8 (Build 335)</div>
                 <div><strong>Stand:</strong> Oktober 2026</div>
                 <div><strong>Herausgeber:</strong> AV-Medienzentrale Bistum Augsburg (KdöR)</div>
                 <div><strong>Ansprechpartner:</strong> Norbert Harner (Tel. 0821-31662272)</div>
@@ -663,7 +663,9 @@ add_header Permissions-Policy "camera=(self), microphone=(self)" always;
 add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self';" always;
 
 # Unterdrückung der Webserver-Versionsnummer
-server_tokens off;</code></pre>
+server_tokens off;
+access_log off;
+error_log /dev/stderr warn;</code></pre>
             </div>
 
             <div class="security-item">

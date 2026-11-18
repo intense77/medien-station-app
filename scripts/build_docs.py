@@ -10,7 +10,7 @@ import shutil
 import re
 
 VERSION = "7.9.8"
-BUILD = "332"
+BUILD = "335"
 DATE_STR = "Oktober 2026"
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 PUBLIC_DOCS_DIR = os.path.join(BASE_DIR, "public", "docs")
@@ -709,7 +709,9 @@ add_header Permissions-Policy "camera=(self), microphone=(self)" always;
 add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self';" always;
 
 # Unterdrückung der Webserver-Versionsnummer
-server_tokens off;</code></pre>
+server_tokens off;
+access_log off;
+error_log /dev/stderr warn;</code></pre>
             </div>
 
             <div class="security-item">
@@ -1173,7 +1175,7 @@ def generate_hub_html(is_public_docs=False):
                     <div class="hub-card-icon">🎨</div>
                     <div class="hub-card-title">Module &amp; Handreichung</div>
                     <div class="hub-card-desc">
-                        Praxisanleitung aller 8 Kreativwerkzeuge, Daumenkino-Druckbogen &amp; Bastelanleitung, IndexedDB v4 Galerie, PIN-geschütztes Fachkraft-Menü mit Kameraschutz.
+                        Praxisanleitung aller 8 Kreativwerkzeuge, Daumenkino-Druckbogen &amp; Bastelanleitung, IndexedDB (<code>MedienStationDB_v5</code>) Galerie, PIN-geschütztes Fachkraft-Menü mit Kameraschutz.
                     </div>
                     <div class="hub-actions">
                         <a href="features.html" class="btn-action">Öffnen &rarr;</a>

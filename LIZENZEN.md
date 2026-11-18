@@ -1,7 +1,7 @@
 # 📜 Open-Source-Lizenzen & Drittanbieter-Bibliotheken
 
 > **Dokumentation der verwendeten Open-Source-Komponenten, Frameworks und Lizenzen**  
-> *Projekt: MedienStation (v7.9.8 / Build 332)*  
+> *Projekt: MedienStation (v7.9.8 / Build 335)*  
 > *Herausgeber: AV-Medienzentrale Bistum Augsburg*  
 
 ---
@@ -33,7 +33,5 @@ Die **MedienStation** ist ein nicht-kommerzielles Open-Source-Bildungsprojekt de
 * **Zweck**: Lokaler Entwicklungsserver und Asset-Bundler.
 * **Copyright**: © 2019-present, Evan You und Vite-Contributors.
 
-### 5. Google Fonts (Outfit & Plus Jakarta Sans)
-* **Lizenz**: SIL Open Font License, Version 1.1
-* **Zweck**: Barrierefreie, klare und lesefreundliche Typografie.
-* **Copyright**: © Rodrigo Fuenzalida (Outfit) / Gumpita Rahayu (Plus Jakarta Sans).
+### 5. Typografie (100 % lokale System-Schriftarten)
+* **Hinweis**: Zur strikten Vermeidung externer Serveraufrufe (DSGVO / KDG / Offline-Betrieb) verwendet die MedienStation ausschließlich lokale System-Schriftarten und bindet **keine externen Webfonts** (z. B. Google Fonts) ein.

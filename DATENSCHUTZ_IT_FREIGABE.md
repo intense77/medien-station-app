@@ -1,7 +1,7 @@
 # 🛡️ IT-Sicherheits-, Datenschutz- & KI-Freigabedossier
 
 > **Offizielle Dokumentationsmappe zur Prüfung und Genehmigung durch IT-Leitung, Datenschutzbeauftragte (DSB), KI-Beauftragte und Einrichtungsleitungen**  
-> *Projekt: MedienStation (v7.9.8 / Build 332) – AV-Medienzentrale Bistum Augsburg*  
+> *Projekt: MedienStation (v7.9.8 / Build 335) – AV-Medienzentrale Bistum Augsburg*  
 > *Rechtsrahmen: Gesetz über den Kirchlichen Datenschutz (KDG), DSGVO, EU AI Act (Verordnung (EU) 2024/1689)*  
 
 ---
@@ -86,8 +86,10 @@ add_header Permissions-Policy "camera=(self), microphone=(self)" always;
 # Restriktive Content Security Policy (CSP): Keine Drittanbieter-Endpunkte erlaubt
 add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self';" always;
 
-# Verbergen von Webserver-Versionen
+# Verbergen von Webserver-Versionen & Datensparsamkeit (keine IP-Access-Logs)
 server_tokens off;
+access_log off;
+error_log /dev/stderr warn;
 ```
 
 ### 1.4 Hardware-, Betriebssystem- & Kiosk-Empfehlungen
@@ -128,6 +130,7 @@ server_tokens off;
 
 ### 3.4 Verfügbarkeit & Belastbarkeit
 * **Autarker Offline-First-Betrieb**: Dank Service Worker (`sw.js`) bleibt das System bei instabilem Kita-WLAN, Netzwerkausfällen oder im Freigelände uneingeschränkt bedienbar.
+* **Automatisierter DSGVO- & Funktions-Wächter (`npm run test:smoke`)**: Vor jedem Release prüft ein automatisierter Playwright-Test alle 18 Routen auf 0 KB Fremd-Traffic, 0 fehlende Assets, strengen Tages-Reset und Direktaufruf-Kamerasperre.
 * **Resilientes Speichermanagement**: PWA Persistent Storage API (`navigator.storage.persist()`) verhindert Datenverlust bei geringem Speicherplatz.
 
 ### 3.5 Speicherbegrenzung & Automatisches Löschen

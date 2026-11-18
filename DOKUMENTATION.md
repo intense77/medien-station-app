@@ -1,7 +1,7 @@
 # 📚 MedienStation – Dokumentations-Übersicht & Weitergabe-Hub
 
 > **Zentrales Verzeichnis aller Dokumente für IT-Abteilung, Datenschutzbeauftragte (DSB), Einrichtungsleitungen und pädagogische Fachkräfte**  
-> *Projekt: MedienStation (Version v7.9.8 / Build 332)*  
+> *Projekt: MedienStation (Version v7.9.8 / Build 335)*  
 > *Herausgeber: AV-Medienzentrale Bistum Augsburg (KdöR)*  
 
 ---
@@ -12,13 +12,15 @@ Alle Dokumente liegen sowohl als **Markdown (`.md`)** für die Versionskontrolle
 
 | Dokument | Markdown | HTML (Weitergabe & Druck) | Zielgruppe & Verwendungszweck |
 | :--- | :---: | :---: | :--- |
-| **🛡️ IT- & Datenschutz-Freigabe** | [FREIGABE_IT_DATENSCHUTZ.md](file:///home/museum/app_station/medien-station-app/FREIGABE_IT_DATENSCHUTZ.md) | [FREIGABE_IT_DATENSCHUTZ.html](file:///home/museum/app_station/medien-station-app/FREIGABE_IT_DATENSCHUTZ.html) | **IT-Leitung, Datenschutz (DSB), KI-Beauftragte:** Enthält vorangestellte Projekt-Kurzbeschreibung, IT-Sicherheitsblatt, VVT-Vordruck (§ 31 KDG / Art. 30 DSGVO), TOMs (§ 26 KDG), DSFA-Schwellwertprüfung, EU AI Act Einstufung (Minimal Risk) & 4-fach Freigabeprotokoll. |
-| **📘 Pädagogisches Konzept** | [app_vorstellung.md](file:///home/museum/app_station/medien-station-app/app_vorstellung.md) | [app_vorstellung.html](file:///home/museum/app_station/medien-station-app/app_vorstellung.html) | **Träger, Einrichtungsleitung, Pädagogen:** Fachbegründung nach Dieter Baacke, Mehrwert aktiver Medienbildung im Kita-Alter, 8 Module im Überblick, Marktvergleich mit kommerzieller Software. |
-| **🎨 Module & Praxishandbuch** | [features.md](file:///home/museum/app_station/medien-station-app/features.md) | [features.html](file:///home/museum/app_station/medien-station-app/features.html) | **Fachkräfte & Aufsicht:** Detaillierte Anleitung aller 8 Module, Daumenkino-Bastelanleitung & Druckbogen, IndexedDB v4 Galerie, PIN-geschütztes Fachkraft-Menü mit Kameraschutz & Lautstärkeregelung. |
-| **📋 Roadmap & Qualitätssicherung** | [TODO.md](file:///home/museum/app_station/medien-station-app/TODO.md) | [todo.html](file:///home/museum/app_station/medien-station-app/todo.html) | **Entwickler, Träger, QS:** Architektur-Analyse, Status aller Entwicklungsphasen, Hardware-Benchmarks, Inklusionsmaßnahmen und künftige Erweiterungen. |
-| **🔒 Datenschutzerklärung** | [DATENSCHUTZ.md](file:///home/museum/app_station/medien-station-app/DATENSCHUTZ.md) | [datenschutz.html](file:///home/museum/app_station/medien-station-app/datenschutz.html) | **Eltern, Träger, Aufsicht:** Vollständige Datenschutzerklärung nach KDG und DSGVO mit Erläuterung des automatischen täglichen Galerie-Resets. |
-| **🏛️ Impressum** | [IMPRESSUM.md](file:///home/museum/app_station/medien-station-app/IMPRESSUM.md) | [impressum.html](file:///home/museum/app_station/medien-station-app/impressum.html) | **Öffentlichkeit & Behörden:** Gesetzliche Anbieterkennzeichnung nach § 5 DDG und § 18 Abs. 2 MStV der Diözese Augsburg KdöR / AV-Medienzentrale. |
-| **📜 Open-Source-Lizenzen** | [LIZENZEN.md](file:///home/museum/app_station/medien-station-app/LIZENZEN.md) | [lizenzen.html](file:///home/museum/app_station/medien-station-app/lizenzen.html) | **Rechtsabteilung:** Nachweise und Urheberrechtsvermerke aller Open-Source-Komponenten (MediaPipe, Tailwind, JSZip, Vite, Fonts). |
+| **🛡️ IT- & Datenschutz-Freigabe** | [FREIGABE_IT_DATENSCHUTZ.md](FREIGABE_IT_DATENSCHUTZ.md) | [FREIGABE_IT_DATENSCHUTZ.html](FREIGABE_IT_DATENSCHUTZ.html) | **IT-Leitung, Datenschutz (DSB), KI-Beauftragte:** Enthält vorangestellte Projekt-Kurzbeschreibung, IT-Sicherheitsblatt, VVT-Vordruck (§ 31 KDG / Art. 30 DSGVO), TOMs (§ 26 KDG), DSFA-Schwellwertprüfung, EU AI Act Einstufung (Minimal Risk) & 4-fach Freigabeprotokoll. |
+| **🚀 Kita-Einrichtung & Kiosk-Start** | — | [kita_einrichtung.html](kita_einrichtung.html) | **Fachkräfte & IT-Einstieg:** 5-Minuten-Anleitung für iPad & Android (PWA-Installation, Geführter Zugriff / App-Pinning, Drucken, PIN-Änderung & 2-Minuten-Checkliste). |
+| **👨‍👩‍👧‍👦 Eltern-Aushang (1 Seite PDF)** | — | [eltern_aushang.html](eltern_aushang.html) | **Eltern & Kita-Pinnwand:** Druckfertiger, freundlicher Aushang zum pädagogischen Konzept, 100 % Offline-/Ohne-Cloud-Betrieb und täglichem Auto-Reset. |
+| **📘 Pädagogisches Konzept** | [app_vorstellung.md](app_vorstellung.md) | [app_vorstellung.html](app_vorstellung.html) | **Träger, Einrichtungsleitung, Pädagogen:** Fachbegründung nach Dieter Baacke, Mehrwert aktiver Medienbildung im Kita-Alter, 8 Module im Überblick, Marktvergleich mit kommerzieller Software. |
+| **🎨 Module & Praxishandbuch** | [features.md](features.md) | [features.html](features.html) | **Fachkräfte & Aufsicht:** Detaillierte Anleitung aller 8 Module, Daumenkino-Bastelanleitung & Druckbogen, IndexedDB (`MedienStationDB_v5`) Galerie, PIN-geschütztes Fachkraft-Menü mit Kameraschutz & Lautstärkeregelung. |
+| **📋 Roadmap & Qualitätssicherung** | [TODO.md](TODO.md) | [todo.html](todo.html) | **Entwickler, Träger, QS:** Architektur-Analyse, Status aller Entwicklungsphasen, automatischer DSGVO-/Smoke-Test (`npm run test:smoke`) und künftige Erweiterungen. |
+| **🔒 Datenschutzerklärung** | [DATENSCHUTZ.md](DATENSCHUTZ.md) | [datenschutz.html](datenschutz.html) | **Eltern, Träger, Aufsicht:** Vollständige Datenschutzerklärung nach KDG und DSGVO mit Erläuterung des automatischen täglichen Galerie-Resets. |
+| **🏛️ Impressum** | [IMPRESSUM.md](IMPRESSUM.md) | [impressum.html](impressum.html) | **Öffentlichkeit & Behörden:** Gesetzliche Anbieterkennzeichnung nach § 5 DDG und § 18 Abs. 2 MStV der Diözese Augsburg KdöR / AV-Medienzentrale. |
+| **📜 Open-Source-Lizenzen** | [LIZENZEN.md](LIZENZEN.md) | [lizenzen.html](lizenzen.html) | **Rechtsabteilung:** Nachweise und Urheberrechtsvermerke aller Open-Source-Komponenten (MediaPipe, Tailwind, JSZip, Vite – 100 % ohne externe Webfonts). |
 
 ---
 
