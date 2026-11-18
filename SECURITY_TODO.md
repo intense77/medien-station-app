@@ -4,15 +4,14 @@ Sicherheitsüberprüfung und Handlungsempfehlungen für das Deployment über Coo
 
 ---
 
-## 🔴 1. KRITISCH: SSH-Schlüssel austauschen & sperren
+## ✅ 1. ERLEDIGT: SSH-Schlüssel ausgetauscht & Server neu aufgesetzt
 
-Die Datei `coolify_deploy` (privater SSH-Schlüssel) war früher in Git getrackt. Sie wurde aus dem Git-Tracking entfernt und wird von `.gitignore` ignoriert.
+Die Datei `coolify_deploy` (privater SSH-Schlüssel) war früher in Git getrackt. Sie wurde aus dem Git-Tracking entfernt, von `.gitignore` ignoriert und der Coolify-Server wurde mit neuen Schlüsseln komplett neu aufgesetzt.
 
-- [ ] **Schlüssel auf Server / Coolify sperren**:
-  - Alten öffentlichen Schlüssel aus `~/.ssh/authorized_keys` auf dem Server entfernen.
-  - Alten Schlüssel im Coolify Dashboard unter *Keys / Deployment Keys* löschen.
-- [ ] **Neuen SSH-Schlüssel generieren**:
-  - Einen neuen SSH-Schlüssel für Coolify anlegen.
+- [x] **Schlüssel auf Server / Coolify gesperrt (Server neu aufgesetzt)**:
+  - Alter Server / alte Schlüssel vollständig ersetzt.
+- [x] **Neuen SSH-Schlüssel generiert**:
+  - Neue Deployment-Schlüssel auf dem neu aufgesetzten Coolify-Server eingerichtet.
 - [x] **Schlüssel aus Git-Tracking entfernt**:
   - `.gitignore` ignoriert `coolify_deploy*`, `*.pem`, `*.key` und `.env*`.
   - Dateieinträge wurden aus dem Git-Index entfernt.

@@ -2,7 +2,7 @@
 export default {
   content: [
     "./index.html",
-    "./public/index.html",
+    "./public/entdecker_karten.html",
     "./public/apps/**/*.html",
     "./public/js/**/*.js",
   ],

@@ -10,9 +10,6 @@
   <meta name="description" content="Kita-Trickfilmstudio: Kreatives Stop-Motion Studio für Kinder">
   
   <link rel="manifest" href="/manifest.json">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
 
   <script src="../cordova.js"></script>
@@ -1146,6 +1143,8 @@
       }
 
       function playPopSound(freq = 520) {
+        const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
+        if (mult <= 0.0) return;
         if (window.playSound) window.playSound('click');
         try {
           const ctx = getAudioContext();
@@ -1154,8 +1153,8 @@
           const gain = ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, ctx.currentTime);
-          gain.gain.setValueAtTime(0.15, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.06);
+          gain.gain.setValueAtTime(Math.max(0.001, 0.15 * mult), ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start();
@@ -1501,11 +1500,15 @@
           }
 
           if (trickfilmAudioUrl) {
+            const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
             if (!trickfilmAudioElement) {
               trickfilmAudioElement = new Audio(trickfilmAudioUrl);
             }
+            trickfilmAudioElement.volume = Math.max(0, Math.min(1, mult));
             trickfilmAudioElement.currentTime = 0;
-            trickfilmAudioElement.play().catch(() => {});
+            if (mult > 0) {
+              trickfilmAudioElement.play().catch(() => {});
+            }
           }
 
           let lastTime = 0;
@@ -1569,13 +1572,24 @@
             try {
               const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
               trickfilmAudioChunks = [];
-              trickfilmMediaRecorder = new MediaRecorder(micStream);
+              let recorderOptions = {};
+              let chosenMime = '';
+              if (typeof MediaRecorder.isTypeSupported === 'function') {
+                if (MediaRecorder.isTypeSupported('audio/mp4')) chosenMime = 'audio/mp4';
+                else if (MediaRecorder.isTypeSupported('audio/webm')) chosenMime = 'audio/webm';
+                else if (MediaRecorder.isTypeSupported('audio/aac')) chosenMime = 'audio/aac';
+              }
+              if (chosenMime) recorderOptions.mimeType = chosenMime;
+              trickfilmMediaRecorder = new MediaRecorder(micStream, recorderOptions);
               trickfilmMediaRecorder.ondataavailable = (e) => {
                 if (e.data.size > 0) trickfilmAudioChunks.push(e.data);
               };
               trickfilmMediaRecorder.onstop = () => {
-                trickfilmAudioBlob = new Blob(trickfilmAudioChunks, { type: 'audio/webm' });
+                const finalMime = (trickfilmMediaRecorder && trickfilmMediaRecorder.mimeType) || chosenMime || 'audio/mp4';
+                trickfilmAudioBlob = new Blob(trickfilmAudioChunks, { type: finalMime });
+                if (trickfilmAudioUrl) { try { URL.revokeObjectURL(trickfilmAudioUrl); } catch(e) {} }
                 trickfilmAudioUrl = URL.createObjectURL(trickfilmAudioBlob);
+                if (trickfilmAudioElement) { trickfilmAudioElement.pause(); trickfilmAudioElement = null; }
                 micStream.getTracks().forEach(t => t.stop());
               };
               trickfilmMediaRecorder.start();
@@ -1589,7 +1603,7 @@
               triggerHaptic(40);
             } catch (err) {
               console.warn('[Trickfilm] Microphone error:', err);
-              alert("Mikrofon-Zugriff nicht verfügbar!");
+              if (window.showError) window.showError("Dein Mikrofon ist gerade nicht bereit! Bitte sag einem Erwachsenen Bescheid.", "🎙️");
             }
           }
         }

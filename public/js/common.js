@@ -224,8 +224,58 @@
     }
 
     // --- 4. Initialisierung ---
+    function enforceCameraRestrictionInSubApp() {
+        try {
+            if (!isSubApp) return false;
+            if (typeof window.isCameraRestricted !== 'function' || typeof window.isCameraApp !== 'function') return false;
+            if (!window.isCameraRestricted() || !window.isCameraApp(window.location.pathname)) return false;
+
+            // Blockiere getUserMedia für Video in dieser Sitzung als zusätzliche Schutzschicht
+            if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+                const origGUM = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+                navigator.mediaDevices.getUserMedia = function(constraints) {
+                    if (constraints && constraints.video) {
+                        return Promise.reject(new DOMException('Kamera-Datenschutz ist aktiv', 'NotAllowedError'));
+                    }
+                    return origGUM(constraints);
+                };
+            }
+
+            // Laufende Video-Streams sofort stoppen
+            document.querySelectorAll('video').forEach(el => {
+                if (el.srcObject && typeof el.srcObject.getTracks === 'function') {
+                    el.srcObject.getTracks().forEach(t => t.stop());
+                }
+            });
+
+            let lockOverlay = document.getElementById('camera-restricted-lock-overlay');
+            if (!lockOverlay) {
+                lockOverlay = document.createElement('div');
+                lockOverlay.id = 'camera-restricted-lock-overlay';
+                lockOverlay.style.cssText = 'position: fixed; inset: 0; z-index: 9999999; background: rgba(15, 23, 42, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white;';
+                lockOverlay.innerHTML = `
+                    <div style="max-width: 440px; background: #1e293b; border: 4px solid #f43f5e; border-radius: 2rem; padding: 32px; box-shadow: 0 25px 50px rgba(0,0,0,0.7);">
+                        <div style="font-size: 64px; margin-bottom: 12px;">🔒</div>
+                        <h2 style="font-size: 26px; font-weight: 900; margin-bottom: 12px;">Kamera macht gerade Pause</h2>
+                        <p style="font-size: 16px; color: #cbd5e1; font-weight: 700; margin-bottom: 24px; line-height: 1.5;">Der Foto-Datenschutz ist aktiv. Probier doch stattdessen Musik, Mikro oder Pixel Art aus!</p>
+                        <button onclick="window.goHome()" style="width: 100%; background: #facc15; color: #0f172a; font-weight: 900; font-size: 18px; padding: 14px 20px; border-radius: 14px; border: none; border-bottom: 6px solid #ca8a04; cursor: pointer;">
+                            🏠 ZURÜCK ZUM HAUPTMENÜ
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(lockOverlay);
+            }
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
     function initCommon() {
         try {
+            // Kamera-Datenschutz auch bei Direktaufruf / Zurück-Navigation in Sub-Apps durchsetzen
+            enforceCameraRestrictionInSubApp();
+
             // Automatische Bereinigung temporärer Dateien bei jedem Anwendungsstart
             try { window.cleanupSessionFiles(); } catch(e) {}
 
@@ -1309,6 +1359,22 @@
         if (typeof onComplete === 'function') onComplete();
     };
 
+    // Legacy-Datenbanken bereinigen, damit gelöschte Werke nicht über Migration zurückkehren
+    async function clearLegacyDatabases() {
+        try {
+            if (!window.indexedDB) return;
+            const legacyNames = ['MedienStationDB_v4', 'MedienStationDB_v3', 'MedienStationDB'];
+            await Promise.all(legacyNames.map(name => new Promise((resolve) => {
+                try {
+                    const req = window.indexedDB.deleteDatabase(name);
+                    req.onsuccess = resolve;
+                    req.onerror = resolve;
+                    req.onblocked = resolve;
+                } catch(e) { resolve(); }
+            })));
+        } catch(e) {}
+    }
+
     // Löschen aller Meisterwerke (Galerie leeren)
     window.clearMeisterwerke = async function(onComplete) {
         try { localStorage.removeItem(MEISTER_KEY); } catch(e) {}
@@ -1321,6 +1387,7 @@
             const tx = db.transaction(STORE_NAME, 'readwrite');
             tx.objectStore(STORE_NAME).clear();
             await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
+            await clearLegacyDatabases();
             console.log('[MedienStation] Galerie geleert.');
         } catch(e) {
             console.warn('[MedienStation] clearMeisterwerke error:', e);
@@ -1394,6 +1461,13 @@
             </div>
         `;
         modal.style.display = 'flex';
+
+        // Master-Lautstärke auf Audio/Video in der Lightbox anwenden
+        const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
+        modal.querySelectorAll('audio, video').forEach(mediaEl => {
+            mediaEl.volume = Math.max(0, Math.min(1, mult));
+            mediaEl.muted = (mult <= 0.0);
+        });
     };
 
     window.renderMeisterwerkeGrid = async function() {
@@ -1472,6 +1546,13 @@
                 }).filter(Boolean).join('');
 
                 if (footer) footer.style.display = 'flex';
+
+                // Master-Lautstärke auf Audio/Video-Elemente im Galerie-Grid anwenden
+                const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
+                grid.querySelectorAll('audio, video').forEach(mediaEl => {
+                    mediaEl.volume = Math.max(0, Math.min(1, mult));
+                    mediaEl.muted = (mult <= 0.0);
+                });
             }
             window.updateGalleryInfoText();
         } catch(err) {
@@ -1538,6 +1619,13 @@
         try { window.renderMeisterwerkeGrid(); } catch(e) { console.warn('renderMeisterwerkeGrid error:', e); }
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
+
+        // Master-Lautstärke auf Audio/Video in der Lightbox anwenden
+        const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
+        modal.querySelectorAll('audio, video').forEach(mediaEl => {
+            mediaEl.volume = Math.max(0, Math.min(1, mult));
+            mediaEl.muted = (mult <= 0.0);
+        });
     };
 
     window.closeMeisterwerke = function(event) {
@@ -1676,10 +1764,10 @@
             }
 
             if (lastDate !== today) {
-                // Sicherheitsnetz: Werke der letzten 24 Stunden NIEMALS löschen (schützt frische Werke vor versehentlichem Reset)
+                // Strenger DSGVO-Tages-Reset: Alle Werke von vorherigen Tagen (< heute 00:00:00 lokal) vollständig löschen
+                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
                 const allItems = await window.getMeisterwerke();
-                const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
-                const itemsToKeep = allItems.filter(it => (!it || !it.timestamp || it.timestamp > twentyFourHoursAgo));
+                const itemsToKeep = allItems.filter(it => (it && typeof it.timestamp === 'number' && it.timestamp >= startOfToday));
 
                 try {
                     const db = await getDB();
@@ -1687,15 +1775,22 @@
                     const store = tx.objectStore(STORE_NAME);
                     store.clear();
                     itemsToKeep.forEach(it => { if (it && it.id) store.put(it); });
+                    await new Promise((res) => { tx.oncomplete = res; tx.onerror = res; });
+                    await clearLegacyDatabases();
                 } catch(dbErr) {}
 
                 try {
-                    localStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToKeep));
-                    sessionStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToKeep));
+                    if (itemsToKeep.length === 0) {
+                        localStorage.removeItem(MEISTER_KEY);
+                        sessionStorage.removeItem(MEISTER_KEY);
+                    } else {
+                        localStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToKeep));
+                        sessionStorage.setItem(MEISTER_KEY, JSON.stringify(itemsToKeep));
+                    }
                 } catch(lsErr) {}
 
                 localStorage.setItem(DATE_KEY, today);
-                console.log(`[MedienStation] Täglicher Galerie-Reset durchgeführt. ${itemsToKeep.length} frische Werke geschützt.`);
+                console.log(`[MedienStation] Strenger Tages-Reset durchgeführt. ${allItems.length - itemsToKeep.length} Werke vom Vortag gelöscht.`);
             }
         } catch(e) {
             console.warn('[MedienStation] Fehler beim täglichen Galerie-Reset:', e);

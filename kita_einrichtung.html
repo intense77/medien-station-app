@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Kita-Einrichtungshilfe &amp; Kiosk-Checkliste</title>
+    <style>
+
+        :root {
+            --primary: #0f172a;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --bg: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #38bdf8;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        .no-print-header {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.35rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #0f172a;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-action {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-home {
+            background: #475569;
+        }
+
+        .btn-action.btn-home:hover {
+            background: #334155;
+        }
+
+        .container {
+            max-width: 1060px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .doc-subtitle {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .doc-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .doc-meta strong {
+            color: #f1f5f9;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #34d399;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        .security-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .security-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .security-status {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid #059669;
+        }
+
+        .security-status.blue {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            border-color: #0284c7;
+        }
+
+        .security-status.yellow {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border-color: #d97706;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0 2rem 0;
+            font-size: 0.9rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .data-table th, .data-table td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 0.75rem 0.75rem 0;
+            margin: 1.5rem 0;
+        }
+
+        .callout.info {
+            border-left-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .callout.warning {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .callout-title {
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        code, pre {
+            background: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        pre {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 2.5rem 0;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .signature-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px dashed var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .sig-line {
+            border-bottom: 1px solid var(--border);
+            height: 50px;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .sig-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; font-size: 10pt; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, h4, .security-title { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div, td, th { color: #1e293b !important; }
+            .security-item, .callout, .doc-meta, .signature-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; color: black !important; }
+            .data-table th { background: #f1f5f9 !important; color: black !important; }
+            .data-table td, .data-table th { border-color: #cbd5e1 !important; }
+            code, pre { background: #f1f5f9 !important; color: #0284c7 !important; border: 1px solid #ccc !important; }
+            .security-status { border: 1px solid #64748b !important; color: black !important; background: #e2e8f0 !important; }
+            .sig-line { border-bottom-color: black !important; }
+        }
+
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin: 1.5rem 0;
+        }
+        .step-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 0.9rem;
+            padding: 1.25rem;
+        }
+        .step-box h3 {
+            margin-top: 0;
+            color: #fbbf24;
+        }
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            padding: 0.45rem 0;
+            border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
+        }
+        @media print {
+            .step-box {
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid;
+            }
+            .step-box h3 {
+                color: #0f172a !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <header class="no-print-header">
+        <a href="index.html?skip_splash=1" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation Dokus</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="docs.html" class="nav-btn">📚 Übersicht</a><a href="security.html" class="nav-btn">🛡️ IT & DSGVO</a><a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a><a href="features.html" class="nav-btn">🎨 Module</a><a href="todo.html" class="nav-btn">📋 Roadmap</a><a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a><a href="impressum.html" class="nav-btn">🏛️ Impressum</a><a href="lizenzen.html" class="nav-btn">📜 Lizenzen</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="index.html?skip_splash=1" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+
+    <main class="container">
+        <article class="doc-card">
+            <h1>Kita-Einrichtungshilfe &amp; Kiosk-Checkliste</h1>
+            <div class="doc-subtitle">In 5 Minuten startklar für das sichere Freispiel auf iPad &amp; Android-Tablet</div>
+
+            <div class="doc-meta">
+                <div><strong>Produkt:</strong> MedienStation v7.9.8</div>
+                <div><strong>Einsatzort:</strong> Kita-Gruppenraum, Vorschule, Medienkoffer</div>
+                <div><strong>Betriebsart:</strong> 100 % lokal &amp; offline-fähig (ohne Konten)</div>
+                <div><strong>Standard-PIN (Fachkraft-Menü):</strong> <code>1234</code> (bitte direkt ändern!)</div>
+            </div>
+
+            <h2>1. MedienStation als App installieren (PWA)</h2>
+            <div class="step-grid">
+                <div class="step-box">
+                    <h3>🍎 iPad (iPadOS Safari)</h3>
+                    <ol>
+                        <li>Die URL der MedienStation in <strong>Safari</strong> öffnen (nicht in Chrome).</li>
+                        <li>Oben rechts auf das <strong>Teilen-Symbol</strong> (Viereck mit Pfeil nach oben) tippen.</li>
+                        <li><strong>„Zum Home-Bildschirm“</strong> wählen und mit <strong>„Hinzufügen“</strong> bestätigen.</li>
+                        <li>Die App ab sofort über das neue <strong>MedienStation-Icon</strong> starten (Vollbild ohne Browserleiste).</li>
+                    </ol>
+                </div>
+                <div class="step-box">
+                    <h3>🤖 Android-Tablet (Chrome)</h3>
+                    <ol>
+                        <li>Die URL der MedienStation in <strong>Google Chrome</strong> öffnen.</li>
+                        <li>Auf das Banner <strong>„App installieren“</strong> oder oben rechts auf das Menü <strong>(⋮)</strong> tippen.</li>
+                        <li><strong>„App installieren“</strong> bzw. <strong>„Zum Startbildschirm zufügen“</strong> auswählen.</li>
+                        <li>Die App über das Startbildschirm-Icon starten – sie lädt alle KI-Modelle automatisch für den Offline-Betrieb.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h2>2. Echter Kiosk-Schutz (Kinder bleiben sicher in der App)</h2>
+            <p>Eine Web-App allein kann die Home-Geste des Tablets nicht sperren. Aktivieren Sie daher vor dem Freispiel den eingebauten Kiosk-Schutz des Tablets – das dauert 3 Sekunden:</p>
+            <div class="step-grid">
+                <div class="step-box">
+                    <h3>🍎 iPad: „Geführter Zugriff“</h3>
+                    <p><strong>Einmalig einrichten:</strong> <em>Einstellungen &rarr; Bedienungshilfen &rarr; Geführter Zugriff</em> aktivieren und einen eigenen Code festlegen.</p>
+                    <p><strong>Im Kita-Alltag:</strong> MedienStation öffnen &rarr; <strong>3× schnell auf die Seitentaste / Home-Taste drücken</strong> &rarr; <em>Starten</em>. Zum Beenden erneut 3× drücken und Code eingeben.</p>
+                </div>
+                <div class="step-box">
+                    <h3>🤖 Android: „App anheften / Fixieren“</h3>
+                    <p><strong>Einmalig einrichten:</strong> <em>Einstellungen &rarr; Sicherheit &rarr; App-Anheften (Bildschirm fixieren)</em> aktivieren + Entsperr-PIN einschalten.</p>
+                    <p><strong>Im Kita-Alltag:</strong> App-Übersicht öffnen &rarr; auf das MedienStation-Icon tippen &rarr; <strong>„Anheften“</strong> wählen. Kinder können die App nicht mehr verlassen.</p>
+                </div>
+            </div>
+
+            <h2>3. Drucken &amp; Haptische Brücke einrichten</h2>
+            <ul>
+                <li><strong>WLAN-Drucker / AirPrint / Fotodrucker:</strong> Tablet und Drucker müssen im selben WLAN sein (oder per Wi-Fi Direct verbunden). Beim ersten Drucken im System-Dialog einfach den Kita-Drucker bzw. die installierte Drucker-App auswählen.</li>
+                <li><strong>Tipp für Daumenkinos &amp; Entdecker-Karten:</strong> Auf festem Papier (ab 160 g/m²) drucken. Die 12 <em>Entdecker-Karten</em> (im Menü unter <code>💡 INFO</code>) einmalig ausdrucken und laminieren – sie geben Kindern im Freispiel sofort kreative Impulse.</li>
+            </ul>
+
+            <h2>4. Fachkraft-Menü &amp; Datenschutz im Alltag (⚙️ Einstellungen)</h2>
+            <div class="callout">
+                <div class="callout-title">🔐 Wichtiger erster Schritt: Standard-PIN ändern!</div>
+                <p style="margin-bottom: 0;">Tippen Sie im Hauptmenü oben rechts auf <strong>⚙️ EINSTELLUNGEN</strong> (Standard-PIN: <code>1234</code>) und legen Sie unter <strong>„🔐 PIN ändern“</strong> eine eigene 4-stellige Kita-PIN fest.</p>
+            </div>
+            <ul>
+                <li><strong>📷 Foto- &amp; Kamera-Datenschutz:</strong> Nimmt ein Kind ohne elterliche Fotoeinwilligung am Freispiel teil? Ein Klick auf <strong>„🔒 Kamera pausieren“</strong> sperrt sofort alle 5 Kamera-Apps; <em>Musik</em>, <em>Mikro</em> und <em>Pixel Art</em> bleiben voll nutzbar.</li>
+                <li><strong>🔊 Lautstärke &amp; Mittagsruhe:</strong> Wählen Sie zwischen <em>Normal (100 %)</em>, <em>Flüstern (35 %)</em> und <em>Stumm (0 %)</em> – gilt für Klicks, Sprachausgabe, Musik Labor, Mikro Check und Galerie.</li>
+                <li><strong>🛡️ Tages-Reset vs. Projekt-Modus:</strong> Standardmäßig löscht die Station alle Werke vom Vortag automatisch beim Tageswechsel (DSGVO/KDG-konform). Für Projektwochen lässt sich der <em>7-Tage-Projektmodus</em> aktivieren.</li>
+                <li><strong>📥 Portfolio-Export:</strong> Über <strong>„Als ZIP herunterladen“</strong> sichern Fachkräfte alle Werke des Tages mit einem Klick lokal auf dem Tablet (ohne Cloud).</li>
+            </ul>
+
+            <h2>5. 2-Minuten-Checkliste vor dem ersten Kinder-Einsatz</h2>
+            <ul class="checklist">
+                <li>☐ <strong>MedienStation</strong> über das Home-Bildschirm-Icon gestartet und gewartet, bis das blaue Update-/Caching-Fenster bei <strong>100 %</strong> fertig ist.</li>
+                <li>☐ Im Fachkraft-Menü (<code>⚙️</code>) die <strong>PIN geändert</strong> und die <strong>Hardware-Diagnose</strong> geprüft (Kamera ✅, Mikrofon ✅, Speicher ✅).</li>
+                <li>☐ Einmal kurz <em>Zauber Selfie</em> und <em>Mikro Check</em> geöffnet und die System-Abfragen für <strong>Kamera &amp; Mikrofon</strong> mit „Erlauben“ bestätigt.</li>
+                <li>☐ Kurzer <strong>Offline-Test</strong>: Flugmodus kurz einschalten – alle 8 Apps öffnen sich ohne WLAN.</li>
+                <li>☐ <strong>Geführter Zugriff</strong> (iPad) bzw. <strong>App-Anheften</strong> (Android) einmal getestet.</li>
+            </ul>
+        </article>
+    </main>
+
+</body>
+</html>

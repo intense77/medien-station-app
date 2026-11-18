@@ -411,18 +411,31 @@
             }
 
             if (t.mediaRecorder) {
-                // Web Stop
-                t.mediaRecorder.onstop = () => {
+                // Web Stop (asynchron: Blob erst in onstop bereit -> dort in Galerie speichern!)
+                const activeRecorder = t.mediaRecorder;
+                activeRecorder.onstop = () => {
                     releaseMic(t); // WICHTIG: Erst nach der Datei das Mikro freigeben!
                     if (t.chunks.length > 0) {
-                        const mimeType = t.mediaRecorder.mimeType || 'audio/webm';
+                        const mimeType = activeRecorder.mimeType || 'audio/webm';
                         const blob = new Blob(t.chunks, { type: mimeType });
                         t.blob = blob;
+                        if (window.saveToMeisterwerke && blob.size > 0) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                                window.saveToMeisterwerke({
+                                    type: 'audio',
+                                    appName: 'Mikro Check',
+                                    title: 'Tonaufnahme ' + (id + 1),
+                                    dataUrl: reader.result
+                                });
+                            };
+                            reader.readAsDataURL(blob);
+                        }
                     }
                     t.mediaRecorder = null;
                 };
-                if (t.mediaRecorder.state !== 'inactive') {
-                    t.mediaRecorder.stop();
+                if (activeRecorder.state !== 'inactive') {
+                    activeRecorder.stop();
                 } else {
                     releaseMic(t);
                 }
@@ -430,6 +443,14 @@
                 // Native Stop
                 try { t.mediaObj.stopRecord(); t.mediaObj.release(); t.mediaObj = null; } catch(e){}
                 releaseMic(t);
+                if (window.saveToMeisterwerke && t.audioUrl) {
+                    window.saveToMeisterwerke({
+                        type: 'audio',
+                        appName: 'Mikro Check',
+                        title: 'Tonaufnahme ' + (id + 1),
+                        dataUrl: t.audioUrl
+                    });
+                }
             } else {
                 releaseMic(t);
             }
@@ -447,27 +468,6 @@
             document.getElementById(`action-box-${id}`).classList.add('flex');
             window.playSound('success');
             if (window.triggerCelebration) window.triggerCelebration();
-            if (window.saveToMeisterwerke) {
-                if (t.blob) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        window.saveToMeisterwerke({
-                            type: 'audio',
-                            appName: 'Mikro Check',
-                            title: 'Tonaufnahme ' + (id + 1),
-                            dataUrl: reader.result
-                        });
-                    };
-                    reader.readAsDataURL(t.blob);
-                } else if (t.audioUrl) {
-                    window.saveToMeisterwerke({
-                        type: 'audio',
-                        appName: 'Mikro Check',
-                        title: 'Tonaufnahme ' + (id + 1),
-                        dataUrl: t.audioUrl
-                    });
-                }
-            }
             
             // Text wieder normal anzeigen
             const txt = document.getElementById('instruction-text');
@@ -511,13 +511,21 @@
             // Web Audio Context wecken
             if (webAudioCtx && webAudioCtx.state === 'suspended') webAudioCtx.resume();
 
-            // Helper zum Abspielen via Web Audio (garantiert Pitch-Effekt)
+            // Helper zum Abspielen via Web Audio (garantiert Pitch-Effekt & respektiert Master-Lautstärke)
             const playBuffer = (arrayBuffer) => {
+                const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
+                if (mult <= 0.0) {
+                    if (window.showCustomAlert) window.showCustomAlert('🌙 Ruhezeit / Stumm-Modus ist aktiv', '🔇');
+                    return;
+                }
                 webAudioCtx.decodeAudioData(arrayBuffer, (audioBuffer) => {
                     const source = webAudioCtx.createBufferSource();
+                    const gainNode = webAudioCtx.createGain();
+                    gainNode.gain.value = Math.max(0, Math.min(1, mult));
                     source.buffer = audioBuffer;
                     source.playbackRate.value = t.playbackRate;
-                    source.connect(webAudioCtx.destination);
+                    source.connect(gainNode);
+                    gainNode.connect(webAudioCtx.destination);
                     source.onended = () => { 
                         t.isPlaying = false; 
                         btn.classList.remove('playing'); 

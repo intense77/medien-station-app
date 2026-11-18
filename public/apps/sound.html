@@ -310,13 +310,21 @@
         function playPad(i) {
             const pad = pads[i];
             if (pad.sourceNode) { try { pad.sourceNode.stop(); } catch(e){} }
+            const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
+            if (mult <= 0.0) {
+                if (window.showCustomAlert) window.showCustomAlert('🌙 Ruhezeit / Stumm-Modus ist aktiv', '🔇');
+                return;
+            }
             
             const source = audioCtx.createBufferSource();
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = Math.max(0, Math.min(1, mult));
             source.buffer = pad.buffer;
             source.playbackRate.value = pad.playbackRate || 1.0;
             source.loop = pad.loop;
-            source.connect(audioCtx.destination); // Ton an Lautsprecher senden
-            source.connect(globalAnalyser);
+            source.connect(gainNode);
+            gainNode.connect(audioCtx.destination); // Ton mit Master-Lautstärke an Lautsprecher senden
+            gainNode.connect(globalAnalyser);
             source.start(0);
             pad.sourceNode = source;
             

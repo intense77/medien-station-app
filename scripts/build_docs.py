@@ -450,9 +450,6 @@ def generate_freigabe_html(is_public_docs=False):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedienStation – IT-Sicherheits-, Datenschutz- &amp; KI-Freigabedossier</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
 {SHARED_CSS}
     </style>
@@ -1030,9 +1027,6 @@ def generate_hub_html(is_public_docs=False):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MedienStation – Dokumentations-Portal &amp; Weitergabe-Hub</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
 {SHARED_CSS}
         .hub-grid {{
@@ -1131,6 +1125,20 @@ def generate_hub_html(is_public_docs=False):
                     </div>
                 </div>
 
+                <!-- Card 2: Kita-Einrichtung & Kiosk-Start -->
+                <div class="hub-card" style="border-color: #f59e0b;">
+                    <div class="hub-badge amber">Schnellstart: Fachkräfte</div>
+                    <div class="hub-card-icon">🚀</div>
+                    <div class="hub-card-title">Kita-Einrichtung &amp; Kiosk-Modus</div>
+                    <div class="hub-card-desc">
+                        Kompakte 1-Seiten-Anleitung für den Kita-Alltag: App-Installation (iPad &amp; Android), kindersicherer Kiosk-Schutz (Geführter Zugriff / App-Pinning), Drucker-Setup und 2-Minuten-Checkliste.
+                    </div>
+                    <div class="hub-actions">
+                        <a href="kita_einrichtung.html" class="btn-action" style="background: #f59e0b; color: #0f172a;">Öffnen &rarr;</a>
+                        <a href="kita_einrichtung.html" onclick="window.open(this.href).print(); return false;" class="btn-action btn-home">🖨️ PDF</a>
+                    </div>
+                </div>
+
                 <!-- Card 2: Pädagogisches Konzept -->
                 <div class="hub-card">
                     <div class="hub-badge blue">Leitung &amp; Pädagogik</div>
@@ -1221,6 +1229,141 @@ def generate_hub_html(is_public_docs=False):
 """
     return html
 
+def generate_kita_einrichtung_html(is_public_docs=False):
+    header = get_nav_header("kita", is_public_docs)
+
+    html = f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Kita-Einrichtungshilfe &amp; Kiosk-Checkliste</title>
+    <style>
+{SHARED_CSS}
+        .step-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin: 1.5rem 0;
+        }}
+        .step-box {{
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 0.9rem;
+            padding: 1.25rem;
+        }}
+        .step-box h3 {{
+            margin-top: 0;
+            color: #fbbf24;
+        }}
+        .checklist {{
+            list-style: none;
+            padding-left: 0;
+        }}
+        .checklist li {{
+            padding: 0.45rem 0;
+            border-bottom: 1px dashed rgba(148, 163, 184, 0.25);
+        }}
+        @media print {{
+            .step-box {{
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid;
+            }}
+            .step-box h3 {{
+                color: #0f172a !important;
+            }}
+        }}
+    </style>
+</head>
+<body>
+
+{header}
+
+    <main class="container">
+        <article class="doc-card">
+            <h1>Kita-Einrichtungshilfe &amp; Kiosk-Checkliste</h1>
+            <div class="doc-subtitle">In 5 Minuten startklar für das sichere Freispiel auf iPad &amp; Android-Tablet</div>
+
+            <div class="doc-meta">
+                <div><strong>Produkt:</strong> MedienStation v{VERSION}</div>
+                <div><strong>Einsatzort:</strong> Kita-Gruppenraum, Vorschule, Medienkoffer</div>
+                <div><strong>Betriebsart:</strong> 100 % lokal &amp; offline-fähig (ohne Konten)</div>
+                <div><strong>Standard-PIN (Fachkraft-Menü):</strong> <code>1234</code> (bitte direkt ändern!)</div>
+            </div>
+
+            <h2>1. MedienStation als App installieren (PWA)</h2>
+            <div class="step-grid">
+                <div class="step-box">
+                    <h3>🍎 iPad (iPadOS Safari)</h3>
+                    <ol>
+                        <li>Die URL der MedienStation in <strong>Safari</strong> öffnen (nicht in Chrome).</li>
+                        <li>Oben rechts auf das <strong>Teilen-Symbol</strong> (Viereck mit Pfeil nach oben) tippen.</li>
+                        <li><strong>„Zum Home-Bildschirm“</strong> wählen und mit <strong>„Hinzufügen“</strong> bestätigen.</li>
+                        <li>Die App ab sofort über das neue <strong>MedienStation-Icon</strong> starten (Vollbild ohne Browserleiste).</li>
+                    </ol>
+                </div>
+                <div class="step-box">
+                    <h3>🤖 Android-Tablet (Chrome)</h3>
+                    <ol>
+                        <li>Die URL der MedienStation in <strong>Google Chrome</strong> öffnen.</li>
+                        <li>Auf das Banner <strong>„App installieren“</strong> oder oben rechts auf das Menü <strong>(⋮)</strong> tippen.</li>
+                        <li><strong>„App installieren“</strong> bzw. <strong>„Zum Startbildschirm zufügen“</strong> auswählen.</li>
+                        <li>Die App über das Startbildschirm-Icon starten – sie lädt alle KI-Modelle automatisch für den Offline-Betrieb.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h2>2. Echter Kiosk-Schutz (Kinder bleiben sicher in der App)</h2>
+            <p>Eine Web-App allein kann die Home-Geste des Tablets nicht sperren. Aktivieren Sie daher vor dem Freispiel den eingebauten Kiosk-Schutz des Tablets – das dauert 3 Sekunden:</p>
+            <div class="step-grid">
+                <div class="step-box">
+                    <h3>🍎 iPad: „Geführter Zugriff“</h3>
+                    <p><strong>Einmalig einrichten:</strong> <em>Einstellungen &rarr; Bedienungshilfen &rarr; Geführter Zugriff</em> aktivieren und einen eigenen Code festlegen.</p>
+                    <p><strong>Im Kita-Alltag:</strong> MedienStation öffnen &rarr; <strong>3× schnell auf die Seitentaste / Home-Taste drücken</strong> &rarr; <em>Starten</em>. Zum Beenden erneut 3× drücken und Code eingeben.</p>
+                </div>
+                <div class="step-box">
+                    <h3>🤖 Android: „App anheften / Fixieren“</h3>
+                    <p><strong>Einmalig einrichten:</strong> <em>Einstellungen &rarr; Sicherheit &rarr; App-Anheften (Bildschirm fixieren)</em> aktivieren + Entsperr-PIN einschalten.</p>
+                    <p><strong>Im Kita-Alltag:</strong> App-Übersicht öffnen &rarr; auf das MedienStation-Icon tippen &rarr; <strong>„Anheften“</strong> wählen. Kinder können die App nicht mehr verlassen.</p>
+                </div>
+            </div>
+
+            <h2>3. Drucken &amp; Haptische Brücke einrichten</h2>
+            <ul>
+                <li><strong>WLAN-Drucker / AirPrint / Fotodrucker:</strong> Tablet und Drucker müssen im selben WLAN sein (oder per Wi-Fi Direct verbunden). Beim ersten Drucken im System-Dialog einfach den Kita-Drucker bzw. die installierte Drucker-App auswählen.</li>
+                <li><strong>Tipp für Daumenkinos &amp; Entdecker-Karten:</strong> Auf festem Papier (ab 160 g/m²) drucken. Die 12 <em>Entdecker-Karten</em> (im Menü unter <code>💡 INFO</code>) einmalig ausdrucken und laminieren – sie geben Kindern im Freispiel sofort kreative Impulse.</li>
+            </ul>
+
+            <h2>4. Fachkraft-Menü &amp; Datenschutz im Alltag (⚙️ Einstellungen)</h2>
+            <div class="callout">
+                <div class="callout-title">🔐 Wichtiger erster Schritt: Standard-PIN ändern!</div>
+                <p style="margin-bottom: 0;">Tippen Sie im Hauptmenü oben rechts auf <strong>⚙️ EINSTELLUNGEN</strong> (Standard-PIN: <code>1234</code>) und legen Sie unter <strong>„🔐 PIN ändern“</strong> eine eigene 4-stellige Kita-PIN fest.</p>
+            </div>
+            <ul>
+                <li><strong>📷 Foto- &amp; Kamera-Datenschutz:</strong> Nimmt ein Kind ohne elterliche Fotoeinwilligung am Freispiel teil? Ein Klick auf <strong>„🔒 Kamera pausieren“</strong> sperrt sofort alle 5 Kamera-Apps; <em>Musik</em>, <em>Mikro</em> und <em>Pixel Art</em> bleiben voll nutzbar.</li>
+                <li><strong>🔊 Lautstärke &amp; Mittagsruhe:</strong> Wählen Sie zwischen <em>Normal (100 %)</em>, <em>Flüstern (35 %)</em> und <em>Stumm (0 %)</em> – gilt für Klicks, Sprachausgabe, Musik Labor, Mikro Check und Galerie.</li>
+                <li><strong>🛡️ Tages-Reset vs. Projekt-Modus:</strong> Standardmäßig löscht die Station alle Werke vom Vortag automatisch beim Tageswechsel (DSGVO/KDG-konform). Für Projektwochen lässt sich der <em>7-Tage-Projektmodus</em> aktivieren.</li>
+                <li><strong>📥 Portfolio-Export:</strong> Über <strong>„Als ZIP herunterladen“</strong> sichern Fachkräfte alle Werke des Tages mit einem Klick lokal auf dem Tablet (ohne Cloud).</li>
+            </ul>
+
+            <h2>5. 2-Minuten-Checkliste vor dem ersten Kinder-Einsatz</h2>
+            <ul class="checklist">
+                <li>☐ <strong>MedienStation</strong> über das Home-Bildschirm-Icon gestartet und gewartet, bis das blaue Update-/Caching-Fenster bei <strong>100 %</strong> fertig ist.</li>
+                <li>☐ Im Fachkraft-Menü (<code>⚙️</code>) die <strong>PIN geändert</strong> und die <strong>Hardware-Diagnose</strong> geprüft (Kamera ✅, Mikrofon ✅, Speicher ✅).</li>
+                <li>☐ Einmal kurz <em>Zauber Selfie</em> und <em>Mikro Check</em> geöffnet und die System-Abfragen für <strong>Kamera &amp; Mikrofon</strong> mit „Erlauben“ bestätigt.</li>
+                <li>☐ Kurzer <strong>Offline-Test</strong>: Flugmodus kurz einschalten – alle 8 Apps öffnen sich ohne WLAN.</li>
+                <li>☐ <strong>Geführter Zugriff</strong> (iPad) bzw. <strong>App-Anheften</strong> (Android) einmal getestet.</li>
+            </ul>
+        </article>
+    </main>
+
+</body>
+</html>
+"""
+    return html
+
+
 def update_html_files():
     print("Building and synchronizing all HTML documentation...")
 
@@ -1256,6 +1399,15 @@ def update_html_files():
     with open(os.path.join(PUBLIC_DOCS_DIR, "docs.html"), "w", encoding="utf-8") as f:
         f.write(pub_hub)
 
+    # 2b. Kita-Einrichtungshilfe & Kiosk-Checkliste HTML
+    root_kita = generate_kita_einrichtung_html(is_public_docs=False)
+    pub_kita = generate_kita_einrichtung_html(is_public_docs=True)
+
+    with open(os.path.join(BASE_DIR, "kita_einrichtung.html"), "w", encoding="utf-8") as f:
+        f.write(root_kita)
+    with open(os.path.join(PUBLIC_DOCS_DIR, "kita_einrichtung.html"), "w", encoding="utf-8") as f:
+        f.write(pub_kita)
+
     # 3. Synchronize existing files with updated versions & headers
     for doc in ["app_vorstellung.html", "features.html", "todo.html", "datenschutz.html", "impressum.html", "lizenzen.html"]:
         root_path = os.path.join(BASE_DIR, doc)
@@ -1265,6 +1417,12 @@ def update_html_files():
             with open(root_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 
+            # Remove external Google Fonts links (DSGVO / offline compliance)
+            content = "\n".join(
+                line for line in content.splitlines()
+                if "fonts.googleapis.com" not in line and "fonts.gstatic.com" not in line
+            ) + "\n"
+
             # Replace old versions
             content = content.replace("v7.9.6 (Build 316)", f"v{VERSION} (Build {BUILD})")
             content = content.replace("v7.9.6 (Build 311)", f"v{VERSION} (Build {BUILD})")

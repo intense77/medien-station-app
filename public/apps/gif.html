@@ -242,22 +242,32 @@
             if(window.playSound) window.playSound('shutter');
             frames = [];
             canvas = document.getElementById('canvas');
-            ctx = canvas.getContext('2d');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
+            ctx = canvas.getContext('2d', { willReadFrequently: true });
+            const rawW = video.videoWidth || 640;
+            const rawH = video.videoHeight || 480;
+            const maxW = 640;
+            const scale = rawW > maxW ? (maxW / rawW) : 1;
+            canvas.width = Math.round(rawW * scale);
+            canvas.height = Math.round(rawH * scale);
             
             document.getElementById('rec-indicator').classList.remove('hidden');
             
-            let startTime = Date.now();
+            const startTime = Date.now();
+            let lastCapture = 0;
+            const FRAME_INTERVAL_MS = 66; // ~15 fps (RAM-sicher auf älteren iPads & Tablets)
             const capture = () => {
-                if (Date.now() - startTime < 2000) {
-                    ctx.save();
-                    if (currentFacingMode === 'user') {
-                        ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+                const now = Date.now();
+                if (now - startTime < 2000) {
+                    if (now - lastCapture >= FRAME_INTERVAL_MS) {
+                        lastCapture = now;
+                        ctx.save();
+                        if (currentFacingMode === 'user') {
+                            ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+                        }
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        ctx.restore();
+                        frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
                     }
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    ctx.restore();
-                    frames.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
                     requestAnimationFrame(capture);
                 } else {
                     document.getElementById('rec-indicator').classList.add('hidden');

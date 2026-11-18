@@ -124,7 +124,7 @@ function showPrintHint(onConfirm) {
             <div style="background-color: #1e293b; border: 4px solid #3b82f6; border-radius: 2rem; max-width: 28rem; width: 100%; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; transform: scale(0.9); transition: transform 0.3s;" id="print-hint-content">
                 <div style="font-size: 5rem; margin-bottom: 1rem;">🖨️</div>
                 <h2 style="font-size: 2rem; font-weight: 900; color: white; margin-bottom: 1rem; font-family: sans-serif;">Gleich geht's los!</h2>
-                <p style="font-size: 1.25rem; color: #cbd5e1; margin-bottom: 2rem; font-weight: bold; font-family: sans-serif;">Wähle im nächsten Menü die <br><span style="color: #60a5fa;">Canon Print App</span> aus.</p>
+                <p style="font-size: 1.25rem; color: #cbd5e1; margin-bottom: 2rem; font-weight: bold; font-family: sans-serif;">Wähle im nächsten Menü euren <br><span style="color: #60a5fa;">Drucker oder eure Druck-App</span> aus.</p>
                 <button id="print-hint-ok" style="width: 100%; background-color: #2563eb; color: white; font-weight: 900; padding: 1rem; border-radius: 0.75rem; font-size: 1.25rem; border: none; border-bottom: 6px solid #1e40af; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-family: sans-serif; transition: all 0.1s;">
                     <span style="font-size: 1.5rem;">👍</span> ALLES KLAR
                 </button>
@@ -163,7 +163,7 @@ function showPrintHint(onConfirm) {
 
     modal.style.display = 'flex';
     
-    if (window.speakText) window.speakText("Gleich geht es los. Wähle im nächsten Menü die Canon Print App aus.");
+    if (window.speakText) window.speakText("Gleich geht es los. Wähle im nächsten Menü euren Drucker oder eure Druck-App aus.");
 
     setTimeout(() => {
         modal.style.opacity = '1';
