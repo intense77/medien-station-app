@@ -1139,6 +1139,20 @@ def generate_hub_html(is_public_docs=False):
                     </div>
                 </div>
 
+                <!-- Card 2b: Eltern-Aushang (Kita-Pinnwand) -->
+                <div class="hub-card" style="border-color: #ec4899;">
+                    <div class="hub-badge purple">Elternarbeit &amp; Transparenz</div>
+                    <div class="hub-card-icon">👨‍👩‍👧‍👦</div>
+                    <div class="hub-card-title">Eltern-Aushang (1 Seite PDF)</div>
+                    <div class="hub-card-desc">
+                        Druckfertiger, freundlicher Aushang für die Kita-Pinnwand: Erklärt Eltern auf einen Blick das pädagogische Konzept, 100 % Offline-/Ohne-Cloud-Betrieb und den automatischen Tages-Reset.
+                    </div>
+                    <div class="hub-actions">
+                        <a href="eltern_aushang.html" class="btn-action" style="background: #ec4899; color: #ffffff;">Öffnen &rarr;</a>
+                        <a href="eltern_aushang.html" onclick="window.open(this.href).print(); return false;" class="btn-action btn-home">🖨️ PDF</a>
+                    </div>
+                </div>
+
                 <!-- Card 2: Pädagogisches Konzept -->
                 <div class="hub-card">
                     <div class="hub-badge blue">Leitung &amp; Pädagogik</div>
@@ -1364,6 +1378,172 @@ def generate_kita_einrichtung_html(is_public_docs=False):
     return html
 
 
+def generate_eltern_aushang_html(is_public_docs=False):
+    header = get_nav_header("eltern", is_public_docs)
+
+    html = f"""<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Eltern-Information &amp; Kita-Aushang</title>
+    <style>
+{SHARED_CSS}
+        .poster-hero {{
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(56, 189, 248, 0.14));
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }}
+        .poster-hero h1 {{
+            margin-bottom: 0.4rem;
+            font-size: 2rem;
+        }}
+        .poster-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+            margin: 1.25rem 0;
+        }}
+        .poster-box {{
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid var(--border);
+            border-radius: 0.9rem;
+            padding: 1.1rem 1.25rem;
+        }}
+        .poster-box h3 {{
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: #fbbf24;
+            font-size: 1.1rem;
+        }}
+        .promise-strip {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin: 1.25rem 0;
+            text-align: center;
+        }}
+        .promise-item {{
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            border-radius: 0.8rem;
+            padding: 0.8rem 0.6rem;
+            font-size: 0.9rem;
+        }}
+        .promise-item strong {{
+            display: block;
+            color: #34d399;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }}
+        .kita-footer-note {{
+            margin-top: 1.25rem;
+            padding: 1rem 1.25rem;
+            border-radius: 0.85rem;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            font-size: 0.92rem;
+        }}
+        @media print {{
+            @page {{ size: A4; margin: 12mm; }}
+            .container {{ padding: 0 !important; margin: 0 !important; max-width: 100% !important; }}
+            .doc-card {{ padding: 0 !important; border: none !important; box-shadow: none !important; }}
+            .poster-hero {{
+                background: #fffbeb !important;
+                border: 2px solid #d97706 !important;
+                padding: 1rem !important;
+                margin-bottom: 0.9rem !important;
+            }}
+            .poster-hero h1 {{ font-size: 1.65rem !important; color: #0f172a !important; }}
+            .poster-grid {{ gap: 0.75rem !important; margin: 0.8rem 0 !important; grid-template-columns: 1fr 1fr !important; }}
+            .poster-box {{
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                padding: 0.85rem !important;
+                break-inside: avoid;
+            }}
+            .poster-box h3 {{ color: #0f172a !important; font-size: 1rem !important; }}
+            .promise-item {{
+                background: #ecfdf5 !important;
+                border: 1px solid #059669 !important;
+                padding: 0.65rem 0.5rem !important;
+            }}
+            .promise-item strong {{ color: #065f46 !important; }}
+            .kita-footer-note {{
+                background: #f0f9ff !important;
+                border: 1px solid #0284c7 !important;
+                padding: 0.8rem 1rem !important;
+            }}
+            p, li {{ font-size: 0.92rem !important; line-height: 1.42 !important; }}
+        }}
+    </style>
+</head>
+<body>
+
+{header}
+
+    <main class="container">
+        <article class="doc-card">
+            <div class="poster-hero">
+                <div style="font-size: 2.2rem; margin-bottom: 0.25rem;">🎨 🎙️ 🎬 ✨</div>
+                <h1>Liebe Eltern, bei uns steht die MedienStation!</h1>
+                <div class="doc-subtitle" style="margin-bottom: 0;">Kreativer digitaler Malkasten statt passivem Bildschirm-Konsum</div>
+            </div>
+
+            <p>In unserer Einrichtung nutzen die Kinder im pädagogisch begleiteten Freispiel die <strong>MedienStation</strong> (entwickelt von der AV-Medienzentrale Bistum Augsburg). Anders als klassische Spiele-Apps oder Videos schauen die Kinder hier nicht einfach zu – sie werden selbst zu kleinen <strong>Regisseuren, Musikern, Fotografen und Geschichtenerzählern</strong>.</p>
+
+            <div class="promise-strip">
+                <div class="promise-item">
+                    <strong>🔒 100 % ohne Internet</strong>
+                    Keine Cloud, kein Tracking, keine Werbung, keine Konten.
+                </div>
+                <div class="promise-item">
+                    <strong>🧹 Täglicher Auto-Reset</strong>
+                    Alle Bilder &amp; Töne werden beim Tageswechsel automatisch gelöscht.
+                </div>
+                <div class="promise-item">
+                    <strong>📷 Foto-Schutz</strong>
+                    Kamera-Apps sind per 1 Klick pausierbar – jedes Kind kann mitmachen.
+                </div>
+            </div>
+
+            <div class="poster-grid">
+                <div class="poster-box">
+                    <h3>🚀 Was machen die Kinder damit?</h3>
+                    <ul style="margin-bottom: 0; padding-left: 1.1rem;">
+                        <li><strong>🎹 Musik &amp; 🎙️ Mikro:</strong> Eigene Geräusche, Beats &amp; Sprachaufnahmen erforschen.</li>
+                        <li><strong>👾 Pixel Art &amp; 📸 Comic:</strong> Muster malen und eigene Bildergeschichten erzählen.</li>
+                        <li><strong>🎬 Trickfilm &amp; ✨ Zauber-Selfie:</strong> Kleine Stop-Motion-Filme drehen oder Fantasie-Kulissen entdecken.</li>
+                        <li><strong>🖨️ Zum Anfassen:</strong> Ausgewählte Werke können als Bild oder Daumenkino ausgedruckt werden.</li>
+                    </ul>
+                </div>
+
+                <div class="poster-box">
+                    <h3>🛡️ Wie schützen wir die Daten Ihres Kindes?</h3>
+                    <ul style="margin-bottom: 0; padding-left: 1.1rem;">
+                        <li><strong>Nur auf dem Kita-Tablet:</strong> Kein einziges Foto und keine Tonaufnahme verlässt das Gerät.</li>
+                        <li><strong>Kein Profil, kein Name:</strong> Es werden keinerlei Kinderdaten oder Logins gespeichert.</li>
+                        <li><strong>Respekt für Ihre Entscheidung:</strong> Liegt keine Fotoerlaubnis vor, schaltet die Fachkraft alle Kamera-Apps mit einem Klick stumm – Musik, Mikro und Pixel Art bleiben nutzbar.</li>
+                        <li><strong>Rechtskonform:</strong> Geprüft nach KDG / DSGVO und EU AI Act (lokale Verarbeitung).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="kita-footer-note">
+                <strong>💬 Fragen oder neugierig?</strong> Sprechen Sie unser pädagogisches Team jederzeit gerne an – wir zeigen Ihnen die MedienStation sehr gerne direkt am Tablet! Weitere Infos &amp; Datenschutzerklärung finden Sie direkt in der App unter <em>💡 INFO</em>.
+            </div>
+        </article>
+    </main>
+
+</body>
+</html>
+"""
+    return html
+
+
 def update_html_files():
     print("Building and synchronizing all HTML documentation...")
 
@@ -1407,6 +1587,15 @@ def update_html_files():
         f.write(root_kita)
     with open(os.path.join(PUBLIC_DOCS_DIR, "kita_einrichtung.html"), "w", encoding="utf-8") as f:
         f.write(pub_kita)
+
+    # 2c. Eltern-Aushang (1 Seite DIN-A4 PDF)
+    root_eltern = generate_eltern_aushang_html(is_public_docs=False)
+    pub_eltern = generate_eltern_aushang_html(is_public_docs=True)
+
+    with open(os.path.join(BASE_DIR, "eltern_aushang.html"), "w", encoding="utf-8") as f:
+        f.write(root_eltern)
+    with open(os.path.join(PUBLIC_DOCS_DIR, "eltern_aushang.html"), "w", encoding="utf-8") as f:
+        f.write(pub_eltern)
 
     # 3. Synchronize existing files with updated versions & headers
     for doc in ["app_vorstellung.html", "features.html", "todo.html", "datenschutz.html", "impressum.html", "lizenzen.html"]:

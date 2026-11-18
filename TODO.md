@@ -86,3 +86,14 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 - [x] **Daumenkino-Druckvorlagen-Polish & Bastelanleitung** (Erledigt in v7.8.9):
   - **Druckbogen:** Gestrichelte Schneidelinien (`✂️`), Heftzone (`📌 HIER TACKERN`), Bildnummerierung (`Bild #1`-`#9`) und Anleitung auf DIN-A4 Ausdruck.
   - **Pädagogische Erklärung:** Ausführliche Bastelanleitung ("Was ist ein Daumenkino & wie entsteht die Kino-Illusion im Auge?") im Info-Modal des Trickfilm Studios.
+
+---
+
+### 🟣 Phase 4: Weiterentwicklung & Differenzierung (Post-Pilot)
+- [ ] **Standard-PIN-Warnung & optionaler Mikrofon-Datenschutz im Fachkraft-Menü**:
+  - Dezenter Hinweis im Admin-Menü, solange noch die Standard-PIN `1234` gesetzt ist.
+  - Optionaler 1-Klick-Schalter, um neben den 5 Kamera-Apps auch Stimmaufnahmen (*Mikro Check*, *Musik Labor*) für besonders strenge Einrichtungen pausieren zu können.
+- [ ] **Echter Video-Export im Trickfilm Studio**:
+  - Neben dem Daumenkino-Druckbogen das fertige Stop-Motion-Video inkl. Tonspur als abspielbaren Video-Clip in der Galerie und im ZIP-Export speichern.
+- [ ] **Eigene Kita-Hintergründe im Zauber Selfie (100 % lokal)**:
+  - Fachkräfte können im Admin-Menü 1–3 eigene Projekt-Hintergründe (z. B. Waldtag, Kita-Garten, Sommerfest) lokal in IndexedDB hinterlegen – komplett ohne Cloud.

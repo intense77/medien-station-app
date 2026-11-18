@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedienStation – Eltern-Information &amp; Kita-Aushang</title>
+    <style>
+
+        :root {
+            --primary: #0f172a;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --bg: #0b1329;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #38bdf8;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 3rem;
+        }
+
+        .no-print-header {
+            background-color: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.35rem;
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            padding: 0.4rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--accent);
+            color: #0f172a;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btns {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-action {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .btn-action.btn-home {
+            background: #475569;
+        }
+
+        .btn-action.btn-home:hover {
+            background: #334155;
+        }
+
+        .container {
+            max-width: 1060px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .doc-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.5rem 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .doc-subtitle {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .doc-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            padding: 1rem 1.25rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .doc-meta strong {
+            color: #f1f5f9;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #34d399;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+        }
+
+        li {
+            margin-bottom: 0.4rem;
+        }
+
+        .security-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .security-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .security-status {
+            margin-left: auto;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid #059669;
+        }
+
+        .security-status.blue {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            border-color: #0284c7;
+        }
+
+        .security-status.yellow {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border-color: #d97706;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.25rem 0 2rem 0;
+            font-size: 0.9rem;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .data-table th, .data-table td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            background: rgba(30, 41, 59, 0.9);
+            color: #f8fafc;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 0.75rem 0.75rem 0;
+            margin: 1.5rem 0;
+        }
+
+        .callout.info {
+            border-left-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .callout.warning {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .callout-title {
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        code, pre {
+            background: #0f172a;
+            color: #38bdf8;
+            font-family: monospace;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        pre {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border);
+            margin: 2.5rem 0;
+        }
+
+        .signature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .signature-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px dashed var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .sig-line {
+            border-bottom: 1px solid var(--border);
+            height: 50px;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .sig-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media print {
+            .no-print-header { display: none !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; font-size: 10pt; }
+            .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .doc-card { border: none !important; box-shadow: none !important; padding: 0 !important; background: white !important; color: black !important; }
+            h1, h2, h3, h4, .security-title { color: black !important; -webkit-text-fill-color: initial !important; }
+            p, li, div, td, th { color: #1e293b !important; }
+            .security-item, .callout, .doc-meta, .signature-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; color: black !important; }
+            .data-table th { background: #f1f5f9 !important; color: black !important; }
+            .data-table td, .data-table th { border-color: #cbd5e1 !important; }
+            code, pre { background: #f1f5f9 !important; color: #0284c7 !important; border: 1px solid #ccc !important; }
+            .security-status { border: 1px solid #64748b !important; color: black !important; background: #e2e8f0 !important; }
+            .sig-line { border-bottom-color: black !important; }
+        }
+
+        .poster-hero {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(56, 189, 248, 0.14));
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .poster-hero h1 {
+            margin-bottom: 0.4rem;
+            font-size: 2rem;
+        }
+        .poster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+            margin: 1.25rem 0;
+        }
+        .poster-box {
+            background: rgba(15, 23, 42, 0.72);
+            border: 1px solid var(--border);
+            border-radius: 0.9rem;
+            padding: 1.1rem 1.25rem;
+        }
+        .poster-box h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: #fbbf24;
+            font-size: 1.1rem;
+        }
+        .promise-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin: 1.25rem 0;
+            text-align: center;
+        }
+        .promise-item {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            border-radius: 0.8rem;
+            padding: 0.8rem 0.6rem;
+            font-size: 0.9rem;
+        }
+        .promise-item strong {
+            display: block;
+            color: #34d399;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        .kita-footer-note {
+            margin-top: 1.25rem;
+            padding: 1rem 1.25rem;
+            border-radius: 0.85rem;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            font-size: 0.92rem;
+        }
+        @media print {
+            @page { size: A4; margin: 12mm; }
+            .container { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+            .doc-card { padding: 0 !important; border: none !important; box-shadow: none !important; }
+            .poster-hero {
+                background: #fffbeb !important;
+                border: 2px solid #d97706 !important;
+                padding: 1rem !important;
+                margin-bottom: 0.9rem !important;
+            }
+            .poster-hero h1 { font-size: 1.65rem !important; color: #0f172a !important; }
+            .poster-grid { gap: 0.75rem !important; margin: 0.8rem 0 !important; grid-template-columns: 1fr 1fr !important; }
+            .poster-box {
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                padding: 0.85rem !important;
+                break-inside: avoid;
+            }
+            .poster-box h3 { color: #0f172a !important; font-size: 1rem !important; }
+            .promise-item {
+                background: #ecfdf5 !important;
+                border: 1px solid #059669 !important;
+                padding: 0.65rem 0.5rem !important;
+            }
+            .promise-item strong { color: #065f46 !important; }
+            .kita-footer-note {
+                background: #f0f9ff !important;
+                border: 1px solid #0284c7 !important;
+                padding: 0.8rem 1rem !important;
+            }
+            p, li { font-size: 0.92rem !important; line-height: 1.42 !important; }
+        }
+    </style>
+</head>
+<body>
+
+
+    <header class="no-print-header">
+        <a href="../index.html?skip_splash=1" class="brand">
+            <span class="brand-icon">🎨</span>
+            <span>MedienStation Dokus</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="docs.html" class="nav-btn">📚 Übersicht</a><a href="security.html" class="nav-btn">🛡️ IT & DSGVO</a><a href="app_vorstellung.html" class="nav-btn">📘 Konzept</a><a href="features.html" class="nav-btn">🎨 Module</a><a href="todo.html" class="nav-btn">📋 Roadmap</a><a href="datenschutz.html" class="nav-btn">🔒 Datenschutz</a><a href="impressum.html" class="nav-btn">🏛️ Impressum</a><a href="lizenzen.html" class="nav-btn">📜 Lizenzen</a>
+        </nav>
+
+        <div class="action-btns">
+            <button onclick="window.print()" class="btn-action">🖨️ Drucken / PDF</button>
+            <a href="../index.html?skip_splash=1" class="btn-action btn-home">🏠 Zur App</a>
+        </div>
+    </header>
+
+
+    <main class="container">
+        <article class="doc-card">
+            <div class="poster-hero">
+                <div style="font-size: 2.2rem; margin-bottom: 0.25rem;">🎨 🎙️ 🎬 ✨</div>
+                <h1>Liebe Eltern, bei uns steht die MedienStation!</h1>
+                <div class="doc-subtitle" style="margin-bottom: 0;">Kreativer digitaler Malkasten statt passivem Bildschirm-Konsum</div>
+            </div>
+
+            <p>In unserer Einrichtung nutzen die Kinder im pädagogisch begleiteten Freispiel die <strong>MedienStation</strong> (entwickelt von der AV-Medienzentrale Bistum Augsburg). Anders als klassische Spiele-Apps oder Videos schauen die Kinder hier nicht einfach zu – sie werden selbst zu kleinen <strong>Regisseuren, Musikern, Fotografen und Geschichtenerzählern</strong>.</p>
+
+            <div class="promise-strip">
+                <div class="promise-item">
+                    <strong>🔒 100 % ohne Internet</strong>
+                    Keine Cloud, kein Tracking, keine Werbung, keine Konten.
+                </div>
+                <div class="promise-item">
+                    <strong>🧹 Täglicher Auto-Reset</strong>
+                    Alle Bilder &amp; Töne werden beim Tageswechsel automatisch gelöscht.
+                </div>
+                <div class="promise-item">
+                    <strong>📷 Foto-Schutz</strong>
+                    Kamera-Apps sind per 1 Klick pausierbar – jedes Kind kann mitmachen.
+                </div>
+            </div>
+
+            <div class="poster-grid">
+                <div class="poster-box">
+                    <h3>🚀 Was machen die Kinder damit?</h3>
+                    <ul style="margin-bottom: 0; padding-left: 1.1rem;">
+                        <li><strong>🎹 Musik &amp; 🎙️ Mikro:</strong> Eigene Geräusche, Beats &amp; Sprachaufnahmen erforschen.</li>
+                        <li><strong>👾 Pixel Art &amp; 📸 Comic:</strong> Muster malen und eigene Bildergeschichten erzählen.</li>
+                        <li><strong>🎬 Trickfilm &amp; ✨ Zauber-Selfie:</strong> Kleine Stop-Motion-Filme drehen oder Fantasie-Kulissen entdecken.</li>
+                        <li><strong>🖨️ Zum Anfassen:</strong> Ausgewählte Werke können als Bild oder Daumenkino ausgedruckt werden.</li>
+                    </ul>
+                </div>
+
+                <div class="poster-box">
+                    <h3>🛡️ Wie schützen wir die Daten Ihres Kindes?</h3>
+                    <ul style="margin-bottom: 0; padding-left: 1.1rem;">
+                        <li><strong>Nur auf dem Kita-Tablet:</strong> Kein einziges Foto und keine Tonaufnahme verlässt das Gerät.</li>
+                        <li><strong>Kein Profil, kein Name:</strong> Es werden keinerlei Kinderdaten oder Logins gespeichert.</li>
+                        <li><strong>Respekt für Ihre Entscheidung:</strong> Liegt keine Fotoerlaubnis vor, schaltet die Fachkraft alle Kamera-Apps mit einem Klick stumm – Musik, Mikro und Pixel Art bleiben nutzbar.</li>
+                        <li><strong>Rechtskonform:</strong> Geprüft nach KDG / DSGVO und EU AI Act (lokale Verarbeitung).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="kita-footer-note">
+                <strong>💬 Fragen oder neugierig?</strong> Sprechen Sie unser pädagogisches Team jederzeit gerne an – wir zeigen Ihnen die MedienStation sehr gerne direkt am Tablet! Weitere Infos &amp; Datenschutzerklärung finden Sie direkt in der App unter <em>💡 INFO</em>.
+            </div>
+        </article>
+    </main>
+
+</body>
+</html>
