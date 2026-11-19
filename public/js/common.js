@@ -479,6 +479,11 @@
         // Timer starten
         window.resetIdleTimer();
 
+        // In-App Sprachauswahl initialisieren
+        if (typeof window.initAppLanguageSwitcher === 'function') {
+            try { window.initAppLanguageSwitcher(); } catch(e) {}
+        }
+
         // Splashscreen Management (Web & Native)
         const webSplash = document.getElementById('web-splash');
         
@@ -519,7 +524,242 @@
         try { initCommon(); } catch(e) { console.warn('initCommon error:', e); }
     }
 
-    // --- 8. Vorlese-Funktion (Text-to-Speech) für Kinder ---
+    // --- 8. Mehrsprachigkeit & Vorlese-Funktion (Text-to-Speech) für Kinder ---
+    window.LANGUAGES = {
+        de: { code: 'de-DE', voicePrefix: 'de', flag: '🇩🇪', name: 'Deutsch', label: 'DE', hello: 'Hallo!' },
+        en: { code: 'en-US', voicePrefix: 'en', flag: '🇬🇧', name: 'English', label: 'EN', hello: 'Hello!' },
+        uk: { code: 'uk-UA', voicePrefix: 'uk', flag: '🇺🇦', name: 'Українська', label: 'UK', hello: 'Привіт!' },
+        tr: { code: 'tr-TR', voicePrefix: 'tr', flag: '🇹🇷', name: 'Türkçe', label: 'TR', hello: 'Merhaba!' },
+        ar: { code: 'ar-SA', voicePrefix: 'ar', flag: '🇸🇾', name: 'العربية', label: 'AR', hello: 'مرحباً!' }
+    };
+
+    window.getLanguage = function() {
+        try {
+            return localStorage.getItem('medienstation_language') || 'de';
+        } catch(e) {
+            return 'de';
+        }
+    };
+
+    window.setLanguage = function(lang, announce = false) {
+        if (!window.LANGUAGES[lang]) lang = 'de';
+        try {
+            localStorage.setItem('medienstation_language', lang);
+        } catch(e) {}
+
+        // UI-Aktualisierung
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            const bLang = btn.getAttribute('data-lang');
+            if (bLang === lang) {
+                btn.classList.add('bg-amber-400', 'text-slate-950', 'shadow-sm', 'scale-105');
+                btn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700/60');
+            } else {
+                btn.classList.remove('bg-amber-400', 'text-slate-950', 'shadow-sm', 'scale-105');
+                btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700/60');
+            }
+        });
+
+        // App-Pills aktualisieren
+        const langConfig = window.LANGUAGES[lang];
+        document.querySelectorAll('.app-lang-pill').forEach(pill => {
+            pill.innerHTML = `<span>${langConfig.flag}</span><span class="text-[10px] sm:text-xs font-black">${langConfig.label}</span>`;
+            pill.title = `Sprache: ${langConfig.name} (Tippen zum Wechseln)`;
+        });
+
+        window.dispatchEvent(new CustomEvent('medienstation-language-changed', { detail: { lang } }));
+
+        if (announce) {
+            if (window.playSound) window.playSound('click');
+            window.speakText(langConfig.hello);
+        }
+    };
+
+    window.MedienStation_i18n = {
+        app_pixel: {
+            de: "Anleitung für das Pixel Labor. Pixel sind kleine bunte Quadrate, aus denen jedes digitale Bild besteht! Malen: Wähle eine Farbe aus und tippe oder wische über das Gitter. Radieren: Nimm den Schwamm oder drücke auf Zurück. Fertig? Speichere dein Bild für die Galerie oder drucke es aus.",
+            en: "Instructions for Pixel Art. Pixels are small colorful squares that make up every digital picture! Drawing: Choose a color and tap or swipe over the grid. Erase: Use the sponge or press Undo. Finished? Save your artwork for the gallery or print it out.",
+            uk: "Інструкція для Піксель-Арт. Пікселі — це маленькі кольорові квадратики, з яких складається кожне цифрове зображення! Малювання: Обери колір і торкайся або веди пальцем по сітці. Гумка: Візьми губку або натисни Назад. Готово? Збережи малюнок для галереї або роздрукуй.",
+            tr: "Piksel Laboratuvarı rehberi. Pikseller, her dijital resmin oluştuğu minik renkli karelerdir! Çizim: Bir renk seç ve ızgaraya dokun ya da parmağını kaydır. Silme: Süngeri seç veya Geri tuşuna bas. Bitti mi? Resmini galeriye kaydet veya yazdır.",
+            ar: "تعليمات مختبر البكسل. البكسلات هي مربعات ملونة صغيرة يتكون منها كل رسم رقمي! الرسم: اختر لوناً والمس الشبكة أو مرر إصبعك عليها. المسح: استخدم الإسفنجة أو اضغط زر تراجع. انتهيت؟ احفظ عملك في المعرض أو اطبعه."
+        },
+        app_sound: {
+            de: "Anleitung für das Musik Labor. Wähle zuerst den Modus. Aufnehmen: Tippe auf einen roten REC Button, dann auf ein Pad. Schleife: Tippe auf LOOP, dann auf ein Pad, damit es sich wiederholt. Spielen: Tippe einfach auf die Pads, um Musik zu machen.",
+            en: "Instructions for Music Lab. Choose a mode first. Record: Tap a red REC button, then tap a pad. Loop: Tap LOOP, then tap a pad to repeat it. Play: Just tap the pads to make music.",
+            uk: "Інструкція для Музичної Лабораторії. Спочатку обери режим. Запис: Натисни червону кнопку REC, потім на пад. Петля: Натисни LOOP, потім на пад для повторення. Гра: Просто торкайся падів, щоб створювати музику.",
+            tr: "Müzik Laboratuvarı rehberi. Önce modu seç. Kayıt: Kırmızı REC düğmesine, ardından bir pede dokun. Döngü: LOOP'a, sonra tekrarlaması için pede dokun. Çal: Müzik yapmak için pedlere dokun.",
+            ar: "تعليمات مختبر الموسيقى. اختر الوضع أولاً. التسجيل: اضغط على زر التسجيل الأحمر ثم على أي وسادة. التكرار: اضغط على التكرار ثم على وسادة لتتكرر. العزف: المس الوسادات لعزف الموسيقى."
+        },
+        app_comic: {
+            de: "Anleitung für das Comic Studio. Fotografieren: Drücke auf den blauen Kamera-Button in jedem Bildrahmen, um ein Foto zu machen. Texten: Tippe auf den Text in der Blase, um ihn zu ändern. Schiebe die Blase mit dem kleinen blauen Griff. Fertig: Wenn deine Geschichte fertig ist, kannst du sie speichern oder ausdrucken.",
+            en: "Instructions for Comic Studio. Photos: Tap the blue camera button in each frame to take a photo. Text: Tap the text in the speech bubble to edit it. Drag the bubble with the blue handle. Finished: When your story is ready, you can save or print it.",
+            uk: "Інструкція для Комікс Студії. Фото: Натисни синю кнопку камери в кожному кадрі, щоб зробити знімок. Текст: Торкнися тексту в бульбашці, щоб змінити його. Перетягуй бульбашку за ручку. Готово: Коли історія готова, збережи її або роздрукуй.",
+            tr: "Çizgi Roman Stüdyosu rehberi. Fotoğraf: Fotoğraf çekmek için her çerçevedeki mavi kamera düğmesine bas. Metin: Değiştirmek için konuşma balonundaki yazıya dokun. Balonu mavi koldan sürükle. Bitti mi: Hikayen bitince kaydedebilir veya yazdırabilirsin.",
+            ar: "تعليمات استوديو القصص المصورة. الصور: اضغط زر الكاميرا الأزرق في كل إطار لالتقاط صورة. النص: اضغط على الكلام في الفقاعة لتعديله، وحركها بالمقبض الأزرق. انتهيت: احفظ قصتك أو اطبعها."
+        },
+        app_magic: {
+            de: "Anleitung für Zauber Selfie. Wähle links einen Hintergrund. Drücke unten auf ZAUBERN. Stell dich vor die Kamera, und schwupps bist du in einer anderen Welt!",
+            en: "Instructions for Magic Selfie. Choose a background on the left. Tap MAGIC below. Stand in front of the camera, and presto, you are in another world!",
+            uk: "Інструкція для Чарівного Селфі. Обери фон ліворуч. Натисни ЧАКЛУВАТИ внизу. Стань перед камерою — і вмить опинишся в іншому світі!",
+            tr: "Sihirli Özçekim rehberi. Soldan bir arka plan seç. Alttaki SİHİR düğmesine bas. Kameranın önüne geç ve bir anda başka bir dünyadasın!",
+            ar: "تعليمات السيلفي السحري. اختر خلفية من اليسار. اضغط زر السحر في الأسفل. قف أمام الكاميرا، وفجأة ستصبح في عالم آخر!"
+        },
+        app_news: {
+            de: "Anleitung für das Nachrichten Studio. Schlagzeile: Tippe auf den Text im Bild, um ihn zu ändern. Laufschrift: Tippe auf den gelben Balken für einen eigenen Ticker.",
+            en: "Instructions for News Studio. Headline: Tap the text on screen to change it. News ticker: Tap the yellow banner for your own ticker message.",
+            uk: "Інструкція для Студії Новин. Заголовок: Торкнися тексту на екрані, щоб змінити його. Рухомий рядок: Натисни на жовту смугу для власного повідомлення.",
+            tr: "Haber Stüdyosu rehberi. Manşet: Değiştirmek için ekrandaki metne dokun. Kayan yazı: Kendi haber bandını yazmak için sarı çubuğa dokun.",
+            ar: "تعليمات استوديو الأخبار. العنوان: اضغط على النص لتغييره. الشريط الإخباري: اضغط على الشريط الأصفر لكتابة خبرك الخاص."
+        },
+        app_gif: {
+            de: "Anleitung für den Video Loop. Erstens: Wähle links einen Filter. Zweitens: Drücke unten auf ACTION. Drittens: Nach der Aufnahme kannst du rechts das Tempo ändern. Viertens: Mit dem runden Pfeil wechselst du die Kamera.",
+            en: "Instructions for Video Loop. First: Choose a filter on the left. Second: Tap ACTION below. Third: After recording, change speed on the right. Fourth: Tap the circle arrow to switch cameras.",
+            uk: "Інструкція для Відео-Петлі. Перше: Обери фільтр ліворуч. Друге: Натисни СТАРТ унизу. Третє: Після запису обери швидкість праворуч. Четверте: Кругла стрілка перемикає камеру.",
+            tr: "Video Döngüsü rehberi. Birinci: Soldan bir filtre seç. İkinci: Alttaki EYLEM düğmesine bas. Üçüncü: Çekimden sonra sağdan hızı ayarla. Dördüncü: Dairesel okla kamerayı değiştir.",
+            ar: "تعليمات حلقة الفيديو. أولاً: اختر مؤثراً من اليسار. ثانياً: اضغط زر الحركة في الأسفل. ثالثاً: بعد التسجيل يمكنك تغيير السرعة من اليمين. رابعاً: السهم الدائري لتبديل الكاميرا."
+        },
+        app_rec: {
+            de: "Anleitung für den Stimmenwandler. Nimm links oder rechts etwas auf. Drücke auf Stopp. Jetzt passiert Magie! Wähle das Monster oder die Maus. Hör es dir an!",
+            en: "Instructions for Voice Changer. Record on the left or right. Tap Stop. Now magic happens! Choose the monster or the mouse. Listen to it!",
+            uk: "Інструкція для Зміни Голосу. Запиши звук ліворуч або праворуч. Натисни Стоп. Тепер починається магія! Обери монстра або мишку і послухай!",
+            tr: "Ses Değiştirici rehberi. Solda veya sağda kayıt yap. Dura bas. Şimdi sihir zamanı! Canavarı veya fareyi seç. Dinle ve eğlen!",
+            ar: "تعليمات مغير الصوت. سجل صوتك في اليمين أو اليسار. اضغط إيقاف. والآن يبدأ السحر! اختر صوت الوحش أو الفأر واستمع إليه!"
+        },
+        app_stopmotion: {
+            de: "Willkommen im Trickfilm Studio! Hier bist du die Film-Regisseurin oder der Film-Regisseur und erweckst deine Spielzeuge und Knetfiguren zum Leben! Wie das geht? Ein Film entsteht, wenn du viele Fotos machst und die Figuren dazwischen immer ein kleines Stückchen weiterbewegst. Erstens: Baue deine Figuren auf. Zweitens: Knipse ein Foto mit dem großen roten Knopf. Drittens: Bewege deine Figur ein winziges Stück. Das Geisterbild hilft dir dabei! Viertens: Knipse wieder ein Foto und wiederhole das ganz oft. Fünftens: Nimm Stimmen oder lustige Geräusche mit dem Mikrofon auf. Und sechstens: Tippe auf Film Abspielen und staune, wie sich alles wie durch Zauberei bewegt! Du kannst deinen Film auch als echtes Daumenkino ausdrucken.",
+            en: "Welcome to the Stop Motion Studio! Here you are the movie director and bring your toys and clay figures to life! How does it work? A movie happens when you take lots of pictures and move your characters a tiny bit in between. First: Set up your figures. Second: Snap a photo with the big red button. Third: Move your figure a tiny bit. The ghost image guides you! Fourth: Snap another photo and repeat many times. Fifth: Record voices or funny sounds with the microphone. And sixth: Tap Play Movie and watch everything move like magic! You can also print your movie as a real flipbook.",
+            uk: "Ласкаво просимо до Мульт-Студії! Тут ти справжній режисер і можеш оживити свої іграшки чи пластилін! Як це працює? Мультфільм виходить, коли робиш багато фото і потроху рухаєш фігурки між ними. Перше: Розстав фігурки. Друге: Зроби знімок великою червоною кнопкою. Третє: Посунь фігурку на крихітку. Примарний кадр допоможе тобі! Четверте: Зроби наступний знімок і повтори багато разів. П'яте: Запиши голос або кумедні звуки на мікрофон. І шосте: Натисни Відтворити і дивись, як усе оживає як за помахом чарівної палички! Ти також можеш роздрукувати свій мультик як книжечку-фліпбук.",
+            tr: "Çizgi Film Stüdyosuna hoş geldin! Burada yönetmen sensin ve oyuncaklarını canlandırabilirsin! Nasıl mı? Çok sayıda fotoğraf çekip aralarda figürleri minik adımlarla hareket ettirerek bir film oluşur. Birinci: Figürlerini yerleştir. İkinci: Büyük kırmızı düğmeyle fotoğraf çek. Üçüncü: Figürünü azıcık hareket ettir. Hayalet görüntü sana yardım eder! Dördüncü: Tekrar çek ve bunu bolca tekrarla. Beşinci: Mikrofonla sesler kaydet. Ve altıncı: Filmi Oynata bas ve her şeyin sihir gibi hareket etmesini izle! Filmini hareketli kitapçık olarak da yazdırabilirsin.",
+            ar: "أهلاً بك في استوديو أفلام الكرتون! هنا أنت المخرج السينمائي وستبعث الحياة في ألعابك ومجسمات الصلصال! كيف يتم ذلك؟ ينشأ الفيلم عند التقاط العديد من الصور مع تحريك المجسمات قليلاً بين كل لقطة. أولاً: رتب ألعابك. ثانياً: التقط صورة بالزر الأحمر الكبير. ثالثاً: حرك المجسم مسافة صغيرة جداً، وستساعدك الصورة الشفافة! رابعاً: التقط صورة أخرى وكرر ذلك مرات عديدة. خامساً: سجل أصواتاً مرحة بالميكروفون. سادساً: اضغط تشغيل الفيلم وشاهد كيف تتحرك الأشياء بالسحر! يمكنك أيضاً طباعة الفيلم كدفتر متحرك."
+        },
+        app_info: {
+            de: "Info. Medienpädagogische Station für Kitas und Grundschulen. Die Apps: Musik Labor, Mikro Check, Video Loop, Zauber Selfie, Pixel Art, Nachrichten Studio, Comic Story und Trickfilm Studio.",
+            en: "Info. Media education station for kindergartens and elementary schools. The apps: Music Lab, Voice Lab, Video Loop, Magic Selfie, Pixel Art, News Studio, Comic Story, and Stop Motion Studio.",
+            uk: "Інформація. Медіаосвітня станція для дитячих садків та початкових шкіл. Додатки: Музична Лабораторія, Мікро Чек, Відео-Петля, Чарівне Селфі, Піксель Арт, Студія Новин, Комікс та Мульт-Студія.",
+            tr: "Bilgi. Anaokulları ve ilkokullar için medya eğitim istasyonu. Uygulamalar: Müzik Laboratuvarı, Mikrofon Kontrol, Video Döngüsü, Sihirli Özçekim, Piksel Sanatı, Haber Stüdyosu, Çizgi Roman ve Çizgi Film Stüdyosu.",
+            ar: "معلومات. محطة التربية الإعلامية لرياض الأطفال والمدارس الابتدائية. التطبيقات: مختبر الموسيقى، فحص الميكروفون، حلقة الفيديو، السيلفي السحري، فن البكسل، استوديو الأخبار، القصص المصورة واستوديو الرسوم المتحركة."
+        },
+        print_prompt: {
+            de: "Gleich geht es los. Wähle im nächsten Menü euren Drucker oder eure Druck-App aus.",
+            en: "Here we go! Choose your printer or print app in the next menu.",
+            uk: "Зараз розпочнемо! У наступному меню обери свій принтер або додаток для друку.",
+            tr: "Hemen başlıyor! Bir sonraki menüden yazıcınızı veya yazdırma uygulamanızı seçin.",
+            ar: "سنبدأ الآن! اختر طابعتك أو تطبيق الطباعة من القائمة التالية."
+        },
+        cam_pause: {
+            de: "Hoppla! Die Kamera macht gerade Pause! Bitte frag eine Fachkraft.",
+            en: "Oops! The camera is taking a break. Please ask an educator.",
+            uk: "Ой! Камера зараз відпочиває. Будь ласка, звернись до вихователя.",
+            tr: "Hoppala! Kamera şu an dinleniyor. Lütfen bir öğretmene danışın.",
+            ar: "عفواً! الكاميرا في استراحة مؤقتة. يرجى سؤال المعلم."
+        },
+        mission_badge: {
+            de: "🎯 DEINE MISSION",
+            en: "🎯 YOUR MISSION",
+            uk: "🎯 ТВОЯ МІСІЯ",
+            tr: "🎯 GÖREVİN",
+            ar: "🎯 مهمتك"
+        },
+        mission_btn: {
+            de: "🎲 NEUE MISSION WÜRFELN",
+            en: "🎲 ROLL NEW MISSION",
+            uk: "🎲 НОВА МІСІЯ",
+            tr: "🎲 YENİ GÖREV",
+            ar: "🎲 مهمة جديدة"
+        },
+        mission_default: {
+            de: "Wähle eine App! 👉",
+            en: "Choose an app! 👉",
+            uk: "Обери додаток! 👉",
+            tr: "Bir uygulama seç! 👉",
+            ar: "اختر تطبيقاً! 👉"
+        }
+    };
+
+    window.MISSIONS_I18N = [
+        { de: "Erstelle ein Geräusch: Kälte ❄️", en: "Make a sound: Cold ❄️", uk: "Створи звук: Холод ❄️", tr: "Bir ses üret: Soğuk ❄️", ar: "اصنع صوتاً: البرد ❄️" },
+        { de: "Comic: Streit ums Brot 🥪", en: "Comic: Fight over bread 🥪", uk: "Комікс: Суперечка за хліб 🥪", tr: "Çizgi roman: Ekmek kavgası 🥪", ar: "قصة مصورة: نزاع على الخبز 🥪" },
+        { de: "Zauber Selfie: Auf dem Mond 🚀", en: "Magic Selfie: On the moon 🚀", uk: "Чарівне Селфі: На місяці 🚀", tr: "Sihirli Özçekim: Ayda 🚀", ar: "سيلفي سحري: على سطح القمر 🚀" },
+        { de: "Werbung: Unsichtbare Socken 🧦", en: "Commercial: Invisible socks 🧦", uk: "Реклама: Невидимі шкарпетки 🧦", tr: "Reklam: Görünmez çoraplar 🧦", ar: "إعلان: الجوارب الخفية 🧦" },
+        { de: "Video Loop: Hallo ohne Worte 👋", en: "Video Loop: Hello without words 👋", uk: "Відео-Петля: Привіт без слів 👋", tr: "Video Döngüsü: Sözsüz merhaba 👋", ar: "حلقة فيديو: مرحباً بدون كلمات 👋" },
+        { de: "Witz in 3 Bildern 🤡", en: "A joke in 3 pictures 🤡", uk: "Жарт у 3 картинках 🤡", tr: "3 resimde bir fıkra 🤡", ar: "نكتة في 3 صور 🤡" },
+        { de: "Zauber Selfie: Fliegen ✨", en: "Magic Selfie: Flying ✨", uk: "Чарівне Селфі: Політ ✨", tr: "Sihirli Özçekim: Uçmak ✨", ar: "سيلفي سحري: الطيران ✨" },
+        { de: "Elefant mit Schluckauf 🐘", en: "Elephant with hiccups 🐘", uk: "Слон із гикавкою 🐘", tr: "Hıçkıran fil 🐘", ar: "فيل يعاني من الحازوقة 🐘" },
+        { de: "Pixel-Monster Haustier 👾", en: "Pixel monster pet 👾", uk: "Піксельний монстрик-улюбленець 👾", tr: "Piksel canavar evcil hayvan 👾", ar: "وحش بكسل أليف 👾" },
+        { de: "Nachrichten: Ufo gelandet 👽", en: "News: UFO landed 👽", uk: "Новини: НЛО приземлилося 👽", tr: "Haberler: UFO indi 👽", ar: "أخبار: هبوط طبق طائر 👽" },
+        { de: "Such etwas Rotes & mach ein Foto 🔴", en: "Find something red & snap a photo 🔴", uk: "Знайди щось червоне та сфотографуй 🔴", tr: "Kırmızı bir şey bul ve fotoğraf çek 🔴", ar: "ابحث عن شيء أحمر والتقط صورة 🔴" },
+        { de: "Erzähle einen Witz ins Mikro 🎤", en: "Tell a joke into the microphone 🎤", uk: "Розкажи жарт у мікрофон 🎤", tr: "Mikrofona bir fıkra anlat 🎤", ar: "أخبر نكتة في الميكروفون 🎤" },
+        { de: "Zeichne dein Lieblingstier 🎨", en: "Draw your favorite animal 🎨", uk: "Намалюй улюблену тварину 🎨", tr: "En sevdiğin hayvanı çiz 🎨", ar: "ارسم حيوانك المفضل 🎨" },
+        { de: "Mache ein gruseliges Gesicht 🧟", en: "Make a scary face 🧟", uk: "Зроби страшне обличчя 🧟", tr: "Korkunç bir yüz ifadesi yap 🧟", ar: "اصنع وجهاً مخيفاً 🧟" },
+        { de: "Interviewe jemanden 🎤", en: "Interview someone 🎤", uk: "Візьми в когось інтерв'ю 🎤", tr: "Biriyle röportaj yap 🎤", ar: "أجرِ مقابلة مع شخص ما 🎤" },
+        { de: "Erfinde einen Robotertanz 🤖", en: "Invent a robot dance 🤖", uk: "Придумай танець робота 🤖", tr: "Bir robot dansı uydur 🤖", ar: "اخترع رقصة رجل آلي 🤖" },
+        { de: "Mach ein Geräusch wie ein Auto 🚗", en: "Make a sound like a car 🚗", uk: "Зроби звук як автомобіль 🚗", tr: "Araba gibi bir ses çıkar 🚗", ar: "اصنع صوتاً مثل السيارة 🚗" },
+        { de: "Pixel-Bild: Ein Traumhaus 🏠", en: "Pixel Art: A dream house 🏠", uk: "Піксель-Арт: Будинок мрії 🏠", tr: "Piksel resmi: Hayalindeki ev 🏠", ar: "رسم بكسل: منزل الأحلام 🏠" },
+        { de: "Comic: Ein Tag am Strand 🏖️", en: "Comic: A day at the beach 🏖️", uk: "Комікс: День на пляжі 🏖️", tr: "Çizgi roman: Sahilde bir gün 🏖️", ar: "قصة مصورة: يوم على الشاطئ 🏖️" },
+        { de: "Nachrichten: Es regnet Süßigkeiten 🍬", en: "News: It's raining candy 🍬", uk: "Новини: Дощ із солодощів 🍬", tr: "Haberler: Şeker yağıyor 🍬", ar: "أخبار: السماء تمطر حلوى 🍬" }
+    ];
+
+    window.t = function(textOrKey, targetLang) {
+        if (!textOrKey) return '';
+        const lang = targetLang || window.getLanguage();
+        if (lang === 'de' && !window.MedienStation_i18n[textOrKey]) {
+            return textOrKey;
+        }
+
+        // 1. Direkter Key
+        if (window.MedienStation_i18n[textOrKey] && window.MedienStation_i18n[textOrKey][lang]) {
+            return window.MedienStation_i18n[textOrKey][lang];
+        }
+
+        // 2. Signatur-Erkennung bei deutschen Texten
+        const str = String(textOrKey).trim();
+        if (str.startsWith('Anleitung für das Pixel Labor') || str.startsWith('Pixel Labor')) {
+            return window.MedienStation_i18n.app_pixel[lang] || textOrKey;
+        }
+        if (str.startsWith('Anleitung für das Musik Labor') || str.startsWith('Musik Labor')) {
+            return window.MedienStation_i18n.app_sound[lang] || textOrKey;
+        }
+        if (str.startsWith('Anleitung für das Comic Studio') || str.startsWith('Comic Studio')) {
+            return window.MedienStation_i18n.app_comic[lang] || textOrKey;
+        }
+        if (str.startsWith('Anleitung für Zauber Selfie') || str.startsWith('Zauber Selfie')) {
+            return window.MedienStation_i18n.app_magic[lang] || textOrKey;
+        }
+        if (str.startsWith('Anleitung für das Nachrichten Studio') || str.startsWith('Nachrichten Studio')) {
+            return window.MedienStation_i18n.app_news[lang] || textOrKey;
+        }
+        if (str.startsWith('Anleitung für den Video Loop') || str.startsWith('Video Loop')) {
+            return window.MedienStation_i18n.app_gif[lang] || textOrKey;
+        }
+        if (str.startsWith('Anleitung für den Stimmenwandler') || str.startsWith('Stimmenwandler') || str.startsWith('Mikro Check')) {
+            return window.MedienStation_i18n.app_rec[lang] || textOrKey;
+        }
+        if (str.startsWith('Willkommen im Trickfilm Studio') || str.startsWith('Trickfilm Studio')) {
+            return window.MedienStation_i18n.app_stopmotion[lang] || textOrKey;
+        }
+        if (str.startsWith('Info. Medienpädagogische Station') || str.startsWith('Info.')) {
+            return window.MedienStation_i18n.app_info[lang] || textOrKey;
+        }
+        if (str.startsWith('Gleich geht es los')) {
+            return window.MedienStation_i18n.print_prompt[lang] || textOrKey;
+        }
+        if (str.includes('Kamera macht gerade Pause') || str.includes('Kamera macht Pause')) {
+            return window.MedienStation_i18n.cam_pause[lang] || textOrKey;
+        }
+        if (str.startsWith('Wähle eine App')) {
+            return window.MedienStation_i18n.mission_default[lang] || textOrKey;
+        }
+
+        // 3. Missions-Matching
+        const missionMatch = window.MISSIONS_I18N.find(m => {
+            return m.de === str || str.includes(m.de.replace(/[\u{1F300}-\u{1FAFF}]/gu, '').trim());
+        });
+        if (missionMatch && missionMatch[lang]) {
+            return missionMatch[lang];
+        }
+
+        return textOrKey;
+    };
+
     window.speakText = function(text, eventOrBtn) {
         let btn = null;
         if (eventOrBtn) {
@@ -540,30 +780,112 @@
             window.speechSynthesis.cancel();
             if (window.speechSynthesis.resume) window.speechSynthesis.resume(); // Android Warteschlange aufwecken
             
+            const currentLang = window.getLanguage();
+            const langConfig = window.LANGUAGES[currentLang] || window.LANGUAGES.de;
+            const translatedText = window.t(text, currentLang);
+
             // Emojis filtern, damit sie nicht laut vorgelesen werden ("Lächelndes Gesicht mit Schweißperle...")
-            const cleanText = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
+            const cleanText = String(translatedText).replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
             
             try {
                 // Globale Referenz, damit der Garbage Collector die Sprachausgabe nicht abbricht
                 window.currentUtterance = new SpeechSynthesisUtterance(cleanText);
                 window.currentUtterance.volume = Math.max(0, Math.min(1, mult));
+                window.currentUtterance.lang = langConfig.code;
                 
-                window.currentUtterance.lang = 'de-DE';
-                window.currentUtterance.rate = 0.9;
-                window.currentUtterance.pitch = 1.1;
+                // Sprachspezifische Geschwindigkeit & Tonhöhe
+                if (currentLang === 'uk' || currentLang === 'ar') {
+                    window.currentUtterance.rate = 0.88;
+                    window.currentUtterance.pitch = 1.05;
+                } else {
+                    window.currentUtterance.rate = 0.9;
+                    window.currentUtterance.pitch = 1.1;
+                }
+
+                // Passende Stimme auswählen, falls im Browser vorhanden
+                const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+                if (voices && voices.length > 0) {
+                    const match = voices.find(v => v.lang && (v.lang.toLowerCase() === langConfig.code.toLowerCase() || v.lang.toLowerCase().startsWith(langConfig.voicePrefix)));
+                    if (match) window.currentUtterance.voice = match;
+                }
 
                 if (btn) btn.classList.add('animate-pulse');
 
                 window.currentUtterance.onend = () => { if (btn) btn.classList.remove('animate-pulse'); };
                 window.currentUtterance.onerror = () => { if (btn) btn.classList.remove('animate-pulse'); };
                 
-                // WICHTIG: Synchron im Klick-Event ausführen (User Gesture)
+                // Synchron im Klick-Event ausführen
                 window.speechSynthesis.speak(window.currentUtterance);
             } catch (err) {
                 console.error("Fehler beim Vorlesen:", err);
                 if (btn) btn.classList.remove('animate-pulse');
             }
         }
+    };
+
+    window.initAppLanguageSwitcher = function() {
+        // Falls wir auf index.html sind, übernimmt das Hauptmenü
+        if (document.getElementById('main-lang-bar')) return;
+        
+        const speakBtns = document.querySelectorAll('button[title*="Vorlesen"], button[title*="vorlesen"]');
+        if (!speakBtns || speakBtns.length === 0) return;
+
+        speakBtns.forEach(speakBtn => {
+            if (speakBtn.parentElement && speakBtn.parentElement.querySelector('.app-lang-pill-wrap')) return;
+
+            const currentLang = window.getLanguage();
+            const langConfig = window.LANGUAGES[currentLang] || window.LANGUAGES.de;
+
+            const wrap = document.createElement('div');
+            wrap.className = 'app-lang-pill-wrap relative inline-flex items-center shrink-0 mr-2 sm:mr-3';
+            if (speakBtn.classList.contains('ml-auto')) {
+                speakBtn.classList.remove('ml-auto');
+                wrap.classList.add('ml-auto');
+            }
+
+            const pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = 'app-lang-pill bg-slate-800/90 hover:bg-slate-700 text-white font-black text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-500 shadow-md flex items-center gap-1 active:scale-95 transition-all cursor-pointer';
+            pill.innerHTML = `<span>${langConfig.flag}</span><span class="text-[10px] sm:text-xs font-black">${langConfig.label}</span>`;
+            pill.title = `Sprache: ${langConfig.name} (Tippen zum Wechseln)`;
+
+            const popover = document.createElement('div');
+            popover.className = 'app-lang-popover hidden absolute top-full right-0 mt-2 bg-slate-900/95 backdrop-blur-md border border-slate-600 rounded-2xl p-1.5 shadow-2xl flex flex-col gap-1 z-[999999] min-w-[130px]';
+
+            Object.keys(window.LANGUAGES).forEach(lKey => {
+                const l = window.LANGUAGES[lKey];
+                const opt = document.createElement('button');
+                opt.type = 'button';
+                opt.className = `flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black text-left transition-all cursor-pointer ${lKey === currentLang ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}`;
+                opt.innerHTML = `<span class="text-base">${l.flag}</span> <span>${l.name}</span>`;
+                opt.onclick = (e) => {
+                    e.stopPropagation();
+                    window.setLanguage(lKey, false);
+                    popover.classList.add('hidden');
+                    popover.querySelectorAll('button').forEach(b => {
+                        b.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black text-left transition-all cursor-pointer text-slate-200 hover:bg-slate-800';
+                    });
+                    opt.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black text-left transition-all cursor-pointer bg-amber-400 text-slate-950';
+                    // Sofort in der neuen Sprache vorlesen
+                    speakBtn.click();
+                };
+                popover.appendChild(opt);
+            });
+
+            pill.onclick = (e) => {
+                e.stopPropagation();
+                popover.classList.toggle('hidden');
+            };
+
+            document.addEventListener('click', () => {
+                if (!popover.classList.contains('hidden')) popover.classList.add('hidden');
+            });
+
+            wrap.appendChild(pill);
+            wrap.appendChild(popover);
+
+            speakBtn.parentNode.insertBefore(wrap, speakBtn);
+        });
     };
 
     // --- 7. Konfetti Effekt ---

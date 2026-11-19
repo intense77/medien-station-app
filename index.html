@@ -703,6 +703,8 @@
 		
         function newMission() {
             const txt = document.getElementById('mission-text');
+            if (!txt) return;
+            const lang = window.getLanguage ? window.getLanguage() : 'de';
             let newIndex;
             // Solange würfeln, bis wir eine neue Aufgabe haben
             do {
@@ -710,32 +712,50 @@
             } while (newIndex === lastMissionIndex && missions.length > 1);
             
             lastMissionIndex = newIndex;
-            txt.innerText = missions[newIndex];
+            if (window.MISSIONS_I18N && window.MISSIONS_I18N[newIndex]) {
+                txt.innerText = window.MISSIONS_I18N[newIndex][lang] || window.MISSIONS_I18N[newIndex].de;
+            } else {
+                txt.innerText = missions[newIndex];
+            }
         }
 
         function readMission(event) {
             if (event) event.stopPropagation(); // Verhindert, dass der Admin-Zähler hochgeht
             window.resetIdleTimer();
-
-            const mult = (typeof window.getVolumeMultiplier === 'function') ? window.getVolumeMultiplier() : 1.0;
-            if (mult <= 0.0) return; // Stumm / Ruhezeit aktiv
-
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Laufende Sprache abbrechen
-                let text = document.getElementById('mission-text').innerText;
-                // Emojis filtern, damit sie nicht laut vorgelesen werden ("Rakete", "Lachendes Gesicht" etc.)
-                text = text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '');
-                // Fix: Kurze Pause nach cancel() und Zuweisung an window, damit es nicht abbricht
-                setTimeout(() => {
-                    window.currentUtterance = new SpeechSynthesisUtterance(text);
-                    window.currentUtterance.volume = Math.max(0, Math.min(1, mult));
-                    window.currentUtterance.lang = 'de-DE';
-                    window.currentUtterance.rate = 0.9; // Etwas langsamer für Kinder
-                    window.currentUtterance.pitch = 1.2; // Etwas hellere, freundlichere Stimme
-                    window.speechSynthesis.speak(window.currentUtterance);
-                }, 50);
+            const txt = document.getElementById('mission-text');
+            if (!txt) return;
+            if (window.speakText) {
+                window.speakText(txt.innerText, event);
             }
         }
+
+        function syncAdminLangUI() {
+            const currentLang = window.getLanguage ? window.getLanguage() : 'de';
+            document.querySelectorAll('.admin-lang-btn').forEach(b => {
+                if (b.getAttribute('data-admin-lang') === currentLang) {
+                    b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-black border transition cursor-pointer bg-cyan-600 text-white border-cyan-400 shadow-md';
+                } else {
+                    b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-black border transition cursor-pointer bg-slate-900/60 text-slate-300 border-slate-700 hover:border-slate-500';
+                }
+            });
+        }
+
+        window.addEventListener('medienstation-language-changed', (e) => {
+            const lang = e.detail.lang;
+            const badge = document.getElementById('mission-badge');
+            if (badge && window.t) badge.innerText = window.t('mission_badge', lang);
+            const btnSpan = document.getElementById('new-mission-btn-text');
+            if (btnSpan && window.t) btnSpan.innerText = window.t('mission_btn', lang);
+            const txt = document.getElementById('mission-text');
+            if (txt) {
+                if (lastMissionIndex >= 0 && window.MISSIONS_I18N && window.MISSIONS_I18N[lastMissionIndex]) {
+                    txt.innerText = window.MISSIONS_I18N[lastMissionIndex][lang] || window.MISSIONS_I18N[lastMissionIndex].de;
+                } else {
+                    txt.innerText = window.t('mission_default', lang);
+                }
+            }
+            syncAdminLangUI();
+        });
 
         function toggleQR() { 
             window.resetIdleTimer(); 
@@ -981,6 +1001,9 @@
 
             // 7. Hardware- & Sensor-Diagnose starten
             runDiagnostics();
+
+            // 8. Spracheinstellungen synchronisieren
+            syncAdminLangUI();
 
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
@@ -1587,12 +1610,19 @@
             }
         }
 
-        // Kamera-Einschränkungen beim Laden initial anwenden
+        // Kamera-Einschränkungen & Sprache beim Laden initial anwenden
+        function initIndexLanguage() {
+            if (window.getLanguage && window.setLanguage) {
+                window.setLanguage(window.getLanguage(), false);
+            }
+        }
         document.addEventListener('DOMContentLoaded', () => {
             if (window.applyCameraRestrictionsUI) window.applyCameraRestrictionsUI();
+            initIndexLanguage();
         });
-        if (document.readyState !== 'loading' && window.applyCameraRestrictionsUI) {
-            window.applyCameraRestrictionsUI();
+        if (document.readyState !== 'loading') {
+            if (window.applyCameraRestrictionsUI) window.applyCameraRestrictionsUI();
+            initIndexLanguage();
         }
     </script>
     <!-- Splashscreen wird nun automatisch von common.js ausgeblendet -->

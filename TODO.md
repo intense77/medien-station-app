@@ -107,3 +107,8 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
   - Fachkräfte können im Admin-Menü bis zu 3 eigene Projekt-Hintergründe (z. B. Waldtag, Kita-Garten, Sommerfest) hochladen und verwalten.
   - Vollständig clientseitig komprimiert und lokal gespeichert – komplett ohne Cloud, 100 % DSGVO-konform.
   - Automatische Bereitstellung im Zauber Selfie mit Thumbnail-Vorschau und Kita-Badge (`🏡`).
+- [x] **Mehrsprachige Vorlesefunktion & Inklusion (DE, EN, UK, TR, AR)** (Erledigt in v7.9.9):
+  - Kindgerechte 5-Sprachen-Auswahl auf dem Hauptbildschirm (`🇩🇪 DE`, `🇬🇧 EN`, `🇺🇦 UK`, `🇹🇷 TR`, `🇸🇾 AR`) sowie in den Fachkraft-Einstellungen.
+  - Dynamischer In-App-Sprachwähler direkt neben dem Vorlese-Lautsprecher (`🔊`) in allen Apps: Kinder können mit einem Fingertipp ihre Sprache wählen und hören sofort die Erklärung in ihrer Muttersprache.
+  - 100 % lokale Speech-Synthesis ohne Cloud-Server (Offline-First) mit nativer Stimmen- und Akzentanpassung.
+  - Alle 9 App-Anleitungen und die 20 Missionen vollständig in Deutsch, Englisch, Ukrainisch, Türkisch und Arabisch integriert.
