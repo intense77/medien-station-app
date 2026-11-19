@@ -95,9 +95,10 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
   - Individueller Kita-/Einrichtungsname im PIN-geschützten Fachkraft-Menü konfigurierbar.
   - Vorgefertigte Felder: Gestaltet von, Werktitel, Schreiblinien für Kinder-Zitate / O-Töne der Fachkraft sowie Smiley-Bewertungsskala (`😃 😊 🤔 🥳 ⭐`) zum Einkreisen.
   - Direkte 1-Klick-Druckoptionen in der Galerie (Karten & Großansicht) sowie in *Zauber Selfie*, *Pixel Labor* und *Comic Story*.
-- [ ] **Standard-PIN-Warnung & optionaler Mikrofon-Datenschutz im Fachkraft-Menü**:
+- [x] **Standard-PIN-Warnung & optionaler Mikrofon-Datenschutz im Fachkraft-Menü** (Erledigt in v7.9.9):
   - Dezenter Hinweis im Admin-Menü, solange noch die Standard-PIN `1234` gesetzt ist.
-  - Optionaler 1-Klick-Schalter, um neben den 5 Kamera-Apps auch Stimmaufnahmen (*Mikro Check*, *Musik Labor*) für besonders strenge Einrichtungen pausieren zu können.
+  - 1-Klick-Schalter im Admin-Menü, um neben den 5 Kamera-Apps auch Stimmaufnahmen (*Mikro Check*, *Musik Labor* & Stop-Motion-Vertonung) für besonders strenge Einrichtungen pausieren zu können.
+  - Visuelle Sperr-Badges (*"🎤🔒 PAUSIERT"*) auf den betroffenen Modulen im Hauptmenü sowie Absicherung auf Hardware-Ebene (`navigator.mediaDevices.getUserMedia`).
 - [x] **Echter Video-Export im Trickfilm Studio (WebM / MP4 Video)** (Erledigt in v7.9.9):
   - Clientseitiges Rendern der Stop-Motion-Bilderfolge inkl. optionaler Mikrofon-Tonspur via Canvas `captureStream()` und `MediaRecorder`.
   - Berücksichtigung des gewählten Tempos (1–12 B/s) und automatische Mindestlaufzeit/Looping für kurze Clips.

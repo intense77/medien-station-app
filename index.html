@@ -164,12 +164,12 @@
         </div>
 
         <!-- Row 1 of Apps (4 Rows) -->
-        <div onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-rose-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+        <div data-mic-app="true" onclick="openApp('apps/sound.html', 'Musik')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-rose-500 to-rose-600 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-rose-800 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-rose-500/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95 relative">
             <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎹</div>
             <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Musik</h3>
         </div>
         
-        <div onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-red-600/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95">
+        <div data-mic-app="true" onclick="openApp('apps/rec.html', 'Mikro')" class="app-card col-span-1 md:col-span-3 md:row-span-4 min-h-[100px] sm:min-h-[120px] md:min-h-0 bg-gradient-to-br from-red-600 to-red-700 rounded-3xl flex flex-col items-center justify-center shadow-lg border-b-8 border-red-900 active:border-b-0 group overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-red-600/50 hover:brightness-110 transition-all duration-300 active:duration-75 active:scale-95 relative">
             <div class="text-5xl md:text-6xl lg:text-7xl mb-1 md:mb-2 drop-shadow-md group-hover:scale-125 group-hover:-translate-y-2 transition-all duration-300">🎙️</div>
             <h3 class="text-lg md:text-xl lg:text-2xl font-bold">Mikro</h3>
         </div>
@@ -516,6 +516,31 @@
                     </div>
                 </div>
 
+                <!-- Sektion 4b: Mikrofon- & Audio-Datenschutz (Freispiel) -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+                            <span>🎙️</span> Mikrofon- &amp; Audio-Datenschutz
+                        </span>
+                        <span id="admin-mic-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700">Mikrofon aktiv</span>
+                    </div>
+
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Pausiert Tonaufnahmen (Mikro Check, Musik Labor &amp; Stop-Motion-Vertonung) im Freispiel für Einrichtungen mit strengen Auflagen gegen Stimmaufnahmen.
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <button type="button" id="admin-mic-active" onclick="onAdminMicToggle(false)" class="p-3 rounded-xl border flex items-center justify-center gap-2 transition-all cursor-pointer">
+                            <span class="text-xl">✅</span>
+                            <span class="font-extrabold text-white">Audio aktiv</span>
+                        </button>
+                        <button type="button" id="admin-mic-paused" onclick="onAdminMicToggle(true)" class="p-3 rounded-xl border flex items-center justify-center gap-2 transition-all cursor-pointer">
+                            <span class="text-xl">🔒</span>
+                            <span class="font-extrabold text-white">Mikrofon pausieren</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Sektion 5: Hardware- & Sensor-Diagnose -->
                 <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
                     <div class="flex items-center justify-between">
@@ -567,6 +592,10 @@
                             <span>⚡ Cache leeren / Update</span>
                             <span class="text-[10px] text-red-300/80 font-semibold flex items-center gap-1">🌐 WLAN nötig</span>
                         </button>
+                    </div>
+                    <div id="admin-pin-warning" class="hidden p-3 bg-amber-500/15 border border-amber-500/40 rounded-xl text-xs text-amber-300 flex items-center gap-2">
+                        <span class="text-base">⚠️</span>
+                        <span><strong>Hinweis:</strong> Es ist noch die Standard-PIN (<code>1234</code>) aktiv. Bitte ändere diese vor dem Kiosk-Betrieb im Freispiel.</span>
                     </div>
                 <!-- Sektion 7: Dokumentationen & Rechtliches (HTML) -->
                 <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
@@ -674,6 +703,17 @@
                 return;
             }
 
+            // Mikrofon-Datenschutzprüfung für Fachkräfte
+            if (window.isMicRestricted && window.isMicRestricted() && window.isMicApp && window.isMicApp(url)) {
+                if (window.playSound) window.playSound('click');
+                if (window.showCustomAlert) {
+                    window.showCustomAlert('Das Mikrofon macht gerade Pause! 🔒 Bitte frag eine Fachkraft.', '🎤');
+                } else {
+                    alert('Das Mikrofon macht gerade Pause! 🔒 Bitte frag eine Fachkraft.');
+                }
+                return;
+            }
+
             isNavigating = true;
             window.playSound('click'); 
             document.body.classList.add('fade-out');
@@ -682,16 +722,34 @@
         }
 
         window.applyCameraRestrictionsUI = function() {
-            const isRestricted = window.isCameraRestricted ? window.isCameraRestricted() : false;
+            const isCamRestricted = window.isCameraRestricted ? window.isCameraRestricted() : false;
             const cameraCards = document.querySelectorAll('[data-camera-app="true"]');
             cameraCards.forEach(card => {
                 let badge = card.querySelector('.camera-lock-badge');
-                if (isRestricted) {
+                if (isCamRestricted) {
                     card.classList.add('opacity-60', 'grayscale-[35%]');
                     if (!badge) {
                         badge = document.createElement('div');
                         badge.className = 'camera-lock-badge absolute top-2 right-2 sm:top-3 sm:right-3 bg-red-600/95 text-white font-black text-[10px] sm:text-xs px-2 py-0.5 rounded-full shadow-lg border border-red-300 flex items-center gap-1 animate-pulse pointer-events-none z-10';
                         badge.innerHTML = '<span>🔒</span><span>PAUSIERT</span>';
+                        card.appendChild(badge);
+                    }
+                } else {
+                    card.classList.remove('opacity-60', 'grayscale-[35%]');
+                    if (badge) badge.remove();
+                }
+            });
+
+            const isMicRestricted = window.isMicRestricted ? window.isMicRestricted() : false;
+            const micCards = document.querySelectorAll('[data-mic-app="true"]');
+            micCards.forEach(card => {
+                let badge = card.querySelector('.mic-lock-badge');
+                if (isMicRestricted) {
+                    card.classList.add('opacity-60', 'grayscale-[35%]');
+                    if (!badge) {
+                        badge = document.createElement('div');
+                        badge.className = 'mic-lock-badge absolute top-2 right-2 sm:top-3 sm:right-3 bg-rose-600/95 text-white font-black text-[10px] sm:text-xs px-2 py-0.5 rounded-full shadow-lg border border-rose-300 flex items-center gap-1 animate-pulse pointer-events-none z-10';
+                        badge.innerHTML = '<span>🎤🔒</span><span>PAUSIERT</span>';
                         card.appendChild(badge);
                     }
                 } else {
@@ -990,6 +1048,9 @@
             // 4. Sync Foto-/Kamera-Datenschutz
             syncAdminCameraUI();
 
+            // 4b. Sync Mikrofon-Datenschutz
+            syncAdminMicUI();
+
             // 5. Sync Einrichtungs-Name
             const facilityInput = document.getElementById('admin-facility-name');
             if (facilityInput) {
@@ -1004,6 +1065,13 @@
 
             // 8. Spracheinstellungen synchronisieren
             syncAdminLangUI();
+
+            // 9. Standard-PIN Warnung prüfen
+            const pinWarn = document.getElementById('admin-pin-warning');
+            if (pinWarn) {
+                const isDefault = (window.getAdminPin ? window.getAdminPin() : '1234') === '1234';
+                pinWarn.classList.toggle('hidden', !isDefault);
+            }
 
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
@@ -1409,6 +1477,61 @@
                     window.showCustomAlert('🔒 Kamera-Apps pausiert (Schutz für Kinder ohne Fotoerlaubnis)', '📷');
                 } else {
                     window.showCustomAlert('🟢 Alle Kamera-Apps wieder freigegeben', '📷');
+                }
+            }
+        }
+
+        // --- MIKROFON- & AUDIO-DATENSCHUTZ LOGIK ---
+        function syncAdminMicUI() {
+            const isRestricted = window.isMicRestricted ? window.isMicRestricted() : false;
+            const btnActive = document.getElementById('admin-mic-active');
+            const btnPaused = document.getElementById('admin-mic-paused');
+            const badge = document.getElementById('admin-mic-badge');
+
+            [btnActive, btnPaused].forEach(btn => {
+                if (!btn) return;
+                btn.style.border = '2px solid #334155';
+                btn.style.backgroundColor = 'rgba(15, 23, 42, 0.7)';
+                btn.style.boxShadow = 'none';
+                btn.style.opacity = '0.7';
+            });
+
+            if (!isRestricted) {
+                if (btnActive) {
+                    btnActive.style.border = '2px solid #10b981';
+                    btnActive.style.backgroundColor = 'rgba(6, 78, 59, 0.85)';
+                    btnActive.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.35)';
+                    btnActive.style.opacity = '1';
+                }
+                if (badge) {
+                    badge.textContent = '🟢 Audio aktiv';
+                    badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700';
+                }
+            } else {
+                if (btnPaused) {
+                    btnPaused.style.border = '2px solid #ef4444';
+                    btnPaused.style.backgroundColor = 'rgba(127, 29, 29, 0.85)';
+                    btnPaused.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.35)';
+                    btnPaused.style.opacity = '1';
+                }
+                if (badge) {
+                    badge.textContent = '🔒 Mikrofon pausiert';
+                    badge.className = 'text-xs font-black px-2.5 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-700';
+                }
+            }
+        }
+
+        function onAdminMicToggle(restricted) {
+            if (window.setMicRestricted) window.setMicRestricted(restricted);
+            if (window.triggerHapticFeedback) window.triggerHapticFeedback([40]);
+            if (window.playSound) window.playSound('click');
+            syncAdminMicUI();
+            if (window.applyCameraRestrictionsUI) window.applyCameraRestrictionsUI();
+            if (window.showCustomAlert) {
+                if (restricted) {
+                    window.showCustomAlert('🔒 Mikrofon-Module pausiert (Schutz vor Tonaufnahmen)', '🎤');
+                } else {
+                    window.showCustomAlert('🟢 Alle Audio-Module wieder freigegeben', '🎤');
                 }
             }
         }

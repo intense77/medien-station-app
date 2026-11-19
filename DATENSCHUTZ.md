@@ -52,8 +52,8 @@ Peutingerstraße 5, 86152 Augsburg, Deutschland
   * **Systemkonfiguration**: Master-Lautstärke, Ruhemodus, Admin-PIN und Kamera-Pausierung.
 * **Löschung**: Diese administrativen Einstellungen überstehen den nächtlichen Kinderdaten-Reset bewusst, können jedoch von Fachkräften im PIN-Menü jederzeit einzeln über das Mülleimer-Symbol `🗑️` gelöscht oder geändert werden.
 
-### C. Freispiel-Schutz für Gruppen ohne Foto-Einwilligung
-Fachkräfte können im PIN-Menü mit einem Klick alle 5 Kamera-Apps sperren (inklusive Direktaufruf-Schutz). Dadurch können Kinder, für die keine elterliche Fotoeinwilligung vorliegt, gefahrlos an der Station mit den verbleibenden Modulen (Musik, Pixel, Audio) spielen.
+### C. Freispiel-Schutz für Gruppen ohne Foto- oder Tonaufnahme-Einwilligung
+Fachkräfte können im PIN-Menü mit einem Klick alle 5 Kamera-Apps sperren (inklusive Direktaufruf-Schutz). Ergänzend steht eine **Mikrofon-Sperre** zur Verfügung, die alle Tonaufnahme-Funktionen (Mikro Check, Musik Labor, Trickfilm-Audio) deaktiviert. Dadurch können auch Kinder ohne elterliche Bild- oder Tonaufnahme-Einwilligung gefahrlos und selbstbestimmt an der Station mit den verbleibenden Modulen (z. B. Pixel Labor) spielen.
 
 ### D. Server-Logdateien beim Webseiten-Hosting
 Der ausliefernde Nginx-Webserver ist strikt datensparsam konfiguriert (`access_log off;`): Es werden auf Anwendungsebene **keine dauerhaften IP-Zugriffsprotokolle (Access-Logs)** gespeichert. Lediglich beim initialen Abruf über die Infrastruktur fallen technisch unvermeidbare, flüchtige Transportdaten zur sicheren Auslieferung an; im anschließenden Offline-PWA-Betrieb findet überhaupt kein Serverkontakt statt.

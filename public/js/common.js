@@ -271,10 +271,51 @@
         }
     }
 
+    function enforceMicRestrictionInSubApp() {
+        try {
+            if (!isSubApp) return false;
+            if (typeof window.isMicRestricted !== 'function' || typeof window.isMicApp !== 'function') return false;
+            if (!window.isMicRestricted() || !window.isMicApp(window.location.pathname)) return false;
+
+            // Blockiere getUserMedia für Audio in dieser Sitzung als zusätzliche Schutzschicht
+            if (navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function') {
+                const origGUM = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+                navigator.mediaDevices.getUserMedia = function(constraints) {
+                    if (constraints && constraints.audio) {
+                        return Promise.reject(new DOMException('Mikrofon-Datenschutz ist aktiv', 'NotAllowedError'));
+                    }
+                    return origGUM(constraints);
+                };
+            }
+
+            let lockOverlay = document.getElementById('mic-restricted-lock-overlay');
+            if (!lockOverlay) {
+                lockOverlay = document.createElement('div');
+                lockOverlay.id = 'mic-restricted-lock-overlay';
+                lockOverlay.style.cssText = 'position: fixed; inset: 0; z-index: 9999999; background: rgba(15, 23, 42, 0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white;';
+                lockOverlay.innerHTML = `
+                    <div style="max-width: 440px; background: #1e293b; border: 4px solid #f43f5e; border-radius: 2rem; padding: 32px; box-shadow: 0 25px 50px rgba(0,0,0,0.7);">
+                        <div style="font-size: 64px; margin-bottom: 12px;">🔒🎤</div>
+                        <h2 style="font-size: 26px; font-weight: 900; margin-bottom: 12px;">Mikrofon macht gerade Pause</h2>
+                        <p style="font-size: 16px; color: #cbd5e1; font-weight: 700; margin-bottom: 24px; line-height: 1.5;">Der Audio-Datenschutz ist aktiv. Probier doch stattdessen Pixel Art oder Zauber Selfie aus!</p>
+                        <button onclick="window.goHome()" style="width: 100%; background: #facc15; color: #0f172a; font-weight: 900; font-size: 18px; padding: 14px 20px; border-radius: 14px; border: none; border-bottom: 6px solid #ca8a04; cursor: pointer;">
+                            🏠 ZURÜCK ZUM HAUPTMENÜ
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(lockOverlay);
+            }
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
     function initCommon() {
         try {
-            // Kamera-Datenschutz auch bei Direktaufruf / Zurück-Navigation in Sub-Apps durchsetzen
+            // Kamera- & Mikrofon-Datenschutz auch bei Direktaufruf / Zurück-Navigation in Sub-Apps durchsetzen
             enforceCameraRestrictionInSubApp();
+            enforceMicRestrictionInSubApp();
 
             // Automatische Bereinigung temporärer Dateien bei jedem Anwendungsstart
             try { window.cleanupSessionFiles(); } catch(e) {}
@@ -2007,6 +2048,7 @@
     const PIN_KEY = 'medienstation_admin_pin';
     const VOLUME_KEY = 'medienstation_volume_level';
     const CAMERA_RESTRICT_KEY = 'medienstation_camera_restricted';
+    const MIC_RESTRICT_KEY = 'medienstation_mic_restricted';
 
     // Lautstärkeregelung für Fachkräfte (Normal, Flüster-Modus, Stumm/Ruhezeit)
     window.getVolumeLevel = function() {
@@ -2044,6 +2086,25 @@
         if (!urlOrPath) return false;
         const cameraApps = ['magic.html', 'gif.html', 'news.html', 'comic.html', 'stopmotion.html'];
         return cameraApps.some(app => urlOrPath.includes(app));
+    };
+
+    // Ton-/Mikrofon-Apps für Freispiel pausieren (Kinderschutz ohne Tonaufnahme-Erlaubnis)
+    window.isMicRestricted = function() {
+        return localStorage.getItem(MIC_RESTRICT_KEY) === 'true';
+    };
+
+    window.setMicRestricted = function(restricted) {
+        localStorage.setItem(MIC_RESTRICT_KEY, restricted ? 'true' : 'false');
+        if (typeof window.applyCameraRestrictionsUI === 'function') {
+            window.applyCameraRestrictionsUI();
+        }
+        return window.isMicRestricted();
+    };
+
+    window.isMicApp = function(urlOrPath) {
+        if (!urlOrPath) return false;
+        const micApps = ['rec.html', 'sound.html'];
+        return micApps.some(app => urlOrPath.includes(app));
     };
 
     window.getAdminPin = function() {

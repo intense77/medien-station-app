@@ -151,6 +151,9 @@ Das PIN-geschützte Fachkraft-Dashboard ist über den Button **„⚙️ Einstel
 * 📷 **Foto- & Kamera-Datenschutz (Freispiel-Schutz)**:
   - Mit einem Klick können alle 5 Kamera-Apps (*Zauber Selfie*, *Video Loop*, *Nachrichten*, *Trickfilm*, *Comic*) pausiert werden.
   - Ermöglicht das freie Spielen an der Station auch in Gruppen mit Kindern, deren Erziehungsberechtigte keine Fotoerlaubnis erteilt haben. Gesperrte Apps werden mit einem deutlichen *"🔒 PAUSIERT"*-Badge versehen.
+* 🎙️ **Mikrofon- & Audio-Datenschutz (Stimmaufnahme-Schutz)**:
+  - 1-Klick-Pausierung für Tonaufnahmen (*Mikro Check*, *Musik Labor* und Stop-Motion-Vertonung).
+  - Schützt Kinder in Einrichtungen mit strengen Auflagen gegen Tonaufnahmen; gesperrte Audio-Apps erhalten ein *"🎤🔒 PAUSIERT"*-Badge.
 * 🩺 **Hardware- & Sensor-Diagnose**:
   - Schneller Live-Check für Kamera, Mikrofon, lokalen IndexedDB-Speicherplatz (MB-Auslastung) und WLAN-Verbindung.
 * 🛡️ **Datenschutz & Auto-Reset**:

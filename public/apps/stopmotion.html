@@ -1559,6 +1559,15 @@
         }
 
         async function toggleAudioRecording() {
+          if (!isRecordingAudio && window.isMicRestricted && window.isMicRestricted()) {
+            if (window.showCustomAlert) {
+              window.showCustomAlert('Tonaufnahme ist gerade pausiert! 🔒 (Mikrofonschutz aktiv)', '🎤');
+            } else {
+              alert('Tonaufnahme ist gerade pausiert! 🔒 (Mikrofonschutz aktiv)');
+            }
+            return;
+          }
+
           if (isRecordingAudio) {
             if (trickfilmMediaRecorder && trickfilmMediaRecorder.state !== 'inactive') {
               trickfilmMediaRecorder.stop();
