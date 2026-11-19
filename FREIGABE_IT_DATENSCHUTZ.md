@@ -108,10 +108,10 @@ error_log /dev/stderr warn;
 | **3. Zwecke der Verarbeitung** | Didaktisch begleitete Erstellung von Tonaufnahmen (Mikro Check, Musik Labor), Bildern/Comics und Trickfilmen im Gruppenverband; Sensibilisierung für Bild- und Tonmanipulation; handlungsorientierte Sprachförderung. |
 | **4. Rechtsgrundlagen** | **§ 6 Abs. 1 lit. c KDG** (Erfüllung der pädagogischen Bildungs- und Betreuungsaufgabe der Einrichtung); **§ 6 Abs. 1 lit. g KDG / Art. 6 Abs. 1 lit. f DSGVO** (berechtigtes Interesse an moderner und sicherer Medienbildung); ggf. Einwilligung der Personensorgeberechtigten für Gruppenfotos. |
 | **5. Betroffene Personengruppen** | Kinder in Betreuungseinrichtungen (Kitas, Horte, Grundschulen); pädagogische Fachkräfte / Aufsichtspersonen. |
-| **6. Kategorien personenbezogener Daten** | **Flüchtige Sprachaufnahmen:** Eigene Stimme, Geräusche (rein lokal im RAM / IndexedDB).<br>**Flüchtige Bild-/Videoaufnahmen:** Fotos für Comics, Zauber-Selfies, Stop-Motion-Frames (rein lokal im IndexedDB-Browserspeicher).<br>**Server-Logdaten:** IP-Adresse, Zugriffszeit, User-Agent (technisch notwendig zur Bereitstellung der Dateien; automatische Rotation/Löschung nach max. 7 Tagen). |
+| **6. Kategorien personenbezogener Daten** | **Flüchtige Sprachaufnahmen:** Eigene Stimme, Geräusche (rein lokal im RAM / IndexedDB).<br>**Flüchtige Bild-/Videoaufnahmen:** Fotos für Comics, Zauber-Selfies, Stop-Motion-Videos mit Tonspur (`type: 'video'`) (rein lokal im IndexedDB-Browserspeicher `MedienStationDB_v5`).<br>**Infrastrukturdaten ohne Personenbezug:** Einrichtungsname für Portfolio-Bögen, trägereigene Hintergrundfotos (Garten, Raum) im lokalen `localStorage`.<br>**Server-Logdaten:** IP-Adresse, Zugriffszeit, User-Agent (technisch notwendig zur Bereitstellung der Dateien; Nginx `access_log off;`, keine dauerhafte Protokollierung). |
 | **7. Empfänger & Dritte (§ 4 Nr. 10 KDG)** | **Keine Empfänger.** Die Daten verlassen zu keinem Zeitpunkt das Endgerät. Keine Übertragung an Apple iCloud, Google Cloud oder sonstige Cloud-Dienste. |
 | **8. Drittlandübermittlung (§ 39 KDG)** | **Findet nicht statt.** 0 % Übermittlung in Drittstaaten außerhalb der EU bzw. des EWR. |
-| **9. Löschfristen & Speicherbegrenzung** | **Automatischer Tages-Reset:** Täglich um 00:00 Uhr werden alle im lokalen IndexedDB-Speicher abgelegten Werke unwiderruflich gelöscht.<br>**Manuelle Sofortlöschung:** Im PIN-geschützten Fachkraft-Menü jederzeit per Klick ausführbar. |
+| **9. Löschfristen & Speicherbegrenzung** | **Automatischer Tages-Reset:** Täglich um 00:00 Uhr werden alle im lokalen IndexedDB-Speicher abgelegten Kinddaten und Werke (Fotos, Audio, Stop-Motion-Videos) unwiderruflich gelöscht.<br>**Flüchtige Portfolio-Bögen:** Werden beim Drucken ad-hoc im Browser gerendert und hinterlassen keine Speicherdateien.<br>**Administrative Infrastruktur:** Einrichtungsname und Raum-Hintergründe bleiben persistent für den Kita-Betrieb und können im PIN-Menü selektiv mit `🗑️` gelöscht werden.<br>**Manuelle Sofortlöschung:** Im PIN-geschützten Fachkraft-Menü jederzeit per Klick ausführbar. |
 
 ---
 
@@ -134,7 +134,9 @@ error_log /dev/stderr warn;
 * **Resilientes Speichermanagement**: PWA Persistent Storage API (`navigator.storage.persist()`) verhindert Datenverlust bei geringem Speicherplatz.
 
 ### 3.5 Speicherbegrenzung & Automatisches Löschen
-* **Erzwungener täglicher Daten-Reset**: Zur Vermeidung dauerhafter Anhäufungen von Kinderbildern setzt ein automatischer Datumsabgleich beim ersten Start an einem neuen Tag die Galerie unwiderruflich zurück.
+* **Erzwungener täglicher Daten-Reset**: Zur Vermeidung dauerhafter Anhäufungen von Kinderbildern setzt ein automatischer Datumsabgleich beim ersten Start an einem neuen Tag die Galerie mit allen Kind-Ergebnissen (Fotos, Audios, Stop-Motion-Filme) unwiderruflich zurück (Art. 5 Abs. 1 lit. e DSGVO).
+* **Rückstandsfreier Portfolio-Bogen-Druck**: Portfolio-Bögen werden flüchtig im Browser-Arbeitsspeicher zusammengestellt; es verbleiben keine redundanten Bilddateien im Speicher.
+* **Saubere Trennung von Kinddaten und Einrichtungs-Konfiguration**: Einrichtungsname undKita-Hintergrundfotos verbleiben als administrative Infrastruktur auf dem Gerät und können im PIN-Menü einzeln gelöscht werden.
 
 ---
 

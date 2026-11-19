@@ -714,8 +714,10 @@ error_log /dev/stderr warn;</code></pre>
                         <td>
                             <ul>
                                 <li><strong>Flüchtige Sprachaufnahmen:</strong> Eigene Stimme, Geräusche (rein lokal im RAM / IndexedDB).</li>
-                                <li><strong>Flüchtige Bild-/Videoaufnahmen:</strong> Fotos für Comics, Zauber-Selfies, Trickfilme (rein lokal im IndexedDB-Browserspeicher).</li>
-                                <li><strong>Server-Logdaten beim Hosting:</strong> IP-Adresse, Zugriffszeit, User-Agent (technisch notwendig zum Ausliefern der Web-Assets; Speicherung max. 7 Tage zur Gefahrenabwehr).</li>
+                                <li><strong>Flüchtige Bild-/Videoaufnahmen:</strong> Fotos für Comics, Zauber-Selfies, Stop-Motion-Videos mit Tonspur (<code>type: 'video'</code>) (rein lokal im IndexedDB-Browserspeicher <code>MedienStationDB_v5</code>).</li>
+                                <li><strong>Flüchtige Portfolio-Bögen:</strong> Werden on-the-fly im Browser beim Drucken erzeugt; keine Speicherung auf dem Endgerät.</li>
+                                <li><strong>Infrastrukturdaten ohne Personenbezug:</strong> Einrichtungsname für Portfolio-Bögen und trägereigene Raum-Hintergrundfotos im lokalen <code>localStorage</code>.</li>
+                                <li><strong>Server-Logdaten beim Hosting:</strong> IP-Adresse, Zugriffszeit, User-Agent (technisch notwendig zum Ausliefern der Web-Assets; Nginx <code>access_log off;</code>).</li>
                             </ul>
                         </td>
                     </tr>
@@ -730,7 +732,9 @@ error_log /dev/stderr warn;</code></pre>
                     <tr>
                         <td><strong>9. Löschfristen &amp; Speicherbegrenzung</strong></td>
                         <td>
-                            <strong>Automatischer Tages-Reset:</strong> Täglich um 00:00 Uhr werden alle im IndexedDB-Speicher gespeicherten Kunstwerke/Aufnahmen automatisch und unwiderruflich gelöscht.<br>
+                            <strong>Automatischer Tages-Reset:</strong> Täglich um 00:00 Uhr werden alle im IndexedDB-Speicher gespeicherten Kinddaten und Meisterwerke (Fotos, Audio, Stop-Motion-Filme) automatisch und unwiderruflich gelöscht.<br>
+                            <strong>Flüchtige Portfolio-Bögen:</strong> Werden ad-hoc für den Druck gerendert, keine redundanten Dateien.<br>
+                            <strong>Administrative Infrastruktur:</strong> Einrichtungsname und Kita-Hintergründe bleiben persistent für den Einrichtungsbetrieb und können im Fachkraft-Menü einzeln gelöscht werden (<code>🗑️</code>).<br>
                             <strong>Manuelle Sofort-Löschung:</strong> Im Fachkraft-Menü jederzeit per Klick („Galerie leeren“) ausführbar.
                         </td>
                     </tr>

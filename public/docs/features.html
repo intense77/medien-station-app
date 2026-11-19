@@ -91,8 +91,8 @@
                     <div class="module-header"><span class="module-icon">🧙‍♂️</span><div class="module-title">1. Zauber Selfie (Magie & Fotostudio)</div></div>
                     <div class="module-desc">KI-gestütztes Fotostudio ohne physikalischen Green-Screen (MediaPipe Selfie Segmentation).</div>
                     <ul class="module-list">
-                        <li><strong>Möglichkeiten:</strong> Auswahl verschiedener Hintergründe (Weltraum, Dschungel, Unterwasser, Paris, Schloss, Dino, Stadion).</li>
-                        <li><strong>Modi:</strong> Einzelbild, Polaroid-Optik oder 4er-Collage-Modus mit Galerie-Ablage.</li>
+                        <li><strong>Möglichkeiten:</strong> Auswahl kindgerechter Hintergründe + bis zu 3 <strong>eigene Kita-Hintergründe</strong> (z. B. Gruppenraum, Garten) im Admin-Bereich hinterlegbar.</li>
+                        <li><strong>Modi &amp; Druck:</strong> Einzelbild, Polaroid-Optik, 4er-Collage sowie direkter <strong>1-Klick DIN A4 Portfolio-Bogen</strong> (<code>📄 PORTFOLIO</code>).</li>
                     </ul>
                     <div class="pedagogy-box"><strong>🎯 Pädagogischer Mehrwert:</strong> Visuelle Gestaltung, Hintergrund-Erkundung, Selbstdarstellung.</div>
                 </div>
@@ -126,18 +126,19 @@
 
                 <div class="module-card">
                     <div class="module-header"><span class="module-icon">🎬</span><div class="module-title">5. Trickfilm Studio (Stop-Motion Werkstatt)</div></div>
-                    <div class="module-desc">Stop-Motion Animationen, Daumenkinos und Tonfilme erstellen.</div>
+                    <div class="module-desc">Stop-Motion Animationen, Daumenkinos, Tonfilme und echte Videodateien erstellen.</div>
                     <ul class="module-list">
-                        <li><strong>Features:</strong> Geisterbild (Onion Skinning), Tempo-Steuerung (🐢/🐇), Daumenkino-Druckbogen mit Schneidelinien (✂️) & Heftzone.</li>
+                        <li><strong>Features:</strong> Geisterbild (Onion Skinning), Tempo-Steuerung (🐢/🐇), <strong>echter Video-Export (WebM/MP4)</strong> mit gemischter Tonspur, Daumenkino-Druckbogen mit Schneidelinien (✂️) &amp; Heftzone.</li>
+                        <li><strong>Galerie:</strong> Filme werden als abspielbares Video (<code>type: 'video'</code>) in der Galerie gesichert und unterliegen dem automatischen Tages-Reset.</li>
                     </ul>
                     <div class="pedagogy-box"><strong>🎯 Pädagogischer Mehrwert:</strong> Kino-Illusion verstehen, Feinmotorik, haptisch-digitales Ergebnis.</div>
                 </div>
 
                 <div class="module-card">
                     <div class="module-header"><span class="module-icon">👾</span><div class="module-title">6. Pixel Labor (Retro Digitalkunst)</div></div>
-                    <div class="module-desc">Digitaler Zeichenbereich in 16×16 Raster-Optik.</div>
+                    <div class="module-desc">Digitaler Zeichenbereich in 16×16 Raster-Optik mit verlässlicher Navigation.</div>
                     <ul class="module-list">
-                        <li><strong>Features:</strong> 12 Farben, Radierer, Undo (↩️ ZURÜCK), 8-Bit Retro-Soundeffekt.</li>
+                        <li><strong>Features:</strong> 12 Farben, Radierer, Undo (↩️ ZURÜCK), 8-Bit Retro-Soundeffekt, extragroßer einheitlicher Home-Button (<code>🏠 MENÜ</code>) und direkter 1-Klick Portfolio-Druck (<code>📄 PORTFOLIO</code>).</li>
                     </ul>
                     <div class="pedagogy-box"><strong>🎯 Pädagogischer Mehrwert:</strong> Abstraktionsvermögen, Feinmotorik, Rastergrafik-Verständnis.</div>
                 </div>
@@ -164,7 +165,48 @@
             <hr>
 
             <h2>🎨 Galerie der Meisterwerke & Speicher-Systematik</h2>
-            <p>Die Station verfügt über eine zentrale <strong>Galerie der Meisterwerke</strong> mit ausfallsicherem <strong>IndexedDB-Speicher</strong> (<code>MedienStationDB_v5</code>) für bis zu 40 hochauflösende Werke.</p>
+            <p>Die Station verfügt über eine zentrale <strong>Galerie der Meisterwerke</strong> mit ausfallsicherem <strong>IndexedDB-Speicher</strong> (<code>MedienStationDB_v5</code>) für bis zu 40 hochauflösende Werke inklusive echten Stop-Motion-Videodateien.</p>
+
+            <ul class="module-list" style="margin-top: 1rem;">
+                <li><strong>🎥 Stop-Motion-Videowiedergabe:</strong> Vollwertige Video-Wiedergabe mit Tonspur in der Fullscreen-Lightbox.</li>
+                <li><strong>📄 1-Klick DIN A4 Portfolio-Bogen (<code>📄 Portfolio</code>):</strong> Erstellt direkt aus der Galerie eine druckfertige Entwicklungsdokumentation mit Einrichtungsname, Titel, Datum und liniertem Reflexions-/Beobachtungsfeld.</li>
+                <li><strong>📥 100% Offline-ZIP-Export:</strong> Fachkräfte können alle Werke des Tages mit einem Klick gesammelt auf einen USB-Stick oder PC herunterladen.</li>
+            </ul>
+
+            <hr>
+
+            <h2>🔒 Datensparsamkeit &amp; 3-Stufen-Löschkonzept (DSGVO)</h2>
+            <p>Das System gewährleistet höchste Privatsphäre und unterscheidet klar zwischen flüchtigen Kinderdaten und dauerhafter Einrichtungs-Infrastruktur:</p>
+
+            <div class="module-grid">
+                <div class="module-card">
+                    <div class="module-header"><span class="module-icon">👶</span><div class="module-title">1. Kinddaten &amp; Meisterwerke (Automatischer Reset)</div></div>
+                    <div class="module-desc">Fotos, Audioaufnahmen, Comics und Stop-Motion-Videodateien.</div>
+                    <ul class="module-list">
+                        <li><strong>Täglicher Auto-Reset:</strong> Täglich um 00:00 Uhr bzw. beim ersten Start am neuen Tag werden alle Werke automatisch und unwiderruflich aus der IndexedDB gelöscht (Art. 5 Abs. 1 lit. e DSGVO).</li>
+                        <li><strong>Projekt-Modus (7 Tage):</strong> Für mehrtägige Projekte im Fachkraft-Menü wählbar.</li>
+                        <li><strong>Sofort-Löschung:</strong> Kindgerechtes Einzellöschen per <code>🗑️</code> in der Galerie sowie vollständiges Leeren per Admin-Button.</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header"><span class="module-icon">📄</span><div class="module-title">2. Portfolio-Druckbögen (On-Demand / Flüchtig)</div></div>
+                    <div class="module-desc">DIN A4 Entwicklungsdokumentationsbögen.</div>
+                    <ul class="module-list">
+                        <li>Werden beim Klick auf <code>📄 PORTFOLIO</code> im Arbeitsspeicher des Browsers gerendert und direkt an den Druckdialog übergeben.</li>
+                        <li>Hinterlassen keinerlei Datei- oder Speicher-Rückstände auf dem Endgerät.</li>
+                    </ul>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header"><span class="module-icon">⚙️</span><div class="module-title">3. Einrichtungs-Infrastruktur (Dauerhaft)</div></div>
+                    <div class="module-desc">Träger- &amp; Fachkraft-Einstellungen im Admin-Bereich.</div>
+                    <ul class="module-list">
+                        <li><strong>Dauerhafte Konfiguration:</strong> Einrichtungsname (für Portfolio-Bögen), bis zu 3 Kita-Hintergrundfotos (ohne Personenbezug), Master-Lautstärke und PIN.</li>
+                        <li>Überstehen den täglichen Reset bewusst, um täglichen Einrichtungsaufwand zu vermeiden. Können im PIN-Menü jederzeit selektiv mit <code>🗑️</code> gelöscht werden.</li>
+                    </ul>
+                </div>
+            </div>
 
         </article>
     </main>

@@ -35,18 +35,27 @@ Peutingerstraße 5, 86152 Augsburg, Deutschland
 ### A. Lokale Aufnahmen & Kunstwerke (Kamera & Mikrofon)
 * **Kamera-Module** (*Zauber Selfie, Video Loop, News Studio, Trickfilm Studio, Comic Story*):
   * Die Kamerabilder werden flüchtig verarbeitet, um den gewünschten Effekt darzustellen.
-  * Erst bei bewusstem Klick auf `💾 SPEICHERN` oder beim Schnappschuss-Auslösen wird das Werk im lokalen Browser-Speicher (`IndexedDB`) des Geräts abgelegt.
+  * Erst bei bewusstem Klick auf `💾 SPEICHERN` oder beim Schnappschuss-Auslösen wird das Werk (Standbilder, Collagen oder generierte **Stop-Motion-Videodateien mit Tonspur**) im lokalen Browser-Speicher (`IndexedDB: MedienStationDB_v5`) des Geräts abgelegt.
 * **Mikrofon-Module** (*Mikro Check, Musik Labor*):
   * Sprachaufnahmen und Töne werden lokal im Arbeitsspeicher/IndexedDB verarbeitet.
-* **Speicherort**: Ausschließlich in der lokalen IndexedDB-Datenbank des verwendeten Browsers (`MedienStationDB_v5`).
-* **Löschkonzept**:
-  * **Automatischer Tages-Reset**: Bei jedem Tageswechsel (ab 00:00 Uhr beim ersten Start am Folgetag) werden alle Werke vom Vortag in der Galerie automatisch und unwiderruflich gelöscht.
-  * **Manuelle Löschung**: Fachkräfte können die Galerie im PIN-geschützten Einstellungsmenü jederzeit sofort leeren.
+* **Portfolio-Druckbögen**:
+  * Werden beim Klick auf `📄 PORTFOLIO` flüchtig („on-the-fly“) im Arbeitsspeicher des Browsers gerendert und an das Drucksystem übergeben; es werden hierfür keine persistenten Dateien angelegt.
+* **Löschkonzept für Kinddaten**:
+  * **Automatischer Tages-Reset**: Bei jedem Tageswechsel (ab 00:00 Uhr beim ersten Start am Folgetag) werden alle Werke vom Vortag (inklusive aller Stop-Motion-Filme) in der Galerie automatisch und unwiderruflich gelöscht.
+  * **Projektmodus (7 Tage)**: Kann für mehrtägige Projekte im Admin-Bereich aktiviert werden; nach 7 Tagen erfolgt die automatische Bereinigung.
+  * **Manuelle Löschung**: Kinder können Werke einzeln mit `🗑️` entfernen; Fachkräfte können die Galerie im PIN-geschützten Einstellungsmenü jederzeit sofort leeren.
 
-### B. Freispiel-Schutz für Gruppen ohne Foto-Einwilligung
+### B. Einrichtungs- und Fachkraft-Einstellungen (Infrastrukturdaten)
+* Zur Erleichterung des Kita-Alltags speichert das Gerät trägerspezifische Einstellungen lokal im Browser (`localStorage`):
+  * **Einrichtungsname**: Für den automatischen Eindruck auf DIN A4 Portfolio-Bögen.
+  * **Eigene Kita-Hintergründe**: Bis zu 3 Fotos aus dem Kita-Alltag (z. B. Gruppenraum, Garten; ohne Personenbezug) für das Zauber Selfie.
+  * **Systemkonfiguration**: Master-Lautstärke, Ruhemodus, Admin-PIN und Kamera-Pausierung.
+* **Löschung**: Diese administrativen Einstellungen überstehen den nächtlichen Kinderdaten-Reset bewusst, können jedoch von Fachkräften im PIN-Menü jederzeit einzeln über das Mülleimer-Symbol `🗑️` gelöscht oder geändert werden.
+
+### C. Freispiel-Schutz für Gruppen ohne Foto-Einwilligung
 Fachkräfte können im PIN-Menü mit einem Klick alle 5 Kamera-Apps sperren (inklusive Direktaufruf-Schutz). Dadurch können Kinder, für die keine elterliche Fotoeinwilligung vorliegt, gefahrlos an der Station mit den verbleibenden Modulen (Musik, Pixel, Audio) spielen.
 
-### C. Server-Logdateien beim Webseiten-Hosting
+### D. Server-Logdateien beim Webseiten-Hosting
 Der ausliefernde Nginx-Webserver ist strikt datensparsam konfiguriert (`access_log off;`): Es werden auf Anwendungsebene **keine dauerhaften IP-Zugriffsprotokolle (Access-Logs)** gespeichert. Lediglich beim initialen Abruf über die Infrastruktur fallen technisch unvermeidbare, flüchtige Transportdaten zur sicheren Auslieferung an; im anschließenden Offline-PWA-Betrieb findet überhaupt kein Serverkontakt statt.
 
 ---

@@ -3,7 +3,7 @@
 ## 1. Übersicht & Steckbrief
 
 * **Projektname**: MedienStation (AV-Medienzentrale Bistum Augsburg)
-* **Aktuelle Version**: v7.9.8 (Build 332)
+* **Aktuelle Version**: v7.9.8 (Build 335)
 * **Zielgruppe**: Kindertagesstätten (Kitas) und Grundschulen (Altersstufe 4–10 Jahre)
 * **Einsatzszenario**: Tablet-Stationen, All-in-One Kiosksysteme, mobile Medienkoffer
 * **Technologie-Stack**: HTML5, CSS3, JavaScript (Vanilla ES6+), Web Audio API, Canvas, Client-Side MediaPipe AI, Service Worker PWA (Offline-First), IndexedDB Storage
@@ -37,11 +37,11 @@ Medien gehören zur Realität von Kindern. Das Ziel der frühkindlichen Medienbi
 1. **🎹 Musik Labor**: Experimentieren mit Tönen, Beats, Tonhöhen-Verfremdung und Soundpads.
 2. **🎙️ Mikro Check**: Sprachaufnahmen machen, Stimm-Effekte testen und Sprachförderung mit visueller Audio-Wellenform erleben.
 3. **📹 Video Loop**: Bewegungs- und Mimikabläufe in 2-Sekunden-Endlosschleifen analysieren (mit Fotostreifen-Speicherung).
-4. **✨ Zauber Selfie**: KI-gestützte Segmentierung (Green-Screen-Effekt ohne grüne Wand) für kreative Fotohintergründe und Collagen.
-5. **👾 Pixel Labor**: Rasterbasiertes Zeichnen mit 16×16 Bausteinen, Karomuster, Farbpalette, Retro-Sounds und Undo-Funktion.
+4. **✨ Zauber Selfie**: KI-gestützte Segmentierung (Green-Screen-Effekt ohne grüne Wand) für kreative Fotohintergründe, trägereigene Kita-Hintergründe, Collagen und 1-Klick-Portfoliobögen.
+5. **👾 Pixel Labor**: Rasterbasiertes Zeichnen mit 16×16 Bausteinen, Karomuster, Farbpalette, Retro-Sounds, Portfolio-Bogen-Druck und Undo-Funktion.
 6. **📰 Nachrichten Studio**: Rollenspiele und Präsentationstechniken vor der TV-Kamera mit Live-Bauchbinde erproben.
 7. **📸 Comic Story**: Multi-Panel-Bildgeschichten mit verschiebbaren Sprechblasen structuren, speichern und ausdrucken.
-8. **🎬 Trickfilm Studio**: Stop-Motion-Filme erstellen mit Onion-Skinning (Geisterbild), Zeitleisten-Geschwindigkeitsregler (🐢/🐇), Vertonung, Daumenkino-Druck und Galerie-Ablage.
+8. **🎬 Trickfilm Studio**: Stop-Motion-Filme erstellen mit Onion-Skinning (Geisterbild), Zeitleisten-Geschwindigkeitsregler (🐢/🐇), Vertonung, echter Video-Generierung (WebM/MP4) für die Galerie und Daumenkino-Ausschneidebogen.
 
 ---
 
@@ -49,15 +49,19 @@ Medien gehören zur Realität von Kindern. Das Ziel der frühkindlichen Medienbi
 
 Die MedienStation erfüllt höchste Datenschutzstandards für den Einsatz in Bildungseinrichtungen:
 
-* **100% Lokale Datenverarbeitung**: Alle Berechnungen (Audioverarbeitung, KI-Hintergrundtrennung, Bildgenerierung) finden ausschließlich auf dem Endgerät im Browser statt.
+* **100% Lokale Datenverarbeitung**: Alle Berechnungen (Audioverarbeitung, Stop-Motion-Rendering, KI-Hintergrundtrennung, Bildgenerierung) finden ausschließlich auf dem Endgerät im Browser statt.
 * **Keine Cloud-Abhängigkeit**: Es werden keine Daten an externe Server gesendet.
 * **Tracking- & Werbefrei**: Keine Logins, keine Cookies, keine Analytics.
 
-### ℹ️ Speicher-Systematik der Galerie:
-* **Schnappschuss-Apps (*Zauber Selfie*, *News Studio*, *Mikro Check*)**: Speichern automatisch beim Auslösen / Stoppen direkt in die Galerie.
-* **Kreativprozess-Apps (*Pixel Labor*, *Comic Story*, *Trickfilm Studio*, *Video Loop*)**: Speichern gezielt über den einheitlichen **`💾 SPEICHERN`**-Button.
-* **Automatischer Tages-Reset (DSGVO-Speicherbegrenzung)**: Zu Beginn eines neuen Tages (beim ersten Start oder Aufwachen des Tablets an einem neuen Datum) wird die Galerie automatisch und vollständig zurückgesetzt (Art. 5 Abs. 1 lit. e DSGVO).
-* **Manuelle Bereinigung**: Fachkräfte können die Galerie jederzeit im Admin-Menü leeren.
+### ℹ️ Speicher- & Lösch-Systematik:
+* **Flüchtige Kinderdaten & Meisterwerke (Fotos, Audio, Stop-Motion-Videos)**:
+  * Schnappschuss-Apps speichern automatisch; Kreativ-Apps speichern gezielt über den einheitlichen **`💾 SPEICHERN`**-Button.
+  * Alle Werke inklusive Stop-Motion-Videos (`type: 'video'`) liegen in der lokalen IndexedDB (`MedienStationDB_v5`).
+  * **Automatischer Tages-Reset (Art. 5 Abs. 1 lit. e DSGVO)**: Täglich um 00:00 Uhr bzw. beim ersten Start am Folgetag werden alle Meisterwerke rückstandslos gelöscht. Optional kann für Projektwochen ein 7-Tage-Modus gewählt werden.
+* **Portfolio-Druckbögen (Flüchtig / On-Demand)**:
+  * Werden im Moment des Druckens direkt im Browser generiert. Hinterlassen keine Speicherdateien oder Dateireste auf dem Gerät.
+* **Einrichtungs- & Fachkraft-Einstellungen (Dauerhafte Infrastruktur)**:
+  * Einrichtungsname (für Portfolio-Bögen), trägereigene Hintergrundfotos, Master-Lautstärke und PIN bleiben dauerhaft erhalten, damit Fachkräfte diese nicht täglich neu konfigurieren müssen. Sie können im Admin-Bereich jederzeit selektiv mit `🗑️` entfernt werden.
 
 ---
 
@@ -65,18 +69,22 @@ Die MedienStation erfüllt höchste Datenschutzstandards für den Einsatz in Bil
 
 Über den dezidierten Button **„⚙️ Einstellungen“** in der Kopfzeile erhalten Fachkräfte nach PIN-Eingabe (über ein kindersicheres Touch-Zahlenfeld) Zugriff auf zentrale Steuerungsfunktionen für den Kita-Alltag:
 
-1. 🔊 **Master-Lautstärke & Ruhemodus**:
+1. 🏫 **Einrichtungsname & Portfolio-Integration**:
+   - Hinterlegung des Kita-Namens, der automatisch auf allen A4-Portfolio-Bögen platziert wird.
+2. 🏡 **Kita-Hintergründe verwalten**:
+   - Lokaler Upload und Vorschau von bis zu 3 vertrauten Kita-Motiven (Garten, Gruppe etc.) für das Zauber Selfie inkl. Einzel-Löschung (`🗑️`).
+3. 🔊 **Master-Lautstärke & Ruhemodus**:
    - **Normal (100%)**: Standard für aktiven Gruppenbetrieb.
    - **Flüstern (35%)**: Gedämpfter Pegel zur Vermeidung von Reizüberflutung bei lauter Gruppenraumsituation.
    - **Stumm (0%)**: Komplett geräuschlos für Mittagsruhe und Schlafräume.
-2. 📷 **Foto- & Kamera-Datenschutz (Freispiel-Schutz)**:
+4. 📷 **Foto- & Kamera-Datenschutz (Freispiel-Schutz)**:
    - Sperrt mit einem Klick alle 5 Kamera-Apps (*Zauber Selfie*, *Video Loop*, *Nachrichten*, *Trickfilm*, *Comic*).
    - Schützt Kinder, für die keine elterliche Fotoeinwilligung vorliegt, während nicht-kamerabasierte Module (*Pixel Labor*, *Musik Labor*, *Mikro Check*) weiterhin uneingeschränkt bespielbar bleiben.
-3. 🩺 **Hardware- & Sensor-Diagnose**:
+5. 🩺 **Hardware- & Sensor-Diagnose**:
    - Sofortige Statusprüfung von Kamera, Mikrofon, IndexedDB-Speicher und WLAN-Anbindung.
-4. 🛡️ **Speicher-Modus & Portfolio-Export**:
+6. 🛡️ **Speicher-Modus & Portfolio-Export**:
    - Umschaltung zwischen strengem Tages-Reset, 7-Tage-Projektmodus und Dauerhaft; 1-Klick-ZIP-Export aller Werke des Tages.
-5. ⚡ **Sicheres System-Update**:
+7. ⚡ **Sicheres System-Update**:
    - Cache-Bereinigung und Update-Erzwingung mit WLAN-Verbindungsprüfung.
 
 ---
@@ -97,4 +105,6 @@ Die MedienStation erfüllt höchste Datenschutzstandards für den Einsatz in Bil
 | **Offline-Fähigkeit** | 🥇 **100 % Offline PWA** | 🟢 Teils offline | ❌ Internet zwingend erforderlich |
 | **Kita-Freispiel-Eignung (3–6 J.)** | 🥇 **Sehr hoch (selbsterklärend)** | 🟡 Mittel (eher ab Grundschule) | 🔴 Niedrig (eher Lernsoftware) |
 | **Kiosk-Schutz & Auto-Update** | 🥇 **Integriert & Automatisch** | ❌ MDM-Setup erforderlich | ❌ Browser-Abhängig |
+| **Kita-Portfolio & Entwicklungsbogen** | 🥇 **1-Klick DIN A4 Bogen integriert** | ❌ Nicht vorhanden | ❌ Reine Bildschirmansicht |
+| **Lokale Kita-Einbindung** | 🥇 **Eigene Hintergründe (Garten, Raum)** | ❌ Nur Standard-Vorlagen | ❌ Keine |
 | **Funktions-Tiefe / Profi-Tools**| 🟡 Basis-Kreativwerkzeuge | 🥇 Sehr hoch | 🟡 Je nach Modul |

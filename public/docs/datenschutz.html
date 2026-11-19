@@ -293,12 +293,14 @@
                 <li><strong>Freispiel-Schutzfunktion:</strong> Fachkräfte können im PIN-geschützten Einstellungsmenü mit einem Klick alle kamera-basierten Module sperren, um Kinder ohne Fotoeinwilligung im Gruppenfreispiel zu schützen.</li>
             </ul>
 
-            <h2>4. Lokale Speicherung der Kunstwerke & Täglicher Auto-Reset</h2>
-            <p>Wenn Kinder oder Fachkräfte Kunstwerke speichern (z. B. Pixel-Bilder, Tonaufnahmen oder Stop-Motion-Filme):</p>
+            <h2>4. Lokale Speicherung der Kunstwerke, Löschkonzept &amp; Fachkraft-Einstellungen</h2>
+            <p>Die Datenverarbeitung unterscheidet strikt zwischen flüchtigen Kinddaten und administrativer Einrichtungs-Infrastruktur:</p>
             <ul>
-                <li>erfolgt die Speicherung ausschließlich im <strong>lokalen Speicher des Browsers</strong> (IndexedDB / localStorage) auf dem physischen Gerät.</li>
-                <li><strong>Automatischer Tages-Reset:</strong> Gemäß dem Grundsatz der Speicherbegrenzung (Art. 5 Abs. 1 lit. e DSGVO / § 7 Abs. 1 lit. e KDG) wird die Galerie bei jedem Tageswechsel (um 00:00 Uhr bzw. beim ersten Start am Folgetag) vollständig und automatisch gelöscht.</li>
-                <li>Fachkräfte können die Werke vorab gesammelt als ZIP-Datei auf einen USB-Stick oder Computer herunterladen.</li>
+                <li><strong>Flüchtige Kinddaten &amp; Meisterwerke:</strong> Gespeicherte Fotos, Sprachaufnahmen und Stop-Motion-Videodateien (<code>type: 'video'</code>) verbleiben ausschließlich im <strong>lokalen Speicher des Browsers</strong> (IndexedDB <code>MedienStationDB_v5</code>) auf dem physischen Gerät.</li>
+                <li><strong>Automatischer Tages-Reset:</strong> Gemäß dem Grundsatz der Speicherbegrenzung (Art. 5 Abs. 1 lit. e DSGVO / § 7 Abs. 1 lit. e KDG) wird die Galerie bei jedem Tageswechsel (um 00:00 Uhr bzw. beim ersten Start am Folgetag) vollständig und automatisch gelöscht. Optional kann für Projektwochen ein 7-Tage-Modus gewählt werden.</li>
+                <li><strong>Portfolio-Druckbögen:</strong> Werden beim Klick auf <code>📄 PORTFOLIO</code> ad-hoc im Arbeitsspeicher des Browsers gerendert und direkt an den Systemdrucker gesendet. Es entstehen keine persistenten Restdateien auf dem Gerät.</li>
+                <li><strong>Einrichtungs- &amp; Fachkraft-Einstellungen:</strong> Trägerspezifische Einstellungen (Einrichtungsname für Portfolio-Bögen, bis zu 3 trägereigene Kita-Hintergrundfotos ohne Personenbezug, PIN, Master-Lautstärke) werden lokal im <code>localStorage</code> gespeichert. Sie überstehen den nächtlichen Kinderdaten-Reset bewusst, um täglichen Neukonfigurationsaufwand zu vermeiden, und können von Fachkräften im PIN-Menü jederzeit einzeln per <code>🗑️</code> gelöscht werden.</li>
+                <li>Fachkräfte können alle Kinderwerke vorab gesammelt als ZIP-Datei auf einen USB-Stick oder Computer herunterladen.</li>
             </ul>
 
             <h2>5. Bereitstellung der Webanwendung &amp; Datensparsamkeit beim Hosting</h2>

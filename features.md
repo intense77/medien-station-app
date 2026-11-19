@@ -1,7 +1,7 @@
 # 📖 Handreichung & Funktionsübersicht: MedienStation Hub
 
 > **Informationen für das pädagogische Personal, Ausstellungsbetreuung, Fachkräfte und Aufsichtspersonen**  
-> *Projekt: MedienStation (Version v7.9.8 / Build 332) – AV-Medienzentrale Bistum Augsburg*
+> *Projekt: MedienStation (Version v7.9.8 / Build 335) – AV-Medienzentrale Bistum Augsburg*
 
 Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell für Kinder im Kita- und Grundschulalter (4–10 Jahre) entwickelt wurde. Sie lädt zum spielerischen Erkunden, Gestalten, Aufnehmen und Experimentieren mit digitalen Medien im Sinne einer aktiven, handlungsorientierten Medienpädagogik ein.
 
@@ -14,8 +14,10 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
 * **Technologie**: Medienverarbeitung über lokales Machine Learning (MediaPipe Selfie Segmentation).
 * **Möglichkeiten**: 
   - Auswahl verschiedener kindgerechter Hintergründe (Weltraum, Dschungel, Unterwasser, Paris, Schloss, Dino, Stadion).
+  - **🏡 Eigene Kita-Hintergründe**: Fachkräfte können im Admin-Bereich bis zu 3 vertraute Fotos aus dem Kita-Alltag (z. B. Gruppenraum, Garten, Klettergerüst) hinterlegen, die automatisch mit einem Kita-Symbol in die Auswahlliste eingebunden werden.
   - Anwenden künstlerischer Filter (S/W, Sepia, Warm, Kalt).
   - Einzelbild-, Polaroid- oder 4er-Collage-Modus mit sofortiger Galerie-Ablage und Druckfunktion.
+  - **📄 Direkter Portfolio-Druck**: Erzeugt per Knopfdruck (`📄 PORTFOLIO`) einen druckfertigen DIN A4 Entwicklungsdokumentations-Bogen mit Einrichtungsname, Bild und Notizlinien für die Fachkraft.
 * **Pädagogischer Mehrwert**: Visuelle Gestaltung, Hintergrund-Erkundung, Selbstdarstellung und Medienkompetenz.
 
 ### 2. 🎤 Mikro Check (Audio-Labor & Interview)
@@ -44,7 +46,7 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
 * **Pädagogischer Mehrwert**: Medienkompetenz (Verstehen von Nachrichtenformaten), Journalismus, Freies Formulieren.
 
 ### 5. 🎬 Trickfilm Studio (Stop-Motion Werkstatt)
-* **Funktion**: Erstellen von eigenen Stop-Motion Animationen, Daumenkinos und Tonfilmen.
+* **Funktion**: Erstellen von eigenen Stop-Motion Animationen, Daumenkinos, Tonfilmen und echten Videodateien.
 * **Möglichkeiten**:
   - Live-Kameraaufnahmen mit Bildzähler.
   - **Geisterbild-Funktion (Onion Skinning)**: Transparente Überlagerung des vorherigen Frames für flüssige, präzise Bewegungsabläufe.
@@ -52,7 +54,8 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
   - **Bild-Filter & Kamerawechsel**: Farbanpassungen und Umschalten zwischen Front- und Rückkamera.
   - **Großzügige Zeitleiste**: Große Vorschaubilder im Filmstreifen mit direkter Lösch- und Reorganisationsmöglichkeit.
   - **Tonaufnahme**: Vertonung des Films per Mikrofon.
-  - **`💾 Speichern`**: Legt die Daumenkino-Collage direkt in der Galerie der Meisterwerke ab.
+  - **🎬 Echter Video-Export mit Ton**: Rendert die Bildfolge direkt im Browser als echtes Video (WebM / MP4 via Canvas CaptureStream und MediaRecorder) inklusive gemischter Tonspur und Mindestlaufzeit für Videoplayer.
+  - **`💾 Film Speichern`**: Legt den fertigen Stop-Motion-Film als abspielbares Video (`type: 'video'`) direkt in der Galerie der Meisterwerke ab.
   - **`🖨️ Daumenkino Drucken`**: Druckt einen optimierten A4-Ausschneidebogen mit gestrichelten Schneidelinien (`✂️`), Heftzone (`📌 HIER TACKERN`), Bildnummern (`Bild #1` bis `#9`) und Kurzanleitung aus.
   - **📖 Pädagogische Bastelanleitung & Daumenkino-Erklärung**: Integrierte Erklärung im Hilfemenü (*"Was ist ein Daumenkino & wie entsteht die Kino-Illusion im Auge?"*) mit 4-Schritte-Bastelanleitung (Ausdrucken, Ausschneiden, Stapeln, Tackern).
 * **Pädagogischer Mehrwert**: Verständnis von Filmaufbau und Bildfrequenz (Kino-Illusion), Feinmotorik, Raum-Bewegungskonzepte, haptisch-digitales Lernerlebnis.
@@ -64,7 +67,8 @@ Das **MedienStation Hub** ist eine interaktive Kiosk-Anwendung, die speziell fü
   - 12 kindgerechte Farben inkl. Schwamm/Radierer und deutlichem Leucht-Aktiv-Indikator.
   - **`↩️ ZURÜCK` (Undo)** zum schrittweisen Ausbessern von Fehlern.
   - **8-Bit Retro-Soundeffekt** beim Zeichnen für direktes taktiles Feedback.
-  - Schärfegetreuer Ausdruck und Speichern in der Galerie der Meisterwerke.
+  - Schärfegetreuer Ausdruck, direkter **`📄 PORTFOLIO`**-Druckbogen und Speichern in der Galerie der Meisterwerke.
+  - Einheitlicher, extragroßer **`🏠 MENÜ`**-Button für intuitive Rückkehr zur Übersicht.
 * **Pädagogischer Mehrwert**: Abstraktionsvermögen, Feinmotorik, Verständnis digitaler Rastergrafik ("Pixel als Bausteine der digitalen Welt").
 
 ### 7. 📸 Comic Story (Fotogeschichten)
@@ -99,7 +103,8 @@ Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/gal
 - **Navigation-Safe Sync-First Pattern**: Sofortige synchrone Sicherung schützt Werke auch bei plötzlichem App-Wechsel.
 - **PWA Persistent Storage (`navigator.storage.persist()`)**: Markiert die Galerie im OS/Browser als schützenswert vor automatischer Datenlöschung.
 - **Kindgerechtes Einzellöschen (`🗑️`)**: Jedes Werk kann in der Rasteransicht einzeln gelöscht werden, ohne andere Werke zu beeinträchtigen.
-- **🔍 Fullscreen-Lightbox**: Klick auf ein Werk öffnet eine Großansicht mit Zoom, Video- und Audio-Player.
+- **🔍 Fullscreen-Lightbox mit Video- & Audiowiedergabe**: Klick auf ein Werk öffnet eine Großansicht mit Zoom, Audio-Player für Stimmen/Beats und echtem HTML5-Videoplayer für Stop-Motion-Filme.
+- **📄 1-Klick DIN A4 Kita-Portfolio-Bogen (`📄 Portfolio`)**: Erstellt direkt aus der Galerie oder Einzel-App einen professionellen Portfolio-Bogen nach anerkannten bildungspädagogischen Standards (mit Einrichtungsname, Werktitel, Datum und liniertem Reflexions-/Beobachtungsfeld für Fachkräfte).
 - **💾 Speicherbelegungs-Anzeige**: Transparente Anzeige des belegten Speicherplatzes in MB.
 
 ### 📥 100% Offline-ZIP-Export:
@@ -107,22 +112,25 @@ Die Station verfügt über eine zentrale **Galerie der Meisterwerke** (`apps/gal
 
 ---
 
-## 🔒 Datensparsamkeit & Datenschutz (DSGVO)
+## 🔒 Datensparsamkeit & Speicher-/Löschstrategie (DSGVO)
 
-Das MedienStation Hub erfüllt höchste Anforderungen an den Datenschutz und die Datensparsamkeit im Bildungsbereich:
+Das MedienStation Hub erfüllt höchste Anforderungen an den Datenschutz und die Datensparsamkeit im Bildungsbereich. Das Speicher- und Löschkonzept unterscheidet klar zwischen **Kinddaten** und **Einrichtungs-Infrastruktur**:
 
-1. **100% Lokale Datenverarbeitung (No Cloud / No Tracking)**:
-   - Es werden **keinerlei Daten, Fotos oder Audioaufnahmen in das Internet oder auf externe Server übertragen**.
-   - Das System besitzt kein Tracking, keine Analysedienste, keine Nutzerkonten und keine Telemetrie.
-   - Alle Berechnungen (z. B. Hintergrundfreistellung per KI) finden ausschließlich lokal auf dem Endgerät statt.
+### 1. Kind-generierte Daten & Meisterwerke (Vollständiger Auto-Reset)
+* **Betrifft**: Alle Fotos (Selfies, Comics, News), Sprachaufnahmen, Sound-Collagen, Pixel-Bilder und **Stop-Motion-Videodateien** (`type: 'video'`).
+* **Speicherort**: Ausschließlich lokal im sandboxed Browser-Speicher (`IndexedDB: MedienStationDB_v5`).
+* **Automatischer Tages-Reset (Standard nach Art. 5 Abs. 1 lit. e DSGVO)**: Um 00:00 Uhr bzw. beim ersten Start am Folgetag werden sämtliche Meisterwerke vollständig, automatisch und unwiderruflich gelöscht.
+* **Projektwochen-Modus (7 Tage)**: Für mehrtägige Projekte (z. B. Trickfilm-Woche) kann im Admin-Menü ein 7-Tage-Laufzeitfenster gewählt werden.
+* **Manuelle Sofort-Löschung**: Kinder können eigene Werke per `🗑️` einzeln entfernen; Fachkräfte können die gesamte Galerie im Admin-Bereich mit einem Klick (`🧹 Galerie leeren`) leeren.
 
-2. **Automatische Session-Bereinigung**:
-   - Sobald eine Anwendung verlassen wird (`Menü`-Button) oder der automatische Inaktivitäts-Timer abläuft, werden **alle temporär erstellten Rohdaten und Kamera-Streams hardwareseitig sofort deaktiviert**.
+### 2. Kita-Portfolio-Druckbögen (Flüchtig / On-Demand)
+* Werden beim Klick auf `📄 PORTFOLIO` **on-the-fly im Browser gerendert** und direkt an den Druckertreiber übergeben.
+* Es entstehen **keine separaten Speicherdateien oder Dateileichen** auf dem Endgerät. Nach dem Druck oder Schließen des Druckdialogs verbleiben keine zusätzlichen Daten.
 
-3. **Automatischer täglicher Galerie-Reset (DSGVO-Speicherbegrenzung)**:
-   - Die lokale Galerie speichert erstellte Fotos und Sounds standardmäßig für die Dauer des Kita-Tages (z. B. zum Präsentieren beim Abholen).
-   - Bei jedem neuen Tag (beim ersten Start am neuen Datum) wird die Galerie automatisch und vollständig zurückgesetzt (Art. 5 Abs. 1 lit. e DSGVO).
-   - Fachkräfte können im Admin-Menü bei Bedarf einen **7-tägigen Projekt-Modus** aktivieren, um laufende Filme oder Comics über Nacht zu behalten.
+### 3. Einrichtungs- & Fachkraft-Einstellungen (Dauerhafte Infrastruktur)
+* **Betrifft**: Einrichtungsname (für Portfolio-Bögen), trägereigene Kita-Hintergrundfotos, Master-Lautstärke, Admin-PIN und Kamera-Pausierung.
+* **Verhalten**: Diese administrativen Konfigurationen **überstehen den täglichen Reset bewusst**, damit Fachkräfte nicht jeden Morgen erneut den Gruppennamen oder die Fotos des Außengeländes hinterlegen müssen.
+* **Löschung**: Eigene Hintergründe können im Admin-Bereich jederzeit einzeln über das Mülleimer-Symbol `🗑️` gelöscht werden; der Einrichtungsname kann jederzeit geändert oder geleert werden.
 
 ---
 
@@ -130,6 +138,12 @@ Das MedienStation Hub erfüllt höchste Anforderungen an den Datenschutz und die
 
 Das PIN-geschützte Fachkraft-Dashboard ist über den Button **„⚙️ Einstellungen“** in der Kopfzeile oder diskret durch **5× Antippen des Titels „Deine Mission“** erreichbar. Die PIN-Eingabe erfolgt komfortabel über ein großes Touch-Zahlenfeld direkt auf dem Tablet (Standard-PIN: `1234`, jederzeit änderbar):
 
+* 🏫 **Kita- & Einrichtungsname**:
+  - Hinterlegung des Einrichtungsnamens (z. B. *„Kath. Kita St. Ulrich“*), der automatisch auf allen DIN A4 Portfolio-Druckbögen erscheint.
+* 🏡 **Eigene Kita-Hintergründe (Zauber Selfie)**:
+  - Lokaler Upload von bis zu 3 vertrauten Fotos aus dem Kita-Alltag (Gruppenraum, Garten, Turnhalle).
+  - Automatische lokale Bildkomprimierung (unter 400 KB) zur Schonung des Tablet-Speichers.
+  - Live-Vorschau und kindersichere Einzel-Löschung (`🗑️`).
 * 🔊 **Master-Lautstärke & Ruhezeit-Modus**:
   - **Normal (100%)**: Volle Lautstärke für den regulären Gruppenraum-Betrieb.
   - **Flüstern (35%)**: Gedämpfte Klangwiedergabe bei lauter Gruppenatmosphäre zur Entlastung des pädagogischen Personals.
