@@ -100,6 +100,9 @@
         if (modal) {
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
+            if (typeof window.initAppLanguageSwitcher === 'function') {
+                try { window.initAppLanguageSwitcher(); } catch(e) {}
+            }
         }
     };
 
@@ -603,7 +606,7 @@
         // App-Pills aktualisieren
         const langConfig = window.LANGUAGES[lang];
         document.querySelectorAll('.app-lang-pill').forEach(pill => {
-            pill.innerHTML = `<span>${langConfig.flag}</span><span class="text-[10px] sm:text-xs font-black">${langConfig.label}</span>`;
+            pill.innerHTML = `<span class="text-sm sm:text-base">${langConfig.flag}</span><span class="text-[11px] sm:text-xs font-black tracking-tight">${langConfig.label}</span>`;
             pill.title = `Sprache: ${langConfig.name} (Tippen zum Wechseln)`;
         });
 
@@ -864,21 +867,121 @@
         }
     };
 
+    // Globaler, touch-freundlicher Sprachauswahl-Dialog (Modal auf document.body gegen Overflow-Clipping auf Mobilgeräten)
+    window.openLanguagePicker = function(onSelectCallback) {
+        if (window.playSound) window.playSound('click');
+        let modal = document.getElementById('global-language-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'global-language-modal';
+            modal.className = 'fixed inset-0 z-[99999999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 transition-opacity duration-200 opacity-0 hidden';
+            document.body.appendChild(modal);
+        }
+
+        const currentLang = window.getLanguage ? window.getLanguage() : 'de';
+        const langs = window.LANGUAGES || {
+            de: { code: 'de-DE', flag: '🇩🇪', name: 'Deutsch', label: 'DE', hello: 'Hallo!' },
+            en: { code: 'en-US', flag: '🇬🇧', name: 'English', label: 'EN', hello: 'Hello!' },
+            uk: { code: 'uk-UA', flag: '🇺🇦', name: 'Українська', label: 'UK', hello: 'Привіт!' },
+            tr: { code: 'tr-TR', flag: '🇹🇷', name: 'Türkçe', label: 'TR', hello: 'Merhaba!' },
+            ar: { code: 'ar-SA', flag: '🇸🇾', name: 'العربية', label: 'AR', hello: 'مرحباً!' }
+        };
+
+        let optionsHtml = '';
+        Object.keys(langs).forEach(lKey => {
+            const l = langs[lKey];
+            const isSelected = lKey === currentLang;
+            optionsHtml += `
+                <button type="button" data-lang-choice="${lKey}" class="w-full min-h-[58px] sm:min-h-[64px] px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-2xl font-black text-sm sm:text-base flex items-center justify-between transition-all cursor-pointer border-2 active:scale-[0.98] ${
+                    isSelected
+                        ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-lg scale-[1.01]'
+                        : 'bg-slate-800/95 text-white border-slate-700 hover:border-slate-500 hover:bg-slate-800'
+                }">
+                    <span class="flex items-center gap-3 pointer-events-none text-left">
+                        <span class="text-3xl sm:text-4xl shrink-0">${l.flag}</span>
+                        <span class="leading-tight">
+                            <span class="block text-base sm:text-lg font-black">${l.name}</span>
+                            <span class="text-xs font-semibold ${isSelected ? 'text-slate-900' : 'text-slate-400'}">${l.hello}</span>
+                        </span>
+                    </span>
+                    <span class="text-xs font-black uppercase px-2.5 py-1 rounded-full shrink-0 pointer-events-none ${isSelected ? 'bg-slate-950 text-amber-400' : 'bg-slate-700 text-slate-300'}">
+                        ${isSelected ? '✓ Aktiv' : l.label}
+                    </span>
+                </button>
+            `;
+        });
+
+        modal.innerHTML = `
+            <div class="bg-slate-900 border-4 border-amber-400 rounded-[2.5rem] max-w-sm sm:max-w-md w-full p-5 sm:p-7 shadow-2xl relative text-center transform scale-95 transition-transform duration-200" onclick="event.stopPropagation()">
+                <button id="close-lang-modal-btn" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-bold w-10 h-10 flex items-center justify-center rounded-full bg-slate-800/80 active:scale-95 transition cursor-pointer" aria-label="Schließen">✕</button>
+                <div class="text-3xl sm:text-4xl mb-1">🌍</div>
+                <h3 class="text-xl sm:text-2xl font-black text-white mb-0.5">Sprache wählen</h3>
+                <p class="text-xs sm:text-sm text-slate-300 font-bold mb-4">Select Language • Оберіть мову</p>
+                <div class="flex flex-col gap-2 sm:gap-2.5 max-h-[60vh] overflow-y-auto pr-1">
+                    ${optionsHtml}
+                </div>
+            </div>
+        `;
+
+        const closeModal = () => {
+            modal.classList.add('opacity-0');
+            const content = modal.firstElementChild;
+            if (content) content.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        };
+
+        const closeBtn = modal.querySelector('#close-lang-modal-btn');
+        if (closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); closeModal(); };
+
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+
+        modal.querySelectorAll('[data-lang-choice]').forEach(btn => {
+            const handleSelect = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                const chosen = btn.getAttribute('data-lang-choice');
+                if (window.setLanguage) window.setLanguage(chosen, false);
+                closeModal();
+                if (typeof onSelectCallback === 'function') {
+                    setTimeout(() => {
+                        try { onSelectCallback(chosen); } catch(err) { console.warn(err); }
+                    }, 60);
+                }
+            };
+            btn.onclick = handleSelect;
+        });
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        requestAnimationFrame(() => {
+            modal.classList.remove('opacity-0');
+            const content = modal.firstElementChild;
+            if (content) {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }
+        });
+    };
+
     window.initAppLanguageSwitcher = function() {
-        // Falls wir auf index.html sind, übernimmt das Hauptmenü
-        if (document.getElementById('main-lang-bar')) return;
-        
         const speakBtns = document.querySelectorAll('button[title*="Vorlesen"], button[title*="vorlesen"]');
         if (!speakBtns || speakBtns.length === 0) return;
 
         speakBtns.forEach(speakBtn => {
             if (speakBtn.parentElement && speakBtn.parentElement.querySelector('.app-lang-pill-wrap')) return;
 
-            const currentLang = window.getLanguage();
-            const langConfig = window.LANGUAGES[currentLang] || window.LANGUAGES.de;
+            const currentLang = window.getLanguage ? window.getLanguage() : 'de';
+            const langConfig = (window.LANGUAGES && window.LANGUAGES[currentLang]) || { flag: '🇩🇪', label: 'DE', name: 'Deutsch' };
 
             const wrap = document.createElement('div');
-            wrap.className = 'app-lang-pill-wrap relative inline-flex items-center shrink-0 mr-2 sm:mr-3';
+            wrap.className = 'app-lang-pill-wrap inline-flex items-center shrink-0 mr-1.5 sm:mr-3';
             if (speakBtn.classList.contains('ml-auto')) {
                 speakBtn.classList.remove('ml-auto');
                 wrap.classList.add('ml-auto');
@@ -886,45 +989,25 @@
 
             const pill = document.createElement('button');
             pill.type = 'button';
-            pill.className = 'app-lang-pill bg-slate-800/90 hover:bg-slate-700 text-white font-black text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-500 shadow-md flex items-center gap-1 active:scale-95 transition-all cursor-pointer';
-            pill.innerHTML = `<span>${langConfig.flag}</span><span class="text-[10px] sm:text-xs font-black">${langConfig.label}</span>`;
+            pill.className = 'app-lang-pill bg-slate-800/90 hover:bg-slate-700 text-white font-black text-xs sm:text-sm px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full border border-slate-500 shadow-md flex items-center gap-1 sm:gap-1.5 active:scale-95 transition-all cursor-pointer min-h-[36px] sm:min-h-[40px] touch-manipulation';
+            pill.innerHTML = `<span class="text-sm sm:text-base">${langConfig.flag}</span><span class="text-[11px] sm:text-xs font-black tracking-tight">${langConfig.label}</span>`;
             pill.title = `Sprache: ${langConfig.name} (Tippen zum Wechseln)`;
 
-            const popover = document.createElement('div');
-            popover.className = 'app-lang-popover hidden absolute top-full right-0 mt-2 bg-slate-900/95 backdrop-blur-md border border-slate-600 rounded-2xl p-1.5 shadow-2xl flex flex-col gap-1 z-[999999] min-w-[130px]';
-
-            Object.keys(window.LANGUAGES).forEach(lKey => {
-                const l = window.LANGUAGES[lKey];
-                const opt = document.createElement('button');
-                opt.type = 'button';
-                opt.className = `flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black text-left transition-all cursor-pointer ${lKey === currentLang ? 'bg-amber-400 text-slate-950' : 'text-slate-200 hover:bg-slate-800'}`;
-                opt.innerHTML = `<span class="text-base">${l.flag}</span> <span>${l.name}</span>`;
-                opt.onclick = (e) => {
+            const triggerPicker = (e) => {
+                if (e) {
+                    e.preventDefault();
                     e.stopPropagation();
-                    window.setLanguage(lKey, false);
-                    popover.classList.add('hidden');
-                    popover.querySelectorAll('button').forEach(b => {
-                        b.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black text-left transition-all cursor-pointer text-slate-200 hover:bg-slate-800';
-                    });
-                    opt.className = 'flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-black text-left transition-all cursor-pointer bg-amber-400 text-slate-950';
-                    // Sofort in der neuen Sprache vorlesen
-                    speakBtn.click();
-                };
-                popover.appendChild(opt);
-            });
-
-            pill.onclick = (e) => {
-                e.stopPropagation();
-                popover.classList.toggle('hidden');
+                }
+                window.openLanguagePicker((chosenLang) => {
+                    if (speakBtn) {
+                        try { speakBtn.click(); } catch(err) { console.warn(err); }
+                    }
+                });
             };
 
-            document.addEventListener('click', () => {
-                if (!popover.classList.contains('hidden')) popover.classList.add('hidden');
-            });
+            pill.onclick = triggerPicker;
 
             wrap.appendChild(pill);
-            wrap.appendChild(popover);
-
             speakBtn.parentNode.insertBefore(wrap, speakBtn);
         });
     };

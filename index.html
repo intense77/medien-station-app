@@ -115,11 +115,11 @@
                 </div>
 
                 <!-- Mittlere Zeile: Mission-Text + Lautsprecher auf gleicher Höhe -->
-                <div class="flex items-center gap-2.5 sm:gap-3 my-auto py-1 z-10">
-                    <span id="mission-text" onclick="triggerAdmin()" class="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white leading-tight cursor-pointer truncate max-w-[280px] sm:max-w-[420px] md:max-w-[500px]">
+                <div class="flex items-center gap-2 sm:gap-2.5 my-auto py-1 z-10 w-full">
+                    <span id="mission-text" onclick="triggerAdmin()" class="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white leading-tight cursor-pointer truncate flex-1 min-w-0 max-w-[200px] xs:max-w-[280px] sm:max-w-[440px] md:max-w-[520px]">
                         Wähle eine App! 👉
                     </span>
-                    <button onclick="readMission(event)" class="bg-slate-700/90 hover:bg-slate-600 active:scale-95 text-white rounded-full w-8 h-8 md:w-9 md:h-9 flex items-center justify-center shadow-md border border-slate-500 transition shrink-0 text-sm md:text-base cursor-pointer" title="Mission vorlesen" aria-label="Mission vorlesen">
+                    <button onclick="readMission(event)" class="bg-slate-700/90 hover:bg-slate-600 active:scale-95 text-white rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center shadow-md border border-slate-500 transition shrink-0 text-base sm:text-lg cursor-pointer" title="Mission vorlesen" aria-label="Mission vorlesen">
                         🔊
                     </button>
                 </div>
@@ -541,6 +541,38 @@
                     </div>
                 </div>
 
+                <!-- Sektion: Sprache der MedienStation -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                            <span>🌍</span> Sprache der Station
+                        </span>
+                        <span id="admin-current-lang-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-700">Deutsch 🇩🇪</span>
+                    </div>
+
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Wähle die Sprache für die Vorlesestimme, Missions-Aufgaben und Hilfe-Texte in allen Apps:
+                    </p>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        <button type="button" data-admin-lang="de" onclick="window.setLanguage('de', true)" class="admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer">
+                            <span class="text-base">🇩🇪</span> <span>Deutsch</span>
+                        </button>
+                        <button type="button" data-admin-lang="en" onclick="window.setLanguage('en', true)" class="admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer">
+                            <span class="text-base">🇬🇧</span> <span>English</span>
+                        </button>
+                        <button type="button" data-admin-lang="uk" onclick="window.setLanguage('uk', true)" class="admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer">
+                            <span class="text-base">🇺🇦</span> <span>Українська</span>
+                        </button>
+                        <button type="button" data-admin-lang="tr" onclick="window.setLanguage('tr', true)" class="admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer">
+                            <span class="text-base">🇹🇷</span> <span>Türkçe</span>
+                        </button>
+                        <button type="button" data-admin-lang="ar" onclick="window.setLanguage('ar', true)" class="admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer col-span-2 sm:col-span-1">
+                            <span class="text-base">🇸🇾</span> <span>العربية</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Sektion 5: Hardware- & Sensor-Diagnose -->
                 <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
                     <div class="flex items-center justify-between">
@@ -789,11 +821,15 @@
 
         function syncAdminLangUI() {
             const currentLang = window.getLanguage ? window.getLanguage() : 'de';
+            const langConfig = (window.LANGUAGES && window.LANGUAGES[currentLang]) || { name: 'Deutsch', flag: '🇩🇪' };
+            const badge = document.getElementById('admin-current-lang-badge');
+            if (badge) badge.innerText = `${langConfig.name} ${langConfig.flag}`;
+
             document.querySelectorAll('.admin-lang-btn').forEach(b => {
                 if (b.getAttribute('data-admin-lang') === currentLang) {
-                    b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-black border transition cursor-pointer bg-cyan-600 text-white border-cyan-400 shadow-md';
+                    b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer bg-amber-400 text-slate-950 border-amber-300 shadow-md scale-105';
                 } else {
-                    b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2 rounded-xl text-xs font-black border transition cursor-pointer bg-slate-900/60 text-slate-300 border-slate-700 hover:border-slate-500';
+                    b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer bg-slate-900/60 text-slate-300 border-slate-700 hover:border-slate-500';
                 }
             });
         }
