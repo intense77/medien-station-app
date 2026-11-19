@@ -35,10 +35,12 @@
 </head>
 <body class="flex flex-col p-2 md:p-4 h-full w-full">
       
-    <div class="flex justify-between items-center h-16 mb-2">
-        <button onclick="window.goHome()" class="bg-slate-800 border-4 border-slate-600 px-6 py-2 rounded-full font-black z-50">🏠 MENÜ</button>
-        <h1 class="text-xl md:text-3xl font-black tracking-widest uppercase">✨ MUSIK LABOR</h1>
-        <button onclick="window.toggleInfo()" class="w-12 h-12 bg-slate-800 rounded-full font-bold border-4 border-slate-600 z-50">?</button>
+    <div class="h-16 md:h-20 flex-none flex justify-between items-center z-50 mb-2 md:mb-4 px-1 relative">
+        <button onclick="window.goHome()" class="btn-home bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-sm sm:text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50 cursor-pointer" title="Hauptmenü">
+            🏠 <span>MENÜ</span>
+        </button>
+        <h1 class="text-xl md:text-3xl lg:text-4xl font-black tracking-widest uppercase">✨ MUSIK LABOR</h1>
+        <button onclick="window.toggleInfo()" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50">?</button>
     </div>
 
     <div class="flex flex-wrap justify-center gap-4 mb-4">

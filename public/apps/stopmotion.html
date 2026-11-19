@@ -83,9 +83,8 @@
 
     /* HEADER */
     .trickfilm-header {
-      height: 44px;
-      min-height: 44px;
-      max-height: 44px;
+      height: 48px;
+      min-height: 48px;
       flex-shrink: 0;
       display: flex;
       justify-content: space-between;
@@ -100,9 +99,8 @@
 
     @media (min-width: 768px) {
       .trickfilm-header {
-        height: 52px;
-        min-height: 52px;
-        max-height: 52px;
+        height: 68px;
+        min-height: 68px;
         padding: 0 16px;
       }
     }
@@ -766,6 +764,10 @@
         min-height: 38px;
         max-height: 38px;
       }
+      .trickfilm-header .btn-home {
+        padding: 4px 10px !important;
+        font-size: 0.75rem !important;
+      }
       .app-container {
         padding: 3px 6px;
         gap: 4px;
@@ -815,7 +817,7 @@
   <!-- HEADER -->
   <header class="trickfilm-header">
     <!-- HOMEMENÜ BUTTON LINKS -->
-    <button onclick="window.goHome()" class="bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-3 py-1.5 md:px-5 md:py-2.5 rounded-full text-xs md:text-lg font-black shadow-lg flex items-center gap-1.5 md:gap-2.5 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50" title="Hauptmenü">
+    <button onclick="window.goHome()" class="btn-home bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-sm sm:text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50 cursor-pointer" title="Hauptmenü">
       🏠 <span>MENÜ</span>
     </button>
 
@@ -826,7 +828,7 @@
 
     <!-- HEADER RECHTS: HILFE -->
     <div class="flex items-center gap-2 md:gap-3 z-50">
-      <button onclick="window.toggleInfo(event)" class="w-9 h-9 md:w-12 md:h-12 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-lg flex items-center justify-center transition-transform active:scale-95 text-base md:text-xl shrink-0 z-50" title="Hilfe">
+      <button onclick="window.toggleInfo(event)" class="w-10 h-10 md:w-14 md:h-14 bg-slate-800 text-white rounded-full font-bold border-2 md:border-4 border-slate-600 hover:border-white shadow-xl flex items-center justify-center transition-transform active:scale-95 text-lg md:text-2xl shrink-0 z-50" title="Hilfe">
         ?
       </button>
     </div>

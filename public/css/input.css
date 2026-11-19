@@ -10,6 +10,13 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
+@layer components {
+  /* Einheitlicher Zurück-/Home-Button für alle Apps */
+  .btn-home {
+    @apply bg-slate-800 text-white border-2 md:border-4 border-slate-600 hover:border-white px-4 py-2 md:px-6 md:py-3 rounded-full text-sm sm:text-base md:text-xl font-black shadow-xl flex items-center gap-2 md:gap-3 transition-transform active:scale-95 no-underline focus:outline-none shrink-0 z-50 cursor-pointer;
+  }
+}
+
 
 
 canvas, video, .pixel-grid, .touch-none {
