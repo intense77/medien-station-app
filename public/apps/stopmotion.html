@@ -1713,8 +1713,134 @@
           return printCanvas.toDataURL('image/jpeg', 0.85);
         }
 
-        // Film in Galerie der Meisterwerke speichern
-        window.saveFilmToGallery = function(btn) {
+        // Unterstützten Video-MIME-Type ermitteln (Cross-Browser: WebM oder MP4 für Safari)
+        function getSupportedVideoMimeType() {
+          const types = [
+            'video/webm;codecs=vp9,opus',
+            'video/webm;codecs=vp8,opus',
+            'video/webm',
+            'video/mp4;codecs=avc1',
+            'video/mp4'
+          ];
+          for (const t of types) {
+            if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) {
+              return t;
+            }
+          }
+          return '';
+        }
+
+        // Rendert die Stop-Motion-Frames + optionale Tonspur clientseitig zu einem echten Video-Blob
+        async function renderFilmToVideoBlob() {
+          if (!trickfilmFrames || trickfilmFrames.length === 0) return null;
+
+          const mimeType = getSupportedVideoMimeType();
+          if (!mimeType || typeof HTMLCanvasElement.prototype.captureStream !== 'function') {
+            console.warn("MediaRecorder oder captureStream nicht unterstützt, Fallback auf Collage");
+            return null;
+          }
+
+          const firstFrame = trickfilmFrames[0];
+          const width = firstFrame.width || 800;
+          const height = firstFrame.height || 600;
+
+          const renderCanvas = document.createElement('canvas');
+          renderCanvas.width = width;
+          renderCanvas.height = height;
+          const rCtx = renderCanvas.getContext('2d');
+
+          // Mindestens 12 FPS für captureStream für stabilen Encoder-Stream
+          const captureFps = Math.max(12, trickfilmFps * 2);
+          const stream = renderCanvas.captureStream(captureFps);
+
+          // Optionale Tonspur einmischen
+          let audioDurationSec = 0;
+          if (trickfilmAudioBlob) {
+            try {
+              const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+              if (AudioCtxClass) {
+                const actx = new AudioCtxClass();
+                const arrayBuffer = await trickfilmAudioBlob.arrayBuffer();
+                const audioBuffer = await actx.decodeAudioData(arrayBuffer);
+                audioDurationSec = audioBuffer.duration;
+
+                const dest = actx.createMediaStreamDestination();
+                const srcNode = actx.createBufferSource();
+                srcNode.buffer = audioBuffer;
+                srcNode.connect(dest);
+                const audioTrack = dest.stream.getAudioTracks()[0];
+                if (audioTrack) {
+                  stream.addTrack(audioTrack);
+                }
+                srcNode.start(0);
+              }
+            } catch (audioErr) {
+              console.warn("Konnte Audio nicht in Video einmischen:", audioErr);
+            }
+          }
+
+          // Gesamtlaufzeit: Mindestens 3.5s oder Tonspurlänge (kurze Animationen loopen)
+          const singleCycleSec = trickfilmFrames.length / trickfilmFps;
+          const targetDurationSec = Math.max(audioDurationSec, singleCycleSec >= 3 ? singleCycleSec : Math.ceil(3.5 / singleCycleSec) * singleCycleSec);
+          const totalFramesToDraw = Math.round(targetDurationSec * trickfilmFps);
+          const frameIntervalMs = 1000 / trickfilmFps;
+
+          return new Promise((resolve, reject) => {
+            let recordedChunks = [];
+            let recorder;
+            try {
+              recorder = new MediaRecorder(stream, { mimeType });
+            } catch (e) {
+              try {
+                recorder = new MediaRecorder(stream);
+              } catch (e2) {
+                return reject(e2);
+              }
+            }
+
+            recorder.ondataavailable = (ev) => {
+              if (ev.data && ev.data.size > 0) {
+                recordedChunks.push(ev.data);
+              }
+            };
+
+            recorder.onstop = () => {
+              const blob = new Blob(recordedChunks, { type: recorder.mimeType || mimeType });
+              resolve(blob);
+            };
+
+            recorder.onerror = (recErr) => reject(recErr);
+
+            recorder.start(100);
+
+            let frameIdx = 0;
+            let drawnCount = 0;
+
+            // Erstes Frame zeichnen
+            rCtx.drawImage(trickfilmFrames[0], 0, 0, width, height);
+
+            const drawInterval = setInterval(() => {
+              drawnCount++;
+              frameIdx = (frameIdx + 1) % trickfilmFrames.length;
+              rCtx.clearRect(0, 0, width, height);
+              rCtx.drawImage(trickfilmFrames[frameIdx], 0, 0, width, height);
+
+              if (drawnCount >= totalFramesToDraw) {
+                clearInterval(drawInterval);
+                setTimeout(() => {
+                  try {
+                    if (recorder.state !== 'inactive') recorder.stop();
+                  } catch (err) {
+                    resolve(new Blob(recordedChunks, { type: mimeType }));
+                  }
+                }, 150);
+              }
+            }, frameIntervalMs);
+          });
+        }
+
+        // Film in Galerie der Meisterwerke speichern (als echtes Video oder Daumenkino-Fallback)
+        window.saveFilmToGallery = async function(btn) {
           if (trickfilmFrames.length === 0) {
             alert("Knipse zuerst ein paar Bilder für deinen Film! 📸");
             return;
@@ -1722,27 +1848,71 @@
 
           if (window.playSound) window.playSound('click');
 
+          let origHtml = '';
+          if (btn) {
+            origHtml = btn.innerHTML;
+            btn.innerHTML = '<span>🎬</span> <span>Video rendern...</span>';
+            btn.disabled = true;
+          }
+
           try {
-            const dataUrl = generateFlipbookDataUrl();
+            // 1. Versuch: Echten Video-Clip (WebM / MP4) via Canvas captureStream & MediaRecorder erstellen
+            let videoDataUrl = null;
+            try {
+              const videoBlob = await renderFilmToVideoBlob();
+              if (videoBlob && videoBlob.size > 0) {
+                videoDataUrl = await new Promise((res, rej) => {
+                  const reader = new FileReader();
+                  reader.onload = () => res(reader.result);
+                  reader.onerror = rej;
+                  reader.readAsDataURL(videoBlob);
+                });
+              }
+            } catch (vidErr) {
+              console.warn("Video-Rendering fehlgeschlagen, nutze Daumenkino-Collage:", vidErr);
+            }
+
+            // 2. Speichern in IndexedDB / Meisterwerke
             if (window.saveToMeisterwerke) {
-              window.saveToMeisterwerke({
-                type: 'image',
-                appName: 'Trickfilm Studio',
-                title: `Trickfilm (${trickfilmFrames.length} Bilder)`,
-                dataUrl: dataUrl
-              });
+              if (videoDataUrl) {
+                await window.saveToMeisterwerke({
+                  type: 'video',
+                  appName: 'Trickfilm Studio',
+                  title: `🎬 Trickfilm (${trickfilmFrames.length} Bilder, ${trickfilmFps} B/s)`,
+                  dataUrl: videoDataUrl,
+                  thumbnail: trickfilmFrames[0] ? trickfilmFrames[0].toDataURL('image/jpeg', 0.8) : null
+                });
+              } else {
+                // Fallback: Bild-Collage
+                const dataUrl = generateFlipbookDataUrl();
+                await window.saveToMeisterwerke({
+                  type: 'image',
+                  appName: 'Trickfilm Studio',
+                  title: `Trickfilm (${trickfilmFrames.length} Bilder)`,
+                  dataUrl: dataUrl
+                });
+              }
             }
 
             if (window.playSound) window.playSound('success');
             if (window.triggerCelebration) window.triggerCelebration();
 
             if (btn) {
-              const origHtml = btn.innerHTML;
-              btn.innerHTML = '<span>🌟</span> <span>Gespeichert!</span>';
-              setTimeout(() => { btn.innerHTML = origHtml; }, 2200);
+              btn.innerHTML = '<span>🌟</span> <span>Film Gespeichert!</span>';
+              setTimeout(() => {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+              }, 2200);
             }
           } catch (e) {
             console.error("Fehler beim Speichern in Meisterwerke:", e);
+            if (btn) {
+              btn.innerHTML = '<span>❌</span> <span>Fehler</span>';
+              setTimeout(() => {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+              }, 2000);
+            }
           }
         };
 

@@ -98,8 +98,11 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 - [ ] **Standard-PIN-Warnung & optionaler Mikrofon-Datenschutz im Fachkraft-Menü**:
   - Dezenter Hinweis im Admin-Menü, solange noch die Standard-PIN `1234` gesetzt ist.
   - Optionaler 1-Klick-Schalter, um neben den 5 Kamera-Apps auch Stimmaufnahmen (*Mikro Check*, *Musik Labor*) für besonders strenge Einrichtungen pausieren zu können.
-- [ ] **Echter Video-Export im Trickfilm Studio**:
-  - Neben dem Daumenkino-Druckbogen das fertige Stop-Motion-Video inkl. Tonspur als abspielbaren Video-Clip in der Galerie und im ZIP-Export speichern.
+- [x] **Echter Video-Export im Trickfilm Studio (WebM / MP4 Video)** (Erledigt in v7.9.9):
+  - Clientseitiges Rendern der Stop-Motion-Bilderfolge inkl. optionaler Mikrofon-Tonspur via Canvas `captureStream()` und `MediaRecorder`.
+  - Berücksichtigung des gewählten Tempos (1–12 B/s) und automatische Mindestlaufzeit/Looping für kurze Clips.
+  - Direktes Abspielen im integrierten Videoplayer der Meisterwerke-Galerie und Export als echte Videodatei im Fachkraft-ZIP.
+  - Unverändert vollwertiger Daumenkino-Druckbogen (`🖨️ Daumenkino`) für haptisches Basteln.
 - [x] **Eigene Kita-Hintergründe im Zauber Selfie (100 % lokal)** (Erledigt in v7.9.9):
   - Fachkräfte können im Admin-Menü bis zu 3 eigene Projekt-Hintergründe (z. B. Waldtag, Kita-Garten, Sommerfest) hochladen und verwalten.
   - Vollständig clientseitig komprimiert und lokal gespeichert – komplett ohne Cloud, 100 % DSGVO-konform.
