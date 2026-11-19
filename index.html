@@ -445,6 +445,24 @@
                     </div>
                 </div>
 
+                <!-- Sektion: Eigene Kita-Hintergründe für Zauber Selfie -->
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
+                            <span>🏡</span> Eigene Kita-Hintergründe (Zauber Selfie)
+                        </span>
+                        <span id="admin-custom-bg-count" class="text-xs font-bold text-slate-300">0 / 3 Hintergründe</span>
+                    </div>
+
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Lade bis zu 3 eigene Fotos (z. B. Kita-Garten, Bauecke, Waldtag) hoch. Sie stehen den Kindern sofort im Zauber Selfie zur Verfügung – 100 % lokal & ohne Cloud.
+                    </p>
+
+                    <div id="admin-custom-bg-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <!-- Dynamisch gerendert -->
+                    </div>
+                </div>
+
                 <!-- Sektion 4: Master-Lautstärke & Ruhezeit -->
                 <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 flex flex-col gap-3">
                     <div class="flex items-center justify-between">
@@ -958,7 +976,10 @@
                 facilityInput.value = localStorage.getItem('medienstation_facility_name') || '';
             }
 
-            // 6. Hardware- & Sensor-Diagnose starten
+            // 6. Eigene Kita-Hintergründe für Zauber Selfie synchronisieren
+            renderAdminCustomBgs();
+
+            // 7. Hardware- & Sensor-Diagnose starten
             runDiagnostics();
 
             modal.classList.remove('hidden');
@@ -1167,6 +1188,86 @@
                 if (window.playSound) window.playSound('success');
                 if (window.showCustomAlert) {
                     window.showCustomAlert(trimmed ? `Einrichtungsname gespeichert:\n"${trimmed}"` : 'Einrichtungsname zurückgesetzt.', '🏫');
+                }
+            }
+        }
+
+        // --- EIGENE KITA-HINTERGRÜNDE VERWALTUNG (ZAUBER SELFIE) ---
+        function renderAdminCustomBgs() {
+            const listEl = document.getElementById('admin-custom-bg-list');
+            const countBadge = document.getElementById('admin-custom-bg-count');
+            if (!listEl) return;
+
+            const items = window.getCustomBackgrounds ? window.getCustomBackgrounds() : [];
+            if (countBadge) countBadge.innerText = `${items.length} / 3 Hintergründe`;
+
+            let html = '';
+            // Bereits hochgeladene Hintergründe anzeigen
+            items.forEach((it, idx) => {
+                const safeName = (it.name || 'Kita-Foto').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                html += `
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-2.5 flex flex-col items-center justify-between gap-2 relative overflow-hidden group shadow">
+                        <div class="w-full h-24 rounded-lg overflow-hidden bg-slate-950 relative border border-slate-800">
+                            <img src="${it.dataUrl}" alt="${safeName}" class="w-full h-full object-cover">
+                            <span class="absolute top-1 left-1 bg-amber-500 text-slate-950 font-black text-[10px] px-1.5 py-0.5 rounded shadow">#${idx + 1}</span>
+                        </div>
+                        <div class="w-full flex items-center justify-between gap-1">
+                            <span class="text-xs font-bold text-white truncate" title="${safeName}">🏡 ${safeName}</span>
+                            <button type="button" onclick="adminDeleteCustomBg('${it.id}')" class="text-red-400 hover:text-red-300 hover:bg-red-950/60 p-1 rounded transition text-xs shrink-0 cursor-pointer" title="Hintergrund entfernen">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Freie Slots (bis zu maximal 3)
+            for (let i = items.length; i < 3; i++) {
+                html += `
+                    <label class="bg-slate-900/60 hover:bg-slate-900 border-2 border-dashed border-slate-700 hover:border-amber-400 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 transition cursor-pointer min-h-[120px] text-center">
+                        <input type="file" accept="image/*" class="hidden" onchange="adminUploadCustomBg(this)">
+                        <span class="text-2xl">➕</span>
+                        <span class="text-xs font-bold text-slate-300">Foto hinzufügen</span>
+                        <span class="text-[10px] text-slate-500 font-medium">Slot ${i + 1}</span>
+                    </label>
+                `;
+            }
+
+            listEl.innerHTML = html;
+        }
+
+        async function adminUploadCustomBg(input) {
+            if (!input || !input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const defaultName = file.name ? file.name.replace(/\.[^/.]+$/, '').slice(0, 20) : 'Kita-Foto';
+            
+            let name = prompt('Name für diesen Hintergrund (z. B. Kita-Garten, Bauecke, Waldtag):', defaultName);
+            if (name === null) {
+                input.value = '';
+                return;
+            }
+            name = (name || defaultName).trim();
+
+            try {
+                if (window.saveCustomBackground) {
+                    await window.saveCustomBackground(file, name);
+                    if (window.playSound) window.playSound('success');
+                    if (window.showCustomAlert) window.showCustomAlert(`✅ Hintergrund "${name}" gespeichert!`, '🏡');
+                    renderAdminCustomBgs();
+                }
+            } catch(e) {
+                console.error('Fehler beim Speichern des Hintergrunds:', e);
+                alert('Fehler beim Laden des Fotos.');
+            }
+            input.value = '';
+        }
+
+        function adminDeleteCustomBg(id) {
+            if (confirm('Diesen Kita-Hintergrund wirklich entfernen?')) {
+                if (window.deleteCustomBackground) {
+                    window.deleteCustomBackground(id);
+                    if (window.playSound) window.playSound('click');
+                    renderAdminCustomBgs();
                 }
             }
         }

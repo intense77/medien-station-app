@@ -2001,6 +2001,94 @@
         }
     };
 
+    // --- 16. Eigene Kita-Hintergründe für Zauber Selfie (100% lokal, Offline-PWA) ---
+    const CUSTOM_BG_KEY = 'medienstation_custom_backgrounds';
+    const MAX_CUSTOM_BGS = 3;
+
+    window.getCustomBackgrounds = function() {
+        try {
+            const raw = localStorage.getItem(CUSTOM_BG_KEY);
+            if (raw) {
+                const list = JSON.parse(raw);
+                if (Array.isArray(list)) return list.slice(0, MAX_CUSTOM_BGS);
+            }
+        } catch(e) {
+            console.warn('[MedienStation] Error reading custom backgrounds:', e);
+        }
+        return [];
+    };
+
+    window.compressImageToDataUrl = function(fileOrDataUrl, maxWidth = 1280, maxHeight = 720, quality = 0.82) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+                let w = img.naturalWidth || img.width;
+                let h = img.naturalHeight || img.height;
+                const ratio = Math.min(maxWidth / w, maxHeight / h, 1);
+                const targetW = Math.round(w * ratio);
+                const targetH = Math.round(h * ratio);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = targetW;
+                canvas.height = targetH;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, targetW, targetH);
+                const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                img.onload = null;
+                img.onerror = null;
+                resolve(dataUrl);
+            };
+            img.onerror = (e) => reject(e);
+
+            if (typeof fileOrDataUrl === 'string') {
+                img.src = fileOrDataUrl;
+            } else if (fileOrDataUrl instanceof Blob || fileOrDataUrl instanceof File) {
+                const reader = new FileReader();
+                reader.onload = (re) => { img.src = re.target.result; };
+                reader.onerror = (re) => reject(re);
+                reader.readAsDataURL(fileOrDataUrl);
+            } else {
+                reject(new Error('Ungültiges Bild'));
+            }
+        });
+    };
+
+    window.saveCustomBackground = async function(fileOrDataUrl, name = '') {
+        try {
+            const compressedDataUrl = await window.compressImageToDataUrl(fileOrDataUrl, 1280, 720, 0.82);
+            const current = window.getCustomBackgrounds();
+            const id = 'custom_' + Date.now();
+            const cleanName = (name || '').trim() || ('Kita ' + (current.length + 1));
+            const newItem = {
+                id: id,
+                name: cleanName,
+                dataUrl: compressedDataUrl,
+                timestamp: Date.now()
+            };
+
+            if (current.length >= MAX_CUSTOM_BGS) {
+                current.shift(); // Ältestes ersetzen, maximal 3
+            }
+            current.push(newItem);
+            localStorage.setItem(CUSTOM_BG_KEY, JSON.stringify(current));
+            return newItem;
+        } catch(e) {
+            console.error('[MedienStation] saveCustomBackground error:', e);
+            throw e;
+        }
+    };
+
+    window.deleteCustomBackground = function(id) {
+        try {
+            const current = window.getCustomBackgrounds().filter(it => it.id !== id);
+            localStorage.setItem(CUSTOM_BG_KEY, JSON.stringify(current));
+            return true;
+        } catch(e) {
+            console.warn('[MedienStation] deleteCustomBackground error:', e);
+            return false;
+        }
+    };
+
     // Sofort beim Start ausführen
     window.checkDailyGalleryCleanup();
 
