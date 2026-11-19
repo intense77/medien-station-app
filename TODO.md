@@ -90,6 +90,11 @@ Sie konkurriert nicht mit hochkomplexer Produktionssoftware für Jugendliche/Erw
 ---
 
 ### 🟣 Phase 4: Weiterentwicklung & Differenzierung (Post-Pilot)
+- [x] **1-Klick Kita-Portfolio-Druckbogen (DIN A4 für Entwicklungsordner)** (Erledigt in v7.9.9):
+  - Ausfallsicheres A4-Layout mit 20 mm Abheftrand links & Lochermarkierungen (`○`).
+  - Individueller Kita-/Einrichtungsname im PIN-geschützten Fachkraft-Menü konfigurierbar.
+  - Vorgefertigte Felder: Gestaltet von, Werktitel, Schreiblinien für Kinder-Zitate / O-Töne der Fachkraft sowie Smiley-Bewertungsskala (`😃 😊 🤔 🥳 ⭐`) zum Einkreisen.
+  - Direkte 1-Klick-Druckoptionen in der Galerie (Karten & Großansicht) sowie in *Zauber Selfie*, *Pixel Labor* und *Comic Story*.
 - [ ] **Standard-PIN-Warnung & optionaler Mikrofon-Datenschutz im Fachkraft-Menü**:
   - Dezenter Hinweis im Admin-Menü, solange noch die Standard-PIN `1234` gesetzt ist.
   - Optionaler 1-Klick-Schalter, um neben den 5 Kamera-Apps auch Stimmaufnahmen (*Mikro Check*, *Musik Labor*) für besonders strenge Einrichtungen pausieren zu können.

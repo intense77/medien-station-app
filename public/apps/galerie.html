@@ -204,12 +204,17 @@
                             🗑️
                         </button>
                     </div>
-                    <div class="w-full flex items-center justify-between gap-2">
+                    <div class="w-full flex items-center justify-between gap-1.5">
                         <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${safeAppName}</span>
                         ${isImage && window.printImage ? `
-                            <button onclick="event.stopPropagation(); if(window.printMeisterwerk) window.printMeisterwerk('${safeId}'); else window.printImage('${dataUrl}', '${safeAppName}');" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
-                                🖨️ Drucken
-                            </button>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <button onclick="event.stopPropagation(); if(window.printMeisterwerk) window.printMeisterwerk('${safeId}'); else window.printImage('${dataUrl}', '${safeAppName}');" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold py-1 px-2 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 cursor-pointer" title="Foto drucken">
+                                    🖨️
+                                </button>
+                                <button onclick="event.stopPropagation(); if(window.printMeisterwerkPortfolio) window.printMeisterwerkPortfolio('${safeId}'); else if(window.printPortfolioSheet) window.printPortfolioSheet('${dataUrl}', { appName: '${safeAppName}' });" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-1 px-2 rounded-lg shadow border border-emerald-400 active:scale-95 transition flex items-center gap-1 cursor-pointer" title="DIN A4 Portfolio-Bogen drucken">
+                                    📄
+                                </button>
+                            </div>
                         ` : ''}
                     </div>
                 </div>

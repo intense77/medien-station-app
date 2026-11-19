@@ -1776,6 +1776,11 @@ video {
   border-color: rgb(8 145 178 / var(--tw-border-opacity, 1));
 }
 
+.border-emerald-400 {
+  --tw-border-opacity: 1;
+  border-color: rgb(52 211 153 / var(--tw-border-opacity, 1));
+}
+
 .border-emerald-400\/30 {
   border-color: rgb(52 211 153 / 0.3);
 }
@@ -2681,6 +2686,11 @@ video {
   padding-right: 0.75rem;
 }
 
+.px-3\.5 {
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+}
+
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -3191,6 +3201,16 @@ video {
 
 .underline-offset-2 {
   text-underline-offset: 2px;
+}
+
+.placeholder-slate-500::-moz-placeholder {
+  --tw-placeholder-opacity: 1;
+  color: rgb(100 116 139 / var(--tw-placeholder-opacity, 1));
+}
+
+.placeholder-slate-500::placeholder {
+  --tw-placeholder-opacity: 1;
+  color: rgb(100 116 139 / var(--tw-placeholder-opacity, 1));
 }
 
 .accent-amber-500 {
@@ -3755,6 +3775,11 @@ canvas, video, .pixel-grid, .touch-none {
 .hover\:brightness-110:hover {
   --tw-brightness: brightness(1.1);
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.focus\:border-amber-400:focus {
+  --tw-border-opacity: 1;
+  border-color: rgb(251 191 36 / var(--tw-border-opacity, 1));
 }
 
 .focus\:bg-blue-900\/50:focus {

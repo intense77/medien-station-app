@@ -373,3 +373,333 @@ window.printImage = function(source, jobName, btn, bypassHint = false) {
         showPrintAndRestoreError();
     }
 };
+
+/**
+ * Kita-Portfolio-Druckbogen (DIN A4):
+ * Druckt ein pädagogisch formatiertes A4-Portfolioblatt mit Abheftzone, Einrichtungsname,
+ * Notizlinien für O-Töne des Kindes und Smiley-Bewertungsskala für Entwicklungsordner.
+ */
+window.printPortfolioSheet = function(source, meta = {}, btn = null, bypassHint = false) {
+    const originalText = btn ? btn.innerText : '';
+    if (btn) {
+        btn.innerText = "📄 ...";
+        btn.disabled = true;
+    }
+    const restoreButton = () => {
+        if (btn) {
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }, 2000);
+        }
+    };
+
+    if (!bypassHint && !sessionStorage.getItem('print_hint_shown')) {
+        showPrintHint(() => {
+            sessionStorage.setItem('print_hint_shown', 'true');
+            window.printPortfolioSheet(source, meta, btn, true);
+        });
+        restoreButton();
+        return;
+    }
+
+    const appName = meta.appName || 'Kreativ-Station';
+    const dateStr = meta.date || new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const facilityName = (localStorage.getItem('medienstation_facility_name') || 'MedienStation').trim();
+
+    const resolveData = () => {
+        if (typeof source === 'string' && source.startsWith('data:')) return Promise.resolve(source);
+        if (source instanceof HTMLCanvasElement) return Promise.resolve(source.toDataURL('image/jpeg', 0.92));
+        if (source instanceof HTMLImageElement && source.complete && source.naturalWidth > 0) {
+            return Promise.resolve(getOptimizedPrintDataSync(source, true) || source.src);
+        }
+        if (typeof source === 'string') {
+            return getOptimizedPrintDataAsync(source, true);
+        }
+        return Promise.reject(new Error('Ungültige Bildquelle für Portfolio'));
+    };
+
+    resolveData().then(base64Data => {
+        const safeFacilityName = facilityName.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const safeAppName = appName.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const safeDate = dateStr.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Portfolio: ${safeAppName}</title>
+<style>
+@page {
+    size: A4 portrait;
+    margin: 12mm 14mm 12mm 20mm;
+}
+* {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background: #ffffff;
+    height: 100%;
+}
+.punch-mark-top {
+    position: fixed;
+    left: -14mm;
+    top: 108.5mm;
+    width: 6mm;
+    height: 1px;
+    background: #94a3b8;
+}
+.punch-mark-center {
+    position: fixed;
+    left: -14mm;
+    top: 148.5mm;
+    width: 8mm;
+    height: 1px;
+    background: #cbd5e1;
+}
+.punch-mark-bottom {
+    position: fixed;
+    left: -14mm;
+    top: 188.5mm;
+    width: 6mm;
+    height: 1px;
+    background: #94a3b8;
+}
+.portfolio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #3b82f6;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+.facility-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+}
+.portfolio-badge {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 6px;
+}
+.meta-right {
+    text-align: right;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+.app-pill {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #334155;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+.artwork-container {
+    width: 100%;
+    height: 125mm;
+    max-height: 125mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 6px;
+    margin-bottom: 12px;
+}
+.artwork-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.doc-section {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+.field-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+.field-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.field-line {
+    flex: 1;
+    border-bottom: 1.5px dotted #94a3b8;
+    height: 14px;
+}
+.notes-box {
+    margin-top: 2px;
+}
+.notes-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.note-line {
+    width: 100%;
+    border-bottom: 1.5px dotted #94a3b8;
+    height: 20px;
+}
+.rating-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+.rating-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+}
+.smiley-row {
+    display: flex;
+    gap: 12px;
+    font-size: 20px;
+}
+.smiley-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 50%;
+}
+.portfolio-footer {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+</style>
+</head>
+<body>
+    <div class="punch-mark-top"></div>
+    <div class="punch-mark-center"></div>
+    <div class="punch-mark-bottom"></div>
+
+    <div class="portfolio-header">
+        <div>
+            <span class="facility-title">${safeFacilityName}</span>
+            <span class="portfolio-badge">Entwicklungs-Portfolio</span>
+        </div>
+        <div class="meta-right">
+            <div>Datum: ${safeDate}</div>
+            <div class="app-pill">${safeAppName}</div>
+        </div>
+    </div>
+
+    <div class="artwork-container">
+        <img class="artwork-img" src="${base64Data}" alt="Kunstwerk">
+    </div>
+
+    <div class="doc-section">
+        <div class="field-row">
+            <span class="field-label">🎨 Gestaltet von:</span>
+            <div class="field-line"></div>
+        </div>
+        <div class="field-row">
+            <span class="field-label">✨ Mein Kunstwerk heißt:</span>
+            <div class="field-line"></div>
+        </div>
+        <div class="notes-box">
+            <div class="notes-label">💬 Das habe ich dazu erzählt:</div>
+            <div class="note-line"></div>
+            <div class="note-line"></div>
+            <div class="note-line"></div>
+        </div>
+        <div class="rating-section">
+            <span class="rating-label">So viel Spaß hat es mir gemacht (bitte einkreisen):</span>
+            <div class="smiley-row">
+                <span class="smiley-item" title="Super">😃</span>
+                <span class="smiley-item" title="Gut">😊</span>
+                <span class="smiley-item" title="Geht so">🤔</span>
+                <span class="smiley-item" title="Toll">🥳</span>
+                <span class="smiley-item" title="Meisterwerk">⭐</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="portfolio-footer">
+        <span>📌 DIN A4 Portfolioblatt für den Entwicklungsordner (links lochbar)</span>
+        <span>AV-Medienzentrale • MedienStation Hub</span>
+    </div>
+</body>
+</html>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        iframe.style.left = '-9999px';
+        iframe.style.top = '-9999px';
+        document.body.appendChild(iframe);
+
+        iframe.contentWindow.document.write(html);
+        iframe.contentWindow.document.close();
+
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+
+        if (btn) btn.innerText = "✅ OK";
+        if (window.triggerConfetti) window.triggerConfetti();
+        if (window.playSound) window.playSound('success');
+
+        setTimeout(() => {
+            if (document.body.contains(iframe)) document.body.removeChild(iframe);
+        }, 10000);
+
+        restoreButton();
+    }).catch(err => {
+        console.error("Portfolio-Druckfehler:", err);
+        if (window.showError) window.showError("Portfolio-Bogen konnte nicht erstellt werden.", "📄");
+        if (btn) btn.innerText = "❌";
+        restoreButton();
+    });
+};

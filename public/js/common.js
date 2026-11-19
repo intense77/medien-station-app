@@ -1409,6 +1409,26 @@
         }
     };
 
+    // Drucken eines Meisterwerks als DIN A4 Kita-Portfolio-Bogen
+    window.printMeisterwerkPortfolio = async function(id) {
+        if (!id) return;
+        try {
+            const items = await window.getMeisterwerke();
+            const item = items.find(it => it.id === id);
+            if (item && item.dataUrl && window.printPortfolioSheet) {
+                window.printPortfolioSheet(item.dataUrl, {
+                    appName: item.appName || item.type || 'Meisterwerk',
+                    date: item.date || item.timestamp,
+                    id: item.id
+                });
+            } else if (item && item.dataUrl && window.printImage) {
+                window.printImage(item.dataUrl, item.appName);
+            }
+        } catch(e) {
+            console.warn('[MedienStation] printMeisterwerkPortfolio error:', e);
+        }
+    };
+
     // Fullscreen Lightbox / Großansicht für ein Meisterwerk
     window.viewMeisterwerkDetail = async function(id) {
         const items = await window.getMeisterwerke();
@@ -1449,13 +1469,16 @@
                     </div>
                 ` : ''}
             </div>
-            <div class="w-full max-w-4xl flex items-center justify-center gap-4 pt-2">
+            <div class="w-full max-w-4xl flex items-center justify-center gap-3 md:gap-4 pt-2 flex-wrap">
                 ${isImage && window.printImage ? `
-                    <button onclick="window.printMeisterwerk('${safeId}');" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-blue-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
-                        🖨️ Drucken
+                    <button onclick="window.printMeisterwerk('${safeId}');" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-5 rounded-full shadow-xl border-2 border-blue-400 active:scale-95 transition flex items-center gap-2 text-sm md:text-base cursor-pointer">
+                        🖨️ Foto drucken
+                    </button>
+                    <button onclick="window.printMeisterwerkPortfolio('${safeId}');" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-5 rounded-full shadow-xl border-2 border-emerald-400 active:scale-95 transition flex items-center gap-2 text-sm md:text-base cursor-pointer">
+                        📄 Portfolio-Bogen (A4)
                     </button>
                 ` : ''}
-                <button onclick="window.showConfirm('Dieses Kunstwerk löschen?', () => { window.deleteMeisterwerk('${safeId}'); document.getElementById('meisterwerk-lightbox-modal').style.display='none'; }, '🗑️')" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-6 rounded-full shadow-xl border-2 border-red-400 active:scale-95 transition flex items-center gap-2 text-base cursor-pointer">
+                <button onclick="window.showConfirm('Dieses Kunstwerk löschen?', () => { window.deleteMeisterwerk('${safeId}'); document.getElementById('meisterwerk-lightbox-modal').style.display='none'; }, '🗑️')" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-5 rounded-full shadow-xl border-2 border-red-400 active:scale-95 transition flex items-center gap-2 text-sm md:text-base cursor-pointer">
                     🗑️ Werk löschen
                 </button>
             </div>
@@ -1529,12 +1552,17 @@
                                     🗑️
                                 </button>
                             </div>
-                            <div class="w-full flex items-center justify-between gap-2">
+                            <div class="w-full flex items-center justify-between gap-1.5">
                                 <span class="text-xs font-bold text-amber-400 uppercase tracking-wider truncate">${safeAppName}</span>
                                 ${isImage && window.printImage ? `
-                                    <button onclick="event.stopPropagation(); window.printMeisterwerk('${safeId}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-3 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 shrink-0 cursor-pointer">
-                                        🖨️ Drucken
-                                    </button>
+                                    <div class="flex items-center gap-1 shrink-0">
+                                        <button onclick="event.stopPropagation(); window.printMeisterwerk('${safeId}')" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold py-1 px-2 rounded-lg shadow border border-blue-400 active:scale-95 transition flex items-center gap-1 cursor-pointer" title="Foto drucken">
+                                            🖨️
+                                        </button>
+                                        <button onclick="event.stopPropagation(); window.printMeisterwerkPortfolio('${safeId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold py-1 px-2 rounded-lg shadow border border-emerald-400 active:scale-95 transition flex items-center gap-1 cursor-pointer" title="DIN A4 Portfolio-Bogen drucken">
+                                            📄
+                                        </button>
+                                    </div>
                                 ` : ''}
                             </div>
                         </div>

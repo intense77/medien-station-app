@@ -149,10 +149,11 @@
         <div class="relative w-full max-w-[95%] lg:max-w-[80%] flex-1 min-h-0 border-4 md:border-8 border-white shadow-2xl rounded-xl md:rounded-3xl overflow-hidden bg-black flex items-center justify-center">
             <img id="preview-img-display" class="w-full h-full object-contain" src="">
         </div>
-        <div class="flex-none flex flex-wrap justify-center gap-2 md:gap-6 mt-4 md:mt-8 w-full max-w-3xl px-1">
-            <button onclick="window.closePreview()" class="flex-1 bg-yellow-500 text-black font-black py-3 rounded-xl text-xs md:text-2xl border-b-4 border-yellow-700 active:translate-y-1 active:border-b-0">🔄 NOCHMAL</button>
-            <button onclick="window.printFromPreview(this)" class="flex-1 bg-white text-black font-black py-3 rounded-xl text-xs md:text-2xl border-b-4 border-gray-400 active:translate-y-1 active:border-b-0">🖨️ DRUCKEN</button>
-            <button onclick="window.goHome()" class="flex-1 bg-slate-700 text-white font-black py-3 rounded-xl text-xs md:text-2xl border-b-4 border-slate-900 active:translate-y-1 active:border-b-0">🏠 MENÜ</button>
+        <div class="flex-none flex flex-wrap justify-center gap-2 md:gap-4 mt-4 md:mt-8 w-full max-w-4xl px-1">
+            <button onclick="window.closePreview()" class="flex-1 bg-yellow-500 text-black font-black py-3 rounded-xl text-xs md:text-xl border-b-4 border-yellow-700 active:translate-y-1 active:border-b-0">🔄 NOCHMAL</button>
+            <button onclick="window.printFromPreview(this)" class="flex-1 bg-white text-black font-black py-3 rounded-xl text-xs md:text-xl border-b-4 border-gray-400 active:translate-y-1 active:border-b-0">🖨️ FOTO</button>
+            <button onclick="window.printPortfolioFromPreview(this)" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs md:text-xl border-b-4 border-emerald-800 active:translate-y-1 active:border-b-0">📄 PORTFOLIO</button>
+            <button onclick="window.goHome()" class="flex-1 bg-slate-700 text-white font-black py-3 rounded-xl text-xs md:text-xl border-b-4 border-slate-900 active:translate-y-1 active:border-b-0">🏠 MENÜ</button>
         </div>
     </div>
 
@@ -535,6 +536,14 @@
             if (selfieSegmentation) {
                 selfieSegmentation.close();
                 selfieSegmentation = null;
+            }
+        };
+
+        window.printPortfolioFromPreview = (btn) => {
+            if(window.playSound) window.playSound('click');
+            const imgSrc = document.getElementById('preview-img-display').src;
+            if(window.printPortfolioSheet) {
+                window.printPortfolioSheet(imgSrc, { appName: 'Zauber Selfie' }, btn);
             }
         };
 

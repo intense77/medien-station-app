@@ -203,7 +203,10 @@
                     <span class="text-sm md:text-lg">💾</span> <span>SPEICHERN</span>
                 </button>
                 <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-100 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-gray-300 active:border-b-0 flex items-center justify-center gap-1.5" title="Pixel Bild ausdrucken">
-                    <span class="text-sm md:text-lg">🖨️</span> <span>DRUCK</span>
+                    <span class="text-sm md:text-lg">🖨️</span> <span>FOTO</span>
+                </button>
+                <button onclick="printPortfolioArt(this)" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1.5" title="Pixel Bild als DIN A4 Portfoliobogen drucken">
+                    <span class="text-sm md:text-lg">📄</span> <span>PORTFOLIO</span>
                 </button>
                 <button onclick="confirmClearGrid()" class="flex-1 bg-red-950/80 hover:bg-red-900 text-red-200 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-red-950 active:border-b-0 flex items-center justify-center gap-1.5" title="Gitter komplett leeren">
                     <span class="text-sm md:text-lg">🧹</span> <span>LÖSCHEN</span>
@@ -472,6 +475,20 @@
                 const printImg = document.getElementById('print-img');
                 printImg.src = dataUrl;
                 setTimeout(() => { window.print(); }, 100);
+            }
+        }
+
+        function printPortfolioArt(btn) {
+            if (window.playSound) window.playSound('click');
+            const canvas = generateCanvas();
+            const dataUrl = canvas.toDataURL();
+            if (window.saveToMeisterwerke) {
+                window.saveToMeisterwerke({ type: 'image', appName: 'Pixel Art', title: 'Pixel Bild', dataUrl: dataUrl });
+            }
+            if (window.printPortfolioSheet) {
+                window.printPortfolioSheet(dataUrl, { appName: 'Pixel Art' }, btn);
+            } else if (window.printImage) {
+                window.printImage(dataUrl, 'Pixel', btn);
             }
         }
 
