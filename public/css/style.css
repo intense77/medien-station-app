@@ -3795,10 +3795,6 @@ canvas, video, .pixel-grid, .touch-none {
   background-color: rgb(51 65 85 / var(--tw-bg-opacity, 1));
 }
 
-.hover\:bg-slate-700\/60:hover {
-  background-color: rgb(51 65 85 / 0.6);
-}
-
 .hover\:bg-slate-800:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(30 41 59 / var(--tw-bg-opacity, 1));

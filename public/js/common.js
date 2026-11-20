@@ -528,6 +528,11 @@
             try { window.initAppLanguageSwitcher(); } catch(e) {}
         }
 
+        // Aktive Sprache sofort auf alle Teilbereiche der Seite anwenden
+        if (typeof window.applyTranslations === 'function') {
+            try { window.applyTranslations(window.getLanguage ? window.getLanguage() : 'de'); } catch(e) {}
+        }
+
         // Splashscreen Management (Web & Native)
         const webSplash = document.getElementById('web-splash');
         
@@ -591,32 +596,493 @@
             localStorage.setItem('medienstation_language', lang);
         } catch(e) {}
 
-        // UI-Aktualisierung
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            const bLang = btn.getAttribute('data-lang');
-            if (bLang === lang) {
-                btn.classList.add('bg-amber-400', 'text-slate-950', 'shadow-sm', 'scale-105');
-                btn.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700/60');
-            } else {
-                btn.classList.remove('bg-amber-400', 'text-slate-950', 'shadow-sm', 'scale-105');
-                btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700/60');
-            }
-        });
+        // UI in allen Teilbereichen sofort live anwenden
+        if (typeof window.applyTranslations === 'function') {
+            try { window.applyTranslations(lang); } catch(err) { console.warn('applyTranslations error:', err); }
+        }
 
-        // App-Pills aktualisieren
-        const langConfig = window.LANGUAGES[lang];
-        document.querySelectorAll('.app-lang-pill').forEach(pill => {
-            pill.innerHTML = `<span class="text-sm sm:text-base">${langConfig.flag}</span><span class="text-[11px] sm:text-xs font-black tracking-tight">${langConfig.label}</span>`;
-            pill.title = `Sprache: ${langConfig.name} (Tippen zum Wechseln)`;
-        });
-
+        // Globales Event feuern
         window.dispatchEvent(new CustomEvent('medienstation-language-changed', { detail: { lang } }));
 
         if (announce) {
             if (window.playSound) window.playSound('click');
-            window.speakText(langConfig.hello);
+            const langConfig = window.LANGUAGES[lang];
+            if (langConfig) window.speakText(langConfig.hello);
         }
     };
+
+    // Globales UI-Wörterbuch für alle Teilbereiche (Apps, Hub, Buttons, Modals, Systemmeldungen)
+    window.MedienStation_UI_i18n = {
+        // Buttons & Navigation
+        btn_menu: { de: "MENÜ", en: "MENU", uk: "МЕНЮ", tr: "MENÜ", ar: "القائمة" },
+        btn_instructions: { de: "ANLEITUNG", en: "INSTRUCTIONS", uk: "ІНСТРУКЦІЯ", tr: "TALİMATLAR", ar: "تعليمات" },
+        btn_got_it: { de: "ALLES KLAR! 👍", en: "GOT IT! 👍", uk: "ЗРОЗУМІЛО! 👍", tr: "ANLAŞILDI! 👍", ar: "فهمت! 👍" },
+        btn_understood: { de: "VERSTANDEN", en: "UNDERSTOOD", uk: "ЗРОЗУМІЛО", tr: "ANLADIM", ar: "مفهوم" },
+        btn_save: { de: "SPEICHERN", en: "SAVE", uk: "ЗБЕРЕГТИ", tr: "KAYDET", ar: "حفظ" },
+        btn_print: { de: "DRUCKEN", en: "PRINT", uk: "ДРУКУВАТИ", tr: "YAZDIR", ar: "طباعة" },
+        btn_delete: { de: "LÖSCHEN", en: "DELETE", uk: "ВИДАЛИТИ", tr: "SİL", ar: "حذف" },
+        btn_new: { de: "NEU", en: "NEW", uk: "НОВЕ", tr: "YENİ", ar: "جديد" },
+        btn_again: { de: "NOCHMAL", en: "AGAIN", uk: "ЗНОВУ", tr: "TEKRAR", ar: "مرة أخرى" },
+        btn_photo: { de: "FOTO", en: "PHOTO", uk: "ФОТО", tr: "FOTOĞRAF", ar: "صورة" },
+        btn_action: { de: "ACTION!", en: "ACTION!", uk: "СТАРТ!", tr: "EYLEM!", ar: "حركة!" },
+        btn_magic: { de: "ZAUBERN!", en: "MAGIC!", uk: "ЧАКЛУВАТИ!", tr: "SİHİR!", ar: "سحر!" },
+        btn_play: { de: "FILM ABSPIELEN", en: "PLAY MOVIE", uk: "ВІДТВОРИТИ ФІЛЬМ", tr: "FİLMİ OYNAT", ar: "تشغيل الفيلم" },
+        btn_stop: { de: "STOPP", en: "STOP", uk: "СТОП", tr: "DUR", ar: "إيقاف" },
+        btn_undo: { de: "ZURÜCK", en: "UNDO", uk: "НАЗАД", tr: "GERİ", ar: "تراجع" },
+        btn_close: { de: "SCHLIESSEN", en: "CLOSE", uk: "ЗАКРИТИ", tr: "KAPAT", ar: "إغلاق" },
+
+        // Startseiten Hub-Karten (index.html)
+        hub_sound: { de: "Musik", en: "Music", uk: "Музика", tr: "Müzik", ar: "موسيقى" },
+        hub_rec: { de: "Mikro", en: "Mic", uk: "Мікро", tr: "Mikrofon", ar: "ميكروفون" },
+        hub_gif: { de: "Video", en: "Video", uk: "Відео", tr: "Video", ar: "فيديو" },
+        hub_magic: { de: "Zauber Selfie", en: "Magic Selfie", uk: "Чарівне Селфі", tr: "Sihirli Özçekim", ar: "سيلفي سحري" },
+        hub_pixel: { de: "Pixel", en: "Pixel Art", uk: "Піксель", tr: "Piksel", ar: "بكسل" },
+        hub_news: { de: "Nachrichten", en: "News", uk: "Новини", tr: "Haberler", ar: "أخبار" },
+        hub_stopmotion: { de: "Trickfilm", en: "Stop Motion", uk: "Мультфільм", tr: "Çizgi Film", ar: "رسوم متحركة" },
+        hub_comic: { de: "Comic", en: "Comic", uk: "Комікс", tr: "Çizgi Roman", ar: "قصص مصورة" },
+        hub_gallery: { de: "GALERIE", en: "GALLERY", uk: "ГАЛЕРЕЯ", tr: "GALERİ", ar: "المعرض" },
+        hub_info: { de: "INFO", en: "INFO", uk: "ІНФО", tr: "BİLGİ", ar: "معلومات" },
+        hub_settings: { de: "EINSTELLUNGEN", en: "SETTINGS", uk: "НАЛАШТУВАННЯ", tr: "AYARLAR", ar: "الإعدادات" },
+
+        // System-Dialoge (Idle & Fehler)
+        idle_title: { de: "Bist du noch da?", en: "Are you still there?", uk: "Ти ще тут?", tr: "Hâlâ burada mısın?", ar: "هل ما زلت هنا؟" },
+        idle_desc: { de: "Das Aufräum-Monster räumt gleich auf...", en: "The Cleanup Monster will clean up soon...", uk: "Монстрик скоро почне прибирати...", tr: "Temizlik canavarı toplamak üzere...", ar: "وحش التنظيف على وشك الترتيب..." },
+        idle_btn: { de: "👋 WEITERMACHEN!", en: "👋 KEEP GOING!", uk: "👋 ПРОДОВЖИТИ!", tr: "👋 DEVAM ET!", ar: "👋 متابعة!" },
+
+        error_title: { de: "Hoppla!", en: "Oops!", uk: "Ой!", tr: "Hoppala!", ar: "عفواً!" },
+        error_desc: { de: "Ein Fehler ist aufgetreten.", en: "An error occurred.", uk: "Сталася помилка.", tr: "Bir hata oluştu.", ar: "حدث خطأ." },
+
+        // Benachrichtigungen
+        gallery_saved: { de: "🎨 In Galerie gespeichert!", en: "🎨 Saved to Gallery!", uk: "🎨 Збережено в Галерею!", tr: "🎨 Galeriye kaydedildi!", ar: "🎨 تم الحفظ في المعرض!" },
+        download_started: { de: "📥 Download wurde gestartet!", en: "📥 Download started!", uk: "📥 Завантаження розпочато!", tr: "📥 İndirme başladı!", ar: "📥 بدأ التنزيل!" },
+        cam_paused_msg: {
+            de: "Die Kamera macht gerade Pause! 🔒 Bitte frag eine Fachkraft.",
+            en: "The camera is taking a break! 🔒 Please ask an educator.",
+            uk: "Камера зараз відпочиває! 🔒 Будь ласка, звернись до вихователя.",
+            tr: "Kamera şu an dinleniyor! 🔒 Lütfen bir öğretmene danışın.",
+            ar: "الكاميرا في استراحة مؤقتة! 🔒 يرجى سؤال المعلم."
+        },
+        mic_paused_msg: {
+            de: "Das Mikrofon macht gerade Pause! 🔒 Bitte frag eine Fachkraft.",
+            en: "The microphone is taking a break! 🔒 Please ask an educator.",
+            uk: "Мікрофон зараз відпочиває! 🔒 Будь ласка, звернись до вихователя.",
+            tr: "Mikrofon şu an dinleniyor! 🔒 Lütfen bir öğretmene danışın.",
+            ar: "الميكروفون في استراحة مؤقتة! 🔒 يرجى سؤال المعلم."
+        },
+
+        // Strukturierte App-Anleitungen (HTML für Info-Modals in den 10 Apps)
+        modal_content: {
+            comic: {
+                title: { de: "📸 COMIC STUDIO", en: "📸 COMIC STUDIO", uk: "📸 КОМІКС СТУДІЯ", tr: "📸 ÇİZGİ ROMAN", ar: "📸 استوديو القصص" },
+                steps: {
+                    de: [
+                        "1. <b>Fotografieren:</b> Drücke auf den blauen Kamera-Button 📸 in jedem Bildrahmen, um ein Foto zu machen.",
+                        "2. <b>Texten:</b> Tippe auf den Text in der Blase, um ihn zu ändern. Schiebe die Blase mit dem kleinen Griff ✥.",
+                        "3. <b>Fertig:</b> Wenn deine Geschichte fertig ist, kannst du sie speichern 💾 oder ausdrucken 🖨️."
+                    ],
+                    en: [
+                        "1. <b>Take Photos:</b> Press the blue camera button 📸 in each frame to snap a photo.",
+                        "2. <b>Add Text:</b> Tap the text in the speech bubble to edit it. Drag the bubble using the handle ✥.",
+                        "3. <b>Finished:</b> When your story is ready, you can save it 💾 or print it out 🖨️."
+                    ],
+                    uk: [
+                        "1. <b>Фотографуй:</b> Натисни синю кнопку камери 📸 у кожному кадрі, щоб зробити знімок.",
+                        "2. <b>Додай текст:</b> Торкнися тексту в бульбашці, щоб змінити його. Перетягуй бульбашку за ручку ✥.",
+                        "3. <b>Готово:</b> Коли історія готова, збережи її 💾 або роздрукуй 🖨️."
+                    ],
+                    tr: [
+                        "1. <b>Fotoğraf Çek:</b> Fotoğraf çekmek için her çerçevedeki mavi kamera düğmesine 📸 bas.",
+                        "2. <b>Yazı Yaz:</b> Değiştirmek için konuşma balonundaki yazıya dokun. Balonu koldan ✥ sürükle.",
+                        "3. <b>Bitir:</b> Hikayen bitince kaydedebilir 💾 veya yazdırabilirsin 🖨️."
+                    ],
+                    ar: [
+                        "1. <b>التقاط الصور:</b> اضغط زر الكاميرا الأزرق 📸 في كل إطار لالتقاط صورة.",
+                        "2. <b>إضافة نص:</b> اضغط على النص في الفقاعة لتعديله، وحركها بالمقبض ✥.",
+                        "3. <b>النهاية:</b> عندما تكتمل قصتك، يمكنك حفظها 💾 أو طباعتها 🖨️."
+                    ]
+                }
+            },
+            magic: {
+                title: { de: "✨ ZAUBER SELFIE", en: "✨ MAGIC SELFIE", uk: "✨ ЧАРІВНЕ СЕЛФІ", tr: "✨ SİHİRLİ ÖZÇEKİM", ar: "✨ سيلفي سحري" },
+                steps: {
+                    de: [
+                        "1. Wähle links einen <b>Hintergrund</b>.",
+                        "2. Drücke unten auf <b>ZAUBERN!</b>.",
+                        "3. Stell dich vor die Kamera, und schwupps bist du in einer anderen Welt!"
+                    ],
+                    en: [
+                        "1. Choose a <b>background</b> on the left.",
+                        "2. Tap <b>MAGIC!</b> at the bottom.",
+                        "3. Stand in front of the camera, and presto, you are in another world!"
+                    ],
+                    uk: [
+                        "1. Обери <b>фон</b> ліворуч.",
+                        "2. Натисни <b>ЧАКЛУВАТИ!</b> внизу.",
+                        "3. Стань перед камерою — і вмить опинишся в іншому світі!"
+                    ],
+                    tr: [
+                        "1. Soldan bir <b>arka plan</b> seç.",
+                        "2. Alttaki <b>SİHİR!</b> düğmesine bas.",
+                        "3. Kameranın önüne geç ve bir anda başka bir dünyadasın!"
+                    ],
+                    ar: [
+                        "1. اختر <b>خلفية</b> من اليسار.",
+                        "2. اضغط زر <b>السحر!</b> في الأسفل.",
+                        "3. قف أمام الكاميرا، وفجأة ستصبح في عالم آخر!"
+                    ]
+                }
+            },
+            pixel: {
+                title: { de: "👾 PIXEL LABOR", en: "👾 PIXEL LAB", uk: "👾 ПІКСЕЛЬ-АРТ", tr: "👾 PİKSEL LABORATUVARI", ar: "👾 مختبر البكسل" },
+                cards: {
+                    de: [
+                        { icon: "🎨", title: "1. Malen", text: "Wähle eine <b>Farbe</b> und tippe oder wische über die Quadrate." },
+                        { icon: "🧽", title: "2. Ausbessern", text: "Mit dem <b>Schwamm</b> radieren oder mit <b>ZURÜCK</b> rückgängig machen." },
+                        { icon: "💾", title: "3. Kunstwerk", text: "Speichere dein Pixel-Bild in den <b>Meisterwerken</b> oder drucke es aus!" }
+                    ],
+                    en: [
+                        { icon: "🎨", title: "1. Paint", text: "Choose a <b>color</b> and tap or swipe over the grid." },
+                        { icon: "🧽", title: "2. Fix", text: "Erase with the <b>sponge</b> or tap <b>UNDO</b> to go back." },
+                        { icon: "💾", title: "3. Artwork", text: "Save your pixel art to the <b>Gallery</b> or print it out!" }
+                    ],
+                    uk: [
+                        { icon: "🎨", title: "1. Малювання", text: "Обери <b>колір</b> і торкайся або веди пальцем по квадратиках." },
+                        { icon: "🧽", title: "2. Виправлення", text: "Стирай <b>губкою</b> або натисни <b>НАЗАД</b>." },
+                        { icon: "💾", title: "3. Шедевр", text: "Збережи малюнок у <b>Галерею</b> або роздрукуй!" }
+                    ],
+                    tr: [
+                        { icon: "🎨", title: "1. Çizim", text: "Bir <b>renk</b> seç ve karelerin üzerine dokun ya da parmağını kaydır." },
+                        { icon: "🧽", title: "2. Düzeltme", text: "<b>Süngerle</b> sil veya <b>GERİ</b> ile son adımı geri al." },
+                        { icon: "💾", title: "3. Sanat Eseri", text: "Piksel resmini <b>Galeriye</b> kaydet veya yazdır!" }
+                    ],
+                    ar: [
+                        { icon: "🎨", title: "1. الرسم", text: "اختر <b>لوناً</b> والمس المربعات أو مرر إصبعك عليها." },
+                        { icon: "🧽", title: "2. التعديل", text: "امسح بـ <b>الإسفنجة</b> أو اضغط <b>تراجع</b>." },
+                        { icon: "💾", title: "3. العمل الفني", text: "احفظ عملك في <b>المعرض</b> أو اطبعه!" }
+                    ]
+                }
+            },
+            sound: {
+                title: { de: "🎹 MUSIK LABOR", en: "🎹 MUSIC LAB", uk: "🎹 МУЗИЧНА ЛАБОРАТОРІЯ", tr: "🎹 MÜZİK LABORATUVARI", ar: "🎹 مختبر الموسيقى" },
+                steps: {
+                    de: [
+                        "1. <b>🔴 REC</b>: Nimm einen Ton auf ein freies Pad auf.",
+                        "2. <b>🔁 LOOP</b>: Lass ein Pad sich immer wiederholen.",
+                        "3. <b>⏹ STOP</b>: Beendet alle Töne sofort.",
+                        "Nutze die Monster- und Maus-Filter links für lustige Stimmen!"
+                    ],
+                    en: [
+                        "1. <b>🔴 REC</b>: Record a sound onto an empty pad.",
+                        "2. <b>🔁 LOOP</b>: Set a pad to repeat constantly.",
+                        "3. <b>⏹ STOP</b>: Stop all sounds immediately.",
+                        "Use the monster and mouse filters on the left for funny voices!"
+                    ],
+                    uk: [
+                        "1. <b>🔴 REC</b>: Запиши звук на вільний пад.",
+                        "2. <b>🔁 LOOP</b>: Увімкни повторення паду.",
+                        "3. <b>⏹ STOP</b>: Зупини всі звуки миттєво.",
+                        "Використовуй фільтри монстра та мишки ліворуч для кумедних голосів!"
+                    ],
+                    tr: [
+                        "1. <b>🔴 REC</b>: Boş bir pede ses kaydet.",
+                        "2. <b>🔁 LOOP</b>: Pedin sürekli tekrar etmesini sağla.",
+                        "3. <b>⏹ STOP</b>: Tüm sesleri anında durdur.",
+                        "Komik sesler için soldaki canavar ve fare filtrelerini kullan!"
+                    ],
+                    ar: [
+                        "1. <b>🔴 تسجيل</b>: سجل صوتاً على أي وسادة فارغة.",
+                        "2. <b>🔁 تكرار</b>: اجعل الوسادة تتكرر باستمرار.",
+                        "3. <b>⏹ إيقاف</b>: أوقف جميع الأصوات فوراً.",
+                        "استخدم مؤثرات الوحش والفأر على اليسار لأصوات مضحكة!"
+                    ]
+                }
+            },
+            rec: {
+                title: { de: "🎙️ STIMMENWANDLER", en: "🎙️ VOICE CHANGER", uk: "🎙️ ЗМІНА ГОЛОСУ", tr: "🎙️ SES DEĞİŞTİRİCİ", ar: "🎙️ مغير الصوت" },
+                steps: {
+                    de: [
+                        "Nimm links oder rechts etwas auf.",
+                        "Drücke auf <b>Stopp</b>.",
+                        "Jetzt erscheint Magie! ✨",
+                        "Wähle: 🧟 <b>Monster</b> oder 🐭 <b>Maus</b>.",
+                        "Hör es dir an!"
+                    ],
+                    en: [
+                        "Record something on the left or right.",
+                        "Tap <b>Stop</b>.",
+                        "Now magic happens! ✨",
+                        "Choose: 🧟 <b>Monster</b> or 🐭 <b>Mouse</b>.",
+                        "Listen to it!"
+                    ],
+                    uk: [
+                        "Запиши звук ліворуч або праворуч.",
+                        "Натисни <b>Стоп</b>.",
+                        "Тепер починається магія! ✨",
+                        "Обери: 🧟 <b>Монстра</b> чи 🐭 <b>Мишку</b>.",
+                        "Послухай!"
+                    ],
+                    tr: [
+                        "Solda veya sağda kayıt yap.",
+                        "<b>Dura</b> bas.",
+                        "Şimdi sihir zamanı! ✨",
+                        "Seç: 🧟 <b>Canavar</b> veya 🐭 <b>Fare</b>.",
+                        "Dinle ve eğlen!"
+                    ],
+                    ar: [
+                        "سجل صوتاً في اليمين أو اليسار.",
+                        "اضغط <b>إيقاف</b>.",
+                        "والآن يبدأ السحر! ✨",
+                        "اختر: 🧟 <b>وحش</b> أو 🐭 <b>فأر</b>.",
+                        "استمع إليه!"
+                    ]
+                }
+            },
+            gif: {
+                title: { de: "📹 VIDEO LOOP", en: "📹 VIDEO LOOP", uk: "📹 ВІДЕО-ПЕТЛЯ", tr: "📹 VİDEO DÖNGÜSÜ", ar: "📹 حلقة فيديو" },
+                steps: {
+                    de: [
+                        "1. Wähle links einen <b>Filter</b>.",
+                        "2. Drücke unten auf <b>ACTION!</b>.",
+                        "3. Nach der Aufnahme kannst du rechts das <b>Tempo</b> ändern.",
+                        "4. Mit dem runden Pfeil wechselst du die <b>Kamera</b>."
+                    ],
+                    en: [
+                        "1. Choose a <b>filter</b> on the left.",
+                        "2. Tap <b>ACTION!</b> below.",
+                        "3. After recording, change the <b>speed</b> on the right.",
+                        "4. Tap the circular arrow to switch the <b>camera</b>."
+                    ],
+                    uk: [
+                        "1. Обери <b>фільтр</b> ліворуч.",
+                        "2. Натисни <b>СТАРТ!</b> унизу.",
+                        "3. Після запису змінюй <b>швидкість</b> праворуч.",
+                        "4. Кругла стрілка перемикає <b>камеру</b>."
+                    ],
+                    tr: [
+                        "1. Soldan bir <b>filtre</b> seç.",
+                        "2. Alttaki <b>EYLEM!</b> düğmesine bas.",
+                        "3. Çekimden sonra sağdan <b>hızı</b> ayarla.",
+                        "4. Dairesel okla <b>kamerayı</b> değiştir."
+                    ],
+                    ar: [
+                        "1. اختر <b>مؤثراً</b> من اليسار.",
+                        "2. اضغط زر <b>الحركة!</b> في الأسفل.",
+                        "3. بعد التسجيل يمكنك تغيير <b>السرعة</b> من اليمين.",
+                        "4. السهم الدائري لتبديل <b>الكاميرا</b>."
+                    ]
+                }
+            },
+            news: {
+                title: { de: "📰 NACHRICHTEN STUDIO", en: "📰 NEWS STUDIO", uk: "📰 СТУДІЯ НОВИН", tr: "📰 HABER STÜDYOSU", ar: "📰 استوديو الأخبار" },
+                steps: {
+                    de: [
+                        "✍️ <b>Schlagzeile:</b> Tippe auf den Text im Bild, um ihn zu ändern.",
+                        "🏃 <b>Laufschrift:</b> Tippe auf den gelben Balken für einen eigenen Ticker."
+                    ],
+                    en: [
+                        "✍️ <b>Headline:</b> Tap the text on the screen to change it.",
+                        "🏃 <b>Ticker:</b> Tap the yellow banner to write your own news ticker."
+                    ],
+                    uk: [
+                        "✍️ <b>Заголовок:</b> Торкнися тексту на екрані, щоб змінити його.",
+                        "🏃 <b>Рядок:</b> Натисни на жовту смугу, щоб написати власну новину."
+                    ],
+                    tr: [
+                        "✍️ <b>Manşet:</b> Değiştirmek için ekrandaki metne dokun.",
+                        "🏃 <b>Kayan yazı:</b> Kendi haber bandını yazmak için sarı çubuğa dokun."
+                    ],
+                    ar: [
+                        "✍️ <b>العنوان:</b> اضغط على النص لتغييره.",
+                        "🏃 <b>الشريط الإخباري:</b> اضغط على الشريط الأصفر لكتابة خبرك الخاص."
+                    ]
+                }
+            },
+            galerie: {
+                title: { de: "🎨 UNSERE MEISTERWERKE", en: "🎨 OUR MASTERPIECES", uk: "🎨 НАШІ ШЕДЕВРИ", tr: "🎨 BAŞYAPITLARIMIZ", ar: "🎨 لوحاتنا الفنية" }
+            },
+            info: {
+                title: { de: "💡 INFO & HANDREICHUNG", en: "💡 INFO & GUIDE", uk: "💡 ІНФО ТА КЕРІВНИЦТВО", tr: "💡 BİLGİ & REHBER", ar: "💡 معلومات وإرشادات" }
+            }
+        }
+    };
+
+    // Wendet die gewählte Sprache live auf das gesamte DOM aller Apps & des Hubs an
+    window.applyTranslations = function(lang) {
+        if (!lang || !window.LANGUAGES[lang]) lang = window.getLanguage ? window.getLanguage() : 'de';
+        const dict = window.MedienStation_UI_i18n;
+        if (!dict) return;
+
+        // 1. HTML lang & RTL/LTR Text-Richtung (Arabisch benötigt RTL)
+        try {
+            document.documentElement.lang = lang;
+            document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        } catch(e) {}
+
+        // 2. Menü-Buttons (.btn-home)
+        document.querySelectorAll('.btn-home').forEach(btn => {
+            btn.title = dict.btn_menu[lang] || 'MENÜ';
+            const span = btn.querySelector('span');
+            if (span) span.innerText = dict.btn_menu[lang] || 'MENÜ';
+        });
+
+        // 3. Info-Modal Buttons ("ALLES KLAR!", "VERSTANDEN")
+        document.querySelectorAll('#info-modal button').forEach(btn => {
+            const txt = (btn.innerText || '').trim();
+            if (txt.includes('ALLES KLAR') || txt.includes('GOT IT') || txt.includes('ЗРОЗУМІЛО') || txt.includes('ANLAŞILDI') || txt.includes('فهمت')) {
+                btn.innerText = dict.btn_got_it[lang] || 'ALLES KLAR! 👍';
+            } else if (txt.includes('VERSTANDEN') || txt.includes('UNDERSTOOD') || txt.includes('ANLADIM') || txt.includes('مفهوم')) {
+                btn.innerText = dict.btn_understood[lang] || 'VERSTANDEN';
+            }
+        });
+
+        // 4. Idle Warning Modal ("Bist du noch da?", "Aufräum-Monster", "WEITERMACHEN")
+        const idleModal = document.getElementById('idle-warning-modal');
+        if (idleModal) {
+            const h2 = idleModal.querySelector('h2');
+            if (h2) h2.innerText = dict.idle_title[lang] || dict.idle_title.de;
+            const p = idleModal.querySelector('p');
+            if (p) p.innerText = dict.idle_desc[lang] || dict.idle_desc.de;
+            const b = idleModal.querySelector('button');
+            if (b) b.innerText = dict.idle_btn[lang] || dict.idle_btn.de;
+        }
+
+        // 5. Error Modal ("Hoppla!", "Fehler", "VERSTANDEN")
+        const errModal = document.getElementById('error-modal');
+        if (errModal) {
+            const h2 = errModal.querySelector('h2');
+            if (h2) h2.innerText = dict.error_title[lang] || dict.error_title.de;
+            const p = errModal.querySelector('p');
+            if (p) p.innerText = dict.error_desc[lang] || dict.error_desc.de;
+            const b = errModal.querySelector('button');
+            if (b) b.innerText = dict.btn_understood[lang] || 'VERSTANDEN';
+        }
+
+        // 6. Home Screen App Cards (index.html)
+        document.querySelectorAll('.app-card').forEach(card => {
+            const h3 = card.querySelector('h3');
+            if (!h3) return;
+            const onclickAttr = card.getAttribute('onclick') || '';
+            if (onclickAttr.includes('sound.html')) h3.innerText = dict.hub_sound[lang] || 'Musik';
+            else if (onclickAttr.includes('rec.html')) h3.innerText = dict.hub_rec[lang] || 'Mikro';
+            else if (onclickAttr.includes('gif.html')) h3.innerText = dict.hub_gif[lang] || 'Video';
+            else if (onclickAttr.includes('magic.html')) h3.innerText = dict.hub_magic[lang] || 'Zauber Selfie';
+            else if (onclickAttr.includes('pixel.html')) h3.innerText = dict.hub_pixel[lang] || 'Pixel';
+            else if (onclickAttr.includes('news.html')) h3.innerText = dict.hub_news[lang] || 'Nachrichten';
+            else if (onclickAttr.includes('stopmotion.html')) h3.innerText = dict.hub_stopmotion[lang] || 'Trickfilm';
+            else if (onclickAttr.includes('comic.html')) h3.innerText = dict.hub_comic[lang] || 'Comic';
+        });
+
+        // 7. Top Navigation Buttons & Header (index.html)
+        const galleryBtnSpan = document.getElementById('hub-btn-galerie') || document.querySelector('button[title*="Galerie"] span:last-child');
+        if (galleryBtnSpan) galleryBtnSpan.innerText = dict.hub_gallery[lang] || 'GALERIE';
+
+        const infoBtnSpan = document.getElementById('hub-btn-info') || document.querySelector('button[title*="Handreichung"] span:last-child');
+        if (infoBtnSpan) infoBtnSpan.innerText = dict.hub_info[lang] || 'INFO';
+
+        const settingsBtnSpan = document.getElementById('hub-btn-settings') || document.querySelector('button[title*="Einstellungen"] span:last-child');
+        if (settingsBtnSpan) settingsBtnSpan.innerText = dict.hub_settings[lang] || 'EINSTELLUNGEN';
+
+        const missionBadge = document.getElementById('mission-badge');
+        if (missionBadge && window.MedienStation_i18n && window.MedienStation_i18n.mission_badge) {
+            missionBadge.innerText = window.MedienStation_i18n.mission_badge[lang] || window.MedienStation_i18n.mission_badge.de;
+        }
+
+        const missionBtn = document.getElementById('new-mission-btn-text');
+        if (missionBtn && window.MedienStation_i18n && window.MedienStation_i18n.mission_btn) {
+            missionBtn.innerText = window.MedienStation_i18n.mission_btn[lang] || window.MedienStation_i18n.mission_btn.de;
+        }
+
+        // 8. Info-Modal Inhalte der jeweiligen Sub-App dynamisch aktualisieren
+        const path = window.location.pathname || '';
+        let appKey = null;
+        if (path.includes('comic.html')) appKey = 'comic';
+        else if (path.includes('magic.html')) appKey = 'magic';
+        else if (path.includes('pixel.html')) appKey = 'pixel';
+        else if (path.includes('sound.html')) appKey = 'sound';
+        else if (path.includes('rec.html')) appKey = 'rec';
+        else if (path.includes('gif.html')) appKey = 'gif';
+        else if (path.includes('news.html')) appKey = 'news';
+        else if (path.includes('stopmotion.html')) appKey = 'stopmotion';
+        else if (path.includes('galerie.html')) appKey = 'galerie';
+        else if (path.includes('info.html')) appKey = 'info';
+
+        if (appKey && dict.modal_content && dict.modal_content[appKey]) {
+            const appI18n = dict.modal_content[appKey];
+            const infoModal = document.getElementById('info-modal');
+            if (infoModal) {
+                // Steps / Punkte aktualisieren
+                if (appI18n.steps && appI18n.steps[lang]) {
+                    const stepItems = appI18n.steps[lang];
+                    const pList = infoModal.querySelectorAll('.space-y-4 p, .space-y-3 p, ul li, .grid p');
+                    if (pList && pList.length > 0) {
+                        stepItems.forEach((st, idx) => {
+                            if (pList[idx]) pList[idx].innerHTML = st;
+                        });
+                    }
+                }
+
+                // Speziell für Pixel Art Karten
+                if (appKey === 'pixel' && appI18n.cards && appI18n.cards[lang]) {
+                    const cards = appI18n.cards[lang];
+                    const cardCols = infoModal.querySelectorAll('.grid > div');
+                    cards.forEach((c, idx) => {
+                        if (cardCols[idx]) {
+                            const h3 = cardCols[idx].querySelector('h3');
+                            if (h3) h3.innerText = c.title;
+                            const p = cardCols[idx].querySelector('p');
+                            if (p) p.innerHTML = c.text;
+                        }
+                    });
+                }
+            }
+
+            // Seiten-Header Titel aktualisieren (h1 in Galerie oder Info)
+            if (appKey === 'galerie') {
+                const h1 = document.querySelector('h1');
+                if (h1 && appI18n.title && appI18n.title[lang]) {
+                    h1.innerHTML = `<span>🎨</span> ${appI18n.title[lang].replace(/[\u{1F300}-\u{1FAFF}]/gu, '').trim()}`;
+                }
+            } else if (appKey === 'info') {
+                const h1 = document.querySelector('h1');
+                if (h1 && appI18n.title && appI18n.title[lang]) {
+                    h1.innerHTML = `<span>💡</span> ${appI18n.title[lang].replace(/[\u{1F300}-\u{1FAFF}]/gu, '').trim()}`;
+                }
+            }
+        }
+
+        // 9. Alle Flaggen-Pills aktualisieren
+        const langConfig = window.LANGUAGES[lang];
+        if (langConfig) {
+            document.querySelectorAll('.app-lang-pill').forEach(pill => {
+                pill.innerHTML = `<span class="text-sm sm:text-base">${langConfig.flag}</span><span class="text-[11px] sm:text-xs font-black tracking-tight">${langConfig.label}</span>`;
+                pill.title = `Sprache: ${langConfig.name} (Tippen zum Wechseln)`;
+            });
+        }
+
+        // 10. Admin-Panel UI synchronisieren
+        document.querySelectorAll('.admin-lang-btn').forEach(b => {
+            const bLang = b.getAttribute('data-admin-lang');
+            if (bLang === lang) {
+                b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer bg-amber-400 text-slate-950 border-amber-300 shadow-md scale-105';
+            } else {
+                b.className = 'admin-lang-btn flex items-center justify-center gap-1.5 p-2.5 rounded-xl text-xs font-black border transition cursor-pointer bg-slate-900/60 text-slate-300 border-slate-700 hover:border-slate-500';
+            }
+        });
+        const adminBadge = document.getElementById('admin-current-lang-badge');
+        if (adminBadge && langConfig) {
+            adminBadge.innerText = `${langConfig.name} ${langConfig.flag}`;
+        }
+    };
+
+    // Cross-Tab & Cross-Window Synchronisation in Echtzeit
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'medienstation_language' && e.newValue) {
+            if (typeof window.applyTranslations === 'function') {
+                window.applyTranslations(e.newValue);
+            }
+            window.dispatchEvent(new CustomEvent('medienstation-language-changed', { detail: { lang: e.newValue } }));
+        }
+    });
 
     window.MedienStation_i18n = {
         app_pixel: {
@@ -749,13 +1215,28 @@
             return textOrKey;
         }
 
-        // 1. Direkter Key
+        // 1. Direkter Key in i18n oder UI_i18n
+        if (window.MedienStation_UI_i18n && window.MedienStation_UI_i18n[textOrKey] && window.MedienStation_UI_i18n[textOrKey][lang]) {
+            return window.MedienStation_UI_i18n[textOrKey][lang];
+        }
         if (window.MedienStation_i18n[textOrKey] && window.MedienStation_i18n[textOrKey][lang]) {
             return window.MedienStation_i18n[textOrKey][lang];
         }
 
         // 2. Signatur-Erkennung bei deutschen Texten
         const str = String(textOrKey).trim();
+        if (str.includes('Kamera macht gerade Pause') || str.includes('Kamera macht Pause')) {
+            return (window.MedienStation_UI_i18n && window.MedienStation_UI_i18n.cam_paused_msg && window.MedienStation_UI_i18n.cam_paused_msg[lang]) || window.MedienStation_i18n.cam_pause[lang] || textOrKey;
+        }
+        if (str.includes('Mikrofon macht gerade Pause') || str.includes('Mikrofon macht Pause')) {
+            return (window.MedienStation_UI_i18n && window.MedienStation_UI_i18n.mic_paused_msg && window.MedienStation_UI_i18n.mic_paused_msg[lang]) || textOrKey;
+        }
+        if (str.includes('In Galerie gespeichert')) {
+            return (window.MedienStation_UI_i18n && window.MedienStation_UI_i18n.gallery_saved && window.MedienStation_UI_i18n.gallery_saved[lang]) || textOrKey;
+        }
+        if (str.includes('Download wurde gestartet') || str.includes('Download gestartet')) {
+            return (window.MedienStation_UI_i18n && window.MedienStation_UI_i18n.download_started && window.MedienStation_UI_i18n.download_started[lang]) || textOrKey;
+        }
         if (str.startsWith('Anleitung für das Pixel Labor') || str.startsWith('Pixel Labor')) {
             return window.MedienStation_i18n.app_pixel[lang] || textOrKey;
         }
@@ -1507,6 +1988,7 @@
     // --- Kindgerechtes / Fachkraft Toast-Alert-System ---
     window.showCustomAlert = function(msg, icon = 'ℹ️') {
         try {
+            const translatedMsg = (typeof window.t === 'function') ? window.t(msg) : msg;
             let box = document.getElementById('custom-alert-box');
             if (!box) {
                 box = document.createElement('div');
@@ -1514,7 +1996,7 @@
                 box.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999999; max-width: 90%; background-color: #1e293b; border: 2px solid #3b82f6; box-shadow: 0 10px 35px rgba(0,0,0,0.85); border-radius: 1rem; padding: 12px 20px; color: white; display: flex; align-items: center; gap: 12px; pointer-events: none; transition: all 0.3s ease; opacity: 0;';
                 document.body.appendChild(box);
             }
-            box.innerHTML = `<span style="font-size: 26px; line-height: 1;">${icon}</span><span style="font-weight: 800; font-size: 15px;">${msg}</span>`;
+            box.innerHTML = `<span style="font-size: 26px; line-height: 1;">${icon}</span><span style="font-weight: 800; font-size: 15px;">${translatedMsg}</span>`;
             box.style.opacity = '1';
             box.style.transform = 'translateX(-50%) translateY(0)';
             clearTimeout(box._timer);
