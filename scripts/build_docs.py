@@ -1345,7 +1345,8 @@ def generate_kita_einrichtung_html(is_public_docs=False):
                 <div class="step-box">
                     <h3>🤖 Android: „App anheften / Fixieren“</h3>
                     <p><strong>Einmalig einrichten:</strong> <em>Einstellungen &rarr; Sicherheit &rarr; App-Anheften (Bildschirm fixieren)</em> aktivieren + Entsperr-PIN einschalten.</p>
-                    <p><strong>Im Kita-Alltag:</strong> App-Übersicht öffnen &rarr; auf das MedienStation-Icon tippen &rarr; <strong>„Anheften“</strong> wählen. Kinder können die App nicht mehr verlassen.</p>
+                    <p><strong>Im Kita-Alltag:</strong> App-Übersicht öffnen &rarr; auf das MedienStation-Icon tippen &rarr; <strong>„Anheften“</strong> wählen. Verhindert sowohl das Verlassen der App als auch Split-Screen und das Verkleinern/Verschieben als Pop-up-Fenster.</p>
+                    <p><strong>Tipp (Samsung Galaxy Tab):</strong> Unter <em>Einstellungen &rarr; Erweiterte Funktionen &rarr; Multi Window</em> zusätzlich <strong>„Für Pop-up-Ansicht wischen“</strong> ausschalten.</p>
                 </div>
             </div>
 

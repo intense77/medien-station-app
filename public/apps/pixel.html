@@ -168,48 +168,48 @@
         </div>
 
         <!-- Werkzeugleiste (Passt perfekt in Hoch- und Querformat) -->
-        <aside class="bg-slate-800/95 backdrop-blur-md p-2 sm:p-3 md:p-4 rounded-2xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col justify-between gap-2 md:gap-3 shadow-2xl w-full md:w-56 lg:w-64 landscape:w-56 md:landscape:w-64 h-auto md:h-full landscape:h-full shrink-0 overflow-hidden">
+        <aside class="bg-slate-800/95 backdrop-blur-md p-2 sm:p-3 md:p-3.5 rounded-2xl md:rounded-[2rem] border-2 md:border-4 border-slate-700 flex flex-col justify-between gap-2 md:gap-2.5 shadow-2xl w-full md:w-64 lg:w-72 landscape:w-64 md:landscape:w-72 h-auto md:h-full landscape:h-full shrink-0 overflow-y-auto no-scrollbar">
             
             <!-- Farb-Palette (12 kindgerechte Farben inkl. Radierer) -->
-            <div class="grid grid-cols-6 md:grid-cols-3 landscape:grid-cols-4 md:landscape:grid-cols-3 gap-1.5 sm:gap-2 md:gap-3 justify-items-center items-center w-full shrink-0" id="palette">
+            <div class="grid grid-cols-6 md:grid-cols-4 landscape:grid-cols-4 gap-1.5 sm:gap-2 justify-items-center items-center w-full shrink-0" id="palette">
                 <!-- Schwarz & Weiß -->
-                <div class="color-btn active-color shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-black border-2 border-slate-600 shadow-md" style="background-color: #000000; border-color: #475569;" data-color="#000000" onclick="setColor(this)" title="Schwarz"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-white border-2 border-slate-400 shadow-md" style="background-color: #ffffff; border-color: #94a3b8;" data-color="#ffffff" onclick="setColor(this)" title="Weiß"></div>
+                <div class="color-btn active-color shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-black border-2 border-slate-600 shadow-md" style="background-color: #000000; border-color: #475569;" data-color="#000000" onclick="setColor(this)" title="Schwarz"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-white border-2 border-slate-400 shadow-md" style="background-color: #ffffff; border-color: #94a3b8;" data-color="#ffffff" onclick="setColor(this)" title="Weiß"></div>
                 
                 <!-- Bunte Farben -->
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-red-500 border-2 border-red-700 shadow-md" style="background-color: #ef4444; border-color: #b91c1c;" data-color="#ef4444" onclick="setColor(this)" title="Rot"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-orange-500 border-2 border-orange-700 shadow-md" style="background-color: #f97316; border-color: #c2410c;" data-color="#f97316" onclick="setColor(this)" title="Orange"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-yellow-400 border-2 border-yellow-600 shadow-md" style="background-color: #facc15; border-color: #ca8a04;" data-color="#facc15" onclick="setColor(this)" title="Gelb"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-emerald-500 border-2 border-emerald-700 shadow-md" style="background-color: #10b981; border-color: #047857;" data-color="#10b981" onclick="setColor(this)" title="Grün"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-cyan-400 border-2 border-cyan-600 shadow-md" style="background-color: #06b6d4; border-color: #0891b2;" data-color="#06b6d4" onclick="setColor(this)" title="Cyan / Türkis"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-blue-500 border-2 border-blue-700 shadow-md" style="background-color: #3b82f6; border-color: #1d4ed8;" data-color="#3b82f6" onclick="setColor(this)" title="Blau"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-purple-500 border-2 border-purple-700 shadow-md" style="background-color: #a855f7; border-color: #7e22ce;" data-color="#a855f7" onclick="setColor(this)" title="Lila"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-pink-500 border-2 border-pink-700 shadow-md" style="background-color: #ec4899; border-color: #be185d;" data-color="#ec4899" onclick="setColor(this)" title="Pink"></div>
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-amber-800 border-2 border-amber-950 shadow-md" style="background-color: #78350f; border-color: #451a03;" data-color="#78350f" onclick="setColor(this)" title="Braun"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-red-500 border-2 border-red-700 shadow-md" style="background-color: #ef4444; border-color: #b91c1c;" data-color="#ef4444" onclick="setColor(this)" title="Rot"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-orange-500 border-2 border-orange-700 shadow-md" style="background-color: #f97316; border-color: #c2410c;" data-color="#f97316" onclick="setColor(this)" title="Orange"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-yellow-400 border-2 border-yellow-600 shadow-md" style="background-color: #facc15; border-color: #ca8a04;" data-color="#facc15" onclick="setColor(this)" title="Gelb"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-emerald-500 border-2 border-emerald-700 shadow-md" style="background-color: #10b981; border-color: #047857;" data-color="#10b981" onclick="setColor(this)" title="Grün"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-cyan-400 border-2 border-cyan-600 shadow-md" style="background-color: #06b6d4; border-color: #0891b2;" data-color="#06b6d4" onclick="setColor(this)" title="Cyan / Türkis"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-blue-500 border-2 border-blue-700 shadow-md" style="background-color: #3b82f6; border-color: #1d4ed8;" data-color="#3b82f6" onclick="setColor(this)" title="Blau"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-purple-500 border-2 border-purple-700 shadow-md" style="background-color: #a855f7; border-color: #7e22ce;" data-color="#a855f7" onclick="setColor(this)" title="Lila"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-pink-500 border-2 border-pink-700 shadow-md" style="background-color: #ec4899; border-color: #be185d;" data-color="#ec4899" onclick="setColor(this)" title="Pink"></div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-amber-800 border-2 border-amber-950 shadow-md" style="background-color: #78350f; border-color: #451a03;" data-color="#78350f" onclick="setColor(this)" title="Braun"></div>
                 
                 <!-- Radierer -->
-                <div class="color-btn shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-xl bg-slate-700 border-2 border-slate-500 flex items-center justify-center text-sm sm:text-base md:text-2xl shadow-md" style="background-color: #334155; border-color: #64748b;" data-color="#ffffff" data-eraser="true" onclick="setColor(this)" title="Radierer">🧽</div>
+                <div class="color-btn shrink-0 w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-slate-700 border-2 border-slate-500 flex items-center justify-center text-sm sm:text-base md:text-xl shadow-md" style="background-color: #334155; border-color: #64748b;" data-color="#ffffff" data-eraser="true" onclick="setColor(this)" title="Radierer">🧽</div>
             </div>
 
             <!-- Trenner -->
             <div class="h-0.5 w-full bg-slate-700 my-0.5 hidden md:block landscape:block rounded-full shrink-0"></div>
 
-            <!-- Aktionen -->
-            <div class="flex flex-row md:flex-col landscape:flex-col gap-1.5 md:gap-2.5 w-full shrink-0 justify-center">
-                <button onclick="undo()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-100 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-slate-900 active:border-b-0 flex items-center justify-center gap-1.5" title="Schritt zurück">
-                    <span class="text-sm md:text-lg">↩️</span> <span>ZURÜCK</span>
-                </button>
-                <button onclick="saveArt(this)" class="flex-1 bg-amber-400 text-slate-950 hover:bg-amber-300 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-amber-600 active:border-b-0 flex items-center justify-center gap-1.5" title="In Galerie speichern">
+            <!-- Aktionen (2-Spalten-Raster im Querformat, damit alle 5 Buttons immer voll sichtbar sind) -->
+            <div class="flex flex-row md:grid md:grid-cols-2 landscape:grid landscape:grid-cols-2 gap-1.5 md:gap-2 w-full shrink-0">
+                <button onclick="saveArt(this)" class="flex-1 md:col-span-2 landscape:col-span-2 bg-amber-400 text-slate-950 hover:bg-amber-300 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-amber-600 active:border-b-0 flex items-center justify-center gap-1.5" title="In Galerie speichern">
                     <span class="text-sm md:text-lg">💾</span> <span>SPEICHERN</span>
                 </button>
-                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-100 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-gray-300 active:border-b-0 flex items-center justify-center gap-1.5" title="Pixel Bild ausdrucken">
-                    <span class="text-sm md:text-lg">🖨️</span> <span>FOTO</span>
+                <button onclick="undo()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-100 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-slate-900 active:border-b-0 flex items-center justify-center gap-1" title="Schritt zurück">
+                    <span class="text-sm md:text-base">↩️</span> <span>ZURÜCK</span>
                 </button>
-                <button onclick="printPortfolioArt(this)" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1.5" title="Pixel Bild als DIN A4 Portfoliobogen drucken">
-                    <span class="text-sm md:text-lg">📄</span> <span>PORTFOLIO</span>
+                <button onclick="printArt(this)" class="flex-1 bg-white text-emerald-900 hover:bg-gray-100 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-gray-300 active:border-b-0 flex items-center justify-center gap-1" title="Pixel Bild ausdrucken">
+                    <span class="text-sm md:text-base">🖨️</span> <span>FOTO</span>
                 </button>
-                <button onclick="confirmClearGrid()" class="flex-1 bg-red-950/80 hover:bg-red-900 text-red-200 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm md:text-base shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-red-950 active:border-b-0 flex items-center justify-center gap-1.5" title="Gitter komplett leeren">
-                    <span class="text-sm md:text-lg">🧹</span> <span>LÖSCHEN</span>
+                <button onclick="printPortfolioArt(this)" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-emerald-800 active:border-b-0 flex items-center justify-center gap-1" title="Pixel Bild als DIN A4 Portfoliobogen drucken">
+                    <span class="text-sm md:text-base">📄</span> <span>PORTFOLIO</span>
+                </button>
+                <button onclick="confirmClearGrid()" class="flex-1 bg-red-950/80 hover:bg-red-900 text-red-200 py-1.5 sm:py-2 md:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm shadow-md active:translate-y-0.5 transition border-b-2 md:border-b-4 border-red-950 active:border-b-0 flex items-center justify-center gap-1" title="Gitter komplett leeren">
+                    <span class="text-sm md:text-base">🧹</span> <span>LÖSCHEN</span>
                 </button>
             </div>
         </aside>

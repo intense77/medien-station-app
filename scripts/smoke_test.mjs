@@ -221,6 +221,67 @@ async function main() {
         // Aufräumen
         await page.evaluate(() => window.setCameraRestricted(false));
 
+        // 4. Tablet-Viewport-Check: Keine abgeschnittenen/unerreichbaren Buttons im Quer- & Hochformat
+        const tabletRoutes = [
+            '/index.html?skip_splash=1',
+            '/apps/pixel.html',
+            '/apps/sound.html',
+            '/apps/rec.html',
+            '/apps/gif.html',
+            '/apps/magic.html',
+            '/apps/news.html',
+            '/apps/stopmotion.html',
+            '/apps/comic.html'
+        ];
+        const viewports = [
+            { name: 'Tablet-Quer-1024x600', width: 1024, height: 600 },
+            { name: 'iPad-Quer-1024x768', width: 1024, height: 768 },
+            { name: 'iPad-Hoch-768x1024', width: 768, height: 1024 }
+        ];
+        let clippedCount = 0;
+        for (const vp of viewports) {
+            await page.setViewportSize({ width: vp.width, height: vp.height });
+            for (const r of tabletRoutes) {
+                currentRoute = `${vp.name}:${r}`;
+                await page.goto(baseUrl + r, { waitUntil: 'domcontentloaded', timeout: 15000 });
+                await page.waitForTimeout(150);
+                const clipped = await page.evaluate(() => {
+                    const out = [];
+                    document.querySelectorAll('button').forEach(btn => {
+                        const st = getComputedStyle(btn);
+                        if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return;
+                        if (btn.closest('.hidden, [style*="display: none"], [style*="display:none"]')) return;
+                        const rect = btn.getBoundingClientRect();
+                        if (rect.width === 0 || rect.height === 0) return;
+                        let p = btn.parentElement;
+                        let scrollableAncestor = false;
+                        while (p && p !== document.documentElement) {
+                            const ps = getComputedStyle(p);
+                            const pr = p.getBoundingClientRect();
+                            if (ps.overflowY === 'auto' || ps.overflowY === 'scroll' || ps.overflowX === 'auto' || ps.overflowX === 'scroll') {
+                                scrollableAncestor = true;
+                            }
+                            if (!scrollableAncestor && (ps.overflow === 'hidden' || ps.overflowY === 'hidden' || ps.overflowX === 'hidden')) {
+                                if (rect.bottom > pr.bottom + 2 || rect.right > pr.right + 2 || rect.top < pr.top - 2 || rect.left < pr.left - 2) {
+                                    out.push((btn.innerText || btn.title || btn.id || 'button').replace(/\s+/g, ' ').trim().slice(0, 30));
+                                    break;
+                                }
+                            }
+                            p = p.parentElement;
+                        }
+                    });
+                    return out;
+                });
+                if (clipped.length > 0) {
+                    clippedCount += clipped.length;
+                    failures.push(`[Abgeschnittene Buttons auf ${vp.name} ${r}] ${clipped.join(', ')}`);
+                }
+            }
+        }
+        if (clippedCount === 0) {
+            console.log('  ✅ Tablet-Viewport-Check (Quer- & Hochformat): 0 abgeschnittene Buttons');
+        }
+
     } finally {
         await browser.close();
         server.close();
