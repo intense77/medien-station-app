@@ -14,6 +14,29 @@
     // Hilfsfunktion: Sind wir in einer App oder auf dem Hub?
     const isSubApp = window.location.pathname.includes('/apps/');
 
+    // --- 0b. Browser-Autotranslate-Sperre (Verhindert fehlerhafte Browser-Übersetzungen) ---
+    function lockBrowserTranslation() {
+        try {
+            document.documentElement.lang = 'de';
+            document.documentElement.setAttribute('translate', 'no');
+            document.documentElement.classList.add('notranslate');
+            if (document.body) {
+                document.body.setAttribute('translate', 'no');
+                document.body.classList.add('notranslate');
+            }
+            if (document.head && !document.querySelector('meta[name="google"][content="notranslate"]')) {
+                const meta = document.createElement('meta');
+                meta.name = 'google';
+                meta.content = 'notranslate';
+                document.head.appendChild(meta);
+            }
+        } catch(e) {}
+    }
+    lockBrowserTranslation();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', lockBrowserTranslation);
+    }
+
     // --- 0. Cleanup Funktion (Speicher freigeben) ---
     window.cleanupSessionFiles = function() {
         // Nur ausführen, wenn wir auf dem Gerät sind (Cordova File Plugin)
@@ -912,9 +935,9 @@
         const dict = window.MedienStation_UI_i18n;
         if (!dict) return;
 
-        // 1. HTML lang & RTL/LTR Text-Richtung (Arabisch benötigt RTL)
+        // 1. Browser-Autotranslate zuverlässig sperren & RTL/LTR Text-Richtung (Arabisch benötigt RTL)
         try {
-            document.documentElement.lang = lang;
+            lockBrowserTranslation();
             document.documentElement.dir = (lang === 'ar') ? 'rtl' : 'ltr';
         } catch(e) {}
 
